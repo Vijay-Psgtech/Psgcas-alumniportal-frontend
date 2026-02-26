@@ -8,7 +8,7 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
   timeout: 10000, // 10 seconds timeout
-  withCredentials,
+  withCredentials: true,
 });
 
 // RESPONSE INTERCEPTOR — handle 401/403 globally
