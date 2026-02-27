@@ -7,7 +7,6 @@
 
 import React, { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -27,15 +26,6 @@ const AlumniLogin = () => {
     setPassword("");
     setErrors({});
   }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
-  };
 
   const validateForm = useCallback(() => {
     const newErrors = {};
@@ -155,7 +145,7 @@ const AlumniLogin = () => {
               {/* Submit */}
               <div className="flex justify-between items-center text-sm">
                 <button type="button" className="text-blue-600 hover:underline">
-                  Forgot Password?
+                  <Link to="/alumni/forgot-password">Forgot Password?</Link>
                 </button>
               </div>
 

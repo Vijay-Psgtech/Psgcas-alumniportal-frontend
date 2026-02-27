@@ -219,7 +219,7 @@ const AlumniRegistration = () => {
             Join Alumni Network
           </h1>
           <p className="text-sm text-gray-600 font-light">
-            Register to connect with fellow PSG Tech alumni worldwide
+            Register to connect with fellow PSG CAS alumni worldwide
           </p>
         </div>
 
