@@ -171,7 +171,7 @@ const AlumniLogin = () => {
                   type="submit"
                   className="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg shadow"
                 >
-                  SIGN IN
+                  {loading ? "Signing In..." : "Sign In"}
                 </button>
               </div>
               <div className="text-center text-sm text-gray-600 mt-6">

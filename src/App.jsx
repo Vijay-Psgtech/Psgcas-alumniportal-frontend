@@ -6,6 +6,8 @@ import ScrolltoTop from "./components/ScrolltoTop";
 import AlumniRegistration from "./pages/alumni/AlumniRegistration";
 import AlumniLogin from "./pages/alumni/AlumniLogin";
 
+import AdminLogin from "./pages/admin/AdminLogin";
+
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
   const { user, authLoading } = useAuth();
@@ -16,6 +18,15 @@ const PublicOnlyRoute = ({ children }) => {
   if (user.isApproved) return <Navigate to="/alumni/profile" replace />;
   return children; // pending alumni can still see registration page
 };
+
+// ── Redirects logged-in ADMIN away from admin login ──────────────
+const AdminPublicOnlyRoute = ({ children }) => {
+  const { user, authLoading } = useAuth();
+  if (authLoading) return <AppLoader />;
+  if (user?.isAdmin && user?.isApproved) return <Navigate to="/admin/dashboard" replace />;
+  return children;
+};
+
 
 // ── Full-screen spinner while AuthContext verifies the token ──────
 const AppLoader = () => (
@@ -42,7 +53,10 @@ function AppRoutes() {
         {/* ALUMNI AUTH */}
         <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
         <Route path="alumni/login"    element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
-        
+
+        {/* ADMIN */}
+        <Route path="admin" element={<AdminPublicOnlyRoute><AdminLogin /></AdminPublicOnlyRoute>} />
+
       </Routes>
     </>
   );
