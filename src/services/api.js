@@ -37,14 +37,23 @@ api.interceptors.response.use(
 
 // ──────────────── Auth API ──────────────────────── //
 export const authAPI = {
-    register: (data) => api.post("/auth/register", data),
-    login: (data) => api.post("/auth/login", data),
-    getProfile: () => api.get("/auth/profile"),
-    changePassword: (currentPassword, newPassword) => api.put("/auth/change-password", { currentPassword, newPassword }),
-    forgotPassword: (email) => api.post("/auth/forgot-password", { email}),
-    verifyOtp:      (email, otp)              => api.post("/auth/verify-otp", { email, otp }),
-    resetPassword:  (email, otp, newPassword) => api.post("/auth/reset-password", { email, otp, newPassword }),
+  register: (data) => api.post("/auth/register", data),
+  login: (data) => api.post("/auth/login", data),
+  getProfile: () => api.get("/auth/profile"),
+  changePassword: (currentPassword, newPassword) => api.put("/auth/change-password", { currentPassword, newPassword }),
+  forgotPassword: (email) => api.post("/auth/forgot-password", { email}),
+  verifyOtp:      (email, otp)              => api.post("/auth/verify-otp", { email, otp }),
+  resetPassword:  (email, otp, newPassword) => api.post("/auth/reset-password", { email, otp, newPassword }),
 }
+
+// ── ALUMNI ───────────────────────────────────────────────────────
+export const alumniAPI = {
+  getAllAlumni:   ()          => api.get("/alumni"),
+  getAlumniById: (id)        => api.get(`/alumni/${id}`),
+  updateProfile: (id, data)  => api.put(`/alumni/${id}`, data),
+  getStats:      ()          => api.get("/alumni/stats/get-stats"),
+  getMapData:    ()          => api.get("/alumni/map/data"),
+};
 
 
 export default api;
