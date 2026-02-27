@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { LogIn, AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
@@ -14,20 +13,11 @@ const AdminLogin = () => {
   const [error, setError] = useState("");
   const { user, login: authLogin } = useAuth();
 
-   const resetFields = useCallback(() => {
-      setEmail("");
-      setPassword("");
-      setError({});
-    }, []);
-
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
-  };
+  const resetFields = useCallback(() => {
+    setEmail("");
+    setPassword("");
+    setError({});
+  }, []);
 
   // ✅ Redirect if already logged in as admin (cookie-based session)
   useEffect(() => {
