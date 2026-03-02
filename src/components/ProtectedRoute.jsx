@@ -11,6 +11,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (user.isApproved !== true)
     return <Navigate to="/alumni/register" replace />;
+
+  return children;
 };
 
 export default ProtectedRoute;

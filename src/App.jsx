@@ -9,6 +9,7 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import AlumniRegistration from "./pages/alumni/AlumniRegistration";
 import AlumniLogin from "./pages/alumni/AlumniLogin";
 import ForgotPassword from "./pages/alumni/ForgotPassword";
+import AlumniProfile from "./pages/alumni/AlumniProfile";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 
@@ -59,6 +60,10 @@ function AppRoutes() {
         <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
         <Route path="alumni/login"    element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
         <Route path="alumni/forgot-password" element={<ForgotPassword />} />
+
+        {/* ALUMNI PROTECTED */}
+        <Route path="alumni/profile"   element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
+
 
         {/* ADMIN */}
         <Route path="admin" element={<AdminPublicOnlyRoute><AdminLogin /></AdminPublicOnlyRoute>} />
