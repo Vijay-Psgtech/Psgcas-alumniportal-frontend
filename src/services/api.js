@@ -68,5 +68,23 @@ export const adminAPI = {
   makeAlumniAdmin: (id) => api.put(`/admin/make-admin/${id}`),
 };
 
+// ── Events API ────────────────────────────────────────────────────────
+export const eventsAPI = {
+  getAll: () => api.get("/events"),
+  getById: (id) => api.get(`/events/${id}`),
+  create: (data) => api.post("/events", data),
+  update: (id, data) => api.put(`/events/${id}`, data),
+  delete: (id) => api.delete(`/events/${id}`),
+};
+
+// ── Albums API ────────────────────────────────────────────────────────
+export const albumsAPI = {
+  getAll: () => api.get("/albums"),
+  getByYear: (year) => api.post(`/albums/${year}`),
+  create: (data) => api.post("/albums", data),
+  update: (id, data) => api.put(`/albums/${id}`, data),
+  delete: (id) => api.delete(`/albums/${id}`),
+}; 
+
 
 export default api;
