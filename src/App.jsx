@@ -10,6 +10,8 @@ import AlumniRegistration from "./pages/alumni/AlumniRegistration";
 import AlumniLogin from "./pages/alumni/AlumniLogin";
 import ForgotPassword from "./pages/alumni/ForgotPassword";
 import AlumniProfile from "./pages/alumni/AlumniProfile";
+import AlumniDirectory from "./pages/alumni/AlumniDirectory";
+import AlumniMap from "./pages/alumni/AlumniMap";
 
 import AdminLogin from "./pages/admin/AdminLogin";
 
@@ -63,6 +65,8 @@ function AppRoutes() {
 
         {/* ALUMNI PROTECTED */}
         <Route path="alumni/profile"   element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
+        <Route path="alumni/directory" element={<ProtectedRoute><AlumniDirectory /></ProtectedRoute>} />
+        <Route path="alumni/map"       element={<ProtectedRoute><AlumniMap /></ProtectedRoute>} />
 
 
         {/* ADMIN */}
