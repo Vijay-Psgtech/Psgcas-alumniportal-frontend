@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ScrolltoTop from "./components/ScrolltoTop";
 import AuthEventHandler from "./components/AuthEventHandler";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 
 import AlumniRegistration from "./pages/alumni/AlumniRegistration";
 import AlumniLogin from "./pages/alumni/AlumniLogin";
