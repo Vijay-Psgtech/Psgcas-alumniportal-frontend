@@ -55,5 +55,18 @@ export const alumniAPI = {
   getMapData:    ()          => api.get("/alumni/map/data"),
 };
 
+// ── ADMIN ────────────────────────────────────────────────────────
+export const adminAPI = {
+  // Dashboard stats
+  getStats: () => api.get("/admin/dashboard/stats"),
+  getAllAlumni: () => api.get("/admin/dashboard/alumni/all"),
+  
+  // Alumni approval & management
+  getPendingAlumni: () => api.get("/admin/pending"),
+  approveAlumni: (id) => api.put(`/admin/approve/${id}`),
+  rejectAlumni: (id) => api.put(`/admin/reject/${id}`),
+  makeAlumniAdmin: (id) => api.put(`/admin/make-admin/${id}`),
+};
+
 
 export default api;
