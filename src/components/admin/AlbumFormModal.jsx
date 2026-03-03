@@ -41,7 +41,7 @@ export const AlbumFormModal = ({ initial, year, onSave, onClose, isLoading }) =>
                 <div className="flex gap-3 mt-6 pt-5 border-t border-slate-100">
                     <button onClick={() => valid && onSave({ ...form, tags: form.tags.split(",").map(t => t.trim()).filter(Boolean) })} disabled={!valid || isLoading}
                         className={`flex-1 py-3 rounded-xl border-none font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all
-                            ${valid && !isLoading ? 'bg-gradient-to-br from-amber-600 to-amber-700 text-white cursor-pointer shadow-lg shadow-amber-600/25 hover:shadow-amber-600/40 hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}
+                            ${valid && !isLoading ? 'bg-gradient-to-br from-blue-600 to-blue-900 text-white cursor-pointer shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40 hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}
                             ${isLoading ? 'opacity-70' : ''}`}>
                         <CheckCircle size={15} /> {isLoading ? "Saving..." : isEdit ? "Save Changes" : "Create Album"}
                     </button>

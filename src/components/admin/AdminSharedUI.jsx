@@ -21,7 +21,7 @@ export const FLabel = ({ label, children, span2 }) => (
     </div>
 );
 
-const inpClass = "px-3.5 py-2.5 border border-slate-200 rounded-xl font-['Outfit',_sans-serif] text-sm text-[#0c0e1a] outline-none w-full bg-[#fafbfd] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all";
+const inpClass = "px-3.5 py-2.5 border border-slate-200 rounded-xl font-['Outfit',_sans-serif] text-sm text-[#0c0e1a] outline-none w-full bg-[#fafbfd] focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all";
 
 export const Inp = (props) => (
     <input {...props} className={`${inpClass} ${props.className || ''}`} />
@@ -40,7 +40,7 @@ export const Txt = (props) => (
 export const ModalHeader = ({ title, sub, onClose }) => (
     <div className="px-7 pt-6 pb-5 border-b border-slate-100 flex justify-between items-start">
         <div>
-            <div className="text-[10px] text-indigo-500 font-bold tracking-[1.5px] font-['Outfit',_sans-serif] mb-1 uppercase">{sub}</div>
+            <div className="text-[10px] text-blue-500 font-bold tracking-[1.5px] font-['Outfit',_sans-serif] mb-1 uppercase">{sub}</div>
             <h2 className="font-['Playfair_Display',_serif] text-[21px] font-extrabold text-[#0c0e1a]">{title}</h2>
         </div>
         <button onClick={onClose} className="bg-slate-100 hover:bg-slate-200 transition-colors border-none rounded-xl w-8 h-8 cursor-pointer flex items-center justify-center shrink-0">

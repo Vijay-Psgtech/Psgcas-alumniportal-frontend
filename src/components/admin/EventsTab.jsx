@@ -60,18 +60,18 @@ export const EventsTab = ({ onError, onSuccess }) => {
                 <div className="flex-1 min-w-[200px] relative">
                     <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search events…"
-                        className="w-full py-2.5 pr-3.5 pl-9 border border-slate-200 rounded-xl font-['Outfit',_sans-serif] text-[13px] outline-none bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all" />
+                        className="w-full py-2.5 pr-3.5 pl-9 border border-slate-200 rounded-xl font-['Outfit',_sans-serif] text-[13px] outline-none bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all" />
                 </div>
                 <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm shadow-black/5">
                     {["all", "upcoming", "completed"].map(f => (
                         <button key={f} onClick={() => setStatusFilter(f)}
-                            className={`px-4 py-2 border-none font-['Outfit',_sans-serif] text-xs font-bold transition-colors capitalize ${statusFilter === f ? 'bg-indigo-500 text-white' : 'bg-transparent text-gray-400 hover:bg-slate-50 hover:text-gray-600'}`}>
+                            className={`px-4 py-2 border-none font-['Outfit',_sans-serif] text-xs font-bold transition-colors capitalize ${statusFilter === f ? 'bg-blue-500 text-white' : 'bg-transparent text-gray-400 hover:bg-slate-50 hover:text-gray-600'}`}>
                             {f}
                         </button>
                     ))}
                 </div>
                 <button onClick={() => setModal({ type: "add" })}
-                    className="px-4 py-2.5 rounded-xl border-none bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-md shadow-indigo-500/25 transition-all hover:-translate-y-0.5 hover:shadow-indigo-500/40">
+                    className="px-4 py-2.5 rounded-xl border-none bg-gradient-to-br from-blue-500 to-blue-900 text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-md shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40">
                     <Plus size={14} /> Add Event
                 </button>
             </div>

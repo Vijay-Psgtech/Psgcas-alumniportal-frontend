@@ -133,7 +133,7 @@ const AdminDashboard = () => {
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-[#f8f5ee] font-['Outfit',_sans-serif]">
             <div className="text-center">
-                <div className="w-10 h-10 border-[3px] border-slate-200 border-t-indigo-500 rounded-full mx-auto mb-4 animate-spin" />
+                <div className="w-10 h-10 border-[3px] border-slate-200 border-t-blue-500 rounded-full mx-auto mb-4 animate-spin" />
                 <p className="text-gray-400 font-medium">Loading dashboard…</p>
             </div>
         </div>
@@ -182,10 +182,10 @@ const AdminDashboard = () => {
                         <motion.div key={label} variants={iv}
                             className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group">
                             {/* Top gradient border on hover */}
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-900 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                             <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">{icon}</div>
-                            <div className="font-['Playfair_Display',_serif] text-3xl font-extrabold text-indigo-500 mb-1 tracking-tight">{val}</div>
+                            <div className="font-['Playfair_Display',_serif] text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">{val}</div>
                             <div className="text-[11px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">{label}</div>
                         </motion.div>
                     ))}
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
                         {TABS.map(({ key, Icon, label, badge }) => (
                             <button key={key} onClick={() => setActiveTab(key)}
                                 className={`px-4 sm:px-5 py-2.5 rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
-                                    ${activeTab === key ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/25' : 'bg-transparent text-gray-500 hover:bg-slate-50 hover:text-indigo-600 border border-transparent hover:border-slate-200'}
+                                    ${activeTab === key ? 'bg-gradient-to-br from-blue-500 to-blue-900 text-white shadow-md shadow-blue-500/25' : 'bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200'}
                                 `}>
                                 <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} />{label}
                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${activeTab === key ? 'bg-white/25 text-white' : 'bg-slate-100 text-gray-400'}`}>
@@ -254,7 +254,7 @@ const AdminDashboard = () => {
                                                 <div className="text-[11px] font-extrabold text-[#0c0e1a] tracking-widest uppercase mb-3 font-['Outfit',_sans-serif]">{s.h}</div>
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                     {s.items.map(it => (
-                                                        <div key={it.l} className="p-3.5 bg-slate-50 rounded-xl border-l-2 border-indigo-500 shadow-sm border border-slate-100 border-l-indigo-500">
+                                                        <div key={it.l} className="p-3.5 bg-slate-50 rounded-xl border-l-2 border-blue-500 shadow-sm border border-slate-100 border-l-blue-500">
                                                             <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide font-['Outfit',_sans-serif]">{it.l}</div>
                                                             <div className="text-[14px] text-[#0c0e1a] font-semibold mt-1 font-['Outfit',_sans-serif] break-words">{it.v}</div>
                                                         </div>

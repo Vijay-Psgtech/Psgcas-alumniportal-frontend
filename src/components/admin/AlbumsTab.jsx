@@ -111,10 +111,10 @@ export const AlbumsTab = ({ onError, onSuccess }) => {
                     <div className="relative flex-1 sm:flex-none">
                         <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search albums…"
-                            className="w-full sm:w-56 py-2.5 pr-4 pl-9 border border-white bg-white/80 backdrop-blur-sm rounded-xl font-['Outfit',_sans-serif] text-[13px] font-medium outline-none focus:bg-white focus:ring-2 focus:ring-amber-500/20 transition-all shadow-sm" />
+                            className="w-full sm:w-56 py-2.5 pr-4 pl-9 border border-white bg-white/80 backdrop-blur-sm rounded-xl font-['Outfit',_sans-serif] text-[13px] font-medium outline-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm" />
                     </div>
                     <button onClick={() => setModal({ type: "add" })}
-                        className="px-4.5 py-2.5 rounded-xl border-none bg-gradient-to-br from-amber-500 to-amber-700 text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-amber-600/30 transition-all hover:-translate-y-0.5 hover:shadow-amber-600/50 active:translate-y-0">
+                        className="px-4.5 py-2.5 rounded-xl border-none bg-gradient-to-br from-blue-500 to-blue-900 text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-lg shadow-blue-600/30 transition-all hover:-translate-y-0.5 hover:shadow-blue-600/50 active:translate-y-0">
                         <Plus size={14} strokeWidth={3} /> Add Album
                     </button>
                 </div>
@@ -153,7 +153,7 @@ export const AlbumsTab = ({ onError, onSuccess }) => {
                                     </span>
                                     <div className="flex gap-2">
                                         <button onClick={() => setModal({ type: "edit", data: album })} disabled={isLoading}
-                                            className={`w-8 h-8 border border-slate-200 rounded-xl bg-white flex items-center justify-center transition-all shadow-sm ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 text-gray-400'}`}>
+                                            className={`w-8 h-8 border border-slate-200 rounded-xl bg-white flex items-center justify-center transition-all shadow-sm ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-blue-50 hover:border-blue-200 hover:text-blue-600 text-gray-400'}`}>
                                             <Pencil size={13} className="text-inherit" />
                                         </button>
                                         <button onClick={() => setModal({ type: "delete", data: album })} disabled={isLoading}

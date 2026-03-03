@@ -76,7 +76,7 @@ export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
                 <div className="flex gap-3 mt-6 pt-5 border-t border-slate-100">
                     <button onClick={() => valid && onSave(form)} disabled={!valid || isLoading}
                         className={`flex-1 py-3 rounded-xl border-none font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all
-                            ${valid && !isLoading ? 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white cursor-pointer shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}
+                            ${valid && !isLoading ? 'bg-gradient-to-br from-blue-500 to-blue-900 text-white cursor-pointer shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}
                             ${isLoading ? 'opacity-70' : ''}`}>
                         <CheckCircle size={15} /> {isLoading ? "Saving..." : isEdit ? "Save Changes" : "Create Event"}
                     </button>
