@@ -145,7 +145,7 @@ const AlumniLogin = () => {
               {/* Submit */}
               <div className="flex justify-between items-center text-sm">
                 <button type="button" className="text-blue-600 hover:underline">
-                  <Link to="/alumni/forgot-password">Forgot Password?</Link>
+                  <Link to="/forgot-password">Forgot Password?</Link>
                 </button>
               </div>
 

@@ -24,7 +24,7 @@ export function DataProvider({ children }) {
                 ]);
 
                 const fetchedEvents = eventsRes.data.data || SEED_EVENTS;
-                const fetchedAlbums = eventsRes.data.data || SEED_ALBUMS;
+                const fetchedAlbums = albumsRes.data.data || SEED_ALBUMS;
 
                 // Transform fetched data to match expected format
                 const eventsArray = Array.isArray(fetchedEvents) ? fetchedEvents : SEED_EVENTS;

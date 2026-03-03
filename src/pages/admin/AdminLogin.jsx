@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -76,7 +76,7 @@ const AdminLogin = () => {
       } else if (err.response?.status === 403) {
         setError(
           err.response?.data?.message ||
-            "Admin account is inactive or not approved",
+          "Admin account is inactive or not approved",
         );
       } else if (err.response?.status === 500) {
         setError("Server error. Please try again later.");
@@ -153,7 +153,7 @@ const AdminLogin = () => {
             {/* Submit */}
             <div className="flex justify-between items-center text-sm">
               <button type="button" className="text-blue-600 hover:underline">
-                Forgot Password?
+                <Link to="/forgot-password">Forgot Password?</Link>
               </button>
             </div>
 

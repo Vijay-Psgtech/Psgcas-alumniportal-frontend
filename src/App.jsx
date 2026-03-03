@@ -62,7 +62,7 @@ function AppRoutes() {
         {/* ALUMNI AUTH */}
         <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
         <Route path="alumni/login" element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
-        <Route path="alumni/forgot-password" element={<ForgotPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ALUMNI PROTECTED */}
         <Route path="alumni/profile" element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
