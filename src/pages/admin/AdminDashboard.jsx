@@ -19,14 +19,9 @@ import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
 
 // ✅ Safe import with fallback
-let donationsAPI;
-try {
-    const api = require("../../services/api");
-    donationsAPI = api.donationsAPI || { getAll: () => Promise.resolve({ data: { donations: [] } }) };
-} catch (e) {
-    console.warn("donationsAPI not available, using fallback");
-    donationsAPI = { getAll: () => Promise.resolve({ data: { donations: [] } }) };
-}
+const donationsAPI = {
+    getAll: adminAPI.getAllDonations || (() => Promise.resolve({ data: { donations: [] } }))
+};
 
 
 const AdminDashboard = () => {

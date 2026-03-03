@@ -66,6 +66,9 @@ export const adminAPI = {
   approveAlumni: (id) => api.put(`/admin/approve/${id}`),
   rejectAlumni: (id) => api.put(`/admin/reject/${id}`),
   makeAlumniAdmin: (id) => api.put(`/admin/make-admin/${id}`),
+
+  // Donations
+  getAllDonations: () => api.get("/admin/dashboard/donations/all"),
 };
 
 // ── Events API ────────────────────────────────────────────────────────
