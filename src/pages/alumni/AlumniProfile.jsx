@@ -30,8 +30,8 @@ import { useAuth } from "../../context/AuthContext";
 ───────────────────────────────────────── */
 const InfoRow = ({ icon: Icon, label, value, href }) => (
   <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
-    <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-      <Icon size={15} className="text-indigo-500" />
+    <div className="mt-0.5 flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+      <Icon size={15} className="text-blue-500" />
     </div>
     <div className="min-w-0 flex-1">
       <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">
@@ -42,7 +42,7 @@ const InfoRow = ({ icon: Icon, label, value, href }) => (
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-indigo-600 font-medium hover:text-indigo-800 hover:underline transition-colors"
+          className="text-sm text-blue-600 font-medium hover:text-blue-800 hover:underline transition-colors"
         >
           View Profile ↗
         </a>
@@ -63,8 +63,8 @@ const InfoRow = ({ icon: Icon, label, value, href }) => (
 const SectionCard = ({ title, icon: Icon, children }) => (
   <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
     <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100 bg-slate-50/60">
-      <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-        <Icon size={14} className="text-indigo-600" />
+      <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+        <Icon size={14} className="text-blue-600" />
       </div>
       <h3 className="text-sm font-bold text-slate-800 tracking-wide">
         {title}
@@ -88,8 +88,8 @@ const FormField = ({ label, children }) => (
 
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm " +
-  "placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 " +
-  "focus:border-indigo-400 focus:bg-white transition-all duration-200";
+  "placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 " +
+  "focus:border-blue-400 focus:bg-white transition-all duration-200";
 
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
@@ -204,7 +204,7 @@ const AlumniProfile = () => {
       else
         setError(
           err.response?.data?.message ||
-            "Failed to load profile. Please try again.",
+          "Failed to load profile. Please try again.",
         );
     } finally {
       setLoading(false);
@@ -284,7 +284,7 @@ const AlumniProfile = () => {
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={loadProfile}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 active:scale-95 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-95 transition-all"
             >
               <RefreshCw size={14} /> Try Again
             </button>
@@ -315,7 +315,7 @@ const AlumniProfile = () => {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <p className="text-xs font-semibold text-indigo-500 uppercase tracking-widest mb-1">
+            <p className="text-xs font-semibold text-blue-700 uppercase tracking-widest mb-1">
               Alumni Portal
             </p>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
@@ -329,7 +329,7 @@ const AlumniProfile = () => {
                 onClick={() => setIsEditing(true)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-md shadow-indigo-200 hover:bg-indigo-700 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-200 hover:bg-blue-900 transition-colors"
               >
                 <Edit size={15} /> Edit Profile
               </motion.button>
@@ -373,11 +373,11 @@ const AlumniProfile = () => {
           animate="visible"
         >
           {/* top accent stripe */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500" />
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-blue-700 to-blue-900" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 sm:px-8 py-8">
             {/* Avatar */}
-            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-indigo-200 select-none">
+            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none">
               {initials || "?"}
             </div>
 
@@ -603,7 +603,7 @@ const AlumniProfile = () => {
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-md shadow-indigo-200"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-md shadow-blue-200"
                 >
                   <Save size={16} /> Save Changes
                 </button>
