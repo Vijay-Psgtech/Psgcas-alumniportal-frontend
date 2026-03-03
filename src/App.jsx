@@ -14,6 +14,7 @@ import AlumniDirectory from "./pages/alumni/AlumniDirectory";
 import AlumniMap from "./pages/alumni/AlumniMap";
 
 import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
@@ -57,21 +58,21 @@ function AppRoutes() {
       <AuthEventHandler />
       <ScrolltoTop />
       <Routes>
-       
+
         {/* ALUMNI AUTH */}
         <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
-        <Route path="alumni/login"    element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
-        <Route path="alumni/forgot-password" element={<ForgotPassword />} />
+        <Route path="alumni/login" element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ALUMNI PROTECTED */}
-        <Route path="alumni/profile"   element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
+        <Route path="alumni/profile" element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
         <Route path="alumni/directory" element={<ProtectedRoute><AlumniDirectory /></ProtectedRoute>} />
-        <Route path="alumni/map"       element={<ProtectedRoute><AlumniMap /></ProtectedRoute>} />
+        <Route path="alumni/map" element={<ProtectedRoute><AlumniMap /></ProtectedRoute>} />
 
 
         {/* ADMIN */}
         <Route path="admin" element={<AdminPublicOnlyRoute><AdminLogin /></AdminPublicOnlyRoute>} />
-
+        <Route path="admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
       </Routes>
     </>
   );

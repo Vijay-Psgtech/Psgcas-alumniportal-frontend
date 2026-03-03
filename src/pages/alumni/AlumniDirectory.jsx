@@ -37,7 +37,7 @@ const cardVariants = {
 /* ─── Shared select style ────────────────────── */
 const selectCls =
   "h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-sm " +
-  "focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 " +
+  "focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 " +
   "focus:bg-white cursor-pointer transition-all duration-200 min-w-[160px]";
 
 /* ─── Alumni Card ────────────────────────────── */
@@ -65,7 +65,7 @@ const AlumniCard = ({ alumnus }) => {
       className="group relative bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col transition-shadow duration-300"
     >
       {/* Hover top accent */}
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       {/* Card Header */}
       <div className="flex items-start gap-4 px-5 pt-5 pb-0">
@@ -158,11 +158,10 @@ const AlumniCard = ({ alumnus }) => {
         )}
         <a
           href={`mailto:${alumnus.email}`}
-          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
-            alumnus.linkedin
-              ? "px-4 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-              : "flex-1 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-          }`}
+          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${alumnus.linkedin
+            ? "px-4 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+            : "flex-1 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+            }`}
         >
           <Mail size={13} /> Email
         </a>
@@ -289,8 +288,8 @@ const AlumniDirectory = () => {
                 key={label}
                 className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-3.5"
               >
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                  <Icon size={16} className="text-indigo-500" />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                  <Icon size={16} className="text-blue-500" />
                 </div>
                 <div>
                   <p className="text-xl font-extrabold text-slate-900 leading-none">
@@ -313,7 +312,7 @@ const AlumniDirectory = () => {
           transition={{ delay: 0.1, duration: 0.4 }}
         >
           {/* top accent */}
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-500 rounded-t-2xl" />
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-blue-700 to-blue-900 rounded-t-2xl" />
 
           {/* Search row */}
           <div className="relative mb-4">
@@ -327,7 +326,7 @@ const AlumniDirectory = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               aria-label="Search alumni"
-              className="w-full h-11 pl-11 pr-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:bg-white transition-all duration-200"
+              className="w-full h-11 pl-11 pr-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:bg-white transition-all duration-200"
             />
             {searchTerm && (
               <button
