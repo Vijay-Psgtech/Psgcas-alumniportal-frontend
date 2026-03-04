@@ -76,7 +76,7 @@ const AdminLogin = () => {
       } else if (err.response?.status === 403) {
         setError(
           err.response?.data?.message ||
-          "Admin account is inactive or not approved",
+            "Admin account is inactive or not approved",
         );
       } else if (err.response?.status === 500) {
         setError("Server error. Please try again later.");
