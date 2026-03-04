@@ -145,7 +145,7 @@ const AdminDashboard = () => {
                 <motion.div className="flex justify-between items-center mb-9 flex-wrap gap-4" variants={iv} initial="hidden" animate="visible">
                     <div>
                         <h1 className="font-['Playfair_Display',_serif] text-[clamp(26px,4vw,40px)] font-extrabold text-[#0c0e1a] tracking-tight">Admin Dashboard</h1>
-                        <p className="text-sm text-gray-500 mt-1 font-medium">Manage alumni, donations, events & albums</p>
+                        <p className="text-md text-gray-500 mt-1 font-medium">Manage alumni, donations, events & albums</p>
                     </div>
                     <motion.button onClick={handleLogout} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                         className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-700 border-none rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer uppercase tracking-wider hover:bg-red-100 transition-colors shadow-sm">
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
 
                             <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">{icon}</div>
                             <div className="font-['Playfair_Display',_serif] text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">{val}</div>
-                            <div className="text-[11px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">{label}</div>
+                            <div className="text-[12px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">{label}</div>
                         </motion.div>
                     ))}
                 </motion.div>
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
                                 className={`px-4 sm:px-5 py-2.5 rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
                                     ${activeTab === key ? 'bg-gradient-to-br from-blue-500 to-blue-900 text-white shadow-md shadow-blue-500/25' : 'bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200'}
                                 `}>
-                                <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} />{label}
+                                <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} /><span className="font-['Outfit',_sans-serif text-xs sm:text-sm ">{label}</span>
                                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${activeTab === key ? 'bg-white/25 text-white' : 'bg-slate-100 text-gray-400'}`}>
                                     {badge}
                                 </span>

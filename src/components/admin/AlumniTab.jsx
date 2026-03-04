@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Clock, CheckCircle, GraduationCap, Building2, Mail, ExternalLink, ChevronRight, Users } from "lucide-react";
+import { Search, Clock, CheckCircle, GraduationCap, Building2, Mail, ExternalLink, ChevronRight, Users, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const AlumniTab = ({ alumniList, setSelectedItem }) => {
@@ -126,34 +126,38 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                                     <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                                         <div>
                                             <div className="flex items-start justify-between gap-2 mb-1">
-                                                <h3 className="font-extrabold text-[18px] text-slate-800 font-['Outfit',_sans-serif] truncate group-hover:text-blue-600 transition-colors">
+                                                <h3 className="inline-block font-extrabold text-[20px] text-slate-800 font-['Outfit',_sans-serif] truncate group-hover:text-blue-600 transition-colors">
                                                     {a.firstName} {a.lastName}
+                                                    {a.isAdmin && (
+                                                        <span className="inline-block ml-2 text-slate-400 text-[13px] font-medium">Admin</span>
+                                                    )}
                                                 </h3>
+
                                                 <ChevronRight size={18} className="text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
                                             </div>
 
                                             <div className="flex items-center gap-2 text-slate-500 text-[13px] font-medium mb-3">
                                                 <Mail size={14} className="text-slate-400" />
-                                                <span className="truncate">{a.email}</span>
+                                                <span className="truncate text-[14px]">{a.email}</span>
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 mt-auto">
                                             <div className="bg-slate-50 group-hover:bg-white border border-slate-100 group-hover:border-blue-100 px-3 py-2 rounded-xl transition-colors">
-                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                                <div className="flex items-center gap-1.5 text-[15px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                                                     <Building2 size={10} />
                                                     Dept
                                                 </div>
-                                                <div className="text-[12px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
+                                                <div className="text-[15px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
                                                     {a.department || "No Data"}
                                                 </div>
                                             </div>
                                             <div className="bg-slate-50 group-hover:bg-white border border-slate-100 group-hover:border-blue-100 px-3 py-2 rounded-xl transition-colors">
-                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                                <div className="flex items-center gap-1.5 text-[15px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                                                     <GraduationCap size={10} />
                                                     Batch
                                                 </div>
-                                                <div className="text-[12px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
+                                                <div className="text-[15px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
                                                     {a.graduationYear || "N/A"}
                                                 </div>
                                             </div>
