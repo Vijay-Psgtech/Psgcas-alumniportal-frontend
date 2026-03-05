@@ -40,19 +40,21 @@ export const authAPI = {
   register: (data) => api.post("/auth/register", data),
   login: (data) => api.post("/auth/login", data),
   getProfile: () => api.get("/auth/profile"),
-  changePassword: (currentPassword, newPassword) => api.put("/auth/change-password", { currentPassword, newPassword }),
-  forgotPassword: (email) => api.post("/auth/forgot-password", { email}),
-  verifyOtp:      (email, otp)              => api.post("/auth/verify-otp", { email, otp }),
-  resetPassword:  (email, otp, newPassword) => api.post("/auth/reset-password", { email, otp, newPassword }),
-}
+  changePassword: (currentPassword, newPassword) =>
+    api.put("/auth/change-password", { currentPassword, newPassword }),
+  forgotPassword: (email) => api.post("/auth/forgot-password", { email }),
+  verifyOtp: (email, otp) => api.post("/auth/verify-otp", { email, otp }),
+  resetPassword: (email, otp, newPassword) =>
+    api.post("/auth/reset-password", { email, otp, newPassword }),
+};
 
 // ── ALUMNI ───────────────────────────────────────────────────────
 export const alumniAPI = {
-  getAllAlumni:   ()          => api.get("/alumni"),
-  getAlumniById: (id)        => api.get(`/alumni/${id}`),
-  updateProfile: (id, data)  => api.put(`/alumni/${id}`, data),
-  getStats:      ()          => api.get("/alumni/stats/get-stats"),
-  getMapData:    ()          => api.get("/alumni/map/data"),
+  getAllAlumni: () => api.get("/alumni"),
+  getAlumniById: (id) => api.get(`/alumni/${id}`),
+  updateProfile: (id, data) => api.put(`/alumni/${id}`, data),
+  getStats: () => api.get("/alumni/stats/get-stats"),
+  getMapData: () => api.get("/alumni/map/data"),
 };
 
 // ── ADMIN ────────────────────────────────────────────────────────
@@ -60,7 +62,7 @@ export const adminAPI = {
   // Dashboard stats
   getStats: () => api.get("/admin/dashboard/stats"),
   getAllAlumni: () => api.get("/admin/dashboard/alumni/all"),
-  
+
   // Alumni approval & management
   getPendingAlumni: () => api.get("/admin/pending"),
   approveAlumni: (id) => api.put(`/admin/approve/${id}`),
@@ -87,7 +89,13 @@ export const albumsAPI = {
   create: (data) => api.post("/albums", data),
   update: (id, data) => api.put(`/albums/${id}`, data),
   delete: (id) => api.delete(`/albums/${id}`),
-}; 
+};
 
+// ── Donation API ────────────────────────────────────────────────────────
+export const donationAPI = {
+  getAll: () => api.get("/donaions"),
+  getMine: () => api.get("/donations/mine"),
+  create: (data) => api.post("/donations", data),
+};
 
 export default api;
