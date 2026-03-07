@@ -31,6 +31,14 @@ const donationsAPI = {
     (() => Promise.resolve({ data: { donations: [] } })),
 };
 
+// INR Format
+const formatINR = (amount) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+
 const AdminDashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -149,7 +157,7 @@ const AdminDashboard = () => {
       key: "donations",
       Icon: FileText,
       label: "Donations",
-      badge: stats.totalDonatedAmount,
+      badge: formatINR(stats.totalDonatedAmount),
     },
     { key: "events", Icon: Calendar, label: "Events", badge: events.length },
     { key: "albums", Icon: Camera, label: "Albums", badge: totalAlbums },
@@ -158,7 +166,11 @@ const AdminDashboard = () => {
   const STAT_CARDS = [
     { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
     { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
-    { icon: "💰", val: stats.totalDonatedAmount, label: "Total Donations" },
+    {
+      icon: "💰",
+      val: formatINR(stats.totalDonatedAmount),
+      label: "Total Donations",
+    },
     { icon: "✅", val: stats.completedDonations, label: "Completed" },
     { icon: "📅", val: events.length, label: "Events" },
     { icon: "📸", val: totalAlbums, label: "Albums" },
