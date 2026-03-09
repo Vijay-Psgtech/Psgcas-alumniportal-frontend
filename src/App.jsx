@@ -7,6 +7,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import useAutoLogout from "./hooks/useAutoLogout";
 
+import PremiumNavBar from "./components/NavBar";
+
 const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
@@ -61,6 +63,7 @@ function AppRoutes() {
   return (
     <>
       <AuthEventHandler />
+      <PremiumNavBar />
       <ScrolltoTop />
       <Suspense fallback={<AppLoader />}>
         <Routes>
