@@ -1,0 +1,559 @@
+/* src/pages/alumni/AlumniDirectory.css - BEAUTIFUL PROFESSIONAL DESIGN */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,600&family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  --primary: #1a3a52;
+  --primary-light: #2c5282;
+  --accent: #c9a84c;
+  --accent-light: #e8c960;
+  --success: #16a34a;
+  --error: #dc2626;
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.alumni-directory-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f5ee 0%, #fdfcf9 45%, #f2f4fa 100%);
+  margin-top: 70px;
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* WELCOME BANNER */
+/* ──────────────────────────────────────────────────────────────── */
+
+.welcome-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  padding: 2rem 2rem;
+  margin: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.welcome-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  color: white;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.3px;
+}
+
+.welcome-text h2 span {
+  color: var(--accent-light);
+  font-weight: 700;
+}
+
+.welcome-text p {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Outfit', sans-serif;
+ 
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .welcome-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .btn-logout {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* DIRECTORY SECTION */
+/* ──────────────────────────────────────────────────────────────── */
+
+.directory-section {
+  padding: 80px 24px 60px;
+  font-family: 'Outfit', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.directory-section::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.directory-section::after {
+  content: '';
+  position: absolute;
+  bottom: -150px;
+  left: -150px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.directory-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* HEADER */
+/* ──────────────────────────────────────────────────────────────── */
+
+.directory-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.directory-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  color: var(--neutral-900);
+  margin-bottom: 16px;
+  letter-spacing: -0.025em;
+}
+
+.directory-subtitle {
+  font-size: 16px;
+  color: var(--neutral-600);
+  font-weight: 300;
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* FILTERS CARD */
+/* ──────────────────────────────────────────────────────────────── */
+
+.filters-card {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.filters-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  border-radius: 16px 16px 0 0;
+}
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 13px 18px;
+  border: 1px solid #e0e6f0;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  color: var(--neutral-800);
+  background: #fafbfc;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(26, 58, 82, 0.1);
+}
+
+.search-icon {
+  color: #a0aec0;
+  flex-shrink: 0;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 10px 14px;
+  border: 1px solid #e0e6f0;
+  border-radius: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  color: var(--neutral-800);
+  background: #fafbfc;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 160px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(26, 58, 82, 0.1);
+}
+
+.btn-clear {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-clear:hover {
+  background: rgba(201, 168, 76, 0.08);
+  border-color: var(--accent-light);
+  color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* STATES */
+/* ──────────────────────────────────────────────────────────────── */
+
+.alumni-count {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 15px;
+  color: var(--neutral-600);
+}
+
+.alumni-count strong {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-message p {
+  font-size: 16px;
+  color: var(--neutral-600);
+  margin-top: 1rem;
+}
+
+.error-banner {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 16px 20px;
+  color: #991b1b;
+  font-size: 14px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-banner span {
+  font-size: 1.2rem;
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* ALUMNI GRID & CARDS */
+/* ──────────────────────────────────────────────────────────────── */
+
+.alumni-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 28px;
+  margin-bottom: 40px;
+}
+
+.alumni-card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.alumni-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-top: 3px solid var(--accent);
+}
+
+.card-header {
+  display: flex;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  align-items: flex-start;
+}
+
+.card-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.card-name-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin-bottom: 4px;
+}
+
+.card-email {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+  word-break: break-all;
+}
+
+.card-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.card-info-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--neutral-500);
+  margin-bottom: 6px;
+}
+
+.info-value {
+  font-size: 0.9rem;
+  color: var(--neutral-800);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.company-name {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.card-location {
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+  padding: 12px;
+  background: var(--neutral-50);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.card-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  background: var(--neutral-50);
+}
+
+.btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.btn-linkedin {
+  color: #0A66C2;
+  border-color: #E7F1F8;
+  background: #E7F1F8;
+}
+
+.btn-linkedin:hover {
+  background: #0A66C2;
+  color: white;
+  border-color: #0A66C2;
+  transform: translateY(-2px);
+}
+
+.btn-email {
+  color: var(--accent);
+  border-color: #FEF3C7;
+  background: #FEF3C7;
+}
+
+.btn-email:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--neutral-600);
+  font-size: 1.1rem;
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+/* RESPONSIVE DESIGN */
+/* ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .alumni-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .directory-section {
+    padding: 60px 16px 40px;
+  }
+
+  .directory-title {
+    font-size: 28px;
+  }
+
+  .filters-card {
+    padding: 24px;
+  }
+
+  .alumni-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .card-header {
+    padding: 16px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .card-footer {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .btn-action {
+    font-size: 0.75rem;
+    padding: 8px 10px;
+  }
+}
