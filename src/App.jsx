@@ -16,6 +16,7 @@ const HomePage = lazy(() => import("./components/Homepage"));
 const LeadershipPage = lazy(() => import("./pages/LeadershipPage"));
 const NewsPage = lazy(() => import("./pages/Newspage"));
 const ContactPage = lazy(() => import("./sections/Contact"));
+const DonatePage = lazy(() => import("./pages/DonatePage"));
 
 // ═══════════════════════════════════════════════════════════════════════
 // ALUMNI PAGES - All components
@@ -88,6 +89,7 @@ function AppRoutes() {
           <Route path="/newsletter" element={<NewsPage />} />
           <Route path="/alumni/stories" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
+           <Route path="/donate" element={<DonatePage />} />
           
           {/* ALUMNI AUTH */}
           <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
