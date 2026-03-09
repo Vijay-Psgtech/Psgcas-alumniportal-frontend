@@ -14,7 +14,11 @@ import PremiumNavBar from "./components/NavBar";
 // ═══════════════════════════════════════════════════════════════════════
 const HomePage = lazy(() => import("./components/Homepage"));
 const LeadershipPage = lazy(() => import("./pages/LeadershipPage"));
+const NewsPage = lazy(() => import("./pages/Newspage"));
 
+// ═══════════════════════════════════════════════════════════════════════
+// ALUMNI PAGES - All components
+// ═══════════════════════════════════════════════════════════════════════
 const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
@@ -22,7 +26,9 @@ const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
 const AlumniDirectory = lazy(() => import("./pages/alumni/AlumniDirectory"));
 const AlumniMap = lazy(() => import("./pages/alumni/AlumniMap"));
 
-
+// ═══════════════════════════════════════════════════════════════════════
+// ADMIN PAGES
+// ═══════════════════════════════════════════════════════════════════════
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
@@ -78,6 +84,8 @@ function AppRoutes() {
           <Route path="/" element={<HomePage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/leadership" element={<LeadershipPage />} />
+          <Route path="/newsletter" element={<NewsPage />} />
+          <Route path="/alumni/stories" element={<NewsPage />} />
           
           {/* ALUMNI AUTH */}
           <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
