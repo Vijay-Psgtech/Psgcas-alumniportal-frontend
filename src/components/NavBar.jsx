@@ -70,7 +70,7 @@ export default function NavBar() {
       baseItems.push({
         label: "Admin",
         submenu: [
-          { label: "Dashboard", path: "/alumni/dashboard" },
+          { label: "Dashboard", path: "/admin/dashboard" },
           { label: "Events", path: "/admin/events" },
           { label: "Users", path: "/admin/users" },
           { label: "Reports", path: "/admin/reports" },

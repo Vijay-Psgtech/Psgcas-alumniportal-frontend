@@ -248,9 +248,6 @@ const AlumniDirectory = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-3">
-            Alumni Portal
-          </p>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-none mb-4">
             Alumni Directory
           </h1>
