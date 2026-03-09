@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ScrolltoTop from "./components/ScrolltoTop";
@@ -7,15 +7,17 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import useAutoLogout from "./hooks/useAutoLogout";
 
-import AlumniRegistration from "./pages/alumni/AlumniRegistration";
-import AlumniLogin from "./pages/alumni/AlumniLogin";
-import ForgotPassword from "./pages/alumni/ForgotPassword";
-import AlumniProfile from "./pages/alumni/AlumniProfile";
-import AlumniDirectory from "./pages/alumni/AlumniDirectory";
-import AlumniMap from "./pages/alumni/AlumniMap";
+const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
+const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
+const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
+const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
+const AlumniDirectory = lazy(() => import("./pages/alumni/AlumniDirectory"));
+const AlumniMap = lazy(() => import("./pages/alumni/AlumniMap"));
 
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+
 
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
@@ -60,23 +62,25 @@ function AppRoutes() {
     <>
       <AuthEventHandler />
       <ScrolltoTop />
-      <Routes>
+      <Suspense fallback={<AppLoader />}>
+        <Routes>
 
-        {/* ALUMNI AUTH */}
-        <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
-        <Route path="alumni/login" element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
+          {/* ALUMNI AUTH */}
+          <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
+          <Route path="alumni/login" element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* ALUMNI PROTECTED */}
-        <Route path="alumni/profile" element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
-        <Route path="alumni/directory" element={<ProtectedRoute><AlumniDirectory /></ProtectedRoute>} />
-        <Route path="alumni/map" element={<ProtectedRoute><AlumniMap /></ProtectedRoute>} />
+          {/* ALUMNI PROTECTED */}
+          <Route path="alumni/profile" element={<ProtectedRoute><AlumniProfile /></ProtectedRoute>} />
+          <Route path="alumni/directory" element={<ProtectedRoute><AlumniDirectory /></ProtectedRoute>} />
+          <Route path="alumni/map" element={<ProtectedRoute><AlumniMap /></ProtectedRoute>} />
 
 
-        {/* ADMIN */}
-        <Route path="admin" element={<AdminPublicOnlyRoute><AdminLogin /></AdminPublicOnlyRoute>} />
-        <Route path="admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
-      </Routes>
+          {/* ADMIN */}
+          <Route path="admin" element={<AdminPublicOnlyRoute><AdminLogin /></AdminPublicOnlyRoute>} />
+          <Route path="admin/dashboard" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
