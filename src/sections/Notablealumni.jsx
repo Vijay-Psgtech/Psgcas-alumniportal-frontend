@@ -287,39 +287,45 @@ const NotableAlumni = () => {
         /* Alumni Card */
         .alumni-card {
           background: #FFFFFF;
-          border: 1.5px solid #E2E8F0;
-          border-radius: 16px;
+          border: 1px solid #E2E8F0;
+          border-radius: 20px;
           overflow: hidden;
           transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
           position: relative;
           display: flex;
           flex-direction: column;
-          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03);
         }
 
         .alumni-card:hover {
-          transform: translateY(-8px);
+          transform: translateY(-12px);
           border-color: var(--accent-color);
-          box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+          box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15), 0 2px 8px rgba(15, 23, 42, 0.06);
         }
 
         /* Image Wrapper */
         .alumni-image-wrapper {
           position: relative;
-          height: 280px;
+          height: 300px;
           overflow: hidden;
           background: var(--bg-color);
+          aspect-ratio: 4 / 5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .alumni-card-image {
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          transition: all 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+          object-fit: contain;
+          object-position: center;
+          background: var(--bg-color);
+          transition: transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .alumni-card:hover .alumni-card-image {
-          transform: scale(1.06);
+          transform: scale(1.08);
         }
 
         /* Image Overlay */
@@ -342,106 +348,118 @@ const NotableAlumni = () => {
         .achievement-badge {
           background: linear-gradient(135deg, var(--accent-color), var(--accent-darker));
           color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
+          padding: 10px 16px;
+          border-radius: 10px;
           font-size: 11px;
-          font-weight: 700;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.6px;
           font-family: 'Poppins', sans-serif;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+          backdrop-filter: blur(10px);
         }
 
         /* Icon Badge */
         .icon-badge {
           position: absolute;
-          top: 12px;
-          right: 12px;
-          width: 44px;
-          height: 44px;
+          top: 16px;
+          right: 16px;
+          width: 48px;
+          height: 48px;
           background: #FFFFFF;
-          border-radius: 12px;
+          border-radius: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: var(--accent-color);
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
-          transition: all 0.3s ease;
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.05);
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+          border: 1px solid rgba(255, 255, 255, 0.6);
         }
 
         .alumni-card:hover .icon-badge {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+          transform: translateY(-6px) scale(1.05);
+          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18), 0 4px 10px rgba(15, 23, 42, 0.08);
         }
 
         /* Content */
         .alumni-content {
-          padding: 28px;
+          padding: 32px;
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
+          background: linear-gradient(135deg, #FFFFFF 0%, rgba(248, 250, 251, 0.4) 100%);
         }
 
         .alumni-meta {
-          font-size: 12px;
-          font-weight: 700;
+          font-size: 11px;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 1px;
           color: var(--accent-color);
           font-family: 'Poppins', sans-serif;
+          opacity: 0.9;
         }
 
         .alumni-name {
           font-family: 'Playfair Display', serif;
-          font-size: 22px;
+          font-size: 24px;
           font-weight: 700;
           color: #0F172A;
-          margin: 4px 0;
-          line-height: 1.3;
+          margin: 4px 0 2px 0;
+          line-height: 1.25;
+          letter-spacing: -0.3px;
         }
 
         .alumni-degree {
-          font-size: 13px;
-          color: #64748B;
-          font-weight: 500;
+          font-size: 12px;
+          color: var(--accent-color);
+          font-weight: 600;
           font-family: 'Poppins', sans-serif;
+          opacity: 0.8;
+          margin-bottom: 4px;
         }
 
         .alumni-position {
           font-size: 13px;
-          color: #64748B;
-          line-height: 1.5;
+          color: #475569;
+          line-height: 1.6;
           flex: 1;
-          margin: 8px 0;
+          margin: 8px 0 12px 0;
           font-family: 'Poppins', sans-serif;
+        }
+
+        .alumni-position strong {
+          color: #0F172A;
+          font-weight: 600;
         }
 
         /* Button */
         .alumni-btn {
           align-self: flex-start;
-          padding: 10px 16px;
+          padding: 12px 20px;
           background: linear-gradient(135deg, var(--accent-color), var(--accent-darker));
           color: white;
           border: none;
-          border-radius: 8px;
+          border-radius: 10px;
           font-size: 12px;
           font-weight: 700;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 250ms ease;
+          transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
           display: flex;
           align-items: center;
-          gap: 6px;
-          letter-spacing: 0.5px;
+          gap: 8px;
+          letter-spacing: 0.6px;
           margin-top: auto;
           font-family: 'Poppins', sans-serif;
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
         }
 
         .alumni-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+          transform: translateY(-4px);
+          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
         }
 
         /* Stats */
@@ -496,7 +514,11 @@ const NotableAlumni = () => {
           }
 
           .alumni-image-wrapper {
-            height: 240px;
+            height: 280px;
+          }
+
+          .alumni-content {
+            padding: 28px;
           }
 
           .alumni-stats {
@@ -528,11 +550,15 @@ const NotableAlumni = () => {
           }
 
           .alumni-image-wrapper {
-            height: 220px;
+            height: 260px;
           }
 
           .alumni-content {
-            padding: 20px;
+            padding: 24px;
+          }
+
+          .alumni-name {
+            font-size: 22px;
           }
 
           .alumni-stats {
@@ -581,15 +607,15 @@ const NotableAlumni = () => {
           }
 
           .alumni-image-wrapper {
-            height: 200px;
+            height: 240px;
           }
 
           .alumni-content {
-            padding: 16px;
+            padding: 20px;
           }
 
           .alumni-name {
-            font-size: 18px;
+            font-size: 20px;
           }
 
           .alumni-position {
@@ -597,8 +623,13 @@ const NotableAlumni = () => {
           }
 
           .alumni-btn {
-            padding: 8px 12px;
-            font-size: 10px;
+            padding: 10px 14px;
+            font-size: 11px;
+          }
+
+          .icon-badge {
+            width: 44px;
+            height: 44px;
           }
 
           .alumni-stats {
