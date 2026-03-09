@@ -15,6 +15,7 @@ import PremiumNavBar from "./components/NavBar";
 const HomePage = lazy(() => import("./components/Homepage"));
 const LeadershipPage = lazy(() => import("./pages/LeadershipPage"));
 const NewsPage = lazy(() => import("./pages/Newspage"));
+const ContactPage = lazy(() => import("./sections/Contact"));
 
 // ═══════════════════════════════════════════════════════════════════════
 // ALUMNI PAGES - All components
@@ -86,6 +87,7 @@ function AppRoutes() {
           <Route path="/leadership" element={<LeadershipPage />} />
           <Route path="/newsletter" element={<NewsPage />} />
           <Route path="/alumni/stories" element={<NewsPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           
           {/* ALUMNI AUTH */}
           <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
