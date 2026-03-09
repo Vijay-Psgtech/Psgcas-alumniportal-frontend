@@ -30,7 +30,9 @@ const ReunionsPage = lazy(() => import("./pages/ReunionsPage"));
 // ═══════════════════════════════════════════════════════════════════════
 // ALUMNI PAGES - All components
 // ═══════════════════════════════════════════════════════════════════════
-const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
+const AlumniRegistration = lazy(
+  () => import("./pages/alumni/AlumniRegistration"),
+);
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
 const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
@@ -142,11 +144,6 @@ export default function App() {
   return (
     <>
       <style>{`
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
 
         html,
         body {

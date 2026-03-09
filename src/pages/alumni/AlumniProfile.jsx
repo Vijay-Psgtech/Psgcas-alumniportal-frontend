@@ -315,9 +315,6 @@ const AlumniProfile = () => {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-widest mb-1">
-              Alumni Portal
-            </p>
             <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
               My Profile
             </h1>

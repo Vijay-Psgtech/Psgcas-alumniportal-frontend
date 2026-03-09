@@ -135,7 +135,6 @@ const AlumniMap = () => {
           className="text-center mb-10"
           initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
         >
-          <p className="text-xs font-bold text-blue-500 uppercase tracking-widest mb-3">Alumni Portal</p>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-none mb-4">
             Alumni World Map
           </h1>
