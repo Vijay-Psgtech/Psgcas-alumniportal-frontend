@@ -9,6 +9,11 @@ import useAutoLogout from "./hooks/useAutoLogout";
 
 import PremiumNavBar from "./components/NavBar";
 
+// ═══════════════════════════════════════════════════════════════════════
+// PUBLIC PAGES
+// ═══════════════════════════════════════════════════════════════════════
+const HomePage = lazy(() => import("./components/Homepage"));
+
 const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
@@ -67,7 +72,7 @@ function AppRoutes() {
       <ScrolltoTop />
       <Suspense fallback={<AppLoader />}>
         <Routes>
-
+          <Route path="/" element={<HomePage />} />
           {/* ALUMNI AUTH */}
           <Route path="alumni/register" element={<PublicOnlyRoute><AlumniRegistration /></PublicOnlyRoute>} />
           <Route path="alumni/login" element={<PublicOnlyRoute><AlumniLogin /></PublicOnlyRoute>} />
