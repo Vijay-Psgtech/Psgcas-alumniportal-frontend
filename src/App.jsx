@@ -5,6 +5,7 @@ import ScrolltoTop from "./components/ScrolltoTop";
 import AuthEventHandler from "./components/AuthEventHandler";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import useAutoLogout from "./hooks/useAutoLogout";
 
 import AlumniRegistration from "./pages/alumni/AlumniRegistration";
 import AlumniLogin from "./pages/alumni/AlumniLogin";
@@ -53,6 +54,8 @@ const AppLoader = () => (
 );
 
 function AppRoutes() {
+  useAutoLogout();
+
   return (
     <>
       <AuthEventHandler />
