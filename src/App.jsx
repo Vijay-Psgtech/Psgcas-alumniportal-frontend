@@ -19,6 +19,15 @@ const ContactPage = lazy(() => import("./sections/Contact"));
 const DonatePage = lazy(() => import("./pages/DonatePage"));
 
 // ═══════════════════════════════════════════════════════════════════════
+// EVENT PAGES
+// ═══════════════════════════════════════════════════════════════════════
+const CasEventsPage = lazy(() => import("./pages/CasEventsPage"));
+const CasEventDetailPage = lazy(() => import("./pages/CasEventDetailPage"));
+const UpcomingEventsPage = lazy(() => import("./pages/UpcomingEventsPage"));
+const PastEventsPage = lazy(() => import("./pages/PastEventsPage"));
+const ReunionsPage = lazy(() => import("./pages/ReunionsPage"));
+
+// ═══════════════════════════════════════════════════════════════════════
 // ALUMNI PAGES - All components
 // ═══════════════════════════════════════════════════════════════════════
 const AlumniRegistration = lazy(() => import("./pages/alumni/AlumniRegistration"));
@@ -213,6 +222,13 @@ export default function App() {
               <Route path="/alumni/stories" element={<NewsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
+
+              {/* EVENT ROUTES */}
+              <Route path="/cas-events" element={<CasEventsPage />} />
+              <Route path="/cas-events/:id" element={<CasEventDetailPage />} />
+              <Route path="/upcoming-events" element={<UpcomingEventsPage />} />
+              <Route path="/past-events" element={<PastEventsPage />} />
+              <Route path="/reunions" element={<ReunionsPage />} />
 
               {/* ALUMNI AUTH */}
               <Route
