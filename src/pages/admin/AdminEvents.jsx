@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -12,19 +12,54 @@ import {
   Star,
   TrendingUp,
   BarChart3,
+  Loader,
 } from "lucide-react";
-import { useData, CATEGORY_COLORS } from "../../context/dataConstants";
+import { eventsAPI } from "../../services/api";
 import { DeleteModal } from "../../components/admin/AdminSharedUI";
 import { EventFormModal } from "../../components/admin/EventFormModal";
 
+// Category colors mapping
+const CATEGORY_COLORS = {
+  Awards: "#667eea",
+  Lecture: "#764ba2",
+  Sports: "#f093fb",
+  Memorial: "#4facfe",
+  Congress: "#00f2fe",
+  Workshop: "#43e97b",
+  Networking: "#fa709a",
+  Cultural: "#fee140",
+  Other: "#a0aec0",
+};
+
 const AdminEvents = () => {
-  const { events, addEvent, updateEvent, deleteEvent } = useData();
+  const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modal, setModal] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
   const [notification, setNotification] = useState(null);
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
+
+  // ✅ Fetch events on mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  // ✅ Fetch all events from API
+  const fetchEvents = async () => {
+    try {
+      setIsFetching(true);
+      const response = await eventsAPI.getAll();
+      setEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      showNotification("Failed to load events", "error");
+      setEvents([]);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   // ✅ Notification handling
   const showNotification = useCallback((message, type = "success") => {
@@ -51,18 +86,22 @@ const AdminEvents = () => {
     highlighted: events.filter((e) => e.highlight).length,
   };
 
-  // ✅ Handle save
+  // ✅ Handle save (create/update)
   const handleSave = async (form) => {
     try {
       setIsLoading(true);
       if (modal.data?._id) {
-        await updateEvent(modal.data._id, form);
+        // Update existing event
+        await eventsAPI.update(modal.data._id, form);
         showNotification(`✓ Event "${form.title}" updated successfully!`, "success");
       } else {
-        await addEvent(form);
+        // Create new event
+        await eventsAPI.create(form);
         showNotification(`✓ Event "${form.title}" created successfully!`, "success");
       }
       setModal(null);
+      // Refresh events list
+      await fetchEvents();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || "Failed to save event";
       showNotification(msg, "error");
@@ -75,9 +114,11 @@ const AdminEvents = () => {
   const handleDelete = async (id, title) => {
     try {
       setIsLoading(true);
-      await deleteEvent(id);
+      await eventsAPI.delete(id);
       showNotification(`✓ Event "${title}" deleted successfully!`, "success");
       setModal(null);
+      // Refresh events list
+      await fetchEvents();
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to delete event";
       showNotification(msg, "error");
@@ -110,7 +151,20 @@ const AdminEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-4 sm:p-6 lg:p-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-8 sm:p-12 lg:p-24">
+      {/* ========== LOADING STATE ========== */}
+      {isFetching && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50"
+        >
+          <div className="text-center">
+            <Loader size={40} className="mx-auto mb-4 text-blue-500 animate-spin" />
+            <p className="text-gray-600 font-['Outfit',_sans-serif] font-medium">Loading events...</p>
+          </div>
+        </motion.div>
+      )}
       {/* ========== HEADER ========== */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

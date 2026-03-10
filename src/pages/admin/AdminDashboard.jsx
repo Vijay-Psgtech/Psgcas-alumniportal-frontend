@@ -42,7 +42,7 @@ const formatINR = (amount) =>
 const AdminDashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { events, albumsData } = useData();
+  const { albumsData } = useData();
   const [activeTab, setActiveTab] = useState("alumni");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,6 +54,7 @@ const AdminDashboard = () => {
     pendingAlumni: 0,
     totalDonatedAmount: 0,
     completedDonations: 0,
+    totalEvents : 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -84,6 +85,7 @@ const AdminDashboard = () => {
                   pendingAlumni: 0,
                   totalDonatedAmount: 0,
                   completedDonations: 0,
+                  totalEvents: 0,
                 },
               },
             };
@@ -159,7 +161,7 @@ const AdminDashboard = () => {
       label: "Donations",
       badge: formatINR(stats.totalDonatedAmount),
     },
-    { key: "events", Icon: Calendar, label: "Events", badge: events.length },
+    { key: "events", Icon: Calendar, label: "Events", badge: stats.totalEvents },
     { key: "albums", Icon: Camera, label: "Albums", badge: totalAlbums },
   ];
 
@@ -172,7 +174,7 @@ const AdminDashboard = () => {
       label: "Total Donations",
     },
     { icon: "✅", val: stats.completedDonations, label: "Completed" },
-    { icon: "📅", val: events.length, label: "Events" },
+    { icon: "📅", val: stats.totalEvents, label: "Events" },
     { icon: "📸", val: totalAlbums, label: "Albums" },
   ];
 

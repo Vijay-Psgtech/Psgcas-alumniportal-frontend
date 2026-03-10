@@ -17,7 +17,7 @@ const BLANK_EVENT = {
   title: "",
   date: "",
   time: "",
-  venue: "PSG College of Technology, Avinashi Road, Coimbatore",
+  venue: "PSG College of Arts & Science, Coimbatore",
   description: "",
   status: "upcoming",
   attendees: "",
