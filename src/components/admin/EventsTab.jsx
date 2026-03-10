@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -9,17 +9,52 @@ import {
   CheckCircle,
   Pencil,
   Trash2,
+  Loader,
 } from "lucide-react";
-import { useData, CATEGORY_COLORS } from "../../context/dataConstants";
+import { eventsAPI } from "../../services/api";
 import { DeleteModal } from "./AdminSharedUI";
 import { EventFormModal } from "./EventFormModal";
 
+// Category colors mapping
+const CATEGORY_COLORS = {
+  Awards: "#667eea",
+  Lecture: "#764ba2",
+  Sports: "#f093fb",
+  Memorial: "#4facfe",
+  Congress: "#00f2fe",
+  Workshop: "#43e97b",
+  Networking: "#fa709a",
+  Cultural: "#fee140",
+  Other: "#a0aec0",
+};
+
 export const EventsTab = ({ onError, onSuccess }) => {
-  const { events, addEvent, updateEvent, deleteEvent } = useData();
+  const [events, setEvents] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modal, setModal] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+
+  // ✅ Fetch events on mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  // ✅ Fetch all events from API
+  const fetchEvents = async () => {
+    try {
+      setIsFetching(true);
+      const response = await eventsAPI.getAll();
+      setEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      onError("Failed to load events");
+      setEvents([]);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const filtered = events.filter((e) => {
     const q = search.toLowerCase();
@@ -30,17 +65,22 @@ export const EventsTab = ({ onError, onSuccess }) => {
     );
   });
 
+  // ✅ Handle save (create/update)
   const handleSave = async (form) => {
     try {
       setIsLoading(true);
       if (modal.data?._id) {
-        await updateEvent(modal.data._id, form);
+        // Update existing event
+        await eventsAPI.update(modal.data._id, form);
         onSuccess(`✓ Event "${form.title}" updated successfully!`);
       } else {
-        await addEvent(form);
+        // Create new event
+        await eventsAPI.create(form);
         onSuccess(`✓ Event "${form.title}" created successfully!`);
       }
       setModal(null);
+      // Refresh events list
+      await fetchEvents();
     } catch (err) {
       const msg =
         err.response?.data?.message || err.message || "Failed to save event";
@@ -50,12 +90,15 @@ export const EventsTab = ({ onError, onSuccess }) => {
     }
   };
 
+  // ✅ Handle delete
   const handleDelete = async (id, title) => {
     try {
       setIsLoading(true);
-      await deleteEvent(id);
+      await eventsAPI.delete(id);
       onSuccess(`✓ Event "${title}" deleted successfully!`);
       setModal(null);
+      // Refresh events list
+      await fetchEvents();
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to delete event";
       onError(msg);
@@ -77,7 +120,22 @@ export const EventsTab = ({ onError, onSuccess }) => {
   };
 
   return (
-    <div>
+    <div className="relative">
+      {/* Loading overlay */}
+      {isFetching && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-40 rounded-2xl"
+        >
+          <div className="text-center">
+            <Loader size={32} className="mx-auto mb-2 text-blue-500 animate-spin" />
+            <p className="text-gray-600 font-['Outfit',_sans-serif] text-sm font-medium">
+              Loading events...
+            </p>
+          </div>
+        </motion.div>
+      )}
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-2.5 mb-4 border-b border-transparent pb-1">
         <div className="flex-1 min-w-[200px] relative">

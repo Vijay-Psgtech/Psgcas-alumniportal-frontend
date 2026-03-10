@@ -63,7 +63,7 @@ const AlumniLogin = () => {
 
         // Role-based redirect
         if (alumni.isAdmin) {
-          navigate("/alumni/dashboard");
+          navigate("/admin/dashboard");
         } else if (alumni.isApproved) {
           navigate("/alumni/profile");
         } else {

@@ -118,7 +118,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       </div>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           <AnimatePresence>
             {filtered.map((a, i) => (
               <motion.div
@@ -127,79 +127,68 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                 initial="hidden"
                 animate="visible"
                 layout
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -6 }}
                 onClick={() => setSelectedItem(a)}
-                className="group bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer shadow-sm hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-200 transition-all duration-300 relative overflow-hidden"
+                className="group bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300"
               >
-                {/* Decorative background element */}
-                <div className="absolute -right-4 -top-4 w-24 h-24 bg-slate-50 rounded-full group-hover:bg-blue-50/50 transition-colors duration-500 pointer-events-none"></div>
-
-                <div className="flex gap-5 relative z-10">
-                  {/* Elevated Avatar */}
-                  <div className="relative shrink-0">
-                    <div
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-900 p-[2px] shadow-lg shadow-blue-500/10`}
-                    >
-                      <div className="w-full h-full rounded-[14px] bg-black/10 backdrop-blur-sm flex items-center justify-center text-white font-extrabold text-xl font-['Outfit',_sans-serif] border border-white/20">
-                        {a.firstName?.charAt(0)}
-                        {a.lastName?.charAt(0)}
-                      </div>
-                    </div>
-                    <div
-                      className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center border-2 border-white shadow-sm ${a.isApproved ? "bg-emerald-500" : "bg-amber-500"}`}
-                    >
-                      {a.isApproved ? (
-                        <CheckCircle size={12} className="text-white" />
-                      ) : (
-                        <Clock size={12} className="text-white" />
-                      )}
+                <div className="flex items-start gap-4">
+                  {/* Avatar */}
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                      {a.firstName?.charAt(0)}
+                      {a.lastName?.charAt(0)}
                     </div>
                   </div>
 
-                  {/* Information Rich Content */}
-                  <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h3 className="inline-block font-extrabold text-[20px] text-slate-800 font-['Outfit',_sans-serif] truncate group-hover:text-blue-600 transition-colors">
-                          {a.firstName} {a.lastName}
-                          {a.isAdmin && (
-                            <span className="inline-block ml-2 text-slate-400 text-[13px] font-medium">
-                              Admin
-                            </span>
-                          )}
-                        </h3>
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    {/* Name + Status */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-lg text-slate-800 truncate">
+                        {a.firstName} {a.lastName}
+                      </h3>
 
-                        <ChevronRight
-                          size={18}
-                          className="text-slate-300 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"
-                        />
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-lg ${
+                          a.isApproved
+                            ? "bg-emerald-100 text-emerald-600"
+                            : "bg-amber-100 text-amber-600"
+                        }`}
+                      >
+                        {a.isApproved ? "Approved" : "Pending"}
+                      </span>
+                    </div>
+
+                    {/* Email */}
+                    <p className="text-sm text-slate-500 truncate mb-3">
+                      {a.email}
+                    </p>
+
+                    {/* Dept + Batch */}
+                    <div className="flex gap-6 text-sm mb-3">
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <Building2 size={14} />
+                        {a.department || "N/A"}
                       </div>
 
-                      <div className="flex items-center gap-2 text-slate-500 text-[13px] font-medium mb-3">
-                        <Mail size={14} className="text-slate-400" />
-                        <span className="truncate text-[14px]">{a.email}</span>
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <GraduationCap size={14} />
+                        {a.graduationYear || "N/A"}
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 mt-auto">
-                      <div className="bg-slate-50 group-hover:bg-white border border-slate-100 group-hover:border-blue-100 px-3 py-2 rounded-xl transition-colors">
-                        <div className="flex items-center gap-1.5 text-[15px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                          <Building2 size={10} />
-                          Dept
-                        </div>
-                        <div className="text-[15px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
-                          {a.department || "No Data"}
-                        </div>
-                      </div>
-                      <div className="bg-slate-50 group-hover:bg-white border border-slate-100 group-hover:border-blue-100 px-3 py-2 rounded-xl transition-colors">
-                        <div className="flex items-center gap-1.5 text-[15px] font-bold text-slate-400 uppercase tracking-widest mb-1">
-                          <GraduationCap size={10} />
-                          Batch
-                        </div>
-                        <div className="text-[15px] font-bold text-slate-700 truncate font-['Outfit',_sans-serif]">
-                          {a.graduationYear || "N/A"}
-                        </div>
-                      </div>
+                    {/* Actions */}
+                    <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition">
+                      <button className="text-blue-600 text-sm font-medium hover:underline">
+                        View
+                      </button>
+
+                      {!a.isApproved && (
+                        <button className="text-green-600 text-sm font-medium hover:underline">
+                          Approve
+                        </button>
+                      )}
+
                     </div>
                   </div>
                 </div>

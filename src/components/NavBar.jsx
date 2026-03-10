@@ -891,7 +891,7 @@ export default function NavBar() {
                         <>
                           <div className="ud-divider" />
                           <NavLink
-                            to="/alumni/dashboard"
+                            to="/admin/dashboard"
                             onClick={() => setUserMenuOpen(false)}
                             className="ud-item"
                           >
@@ -1032,7 +1032,7 @@ export default function NavBar() {
                 {user.isAdmin && (
                   <>
                     <NavLink
-                      to="/alumni/dashboard"
+                      to="/admin/dashboard"
                       onClick={() => closeAllMenus()}
                       className="m-link"
                     >

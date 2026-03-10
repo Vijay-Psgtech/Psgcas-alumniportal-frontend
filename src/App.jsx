@@ -38,12 +38,14 @@ const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
 const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
 const AlumniDirectory = lazy(() => import("./pages/alumni/AlumniDirectory"));
 const AlumniMap = lazy(() => import("./pages/alumni/AlumniMap"));
+const AlumniDonations = lazy(() => import("./pages/alumni/AlumniDonations"));
 
 // ═══════════════════════════════════════════════════════════════════════
 // ADMIN PAGES
 // ═══════════════════════════════════════════════════════════════════════
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
 
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
@@ -272,6 +274,15 @@ export default function App() {
                 }
               />
 
+               <Route
+                path="alumni/donations"
+                element={
+                  <ProtectedRoute>
+                    <AlumniDonations />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* ADMIN */}
               <Route
                 path="admin"
@@ -289,6 +300,17 @@ export default function App() {
                   </ProtectedAdminRoute>
                 }
               />
+
+              <Route
+                path="admin/events"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminEvents />
+                  </ProtectedAdminRoute>
+                }
+              />
+
+              
 
               {/* 404 FALLBACK - Must be LAST */}
               <Route path="*" element={<NotFoundPage />} />
