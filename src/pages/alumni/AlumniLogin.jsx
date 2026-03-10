@@ -84,12 +84,12 @@ const AlumniLogin = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="flex w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Left Panel - Branding */}
           <div className="hidden md:flex flex-col items-center justify-center w-1/2 bg-white shadow-2xl p-8 text-center">
             <img src="/psgcas.png" alt="Logo" className="h-20 mb-6" />
-            <h2 className="text-2xl font-bold text-blue-800">Welcome Back!</h2>
+            <h2 className="text-2xl font-bold text-[#667eea]">Welcome Back!</h2>
             <p className="text-sm font-semibold text-gray-600 mt-4">
               Sign in to connect with your alumni network and stay updated.
             </p>
@@ -144,7 +144,7 @@ const AlumniLogin = () => {
 
               {/* Submit */}
               <div className="flex justify-between items-center text-sm">
-                <button type="button" className="text-blue-600 hover:underline">
+                <button type="button" className="text-[#764ba2] hover:underline">
                   <Link to="/forgot-password">Forgot Password?</Link>
                 </button>
               </div>
@@ -153,13 +153,13 @@ const AlumniLogin = () => {
                 <button
                   type="button"
                   onClick={resetFields}
-                  className="text-blue-600 hover:underline font-medium"
+                  className="text-[#764ba2] hover:underline font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg shadow"
+                  className="bg-[#667eea] hover:bg-[#764ba2] text-white px-5 py-2 rounded-lg shadow"
                 >
                   {loading ? "Signing In..." : "Sign In"}
                 </button>
@@ -168,7 +168,7 @@ const AlumniLogin = () => {
                 Don’t have an account?{" "}
                 <a
                   href="/alumni/register"
-                  className="text-blue-600 font-medium hover:underline"
+                  className="text-[#667eea] font-medium hover:underline"
                 >
                   Create one
                 </a>

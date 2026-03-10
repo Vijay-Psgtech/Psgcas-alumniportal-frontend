@@ -207,7 +207,7 @@ const AdminEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-8 sm:p-12 lg:p-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-8">
       {/* ========== LOADING STATE ========== */}
       {isFetching && (
         <motion.div

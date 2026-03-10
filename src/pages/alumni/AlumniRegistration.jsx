@@ -208,7 +208,7 @@ const AlumniRegistration = () => {
         {/* Header */}
         <div className="text-center mb-9">
           <motion.div
-            className="w-16 h-16 rounded-lg bg-gradient-to-br from-[#0052ab] to-[#0052ab]/80 flex items-center justify-center mx-auto mb-5 text-white"
+            className="w-16 h-16 rounded-lg bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center mx-auto mb-5 text-white"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2 }}
@@ -235,7 +235,7 @@ const AlumniRegistration = () => {
                 currentStep > 1
                   ? "bg-green-100 text-green-700 border-green-100"
                   : currentStep === 1
-                    ? "bg-[#0052ab] text-white border-[#0052ab]"
+                    ? "bg-[#667eea] text-white border-[#667eea]"
                     : "border-gray-300"
               }`}
             >
@@ -243,7 +243,7 @@ const AlumniRegistration = () => {
             </div>
             <div
               className={`text-xs font-semibold uppercase tracking-wide ${
-                currentStep >= 1 ? "text-[#0052ab]" : "text-gray-400"
+                currentStep >= 1 ? "text-[#764ba2]" : "text-gray-400"
               }`}
             >
               Personal
@@ -436,7 +436,7 @@ const AlumniRegistration = () => {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  className="py-2 px-6 bg-gradient-to-r from-[#0052ab] to-[#0052ab]/80 text-white rounded-lg font-semibold uppercase tracking-wide hover:shadow-lg transition"
+                  className="py-2 px-6 bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white rounded-lg font-semibold uppercase tracking-wide hover:shadow-lg transition"
                   onClick={handleNext}
                 >
                   Next Step →
