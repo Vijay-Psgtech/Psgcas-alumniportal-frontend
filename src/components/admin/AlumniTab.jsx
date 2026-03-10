@@ -10,6 +10,10 @@ import {
   ChevronRight,
   Users,
   Crown,
+  Briefcase,
+  Zap,
+  Building2Icon,
+  MapPin,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -118,7 +122,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       </div>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           <AnimatePresence>
             {filtered.map((a, i) => (
               <motion.div
@@ -177,8 +181,32 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                       </div>
                     </div>
 
+                    {/* Comapny + title*/}
+                    {a.currentCompany && (
+                      <div className="flex gap-6 text-sm mb-3">
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <Briefcase size={14} />
+                        {a.jobTitle || "N/A"}
+                      </div>
+
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <Building2Icon size={14} />
+                        {a.currentCompany || "N/A"}
+                      </div>
+                    </div>
+                    )}
+
+                    {/* Location */}
+                  {a.city && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                      <MapPin size={12} className="text-slate-400 flex-shrink-0" />
+                      {a.city}
+                      {a.country && `, ${a.country}`}
+                    </div>
+                  )}
+
                     {/* Actions */}
-                    <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition">
+                    <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition mt-2">
                       <button className="text-blue-600 text-sm font-medium hover:underline">
                         View
                       </button>
@@ -188,7 +216,6 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                           Approve
                         </button>
                       )}
-
                     </div>
                   </div>
                 </div>

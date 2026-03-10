@@ -41,7 +41,7 @@ const selectCls =
   "focus:bg-white cursor-pointer transition-all duration-200 min-w-[160px]";
 
 /* ─── Alumni Card ────────────────────────────── */
-const AlumniCard = ({ alumnus }) => {
+export const AlumniCard = ({ alumnus }) => {
   const initials =
     `${alumnus.firstName?.charAt(0) ?? ""}${alumnus.lastName?.charAt(0) ?? ""}`.toUpperCase();
 
