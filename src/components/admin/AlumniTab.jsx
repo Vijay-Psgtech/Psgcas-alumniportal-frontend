@@ -134,7 +134,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                 <div className="flex items-start gap-4">
                   {/* Avatar */}
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-lg">
                       {a.firstName?.charAt(0)}
                       {a.lastName?.charAt(0)}
                     </div>

@@ -160,7 +160,7 @@ const AlumniMap = () => {
         >
           {/* Map Container */}
           <div className="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500" />
+            <div className="h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
             <div className="p-1">
               <MapContainer
                 center={[20, 0]}
@@ -204,7 +204,7 @@ const AlumniMap = () => {
                 className="w-full lg:w-80 xl:w-96 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
               >
                 {/* Panel header accent */}
-                <div className="h-1 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500" />
+                <div className="h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
 
                 {/* Avatar + name block */}
                 <div className="relative bg-gradient-to-br from-blue-50 to-blue-50 px-6 pt-6 pb-5">

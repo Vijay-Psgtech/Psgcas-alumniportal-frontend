@@ -234,7 +234,7 @@ const AdminEvents = () => {
           </div>
           <button
             onClick={() => setModal({ type: "add" })}
-            className="px-6 py-3 rounded-xl border-none bg-gradient-to-br from-blue-500 to-blue-900 text-white font-['Outfit',_sans-serif] font-bold text-sm cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 w-full sm:w-auto"
+            className="px-6 py-3 rounded-xl border-none bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white font-['Outfit',_sans-serif] font-bold text-sm cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 w-full sm:w-auto"
           >
             <Plus size={18} /> Add Event
           </button>
@@ -345,7 +345,7 @@ const AdminEvents = () => {
                     }}
                     className={`px-3 py-2 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] border transition-all flex items-center gap-1 ${
                       sortBy === option.value
-                        ? "bg-blue-500 text-white border-blue-500"
+                        ? "bg-[#764ba2] text-white border-[#764ba2]"
                         : "bg-white text-gray-600 border-slate-200 hover:border-blue-300"
                     }`}
                   >
@@ -372,7 +372,7 @@ const AdminEvents = () => {
                   onClick={() => setStatusFilter(f)}
                   className={`flex-1 sm:flex-none px-4 py-2.5 border-none font-['Outfit',_sans-serif] text-xs sm:text-sm font-bold transition-all capitalize ${
                     statusFilter === f
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#667eea] text-white"
                       : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
                   }`}
                 >
@@ -394,7 +394,7 @@ const AdminEvents = () => {
                   onClick={() => setViewMode("grid")}
                   className={`p-2.5 transition-all ${
                     viewMode === "grid"
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#667eea] text-white"
                       : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
                   }`}
                   title="Grid View"
@@ -406,7 +406,7 @@ const AdminEvents = () => {
                   onClick={() => setViewMode("table")}
                   className={`p-2.5 transition-all ${
                     viewMode === "table"
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#764ba2] text-white"
                       : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
                   }`}
                   title="Table View"

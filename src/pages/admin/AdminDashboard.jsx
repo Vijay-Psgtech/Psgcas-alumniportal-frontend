@@ -268,7 +268,7 @@ const AdminDashboard = () => {
               className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group"
             >
               {/* Top gradient border on hover */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] opacity-0 group-hover:opacity-100 transition-opacity" />
 
               <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">
                 {icon}
@@ -291,7 +291,7 @@ const AdminDashboard = () => {
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={`px-4 sm:px-5 py-2.5 rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
-                                    ${activeTab === key ? "bg-gradient-to-br from-blue-500 to-blue-900 text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
+                                    ${activeTab === key ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
                                 `}
               >
                 <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} />
