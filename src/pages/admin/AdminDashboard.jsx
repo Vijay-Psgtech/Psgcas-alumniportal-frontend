@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     pendingAlumni: 0,
     totalDonatedAmount: 0,
     completedDonations: 0,
-    totalEvents : 0,
+    totalEvents: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -161,7 +161,12 @@ const AdminDashboard = () => {
       label: "Donations",
       badge: formatINR(stats.totalDonatedAmount),
     },
-    { key: "events", Icon: Calendar, label: "Events", badge: stats.totalEvents },
+    {
+      key: "events",
+      Icon: Calendar,
+      label: "Events",
+      badge: stats.totalEvents,
+    },
     { key: "albums", Icon: Camera, label: "Albums", badge: totalAlbums },
   ];
 
@@ -174,8 +179,6 @@ const AdminDashboard = () => {
       label: "Total Donations",
     },
     { icon: "✅", val: stats.completedDonations, label: "Completed" },
-    { icon: "📅", val: stats.totalEvents, label: "Events" },
-    { icon: "📸", val: totalAlbums, label: "Albums" },
   ];
 
   if (loading)
@@ -189,7 +192,7 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div className="bg-gradient-to-br from-[#f8f5ee] via-[#fdfcf9] to-[#f2f4fa] min-h-screen pt-20 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',_sans-serif]">
+    <div className="bg-slate-100 min-h-screen pt-20 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',_sans-serif]">
       {/* Background glowing orb */}
       <div className="absolute -top-44 -right-44 w-[480px] h-[480px] bg-[radial-gradient(circle,rgba(201,168,76,.07)_0%,transparent_70%)] pointer-events-none rounded-full" />
 
@@ -253,7 +256,7 @@ const AdminDashboard = () => {
 
         {/* Stat Cards */}
         <motion.div
-          className="grid grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-4 mb-8"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10"
           variants={cv}
           initial="hidden"
           animate="visible"
