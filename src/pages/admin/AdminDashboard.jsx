@@ -273,7 +273,7 @@ const AdminDashboard = () => {
               <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">
                 {icon}
               </div>
-              <div className="font-['Playfair_Display',_serif] text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">
+              <div className="text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">
                 {val}
               </div>
               <div className="text-[12px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">

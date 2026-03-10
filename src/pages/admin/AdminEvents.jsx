@@ -207,7 +207,7 @@ const AdminEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-12">
       {/* ========== LOADING STATE ========== */}
       {isFetching && (
         <motion.div
@@ -440,7 +440,7 @@ const AdminEvents = () => {
         ) : viewMode === "grid" ? (
           <>
             {/* GRID VIEW */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {paginatedData.map((event, idx) => {
               const cc = CATEGORY_COLORS[event.category] || "#667eea";
               return (

@@ -181,7 +181,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
             (h) => (
               <span
                 key={h}
-                className="text-[10px] font-bold text-gray-400 tracking-wide font-['Outfit',_sans-serif] uppercase"
+                className="text-[12px] font-bold text-gray-700 tracking-wide font-['Outfit',_sans-serif] uppercase"
               >
                 {h}
               </span>
@@ -215,18 +215,18 @@ export const EventsTab = ({ onError, onSuccess }) => {
                         className="fill-amber-500 text-amber-500 shrink-0"
                       />
                     )}
-                    <span className="font-semibold text-[14px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
+                    <span className="font-semibold text-[16px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
                       {ev.title}
                     </span>
                   </div>
-                  <span className="text-[11px] text-gray-500 font-['Outfit',_sans-serif] block line-clamp-1">
+                  <span className="text-[12px] text-gray-500 font-['Outfit',_sans-serif] block line-clamp-1">
                     {ev.venue?.split(",")[0]}
                   </span>
                 </div>
 
                 <div className="hidden sm:block">
                   <span
-                    className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold font-['Outfit',_sans-serif] tracking-wide"
+                    className="inline-block rounded-full px-2.5 py-1 text-[13px] font-bold font-['Outfit',_sans-serif] tracking-wide"
                     style={{
                       background: `${cc}15`,
                       color: cc,
@@ -236,11 +236,11 @@ export const EventsTab = ({ onError, onSuccess }) => {
                     {ev.category}
                   </span>
                 </div>
-                <span className="text-xs text-gray-500 font-['Outfit',_sans-serif] font-medium hidden sm:block">
+                <span className="text-sm text-gray-500 font-['Outfit',_sans-serif] font-medium hidden sm:block">
                   {fmtDate(ev.date)}
                 </span>
                 <span
-                  className={`hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${ev.status === "upcoming" ? "text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full w-max border border-emerald-100" : "text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full w-max border border-gray-200"}`}
+                  className={`hidden sm:inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider ${ev.status === "upcoming" ? "text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full w-max border border-emerald-100" : "text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full w-max border border-gray-200"}`}
                 >
                   {ev.status === "upcoming" ? (
                     <Clock size={10} />
