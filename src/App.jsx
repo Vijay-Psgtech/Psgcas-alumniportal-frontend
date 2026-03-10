@@ -38,6 +38,7 @@ const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
 const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
 const AlumniDirectory = lazy(() => import("./pages/alumni/AlumniDirectory"));
 const AlumniMap = lazy(() => import("./pages/alumni/AlumniMap"));
+const AlumniDonations = lazy(() => import("./pages/alumni/AlumniDonations"));
 
 // ═══════════════════════════════════════════════════════════════════════
 // ADMIN PAGES
@@ -269,6 +270,15 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <AlumniMap />
+                  </ProtectedRoute>
+                }
+              />
+
+               <Route
+                path="alumni/donations"
+                element={
+                  <ProtectedRoute>
+                    <AlumniDonations />
                   </ProtectedRoute>
                 }
               />
