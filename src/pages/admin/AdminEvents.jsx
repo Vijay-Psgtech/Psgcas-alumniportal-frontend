@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar,
@@ -13,6 +13,12 @@ import {
   TrendingUp,
   BarChart3,
   Loader,
+  Grid3x3,
+  List,
+  ChevronUp,
+  ChevronDown,
+  MapPin,
+  Users,
 } from "lucide-react";
 import { eventsAPI } from "../../services/api";
 import { DeleteModal } from "../../components/admin/AdminSharedUI";
@@ -40,6 +46,10 @@ const AdminEvents = () => {
   const [isFetching, setIsFetching] = useState(true);
   const [notification, setNotification] = useState(null);
   const [viewMode, setViewMode] = useState("grid"); // 'grid' or 'table'
+  const [sortBy, setSortBy] = useState("date"); // 'date', 'title', 'attendees', 'status'
+  const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // ✅ Fetch events on mount
   useEffect(() => {
@@ -77,6 +87,52 @@ const AdminEvents = () => {
       (statusFilter === "all" || e.status === statusFilter)
     );
   });
+
+  // ✅ Sort events
+  const sorted = useMemo(() => {
+    const copy = [...filtered];
+    copy.sort((a, b) => {
+      let aVal, bVal;
+      
+      switch (sortBy) {
+        case "date":
+          aVal = new Date(a.date);
+          bVal = new Date(b.date);
+          break;
+        case "title":
+          aVal = a.title.toLowerCase();
+          bVal = b.title.toLowerCase();
+          break;
+        case "attendees":
+          aVal = parseInt(a.attendees) || 0;
+          bVal = parseInt(b.attendees) || 0;
+          break;
+        case "status":
+          aVal = a.status;
+          bVal = b.status;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+      return 0;
+    });
+    return copy;
+  }, [filtered, sortBy, sortOrder]);
+
+  // ✅ Pagination
+  const totalPages = Math.ceil(sorted.length / pageSize);
+  const paginatedData = sorted.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // ✅ Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
 
   // ✅ Calculate stats
   const stats = {
@@ -151,7 +207,7 @@ const AdminEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 p-8 sm:p-12 lg:p-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-12">
       {/* ========== LOADING STATE ========== */}
       {isFetching && (
         <motion.div
@@ -178,7 +234,7 @@ const AdminEvents = () => {
           </div>
           <button
             onClick={() => setModal({ type: "add" })}
-            className="px-6 py-3 rounded-xl border-none bg-gradient-to-br from-blue-500 to-blue-900 text-white font-['Outfit',_sans-serif] font-bold text-sm cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 w-full sm:w-auto"
+            className="px-6 py-3 rounded-xl border-none bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white font-['Outfit',_sans-serif] font-bold text-sm cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40 active:translate-y-0 w-full sm:w-auto"
           >
             <Plus size={18} /> Add Event
           </button>
@@ -264,6 +320,49 @@ const AdminEvents = () => {
             </div>
           </div>
 
+          {/* Sorting Controls (Only in Table View) */}
+          {viewMode === "table" && (
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div className="text-xs font-semibold text-gray-600 font-['Outfit',_sans-serif] uppercase tracking-wider">
+                Sort By:
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { label: "Date", value: "date" },
+                  { label: "Title", value: "title" },
+                  { label: "Attendees", value: "attendees" },
+                  { label: "Status", value: "status" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      if (sortBy === option.value) {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortBy(option.value);
+                        setSortOrder("asc");
+                      }
+                    }}
+                    className={`px-3 py-2 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] border transition-all flex items-center gap-1 ${
+                      sortBy === option.value
+                        ? "bg-[#764ba2] text-white border-[#764ba2]"
+                        : "bg-white text-gray-600 border-slate-200 hover:border-blue-300"
+                    }`}
+                  >
+                    {option.label}
+                    {sortBy === option.value && (
+                      sortOrder === "asc" ? (
+                        <ChevronUp size={12} />
+                      ) : (
+                        <ChevronDown size={12} />
+                      )
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Status Filter and View Toggle */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm shadow-black/5">
@@ -273,7 +372,7 @@ const AdminEvents = () => {
                   onClick={() => setStatusFilter(f)}
                   className={`flex-1 sm:flex-none px-4 py-2.5 border-none font-['Outfit',_sans-serif] text-xs sm:text-sm font-bold transition-all capitalize ${
                     statusFilter === f
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#667eea] text-white"
                       : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
                   }`}
                 >
@@ -282,9 +381,39 @@ const AdminEvents = () => {
               ))}
             </div>
 
-            <div className="text-xs text-gray-500 font-['Outfit',_sans-serif] font-medium whitespace-nowrap">
-              Showing <strong className="text-[#0c0e1a]">{filtered.length}</strong> of{" "}
-              <strong className="text-[#0c0e1a]">{events.length}</strong> events
+            {/* View Toggle and Stats */}
+            <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between sm:justify-end">
+              <div className="text-xs text-gray-500 font-['Outfit',_sans-serif] font-medium whitespace-nowrap">
+                Showing <strong className="text-[#0c0e1a]">{paginatedData.length}</strong> of{" "}
+                <strong className="text-[#0c0e1a]">{sorted.length}</strong>
+              </div>
+              
+              {/* View Mode Toggle */}
+              <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm shadow-black/5">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`p-2.5 transition-all ${
+                    viewMode === "grid"
+                      ? "bg-[#667eea] text-white"
+                      : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
+                  }`}
+                  title="Grid View"
+                >
+                  <Grid3x3 size={16} />
+                </button>
+                <div className="w-px bg-slate-200"></div>
+                <button
+                  onClick={() => setViewMode("table")}
+                  className={`p-2.5 transition-all ${
+                    viewMode === "table"
+                      ? "bg-[#764ba2] text-white"
+                      : "bg-white text-gray-500 hover:bg-slate-50 hover:text-gray-700"
+                  }`}
+                  title="Table View"
+                >
+                  <List size={16} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -292,7 +421,7 @@ const AdminEvents = () => {
 
       {/* ========== EVENTS LIST / GRID ========== */}
       <div className="space-y-4">
-        {filtered.length === 0 ? (
+        {sorted.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -308,9 +437,11 @@ const AdminEvents = () => {
                 : "Get started by creating your first event!"}
             </p>
           </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 gap-4">
-            {filtered.map((event, idx) => {
+        ) : viewMode === "grid" ? (
+          <>
+            {/* GRID VIEW */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {paginatedData.map((event, idx) => {
               const cc = CATEGORY_COLORS[event.category] || "#667eea";
               return (
                 <motion.div
@@ -436,7 +567,295 @@ const AdminEvents = () => {
                 </motion.div>
               );
             })}
-          </div>
+            </div>
+
+            {/* PAGINATION - GRID VIEW */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 rounded-lg text-sm font-bold font-['Outfit',_sans-serif] transition-all ${
+                      currentPage === page
+                        ? "bg-blue-500 text-white border border-blue-500"
+                        : "border border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* TABLE VIEW */}
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm shadow-black/5">
+              {/* Table Header */}
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+                      <th className="px-6 py-4 text-left">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Event
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-left">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Category
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-center">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Date & Time
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-center">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Attendees
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-center">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Location
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-center">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Status
+                        </span>
+                      </th>
+                      <th className="px-6 py-4 text-center">
+                        <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-600">
+                          Actions
+                        </span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedData.map((event, idx) => {
+                      const cc = CATEGORY_COLORS[event.category] || "#667eea";
+                      return (
+                        <motion.tr
+                          key={event._id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors group"
+                        >
+                          {/* Title with Featured Badge */}
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              {event.highlight && (
+                                <Star size={14} className="fill-amber-500 text-amber-500 shrink-0" />
+                              )}
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
+                                  {event.title}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Category Badge */}
+                          <td className="px-6 py-4">
+                            <span
+                              className="inline-block rounded-full px-3 py-1 text-[10px] font-bold font-['Outfit',_sans-serif] tracking-wider border"
+                              style={{
+                                background: `${cc}15`,
+                                color: cc,
+                                borderColor: `${cc}30`,
+                              }}
+                            >
+                              {event.category}
+                            </span>
+                          </td>
+
+                          {/* Date & Time */}
+                          <td className="px-6 py-4 text-center">
+                            <div>
+                              <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
+                                {fmtDate(event.date)}
+                              </p>
+                              <p className="text-xs text-gray-500 font-['Outfit',_sans-serif]">
+                                {fmtTime(event.time)}
+                              </p>
+                            </div>
+                          </td>
+
+                          {/* Attendees */}
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center justify-center gap-1 text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
+                              <Users size={14} className="text-blue-500" />
+                              {event.attendees || "—"}
+                            </div>
+                          </td>
+
+                          {/* Location */}
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <MapPin size={14} className="text-gray-400 shrink-0" />
+                              <p className="text-sm text-gray-600 font-['Outfit',_sans-serif] truncate max-w-[120px]">
+                                {event.venue?.split(",")[1] || "N/A"}
+                              </p>
+                            </div>
+                          </td>
+
+                          {/* Status Badge */}
+                          <td className="px-6 py-4 text-center">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold font-['Outfit',_sans-serif] uppercase tracking-wider border ${
+                                event.status === "upcoming"
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  : "bg-gray-50 text-gray-600 border-gray-200"
+                              }`}
+                            >
+                              {event.status === "upcoming" ? (
+                                <Clock size={11} />
+                              ) : (
+                                <CheckCircle size={11} />
+                              )}
+                              {event.status === "upcoming" ? "Upcoming" : "Completed"}
+                            </span>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => setModal({ type: "edit", data: event })}
+                                disabled={isLoading}
+                                className="p-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Edit"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button
+                                onClick={() => setModal({ type: "delete", data: event })}
+                                disabled={isLoading}
+                                className="p-2 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Delete"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PAGINATION - TABLE VIEW */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200 p-4 shadow-sm shadow-black/5">
+                <div className="text-sm text-gray-600 font-['Outfit',_sans-serif]">
+                  Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> · 
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="ml-3 px-2 py-1 border border-slate-200 rounded-lg font-['Outfit',_sans-serif] text-sm bg-white outline-none focus:border-blue-500"
+                  >
+                    {[5, 10, 25, 50].map((size) => (
+                      <option key={size} value={size}>
+                        {size} per page
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                  >
+                    Previous
+                  </button>
+                  
+                  {/* Page buttons */}
+                  <div className="flex items-center gap-1">
+                    {totalPages <= 5 ? (
+                      Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => setCurrentPage(page)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] transition-all ${
+                            currentPage === page
+                              ? "bg-blue-500 text-white border border-blue-500"
+                              : "border border-slate-200 hover:bg-slate-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setCurrentPage(1)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] ${
+                            currentPage === 1
+                              ? "bg-blue-500 text-white border border-blue-500"
+                              : "border border-slate-200 hover:bg-slate-50"
+                          }`}
+                        >
+                          1
+                        </button>
+                        {currentPage > 3 && <span className="px-2 text-gray-400">…</span>}
+                        {currentPage > 2 && currentPage < totalPages - 1 && (
+                          <button
+                            onClick={() => setCurrentPage(currentPage)}
+                            className="w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] bg-blue-500 text-white border border-blue-500"
+                          >
+                            {currentPage}
+                          </button>
+                        )}
+                        {currentPage < totalPages - 2 && <span className="px-2 text-gray-400">…</span>}
+                        <button
+                          onClick={() => setCurrentPage(totalPages)}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] ${
+                            currentPage === totalPages
+                              ? "bg-blue-500 text-white border border-blue-500"
+                              : "border border-slate-200 hover:bg-slate-50"
+                          }`}
+                        >
+                          {totalPages}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

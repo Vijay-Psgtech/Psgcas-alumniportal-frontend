@@ -155,7 +155,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
             <button
               key={f}
               onClick={() => setStatusFilter(f)}
-              className={`px-4 py-2 border-none font-['Outfit',_sans-serif] text-xs font-bold transition-colors capitalize ${statusFilter === f ? "bg-blue-500 text-white" : "bg-transparent text-gray-400 hover:bg-slate-50 hover:text-gray-600"}`}
+              className={`px-4 py-2 border-none font-['Outfit',_sans-serif] text-xs font-bold transition-colors capitalize ${statusFilter === f ? "bg-[#667eea] text-white" : "bg-transparent text-gray-400 hover:bg-slate-50 hover:text-gray-600"}`}
             >
               {f}
             </button>
@@ -163,7 +163,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
         </div>
         <button
           onClick={() => setModal({ type: "add" })}
-          className="px-4 py-2.5 rounded-xl border-none bg-gradient-to-br from-blue-500 to-blue-900 text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-md shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40"
+          className="px-4 py-2.5 rounded-xl border-none bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer flex items-center gap-1.5 whitespace-nowrap shadow-md shadow-blue-500/25 transition-all hover:-translate-y-0.5 hover:shadow-blue-500/40"
         >
           <Plus size={14} /> Add Event
         </button>
@@ -181,7 +181,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
             (h) => (
               <span
                 key={h}
-                className="text-[10px] font-bold text-gray-400 tracking-wide font-['Outfit',_sans-serif] uppercase"
+                className="text-[12px] font-bold text-gray-700 tracking-wide font-['Outfit',_sans-serif] uppercase"
               >
                 {h}
               </span>
@@ -215,18 +215,18 @@ export const EventsTab = ({ onError, onSuccess }) => {
                         className="fill-amber-500 text-amber-500 shrink-0"
                       />
                     )}
-                    <span className="font-semibold text-[14px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
+                    <span className="font-semibold text-[16px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
                       {ev.title}
                     </span>
                   </div>
-                  <span className="text-[11px] text-gray-500 font-['Outfit',_sans-serif] block line-clamp-1">
+                  <span className="text-[12px] text-gray-500 font-['Outfit',_sans-serif] block line-clamp-1">
                     {ev.venue?.split(",")[0]}
                   </span>
                 </div>
 
                 <div className="hidden sm:block">
                   <span
-                    className="inline-block rounded-full px-2.5 py-1 text-[10px] font-bold font-['Outfit',_sans-serif] tracking-wide"
+                    className="inline-block rounded-full px-2.5 py-1 text-[13px] font-bold font-['Outfit',_sans-serif] tracking-wide"
                     style={{
                       background: `${cc}15`,
                       color: cc,
@@ -236,11 +236,11 @@ export const EventsTab = ({ onError, onSuccess }) => {
                     {ev.category}
                   </span>
                 </div>
-                <span className="text-xs text-gray-500 font-['Outfit',_sans-serif] font-medium hidden sm:block">
+                <span className="text-sm text-gray-500 font-['Outfit',_sans-serif] font-medium hidden sm:block">
                   {fmtDate(ev.date)}
                 </span>
                 <span
-                  className={`hidden sm:inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${ev.status === "upcoming" ? "text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full w-max border border-emerald-100" : "text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full w-max border border-gray-200"}`}
+                  className={`hidden sm:inline-flex items-center gap-1.5 text-[12px] font-bold uppercase tracking-wider ${ev.status === "upcoming" ? "text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full w-max border border-emerald-100" : "text-gray-500 bg-gray-50 px-2.5 py-1 rounded-full w-max border border-gray-200"}`}
                 >
                   {ev.status === "upcoming" ? (
                     <Clock size={10} />

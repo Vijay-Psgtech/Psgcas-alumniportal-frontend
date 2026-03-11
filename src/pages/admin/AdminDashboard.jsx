@@ -192,7 +192,7 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div className="bg-slate-100 min-h-screen pt-20 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',_sans-serif]">
+    <div className="bg-slate-100 min-h-screen pt-26 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',_sans-serif]">
       {/* Background glowing orb */}
       <div className="absolute -top-44 -right-44 w-[480px] h-[480px] bg-[radial-gradient(circle,rgba(201,168,76,.07)_0%,transparent_70%)] pointer-events-none rounded-full" />
 
@@ -268,12 +268,12 @@ const AdminDashboard = () => {
               className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group"
             >
               {/* Top gradient border on hover */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] opacity-0 group-hover:opacity-100 transition-opacity" />
 
               <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">
                 {icon}
               </div>
-              <div className="font-['Playfair_Display',_serif] text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">
+              <div className="text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">
                 {val}
               </div>
               <div className="text-[12px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">
@@ -291,7 +291,7 @@ const AdminDashboard = () => {
                 key={key}
                 onClick={() => setActiveTab(key)}
                 className={`px-4 sm:px-5 py-2.5 rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
-                                    ${activeTab === key ? "bg-gradient-to-br from-blue-500 to-blue-900 text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
+                                    ${activeTab === key ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
                                 `}
               >
                 <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} />

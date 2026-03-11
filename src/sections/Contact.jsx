@@ -638,7 +638,7 @@ const ContactPage = () => {
           <h2 className="map-title">Find Us On Map</h2>
           <div className="map-container">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.4477359816227!2d76.93627!3d11.0135!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba4592627f5f5f5%3A0x5f5f5f5f5f5f5f5f!2sPSG%20College%20of%20Arts%20%26%20Science!5e0!3m2!1sen!2sin!4v1234567890"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.0537513396685!2d77.03128737498163!3d11.03459415437885!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba858526b5c0591%3A0x6c452206816788d4!2sPSG%20College%20of%20Arts%20and%20Science!5e0!3m2!1sen!2sus!4v1773208195155!5m2!1sen!2sus"
               allowFullScreen=""
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

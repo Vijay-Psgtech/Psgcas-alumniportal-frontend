@@ -326,7 +326,7 @@ const AlumniProfile = () => {
                 onClick={() => setIsEditing(true)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-700 text-white text-sm font-semibold shadow-md shadow-blue-200 hover:bg-blue-900 transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#667eea] text-white text-sm font-semibold shadow-md shadow-blue-200 hover:bg-[#764ba2] transition-colors"
               >
                 <Edit size={15} /> Edit Profile
               </motion.button>
@@ -370,11 +370,11 @@ const AlumniProfile = () => {
           animate="visible"
         >
           {/* top accent stripe */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-blue-700 to-blue-900" />
+          <div className="h-1.5 w-full bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 sm:px-8 py-8">
             {/* Avatar */}
-            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-900 flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none">
+            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none">
               {initials || "?"}
             </div>
 
@@ -600,7 +600,7 @@ const AlumniProfile = () => {
                 <button
                   type="button"
                   onClick={handleSaveProfile}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 active:scale-[0.98] transition-all shadow-md shadow-blue-200"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#667eea] text-white text-sm font-bold hover:bg-[#764ba2] active:scale-[0.98] transition-all shadow-md shadow-blue-200"
                 >
                   <Save size={16} /> Save Changes
                 </button>

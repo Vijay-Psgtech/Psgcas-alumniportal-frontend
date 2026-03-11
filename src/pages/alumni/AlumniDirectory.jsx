@@ -41,7 +41,7 @@ const selectCls =
   "focus:bg-white cursor-pointer transition-all duration-200 min-w-[160px]";
 
 /* ─── Alumni Card ────────────────────────────── */
-const AlumniCard = ({ alumnus }) => {
+export const AlumniCard = ({ alumnus }) => {
   const initials =
     `${alumnus.firstName?.charAt(0) ?? ""}${alumnus.lastName?.charAt(0) ?? ""}`.toUpperCase();
 
@@ -309,7 +309,7 @@ const AlumniDirectory = () => {
           transition={{ delay: 0.1, duration: 0.4 }}
         >
           {/* top accent */}
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-blue-700 to-blue-900 rounded-t-2xl" />
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-t-2xl" />
 
           {/* Search row */}
           <div className="relative mb-4">
