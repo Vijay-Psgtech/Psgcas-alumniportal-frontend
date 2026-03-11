@@ -13,6 +13,7 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/auth/profile`, {
@@ -26,12 +27,14 @@ export function AuthProvider({ children }) {
         const freshUser = data?.alumni ?? data?.user ?? data ?? null;
         if (freshUser) {
           setUser(freshUser);
+          setIsAuthenticated(true);
         } else {
           throw new Error("No user in response");
         }
       })
       .catch(() => {
         setUser(null);
+        setIsAuthenticated(false);
       })
       .finally(() => setAuthLoading(false));
   }, []);
@@ -40,6 +43,7 @@ export function AuthProvider({ children }) {
   // The server has already set the cookie; we just store user data in state.
   const login = useCallback(async (userData) => {
     setUser(userData);
+    setIsAuthenticated(true);
     // Optionally re-fetch to get the absolute latest profile
     try {
       const res = await fetch(`${API_BASE}/auth/profile`, {
@@ -66,6 +70,7 @@ export function AuthProvider({ children }) {
       console.error("Logout request failed", err);
     }
     setUser(null);
+    setIsAuthenticated(false);
   }, []);
 
   // ── refreshUser: re-fetch profile from server ───────────────────
@@ -87,7 +92,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, refreshUser, authLoading }}
+      value={{ user, isAuthenticated, login, logout, refreshUser, authLoading }}
     >
       {children}
     </AuthContext.Provider>
