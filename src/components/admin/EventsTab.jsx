@@ -68,7 +68,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
   // ✅ Handle save (create/update)
   const handleSave = async (form) => {
     console.log('FormData', form);
-    console.log(form.image instanceof File);
+    console.log(form.imageUrl instanceof File);
     try {
       setIsLoading(true);
       const fd = new FormData();
