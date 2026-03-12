@@ -77,12 +77,18 @@ export const adminAPI = {
 export const eventsAPI = {
   getAll: () => api.get("/events"),
   getById: (id) => api.get(`/events/${id}`),
-  create: (data) => api.post("/events", data, {
-    headers: {
-      "Content-Type" : "multipart/form-data",
-    }
-  }),
-  update: (id, data) => api.put(`/events/${id}`, data),
+  create: (data) =>
+    api.post("/events", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  update: (id, data) =>
+    api.put(`/events/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   delete: (id) => api.delete(`/events/${id}`),
 };
 
