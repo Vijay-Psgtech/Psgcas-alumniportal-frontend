@@ -74,8 +74,7 @@ const WhatIsNew = () => {
       thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
       image:
         "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=250&fit=crop",
-      pdfUrl:
-        "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table.pdf",
+      pdfUrl: "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
       category: "newsletter",
       excerpt:
         "Stay updated with the latest alumni achievements, events, and success stories from our community.",
