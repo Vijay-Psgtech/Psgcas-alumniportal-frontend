@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Upload, X } from "lucide-react";
 import { Overlay, ModalHeader, FLabel, Inp, Sel, Txt } from "./AdminSharedUI";
 
 const CATEGORIES = [
@@ -23,12 +23,34 @@ const BLANK_EVENT = {
   attendees: "",
   category: "Awards",
   highlight: false,
+  image: null,
 };
 
 export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
   const [form, setForm] = useState(initial || BLANK_EVENT);
+  const [imagePreview, setImagePreview] = useState(() => {
+    if (initial?.image && typeof initial.image === "string") {
+      return initial.image;
+    }
+    return null;
+  });
   const isEdit = !!initial?._id;
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      set("image", file);
+      const preview = URL.createObjectURL(file);
+      setImagePreview(preview);
+    }
+    
+  };
+
+  const removeImage = () => {
+    set("image", null);
+    setImagePreview(null);
+  };
 
   const valid = form.title.trim() && form.date && form.venue.trim();
 
@@ -140,6 +162,45 @@ export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
               placeholder="Short event description visible on the event card…"
               disabled={isLoading}
             />
+          </FLabel>
+
+          <FLabel label="Event Image" span2>
+            <div className="space-y-3">
+              {imagePreview ? (
+                <div className="relative w-full h-40 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    disabled={isLoading}
+                    className="absolute top-2 right-2 p-1 bg-red-500/90 hover:bg-red-600 rounded-lg text-white transition-all"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-full p-4 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-colors">
+                  <Upload size={24} className="text-slate-400 mb-2" />
+                  <span className="text-sm font-semibold text-slate-600">
+                    Click to upload image
+                  </span>
+                  <span className="text-xs text-slate-400 mt-1">
+                    PNG, JPG, GIF up to 5MB
+                  </span>
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    disabled={isLoading}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
           </FLabel>
         </div>
 

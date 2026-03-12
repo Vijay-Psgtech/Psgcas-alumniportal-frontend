@@ -67,15 +67,24 @@ export const EventsTab = ({ onError, onSuccess }) => {
 
   // ✅ Handle save (create/update)
   const handleSave = async (form) => {
+    console.log('FormData', form);
+    console.log(form.image instanceof File);
     try {
       setIsLoading(true);
+      const fd = new FormData();
+
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          fd.append(key, value);
+        }
+      });
       if (modal.data?._id) {
         // Update existing event
-        await eventsAPI.update(modal.data._id, form);
+        await eventsAPI.update(modal.data._id, fd);
         onSuccess(`✓ Event "${form.title}" updated successfully!`);
       } else {
         // Create new event
-        await eventsAPI.create(form);
+        await eventsAPI.create(fd);
         onSuccess(`✓ Event "${form.title}" created successfully!`);
       }
       setModal(null);
@@ -129,7 +138,10 @@ export const EventsTab = ({ onError, onSuccess }) => {
           className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-40 rounded-2xl"
         >
           <div className="text-center">
-            <Loader size={32} className="mx-auto mb-2 text-blue-500 animate-spin" />
+            <Loader
+              size={32}
+              className="mx-auto mb-2 text-blue-500 animate-spin"
+            />
             <p className="text-gray-600 font-['Outfit',_sans-serif] text-sm font-medium">
               Loading events...
             </p>
