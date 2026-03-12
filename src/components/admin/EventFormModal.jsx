@@ -23,14 +23,33 @@ const BLANK_EVENT = {
   attendees: "",
   category: "Awards",
   highlight: false,
-  image: null,
+  imageUrl: null,
 };
 
+const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+
 export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
-  const [form, setForm] = useState(initial || BLANK_EVENT);
+  const formatDate = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const [form, setForm] = useState(() => {
+    if (!initial) return BLANK_EVENT;
+
+    return {
+      ...initial,
+      date: formatDate(initial.date),
+    };
+  });
+
   const [imagePreview, setImagePreview] = useState(() => {
-    if (initial?.image && typeof initial.image === "string") {
-      return initial.image;
+    if (initial?.imageUrl && typeof initial.imageUrl === "string") {
+      return `${API_BASE}/${initial.imageUrl}`;
     }
     return null;
   });
@@ -40,15 +59,14 @@ export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      set("image", file);
+      set("imageUrl", file);
       const preview = URL.createObjectURL(file);
       setImagePreview(preview);
     }
-    
   };
 
   const removeImage = () => {
-    set("image", null);
+    set("imageUrl", null);
     setImagePreview(null);
   };
 
