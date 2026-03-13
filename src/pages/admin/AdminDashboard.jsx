@@ -263,7 +263,7 @@ const AdminDashboard = () => {
             <motion.div
               key={label}
               variants={iv}
-              className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group"
+              className="bg-white border border-slate-200 rounded-2xl shadow-xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group"
             >
               {/* Top gradient border on hover */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] opacity-0 group-hover:opacity-100 transition-opacity" />

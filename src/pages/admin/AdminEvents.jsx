@@ -20,7 +20,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react";
-import { eventsAPI } from "../../services/api";
+import { eventsAPI, API_BASE } from "../../services/api";
 import { DeleteModal } from "../../components/admin/AdminSharedUI";
 import { EventFormModal } from "../../components/admin/EventFormModal";
 
@@ -207,7 +207,7 @@ const AdminEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
       {/* ========== LOADING STATE ========== */}
       {isFetching && (
         <motion.div
@@ -261,7 +261,7 @@ const AdminEvents = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className={`${colorMap[stat.color]} p-4 rounded-2xl border border-${stat.color}-100 backdrop-blur-sm`}
+                className={`${colorMap[stat.color]} p-4 rounded-2xl shadow-xl border border-${stat.color}-100 backdrop-blur-md`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-500">
@@ -504,6 +504,15 @@ const AdminEvents = () => {
                     </div>
                   </div>
 
+                  {/* Event imageUrl */}
+                  {event.imageUrl && (
+                    <img
+                      src={`${API_BASE}/${event.imageUrl}`}
+                      alt={event.title}
+                      className="w-full h-32 object-cover rounded-lg mb-4"
+                    />
+                  )}
+
                   {/* ========== EVENT DETAILS ========== */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
                     <div>
@@ -661,14 +670,23 @@ const AdminEvents = () => {
                         >
                           {/* Title with Featured Badge */}
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              {event.highlight && (
-                                <Star size={14} className="fill-amber-500 text-amber-500 shrink-0" />
+                            <div className="flex items-center gap-3">
+                              {event.imageUrl && (
+                                <img
+                                  src={`${API_BASE}/${event.imageUrl}`}
+                                  alt={event.title}
+                                  className="w-10 h-10 object-cover rounded-lg shrink-0"
+                                />
                               )}
-                              <div className="flex-1">
-                                <p className="text-sm font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
-                                  {event.title}
-                                </p>
+                              <div className="flex items-center gap-2">
+                                {event.highlight && (
+                                  <Star size={14} className="fill-amber-500 text-amber-500 shrink-0" />
+                                )}
+                                <div className="flex-1">
+                                  <p className="text-sm font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
+                                    {event.title}
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </td>
