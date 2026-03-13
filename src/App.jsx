@@ -46,6 +46,7 @@ const AlumniDonations = lazy(() => import("./pages/alumni/AlumniDonations"));
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
+const AlumniUsers = lazy(() => import("./pages/admin/AlumniUsersList"));
 
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
@@ -306,6 +307,15 @@ export default function App() {
                 element={
                   <ProtectedAdminRoute>
                     <AdminEvents />
+                  </ProtectedAdminRoute>
+                }
+              />
+
+              <Route
+                path="admin/users"
+                element={
+                  <ProtectedAdminRoute>
+                    <AlumniUsers />
                   </ProtectedAdminRoute>
                 }
               />

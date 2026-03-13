@@ -1,0 +1,505 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Search,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Building,
+  Briefcase,
+  Linkedin,
+  CheckCircle,
+  XCircle,
+  Users,
+  Filter,
+  Grid3x3,
+  List,
+  Eye,
+  UserCheck,
+  UserX,
+} from 'lucide-react';
+import { adminAPI, API_BASE } from '../../services/api';
+
+const AlumniUsersList = () => {
+  const [alumniUsers, setAlumniUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // all, approved, pending
+  const [viewMode, setViewMode] = useState('grid'); // grid or table
+  const [sortBy, setSortBy] = useState('name'); // name, graduationYear, department
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  useEffect(() => {
+    const fetchAlumni = async () => {
+      try {
+        setLoading(true);
+        const res = await adminAPI.getAllAlumni();
+        setAlumniUsers(res.data.alumni);
+      } catch (error) {
+        console.error('Alumni error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+   
+    fetchAlumni();
+  }, []);
+
+  // Filter and sort alumni
+  const filteredAndSortedAlumni = useMemo(() => {
+    let filtered = alumniUsers.filter((alumni) => {
+      const fullName = `${alumni.firstName} ${alumni.lastName}`.toLowerCase();
+      const query = search.toLowerCase();
+      const matchesSearch =
+        fullName.includes(query) ||
+        alumni.email.toLowerCase().includes(query) ||
+        alumni.department.toLowerCase().includes(query) ||
+        (alumni.currentCompany && alumni.currentCompany.toLowerCase().includes(query));
+
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'approved' && alumni.isApproved) ||
+        (statusFilter === 'pending' && !alumni.isApproved);
+
+      return matchesSearch && matchesStatus;
+    });
+
+    filtered.sort((a, b) => {
+      let aVal, bVal;
+      switch (sortBy) {
+        case 'name':
+          aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
+          bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
+          break;
+        case 'graduationYear':
+          aVal = a.graduationYear;
+          bVal = b.graduationYear;
+          break;
+        case 'department':
+          aVal = a.department.toLowerCase();
+          bVal = b.department.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [alumniUsers, search, statusFilter, sortBy, sortOrder]);
+
+  const handleApprove = async (id) => {
+    try {
+      await adminAPI.approveAlumni(id);
+      setAlumniUsers((prev) =>
+        prev.map((user) => (user._id === id ? { ...user, isApproved: true } : user))
+      );
+    } catch (error) {
+      console.error('Approve error:', error);
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await adminAPI.rejectAlumni(id);
+      setAlumniUsers((prev) =>
+        prev.map((user) => (user._id === id ? { ...user, isApproved: false } : user))
+      );
+    } catch (error) {
+      console.error('Reject error:', error);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
+        <div className="text-center">
+          <Users size={48} className="mx-auto mb-4 text-blue-500 animate-pulse" />
+          <p className="text-gray-600 font-medium">Loading alumni users...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+              Alumni Users Management
+            </h1>
+            <p className="text-gray-600 text-sm">
+              Manage and oversee alumni registrations
+            </p>
+          </div>
+          <div className="text-sm text-gray-500">
+            Total: <strong className="text-gray-900">{alumniUsers.length}</strong> users
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Total Users', value: alumniUsers.length, icon: Users, color: 'blue' },
+            { label: 'Approved', value: alumniUsers.filter(u => u.isApproved).length, icon: CheckCircle, color: 'green' },
+            { label: 'Pending', value: alumniUsers.filter(u => !u.isApproved).length, icon: XCircle, color: 'yellow' },
+            { label: 'Admins', value: alumniUsers.filter(u => u.isAdmin).length, icon: UserCheck, color: 'purple' },
+          ].map((stat, i) => {
+            const Icon = stat.icon;
+            const colorClasses = {
+              blue: 'bg-blue-50 text-blue-600',
+              green: 'bg-green-50 text-green-600',
+              yellow: 'bg-yellow-50 text-yellow-600',
+              purple: 'bg-purple-50 text-purple-600',
+            };
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className={`${colorClasses[stat.color]} p-4 rounded-xl shadow-lg  border-${stat.color}-100 backdrop-blur-md`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    {stat.label}
+                  </span>
+                  <Icon size={16} className="opacity-60" />
+                </div>
+                <p className="text-2xl font-bold">{stat.value}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 mb-6 shadow-sm">
+        <div className="flex flex-col gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, email, department, or company..."
+              className="w-full py-3 px-4 pl-10 border border-slate-200 rounded-xl text-sm outline-none bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+            />
+          </div>
+
+          {/* Filters and View Toggle */}
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+            <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+              {[
+                { label: 'All Users', value: 'all' },
+                { label: 'Approved', value: 'approved' },
+                { label: 'Pending', value: 'pending' },
+              ].map((filter) => (
+                <button
+                  key={filter.value}
+                  onClick={() => setStatusFilter(filter.value)}
+                  className={`flex-1 sm:flex-none px-4 py-2.5 border-none text-xs sm:text-sm font-bold transition-all capitalize ${
+                    statusFilter === filter.value
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-600 hover:bg-slate-50'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-gray-500">
+                Showing <strong>{filteredAndSortedAlumni.length}</strong> of <strong>{alumniUsers.length}</strong>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-2.5 transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-500 hover:bg-slate-50'
+                  }`}
+                  title="Grid View"
+                >
+                  <Grid3x3 size={16} />
+                </button>
+                <div className="w-px bg-slate-200"></div>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`p-2.5 transition-all ${
+                    viewMode === 'table'
+                      ? 'bg-purple-500 text-white'
+                      : 'bg-white text-gray-500 hover:bg-slate-50'
+                  }`}
+                  title="Table View"
+                >
+                  <List size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alumni List */}
+      <div className="space-y-4">
+        {filteredAndSortedAlumni.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-white rounded-2xl border border-slate-200 p-12 text-center"
+          >
+            <Users size={48} className="mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-bold text-gray-700 mb-1">No alumni found</h3>
+            <p className="text-sm text-gray-500">
+              {search || statusFilter !== 'all'
+                ? 'Try adjusting your search or filters'
+                : 'No alumni users registered yet'}
+            </p>
+          </motion.div>
+        ) : viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredAndSortedAlumni.map((alumni, idx) => (
+              <motion.div
+                key={alumni._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
+              >
+                {/* Profile Header */}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                    {alumni.profileImage ? (
+                      <img
+                        src={`${API_BASE}/${alumni.profileImage}`}
+                        alt={`${alumni.firstName} ${alumni.lastName}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                        {alumni.firstName[0]}{alumni.lastName[0]}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-gray-900 truncate">
+                      {alumni.firstName} {alumni.lastName}
+                    </h3>
+                    <p className="text-sm text-gray-600 truncate">{alumni.email}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        alumni.isApproved
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {alumni.isApproved ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                        {alumni.isApproved ? 'Approved' : 'Pending'}
+                      </span>
+                      {alumni.isAdmin && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                          <UserCheck size={12} />
+                          Admin
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Building size={14} className="text-gray-400" />
+                    <span className="text-gray-600">{alumni.department.toUpperCase()}</span>
+                    <span className="text-gray-400">•</span>
+                    <Calendar size={14} className="text-gray-400" />
+                    <span className="text-gray-600">{alumni.graduationYear}</span>
+                  </div>
+
+                  {alumni.currentCompany && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Briefcase size={14} className="text-gray-400" />
+                      <span className="text-gray-600">{alumni.jobTitle} at {alumni.currentCompany}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin size={14} className="text-gray-400" />
+                    <span className="text-gray-600 truncate">{alumni.city}, {alumni.country}</span>
+                  </div>
+
+                  {alumni.linkedin && (
+                    <a
+                      href={alumni.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      <Linkedin size={14} />
+                      LinkedIn Profile
+                    </a>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  {!alumni.isApproved && (
+                    <button
+                      onClick={() => handleApprove(alumni._id)}
+                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                    >
+                      Approve
+                    </button>
+                  )}
+                  <button className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                    View Details
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Alumni
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Contact
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Department & Year
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Company
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAndSortedAlumni.map((alumni, idx) => (
+                    <motion.tr
+                      key={alumni._id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            {alumni.profileImage ? (
+                              <img
+                                src={`${API_BASE}/${alumni.profileImage}`}
+                                alt={`${alumni.firstName} ${alumni.lastName}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                                {alumni.firstName[0]}{alumni.lastName[0]}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900">
+                              {alumni.firstName} {alumni.lastName}
+                            </p>
+                            <p className="text-xs text-gray-500">{alumni.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600">
+                          <div className="flex items-center gap-1 mb-1">
+                            <Mail size={12} />
+                            <span>{alumni.email}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Phone size={12} />
+                            <span>{alumni.phone}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600">
+                          <p className="font-medium">{alumni.department.toUpperCase()}</p>
+                          <p className="text-xs">Graduated {alumni.graduationYear}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-600">
+                          {alumni.currentCompany ? (
+                            <>
+                              <p className="font-medium">{alumni.jobTitle}</p>
+                              <p className="text-xs">{alumni.currentCompany}</p>
+                            </>
+                          ) : (
+                            <span className="text-gray-400">Not specified</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                          alumni.isApproved
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {alumni.isApproved ? <CheckCircle size={12} /> : <XCircle size={12} />}
+                          {alumni.isApproved ? 'Approved' : 'Pending'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {!alumni.isApproved && (
+                            <button
+                              onClick={() => handleApprove(alumni._id)}
+                              className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                              title="Approve"
+                            >
+                              <CheckCircle size={14} />
+                            </button>
+                          )}
+                          <button className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" title="View Details">
+                            <Eye size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AlumniUsersList;
