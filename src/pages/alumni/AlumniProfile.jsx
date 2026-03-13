@@ -97,7 +97,6 @@ const inputCls =
 const AlumniProfile = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
-  console.log('Alumni Profile');
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -107,6 +106,9 @@ const AlumniProfile = () => {
   const [editData, setEditData] = useState({});
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -235,20 +237,33 @@ const AlumniProfile = () => {
       setError("");
       setSuccess("");
       const payload = { ...editData, location: locationQuery };
-      const response = await alumniAPI.updateProfile(profileData._id, payload);
+      const formData = new FormData();
+      Object.keys(payload).forEach(key => {
+        if (key === 'coordinates' && Array.isArray(payload[key])) {
+          payload[key].forEach(coord => formData.append(key, coord));
+        } else if (payload[key] !== null && payload[key] !== undefined) {
+          formData.append(key, payload[key]);
+        }
+      });
+      if (selectedFile) {
+        formData.append('profileImage', selectedFile);
+      }
+      const response = await alumniAPI.updateProfile(profileData._id, formData);
       const updated = normalizeAlumni(extractAlumni(response.data) || {});
       setProfileData(updated || payload);
       setIsEditing(false);
+      setSelectedFile(null);
       setSuccess("Profile updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save profile");
     }
-  }, [profileData?._id, editData, locationQuery]);
+  }, [profileData?._id, editData, locationQuery, selectedFile]);
 
   const handleCancel = useCallback(() => {
     setEditData(profileData);
     setIsEditing(false);
+    setSelectedFile(null);
   }, [profileData]);
   const handleLogout = useCallback(() => {
     logout();
@@ -374,8 +389,16 @@ const AlumniProfile = () => {
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 sm:px-8 py-8">
             {/* Avatar */}
-            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none">
-              {initials || "?"}
+            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none overflow-hidden">
+              {profileData.profileImage ? (
+                <img
+                  src={`${API_BASE}/${profileData.profileImage}`}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                initials || "?"
+              )}
             </div>
 
             {/* Name + meta */}
@@ -474,6 +497,14 @@ const AlumniProfile = () => {
                       value={editData.linkedin || ""}
                       onChange={handleChange}
                       placeholder="https://linkedin.com/in/yourname"
+                    />
+                  </FormField>
+                  <FormField label="Profile Image">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
                     />
                   </FormField>
                 </div>
