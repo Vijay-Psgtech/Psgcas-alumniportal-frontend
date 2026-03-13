@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { alumniAPI } from "../../services/api";
+import { alumniAPI, API_BASE } from "../../services/api";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -165,7 +165,7 @@ const AlumniMap = () => {
               <MapContainer
                 center={[20, 0]}
                 zoom={2}
-                style={{ height: "520px", width: "100%", borderRadius: "12px" }}
+                style={{ height: "620px", width: "100%", borderRadius: "12px" }}
                 scrollWheelZoom={true}
               >
                 <TileLayer
@@ -216,8 +216,16 @@ const AlumniMap = () => {
                   </button>
 
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 flex-shrink-0 select-none">
-                      {selectedInitials || "?"}
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 flex-shrink-0 select-none">
+                      {selectedAlumni.profileImage ? (
+                          <img
+                            src={`${API_BASE}/${selectedAlumni.profileImage}`}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          selectedInitials || "?"
+                        )}
                     </div>
                     <div className="min-w-0">
                       <h2 className="text-lg font-extrabold text-slate-900 leading-tight truncate">
