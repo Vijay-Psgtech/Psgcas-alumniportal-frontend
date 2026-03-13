@@ -52,7 +52,11 @@ export const authAPI = {
 export const alumniAPI = {
   getAllAlumni: () => api.get("/alumni"),
   getAlumniById: (id) => api.get(`/alumni/${id}`),
-  updateProfile: (id, data) => api.put(`/alumni/${id}`, data),
+  updateProfile: (id, data) => api.put(`/alumni/${id}`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }),
   getStats: () => api.get("/alumni/stats/get-stats"),
   getMapData: () => api.get("/alumni/map/data"),
 };
