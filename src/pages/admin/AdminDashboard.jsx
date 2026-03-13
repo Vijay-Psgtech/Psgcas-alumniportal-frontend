@@ -221,7 +221,6 @@ const AdminDashboard = () => {
             <LogOut size={14} strokeWidth={2.5} /> Logout
           </motion.button>
         </motion.div>
-
         {/* Status Messages */}
         <AnimatePresence>
           {error && (
@@ -253,7 +252,6 @@ const AdminDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
         {/* Stat Cards */}
         <motion.div
           className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10"
@@ -282,7 +280,6 @@ const AdminDashboard = () => {
             </motion.div>
           ))}
         </motion.div>
-
         {/* Tabs Panel */}
         <div className="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 mb-6 shadow-sm">
           <div className="flex gap-2 flex-wrap">
@@ -307,7 +304,6 @@ const AdminDashboard = () => {
             ))}
           </div>
         </div>
-
         {/* Tab Content */}
         <AnimatePresence mode="wait">
           {activeTab === "events" && (
@@ -361,7 +357,7 @@ const AdminDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
+        
         {/* Detail Modal for Alumni & Donations */}
         <AnimatePresence>
           {selectedItem && (
@@ -369,92 +365,121 @@ const AdminDashboard = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 sm:p-5 backdrop-blur-sm"
+              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
               onClick={() => setSelectedItem(null)}
             >
               <motion.div
                 initial={{ scale: 0.92, y: 10 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.92, y: 10 }}
-                className="bg-white rounded-2xl w-full max-w-[580px] max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
+                className="bg-white rounded-2xl w-full max-w-[620px] max-h-[90vh] overflow-y-auto p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Close Button */}
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="absolute top-5 right-5 bg-slate-50 hover:bg-slate-100 text-gray-500 transition-colors border-none w-9 h-9 rounded-xl cursor-pointer flex items-center justify-center"
+                  className="absolute top-5 right-5 bg-slate-50 hover:bg-slate-100 text-gray-500 transition border w-9 h-9 rounded-xl flex items-center justify-center"
                 >
                   <X size={16} />
                 </button>
 
+                {/* Alumni View */}
                 {selectedItem.firstName ? (
                   <>
-                    <h2 className="font-['Playfair_Display',_serif] text-[24px] font-extrabold text-[#0c0e1a] mb-6">
-                      {selectedItem.firstName} {selectedItem.lastName}
-                    </h2>
-                    {[
-                      {
-                        h: "Contact",
-                        items: [
-                          { l: "Email", v: selectedItem.email },
-                          { l: "Phone", v: selectedItem.phone || "N/A" },
-                        ],
-                      },
-                      {
-                        h: "Academic",
-                        items: [
-                          {
-                            l: "Department",
-                            v: selectedItem.department || "N/A",
-                          },
-                          {
-                            l: "Graduation Year",
-                            v: selectedItem.graduationYear || "N/A",
-                          },
-                        ],
-                      },
-                    ].map((s) => (
-                      <div key={s.h} className="mb-6">
-                        <div className="text-[11px] font-extrabold text-[#0c0e1a] tracking-widest uppercase mb-3 font-['Outfit',_sans-serif]">
-                          {s.h}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {s.items.map((it) => (
-                            <div
-                              key={it.l}
-                              className="p-3.5 bg-slate-50 rounded-xl border-l-2 border-blue-500 shadow-sm border border-slate-100 border-l-blue-500"
-                            >
-                              <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide font-['Outfit',_sans-serif]">
-                                {it.l}
-                              </div>
-                              <div className="text-[14px] text-[#0c0e1a] font-semibold mt-1 font-['Outfit',_sans-serif] break-words">
-                                {it.v}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                    {/* Header with Profile Image */}
+                    <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                        {selectedItem.profileImage ? (
+                          <img
+                            src={`${import.meta.env.VITE_API_URL.replace(
+                              "/api",
+                              "",
+                            )}/${selectedItem.profileImage}`}
+                            alt="profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          `${selectedItem.firstName?.[0] || ""}${
+                            selectedItem.lastName?.[0] || ""
+                          }`
+                        )}
                       </div>
-                    ))}
-                    <div className="flex gap-2.5 pt-6 border-t border-slate-100 flex-wrap font-['Outfit',_sans-serif]">
+
+                      <div>
+                        <h2 className="text-[22px] font-bold text-[#0c0e1a] font-['Playfair_Display']">
+                          {selectedItem.firstName} {selectedItem.lastName}
+                        </h2>
+
+                        <p className="text-sm text-gray-500 font-medium">
+                          {selectedItem.department || "Department N/A"} •{" "}
+                          {selectedItem.graduationYear || "Year N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { l: "Email", v: selectedItem.email },
+                        { l: "Phone", v: selectedItem.phone || "N/A" },
+                        {
+                          l: "Company",
+                          v: selectedItem.currentCompany || "N/A",
+                        },
+                        { l: "Job Title", v: selectedItem.jobTitle || "N/A" },
+                        { l: "City", v: selectedItem.city || "N/A" },
+                        { l: "Country", v: selectedItem.country || "N/A" },
+                      ].map((it) => (
+                        <div
+                          key={it.l}
+                          className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-sm transition"
+                        >
+                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+                            {it.l}
+                          </p>
+
+                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 break-words">
+                            {it.v}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* LinkedIn */}
+                    {selectedItem.linkedin && (
+                      <a
+                        href={selectedItem.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-block mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                      >
+                        View LinkedIn Profile
+                      </a>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-3 pt-6 mt-6 border-t border-slate-100">
                       {!selectedItem.isApproved && (
                         <button
                           onClick={() => handleApprove(selectedItem._id)}
-                          className="flex-1 py-3 px-4 border-none rounded-xl bg-emerald-50 text-emerald-700 font-bold cursor-pointer flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors text-sm shadow-sm border border-emerald-100"
+                          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
                         >
-                          <CheckCircle size={15} />
                           Approve Alumni
                         </button>
                       )}
+
                       {selectedItem.isApproved && !selectedItem.isAdmin && (
                         <button
                           onClick={() => handleMakeAdmin(selectedItem._id)}
-                          className="flex-1 py-3 px-4 border-none rounded-xl bg-sky-50 text-sky-700 font-bold cursor-pointer hover:bg-sky-100 transition-colors text-sm shadow-sm border border-sky-100"
+                          className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
                         >
                           Make Admin
                         </button>
                       )}
+
                       <button
                         onClick={() => setSelectedItem(null)}
-                        className="px-6 py-3 border border-slate-200 rounded-xl bg-white text-gray-500 font-bold cursor-pointer hover:bg-slate-50 transition-colors text-sm shadow-sm"
+                        className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
                       >
                         Close
                       </button>
@@ -462,14 +487,18 @@ const AdminDashboard = () => {
                   </>
                 ) : (
                   <>
-                    <h2 className="font-['Playfair_Display',_serif] text-[24px] font-extrabold text-[#0c0e1a] mb-6">
+                    {/* Donation View */}
+                    <h2 className="text-[22px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
                       Donation Details
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                       {[
                         {
                           l: "Amount",
-                          v: `${selectedItem.currency === "INR" ? "₹" : "$"}${selectedItem.amount}`,
+                          v: `${
+                            selectedItem.currency === "INR" ? "₹" : "$"
+                          }${selectedItem.amount}`,
                         },
                         { l: "Status", v: selectedItem.status },
                         {
@@ -480,20 +509,22 @@ const AdminDashboard = () => {
                       ].map((it) => (
                         <div
                           key={it.l}
-                          className="p-3.5 bg-slate-50 rounded-xl border-l-2 border-emerald-500 shadow-sm border border-slate-100 border-l-emerald-500"
+                          className="p-4 rounded-xl bg-slate-50 border border-slate-100"
                         >
-                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wide font-['Outfit',_sans-serif]">
+                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
                             {it.l}
-                          </div>
-                          <div className="text-[15px] text-[#0c0e1a] font-bold mt-1 font-['Outfit',_sans-serif]">
+                          </p>
+
+                          <p className="text-[15px] font-bold text-[#0c0e1a] mt-1">
                             {it.v}
-                          </div>
+                          </p>
                         </div>
                       ))}
                     </div>
+
                     <button
                       onClick={() => setSelectedItem(null)}
-                      className="px-6 py-3 border border-slate-200 rounded-xl bg-white text-gray-500 font-bold cursor-pointer hover:bg-slate-50 transition-colors text-sm font-['Outfit',_sans-serif] shadow-sm"
+                      className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
                     >
                       Close
                     </button>
@@ -503,6 +534,7 @@ const AdminDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        
       </div>
     </div>
   );
