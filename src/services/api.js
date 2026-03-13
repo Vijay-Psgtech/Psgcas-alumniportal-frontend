@@ -35,6 +35,9 @@ api.interceptors.response.use(
   },
 );
 
+// ──────────────── API_BASE ──────────────────────── //
+export const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+
 // ──────────────── Auth API ──────────────────────── //
 export const authAPI = {
   register: (data) => api.post("/auth/register", data),

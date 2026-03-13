@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { CheckCircle, Upload, X } from "lucide-react";
 import { Overlay, ModalHeader, FLabel, Inp, Sel, Txt } from "./AdminSharedUI";
+import { API_BASE } from "../../services/api";
 
 const CATEGORIES = [
   "Awards",
@@ -25,8 +26,6 @@ const BLANK_EVENT = {
   highlight: false,
   imageUrl: null,
 };
-
-const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
 export const EventFormModal = ({ initial, onSave, onClose, isLoading }) => {
   const formatDate = (date) => {

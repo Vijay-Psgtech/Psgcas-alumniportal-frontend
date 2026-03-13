@@ -22,7 +22,7 @@ import {
   Hash,
   Mail,
 } from "lucide-react";
-import { alumniAPI, authAPI } from "../../services/api";
+import { alumniAPI, authAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 /* ─────────────────────────────────────────
@@ -107,8 +107,6 @@ const AlumniProfile = () => {
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
-
-  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },

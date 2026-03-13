@@ -14,7 +14,7 @@ import {
   Calendar,
   Camera,
 } from "lucide-react";
-import { adminAPI } from "../../services/api";
+import { adminAPI, API_BASE } from "../../services/api";
 import { useData } from "../../context/dataConstants";
 import { useAuth } from "../../context/AuthContext";
 
@@ -391,10 +391,7 @@ const AdminDashboard = () => {
                       <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
                         {selectedItem.profileImage ? (
                           <img
-                            src={`${import.meta.env.VITE_API_URL.replace(
-                              "/api",
-                              "",
-                            )}/${selectedItem.profileImage}`}
+                            src={`${API_BASE}/${selectedItem.profileImage}`}
                             alt="profile"
                             className="w-full h-full object-cover"
                           />

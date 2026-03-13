@@ -15,7 +15,7 @@ import {
   Users,
   AlertCircle,
 } from "lucide-react";
-import { alumniAPI } from "../../services/api";
+import { alumniAPI, API_BASE } from "../../services/api";
 
 /* ─── Animation variants ─────────────────────── */
 const containerVariants = {
@@ -55,8 +55,6 @@ export const AlumniCard = ({ alumnus }) => {
     "from-amber-500 to-orange-600",
   ];
   const grad = gradients[(initials.charCodeAt(0) || 0) % gradients.length];
-
-  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
   return (
     <motion.div
