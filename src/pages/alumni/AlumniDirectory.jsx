@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { alumniAPI, API_BASE } from "../../services/api";
+import ImageModal from "../../components/ImageModal";
 
 /* ─── Animation variants ─────────────────────── */
 const containerVariants = {
@@ -42,6 +43,8 @@ const selectCls =
 
 /* ─── Alumni Card ────────────────────────────── */
 export const AlumniCard = ({ alumnus }) => {
+  const [imageModal, setImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const initials =
     `${alumnus.firstName?.charAt(0) ?? ""}${alumnus.lastName?.charAt(0) ?? ""}`.toUpperCase();
 
@@ -57,6 +60,7 @@ export const AlumniCard = ({ alumnus }) => {
   const grad = gradients[(initials.charCodeAt(0) || 0) % gradients.length];
 
   return (
+    <>
     <motion.div
       variants={cardVariants}
       initial="hidden"
@@ -76,7 +80,11 @@ export const AlumniCard = ({ alumnus }) => {
             <img
               src={`${API_BASE}/${alumnus.profileImage}`}
               alt="Profile"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:cursor-pointer"
+              onClick={() => {
+                setSelectedImage(alumnus.profileImage);
+                setImageModal(true);
+              }}
             />
           ) : (
             initials || "?"
@@ -176,6 +184,12 @@ export const AlumniCard = ({ alumnus }) => {
         </a>
       </div>
     </motion.div>
+    <ImageModal
+      image={selectedImage}
+      isOpen={imageModal}
+      onClose={() => setImageModal(false)}
+    />
+    </>
   );
 };
 
@@ -193,6 +207,7 @@ const AlumniDirectory = () => {
     departments: [],
     years: [],
   });
+  
 
   useEffect(() => {
     const loadAlumni = async () => {
