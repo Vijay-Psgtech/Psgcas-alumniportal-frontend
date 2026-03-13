@@ -63,6 +63,8 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
     visible: { opacity: 1, y: 0 },
   };
 
+   const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+
   return (
     <motion.div
       initial="hidden"
@@ -139,8 +141,15 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                   {/* Avatar */}
                   <div className="relative">
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-lg">
-                      {a.firstName?.charAt(0)}
-                      {a.lastName?.charAt(0)}
+                      {a.profileImage ? (
+                        <img
+                          src={`${API_BASE}/${a.profileImage}`}
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                      `${a.firstName?.charAt(0)}
+                      ${a.lastName?.charAt(0)}`)}
                     </div>
                   </div>
 
