@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { alumniAPI, authAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import ImageModal from "../../components/ImageModal";
 
 /* ─────────────────────────────────────────
    Tiny helper: label + value row
@@ -107,6 +108,8 @@ const AlumniProfile = () => {
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [imageModal, setImageModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -204,7 +207,7 @@ const AlumniProfile = () => {
       else
         setError(
           err.response?.data?.message ||
-          "Failed to load profile. Please try again.",
+            "Failed to load profile. Please try again.",
         );
     } finally {
       setLoading(false);
@@ -236,15 +239,15 @@ const AlumniProfile = () => {
       setSuccess("");
       const payload = { ...editData, location: locationQuery };
       const formData = new FormData();
-      Object.keys(payload).forEach(key => {
-        if (key === 'coordinates' && Array.isArray(payload[key])) {
-          payload[key].forEach(coord => formData.append(key, coord));
+      Object.keys(payload).forEach((key) => {
+        if (key === "coordinates" && Array.isArray(payload[key])) {
+          payload[key].forEach((coord) => formData.append(key, coord));
         } else if (payload[key] !== null && payload[key] !== undefined) {
           formData.append(key, payload[key]);
         }
       });
       if (selectedFile) {
-        formData.append('profileImage', selectedFile);
+        formData.append("profileImage", selectedFile);
       }
       const response = await alumniAPI.updateProfile(profileData._id, formData);
       const updated = normalizeAlumni(extractAlumni(response.data) || {});
@@ -318,396 +321,407 @@ const AlumniProfile = () => {
 
   /* ═══════════ MAIN PROFILE UI ═══════════ */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 pt-24 pb-16 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto">
-        {/* ── Page Header ── */}
-        <motion.div
-          className="flex flex-wrap items-center justify-between gap-4 mb-8"
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
-              My Profile
-            </h1>
-          </div>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 pt-24 pb-16 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto">
+          {/* ── Page Header ── */}
+          <motion.div
+            className="flex flex-wrap items-center justify-between gap-4 mb-8"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-none">
+                My Profile
+              </h1>
+            </div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {!isEditing && (
+            <div className="flex items-center gap-3 flex-wrap">
+              {!isEditing && (
+                <motion.button
+                  onClick={() => setIsEditing(true)}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#667eea] text-white text-sm font-semibold shadow-md shadow-blue-200 hover:bg-[#764ba2] transition-colors"
+                >
+                  <Edit size={15} /> Edit Profile
+                </motion.button>
+              )}
               <motion.button
-                onClick={() => setIsEditing(true)}
+                onClick={handleLogout}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#667eea] text-white text-sm font-semibold shadow-md shadow-blue-200 hover:bg-[#764ba2] transition-colors"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors"
               >
-                <Edit size={15} /> Edit Profile
+                <LogOut size={15} /> Logout
               </motion.button>
-            )}
-            <motion.button
-              onClick={handleLogout}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-100 transition-colors"
+            </div>
+          </motion.div>
+
+          {/* ── Alert Banners ── */}
+          {error && (
+            <motion.div
+              className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium mb-6"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
             >
-              <LogOut size={15} /> Logout
-            </motion.button>
-          </div>
-        </motion.div>
+              <AlertCircle size={17} className="flex-shrink-0" /> {error}
+            </motion.div>
+          )}
+          {success && (
+            <motion.div
+              className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium mb-6"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <CheckCircle size={17} className="flex-shrink-0" /> {success}
+            </motion.div>
+          )}
 
-        {/* ── Alert Banners ── */}
-        {error && (
+          {/* ── Profile Hero Card ── */}
           <motion.div
-            className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium mb-6"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <AlertCircle size={17} className="flex-shrink-0" /> {error}
-          </motion.div>
-        )}
-        {success && (
-          <motion.div
-            className="flex items-center gap-3 px-5 py-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium mb-6"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <CheckCircle size={17} className="flex-shrink-0" /> {success}
-          </motion.div>
-        )}
-
-        {/* ── Profile Hero Card ── */}
-        <motion.div
-          className="relative bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-6"
-          variants={itemVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* top accent stripe */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
-
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 sm:px-8 py-8">
-            {/* Avatar */}
-            <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none overflow-hidden">
-              {profileData.profileImage ? (
-                <img
-                  src={`${API_BASE}/${profileData.profileImage}`}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                initials || "?"
-              )}
-            </div>
-
-            {/* Name + meta */}
-            <div className="flex-1 text-center sm:text-left min-w-0">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                {profileData.firstName} {profileData.lastName}
-              </h2>
-
-              <p className="text-slate-500 text-sm mt-1 flex items-center justify-center sm:justify-start gap-1.5">
-                <Mail size={13} className="text-slate-400" />{" "}
-                {profileData.email}
-              </p>
-
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                {profileData.isApproved && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                    <CheckCircle size={11} /> Verified Alumni
-                  </span>
-                )}
-                {profileData.department && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100">
-                    <GraduationCap size={11} /> {profileData.department}
-                  </span>
-                )}
-                {profileData.graduationYear && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                    Class of {profileData.graduationYear}
-                  </span>
-                )}
-                {profileData.jobTitle && profileData.currentCompany && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                    <Briefcase size={11} /> {profileData.jobTitle} @{" "}
-                    {profileData.currentCompany}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* ── Details: EDIT MODE ── */}
-        {isEditing ? (
-          <motion.div
-            className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8"
+            className="relative bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden mb-6"
             variants={itemVariants}
             initial="hidden"
             animate="visible"
           >
-            <div className="flex flex-col gap-8">
-              {/* Personal Info */}
-              <section>
-                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
-                    <User size={14} className="text-indigo-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-800 tracking-wide">
-                    Personal Information
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                  <FormField label="First Name">
-                    <input
-                      type="text"
-                      name="firstName"
-                      className={inputCls}
-                      value={editData.firstName || ""}
-                      onChange={handleChange}
-                      placeholder="First name"
-                    />
-                  </FormField>
-                  <FormField label="Last Name">
-                    <input
-                      type="text"
-                      name="lastName"
-                      className={inputCls}
-                      value={editData.lastName || ""}
-                      onChange={handleChange}
-                      placeholder="Last name"
-                    />
-                  </FormField>
-                  <FormField label="Phone Number">
-                    <input
-                      type="tel"
-                      name="phone"
-                      className={inputCls}
-                      value={editData.phone || ""}
-                      onChange={handleChange}
-                      placeholder="+1 (555) 000-0000"
-                    />
-                  </FormField>
-                  <FormField label="LinkedIn Profile">
-                    <input
-                      type="url"
-                      name="linkedin"
-                      className={inputCls}
-                      value={editData.linkedin || ""}
-                      onChange={handleChange}
-                      placeholder="https://linkedin.com/in/yourname"
-                    />
-                  </FormField>
-                  <FormField label="Profile Image">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
-                    />
-                  </FormField>
-                </div>
-              </section>
+            {/* top accent stripe */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
 
-              {/* Academic Info */}
-              <section>
-                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
-                  <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
-                    <GraduationCap size={14} className="text-violet-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-800 tracking-wide">
-                    Academic Information
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                  <FormField label="Department">
-                    <input
-                      type="text"
-                      name="department"
-                      className={inputCls}
-                      value={editData.department || ""}
-                      onChange={handleChange}
-                      placeholder="e.g. Computer Science"
-                    />
-                  </FormField>
-                  <FormField label="Graduation Year">
-                    <input
-                      type="number"
-                      name="graduationYear"
-                      className={inputCls}
-                      value={editData.graduationYear || ""}
-                      onChange={handleChange}
-                      placeholder="e.g. 2022"
-                    />
-                  </FormField>
-                  <FormField label="Roll Number">
-                    <input
-                      type="text"
-                      name="rollNumber"
-                      className={inputCls}
-                      value={editData.rollNumber || ""}
-                      onChange={handleChange}
-                      placeholder="e.g. CS20B001"
-                    />
-                  </FormField>
-                </div>
-              </section>
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 sm:px-8 py-8">
+              {/* Avatar */}
+              <div className="flex-shrink-0 w-24 h-24 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white text-3xl sm:text-2xl font-extrabold shadow-lg shadow-blue-200 select-none overflow-hidden">
+                {profileData.profileImage ? (
+                  <img
+                    src={`${API_BASE}/${profileData.profileImage}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover hover:cursor-pointer"
+                    onClick={() => {
+                      setSelectedImage(profileData.profileImage);
+                      setImageModal(true);
+                    }}
+                  />
+                ) : (
+                  initials || "?"
+                )}
+              </div>
 
-              {/* Professional Info */}
-              <section>
-                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
-                  <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
-                    <Briefcase size={14} className="text-amber-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-800 tracking-wide">
-                    Professional Information
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                  <FormField label="Current Company">
-                    <input
-                      type="text"
-                      name="currentCompany"
-                      className={inputCls}
-                      value={editData.currentCompany || ""}
-                      onChange={handleChange}
-                      placeholder="e.g. Google"
-                    />
-                  </FormField>
-                  <FormField label="Job Title">
-                    <input
-                      type="text"
-                      name="jobTitle"
-                      className={inputCls}
-                      value={editData.jobTitle || ""}
-                      onChange={handleChange}
-                      placeholder="e.g. Software Engineer"
-                    />
-                  </FormField>
-                </div>
-              </section>
+              {/* Name + meta */}
+              <div className="flex-1 text-center sm:text-left min-w-0">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
+                  {profileData.firstName} {profileData.lastName}
+                </h2>
 
-              {/* Location */}
-              <section>
-                <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <MapPin size={14} className="text-emerald-600" />
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-800 tracking-wide">
-                    Location
-                  </h3>
-                </div>
-                <div className="relative">
-                  <FormField label="Search Location">
-                    <input
-                      type="text"
-                      name="location"
-                      className={inputCls}
-                      value={locationQuery}
-                      onChange={handleChange}
-                      placeholder="Start typing your city…"
-                    />
-                  </FormField>
-                  {suggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-20 max-h-52 overflow-y-auto">
-                      {suggestions.map((place) => (
-                        <button
-                          key={place.place_id}
-                          type="button"
-                          onClick={() => handleSelect(place)}
-                          className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 border-b border-slate-100 last:border-0 transition-colors font-medium"
-                        >
-                          📍 {place.display_name}
-                        </button>
-                      ))}
-                    </div>
+                <p className="text-slate-500 text-sm mt-1 flex items-center justify-center sm:justify-start gap-1.5">
+                  <Mail size={13} className="text-slate-400" />{" "}
+                  {profileData.email}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
+                  {profileData.isApproved && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                      <CheckCircle size={11} /> Verified Alumni
+                    </span>
+                  )}
+                  {profileData.department && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100">
+                      <GraduationCap size={11} /> {profileData.department}
+                    </span>
+                  )}
+                  {profileData.graduationYear && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                      Class of {profileData.graduationYear}
+                    </span>
+                  )}
+                  {profileData.jobTitle && profileData.currentCompany && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                      <Briefcase size={11} /> {profileData.jobTitle} @{" "}
+                      {profileData.currentCompany}
+                    </span>
                   )}
                 </div>
-              </section>
-
-              {/* Form Actions */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleSaveProfile}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#667eea] text-white text-sm font-bold hover:bg-[#764ba2] active:scale-[0.98] transition-all shadow-md shadow-blue-200"
-                >
-                  <Save size={16} /> Save Changes
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-bold hover:bg-slate-100 active:scale-[0.98] transition-all"
-                >
-                  <X size={16} /> Cancel
-                </button>
               </div>
             </div>
           </motion.div>
-        ) : (
-          /* ── Details: VIEW MODE ── */
-          <motion.div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-5"
-            variants={itemVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Personal */}
-            <SectionCard title="Personal Information" icon={User}>
-              <InfoRow icon={Mail} label="Email" value={profileData.email} />
-              <InfoRow icon={Phone} label="Phone" value={profileData.phone} />
-              <InfoRow
-                icon={Link2}
-                label="LinkedIn"
-                value={profileData.linkedin ? "View Profile" : null}
-                href={profileData.linkedin}
-              />
-            </SectionCard>
 
-            {/* Academic */}
-            <SectionCard title="Academic Information" icon={GraduationCap}>
-              <InfoRow
-                icon={GraduationCap}
-                label="Department"
-                value={profileData.department}
-              />
-              <InfoRow
-                icon={Hash}
-                label="Graduation Year"
-                value={profileData.graduationYear}
-              />
-              <InfoRow
-                icon={Hash}
-                label="Roll Number"
-                value={profileData.rollNumber}
-              />
-            </SectionCard>
+          {/* ── Details: EDIT MODE ── */}
+          {isEditing ? (
+            <motion.div
+              className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="flex flex-col gap-8">
+                {/* Personal Info */}
+                <section>
+                  <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <User size={14} className="text-indigo-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                      Personal Information
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <FormField label="First Name">
+                      <input
+                        type="text"
+                        name="firstName"
+                        className={inputCls}
+                        value={editData.firstName || ""}
+                        onChange={handleChange}
+                        placeholder="First name"
+                      />
+                    </FormField>
+                    <FormField label="Last Name">
+                      <input
+                        type="text"
+                        name="lastName"
+                        className={inputCls}
+                        value={editData.lastName || ""}
+                        onChange={handleChange}
+                        placeholder="Last name"
+                      />
+                    </FormField>
+                    <FormField label="Phone Number">
+                      <input
+                        type="tel"
+                        name="phone"
+                        className={inputCls}
+                        value={editData.phone || ""}
+                        onChange={handleChange}
+                        placeholder="+1 (555) 000-0000"
+                      />
+                    </FormField>
+                    <FormField label="LinkedIn Profile">
+                      <input
+                        type="url"
+                        name="linkedin"
+                        className={inputCls}
+                        value={editData.linkedin || ""}
+                        onChange={handleChange}
+                        placeholder="https://linkedin.com/in/yourname"
+                      />
+                    </FormField>
+                    <FormField label="Profile Image">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setSelectedFile(e.target.files[0])}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all duration-200"
+                      />
+                    </FormField>
+                  </div>
+                </section>
 
-            {/* Professional */}
-            <SectionCard title="Professional Information" icon={Briefcase}>
-              <InfoRow
-                icon={Building2}
-                label="Company"
-                value={profileData.currentCompany}
-              />
-              <InfoRow
-                icon={Briefcase}
-                label="Job Title"
-                value={profileData.jobTitle}
-              />
-            </SectionCard>
+                {/* Academic Info */}
+                <section>
+                  <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
+                      <GraduationCap size={14} className="text-violet-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                      Academic Information
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <FormField label="Department">
+                      <input
+                        type="text"
+                        name="department"
+                        className={inputCls}
+                        value={editData.department || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. Computer Science"
+                      />
+                    </FormField>
+                    <FormField label="Graduation Year">
+                      <input
+                        type="number"
+                        name="graduationYear"
+                        className={inputCls}
+                        value={editData.graduationYear || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. 2022"
+                      />
+                    </FormField>
+                    <FormField label="Roll Number">
+                      <input
+                        type="text"
+                        name="rollNumber"
+                        className={inputCls}
+                        value={editData.rollNumber || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. CS20B001"
+                      />
+                    </FormField>
+                  </div>
+                </section>
 
-            {/* Location */}
-            <SectionCard title="Location" icon={MapPin}>
-              <InfoRow
-                icon={MapPin}
-                label="Address"
-                value={profileData.fullAddress || profileData.location}
-              />
-            </SectionCard>
-          </motion.div>
-        )}
+                {/* Professional Info */}
+                <section>
+                  <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
+                      <Briefcase size={14} className="text-amber-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                      Professional Information
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                    <FormField label="Current Company">
+                      <input
+                        type="text"
+                        name="currentCompany"
+                        className={inputCls}
+                        value={editData.currentCompany || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. Google"
+                      />
+                    </FormField>
+                    <FormField label="Job Title">
+                      <input
+                        type="text"
+                        name="jobTitle"
+                        className={inputCls}
+                        value={editData.jobTitle || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. Software Engineer"
+                      />
+                    </FormField>
+                  </div>
+                </section>
+
+                {/* Location */}
+                <section>
+                  <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <MapPin size={14} className="text-emerald-600" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 tracking-wide">
+                      Location
+                    </h3>
+                  </div>
+                  <div className="relative">
+                    <FormField label="Search Location">
+                      <input
+                        type="text"
+                        name="location"
+                        className={inputCls}
+                        value={locationQuery}
+                        onChange={handleChange}
+                        placeholder="Start typing your city…"
+                      />
+                    </FormField>
+                    {suggestions.length > 0 && (
+                      <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-20 max-h-52 overflow-y-auto">
+                        {suggestions.map((place) => (
+                          <button
+                            key={place.place_id}
+                            type="button"
+                            onClick={() => handleSelect(place)}
+                            className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 border-b border-slate-100 last:border-0 transition-colors font-medium"
+                          >
+                            📍 {place.display_name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* Form Actions */}
+                <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={handleSaveProfile}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#667eea] text-white text-sm font-bold hover:bg-[#764ba2] active:scale-[0.98] transition-all shadow-md shadow-blue-200"
+                  >
+                    <Save size={16} /> Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-bold hover:bg-slate-100 active:scale-[0.98] transition-all"
+                  >
+                    <X size={16} /> Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            /* ── Details: VIEW MODE ── */
+            <motion.div
+              className="grid grid-cols-1 lg:grid-cols-2 gap-5"
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              {/* Personal */}
+              <SectionCard title="Personal Information" icon={User}>
+                <InfoRow icon={Mail} label="Email" value={profileData.email} />
+                <InfoRow icon={Phone} label="Phone" value={profileData.phone} />
+                <InfoRow
+                  icon={Link2}
+                  label="LinkedIn"
+                  value={profileData.linkedin ? "View Profile" : null}
+                  href={profileData.linkedin}
+                />
+              </SectionCard>
+
+              {/* Academic */}
+              <SectionCard title="Academic Information" icon={GraduationCap}>
+                <InfoRow
+                  icon={GraduationCap}
+                  label="Department"
+                  value={profileData.department}
+                />
+                <InfoRow
+                  icon={Hash}
+                  label="Graduation Year"
+                  value={profileData.graduationYear}
+                />
+                <InfoRow
+                  icon={Hash}
+                  label="Roll Number"
+                  value={profileData.rollNumber}
+                />
+              </SectionCard>
+
+              {/* Professional */}
+              <SectionCard title="Professional Information" icon={Briefcase}>
+                <InfoRow
+                  icon={Building2}
+                  label="Company"
+                  value={profileData.currentCompany}
+                />
+                <InfoRow
+                  icon={Briefcase}
+                  label="Job Title"
+                  value={profileData.jobTitle}
+                />
+              </SectionCard>
+
+              {/* Location */}
+              <SectionCard title="Location" icon={MapPin}>
+                <InfoRow
+                  icon={MapPin}
+                  label="Address"
+                  value={profileData.fullAddress || profileData.location}
+                />
+              </SectionCard>
+            </motion.div>
+          )}
+        </div>
       </div>
-    </div>
+      <ImageModal
+        image={selectedImage}
+        isOpen={imageModal}
+        onClose={() => setImageModal(false)}
+      />
+    </>
   );
 };
 
