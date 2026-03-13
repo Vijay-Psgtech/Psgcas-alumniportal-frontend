@@ -56,6 +56,8 @@ export const AlumniCard = ({ alumnus }) => {
   ];
   const grad = gradients[(initials.charCodeAt(0) || 0) % gradients.length];
 
+  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+
   return (
     <motion.div
       variants={cardVariants}
@@ -72,7 +74,15 @@ export const AlumniCard = ({ alumnus }) => {
         <div
           className={`flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center text-white text-lg font-extrabold shadow-md select-none`}
         >
-          {initials || "?"}
+          {alumnus.profileImage ? (
+            <img
+              src={`${API_BASE}/${alumnus.profileImage}`}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            initials || "?"
+          )}
         </div>
         <div className="min-w-0 flex-1 pt-0.5">
           <h3 className="text-base font-bold text-slate-900 leading-tight truncate">
@@ -158,10 +168,11 @@ export const AlumniCard = ({ alumnus }) => {
         )}
         <a
           href={`mailto:${alumnus.email}`}
-          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${alumnus.linkedin
-            ? "px-4 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-            : "flex-1 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
-            }`}
+          className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
+            alumnus.linkedin
+              ? "px-4 border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+              : "flex-1 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+          }`}
         >
           <Mail size={13} /> Email
         </a>
