@@ -93,7 +93,7 @@ const AdminEvents = () => {
     const copy = [...filtered];
     copy.sort((a, b) => {
       let aVal, bVal;
-      
+
       switch (sortBy) {
         case "date":
           aVal = new Date(a.date);
@@ -126,7 +126,7 @@ const AdminEvents = () => {
   const totalPages = Math.ceil(sorted.length / pageSize);
   const paginatedData = sorted.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   // ✅ Reset pagination when filters change
@@ -149,17 +149,24 @@ const AdminEvents = () => {
       if (modal.data?._id) {
         // Update existing event
         await eventsAPI.update(modal.data._id, form);
-        showNotification(`✓ Event "${form.title}" updated successfully!`, "success");
+        showNotification(
+          `✓ Event "${form.title}" updated successfully!`,
+          "success",
+        );
       } else {
         // Create new event
         await eventsAPI.create(form);
-        showNotification(`✓ Event "${form.title}" created successfully!`, "success");
+        showNotification(
+          `✓ Event "${form.title}" created successfully!`,
+          "success",
+        );
       }
       setModal(null);
       // Refresh events list
       await fetchEvents();
     } catch (err) {
-      const msg = err.response?.data?.message || err.message || "Failed to save event";
+      const msg =
+        err.response?.data?.message || err.message || "Failed to save event";
       showNotification(msg, "error");
     } finally {
       setIsLoading(false);
@@ -216,8 +223,13 @@ const AdminEvents = () => {
           className="fixed inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-50"
         >
           <div className="text-center">
-            <Loader size={40} className="mx-auto mb-4 text-blue-500 animate-spin" />
-            <p className="text-gray-600 font-['Outfit',_sans-serif] font-medium">Loading events...</p>
+            <Loader
+              size={40}
+              className="mx-auto mb-4 text-blue-500 animate-spin"
+            />
+            <p className="text-gray-600 font-['Outfit',_sans-serif] font-medium">
+              Loading events...
+            </p>
           </div>
         </motion.div>
       )}
@@ -241,40 +253,76 @@ const AdminEvents = () => {
         </div>
 
         {/* ========== STATS SECTION ========== */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-8">
           {[
-            { label: "Total Events", value: stats.total, icon: Calendar, color: "blue" },
-            { label: "Upcoming", value: stats.upcoming, icon: Clock, color: "emerald" },
-            { label: "Completed", value: stats.completed, icon: CheckCircle, color: "slate" },
-            { label: "Highlighted", value: stats.highlighted, icon: Star, color: "amber" },
+            {
+              label: "Total Events",
+              value: stats.total,
+              icon: Calendar,
+              color: "blue",
+              bg: "bg-blue-50",
+              iconBg: "bg-blue-100",
+              iconColor: "text-blue-600",
+            },
+            {
+              label: "Upcoming",
+              value: stats.upcoming,
+              icon: Clock,
+              color: "emerald",
+              bg: "bg-emerald-50",
+              iconBg: "bg-emerald-100",
+              iconColor: "text-emerald-600",
+            },
+            {
+              label: "Completed",
+              value: stats.completed,
+              icon: CheckCircle,
+              color: "slate",
+              bg: "bg-slate-50",
+              iconBg: "bg-slate-100",
+              iconColor: "text-slate-600",
+            },
+            {
+              label: "Highlighted",
+              value: stats.highlighted,
+              icon: Star,
+              color: "amber",
+              bg: "bg-amber-50",
+              iconBg: "bg-amber-100",
+              iconColor: "text-amber-600",
+            },
           ].map((stat, i) => {
             const Icon = stat.icon;
-            const colorMap = {
-              blue: "bg-blue-50 text-blue-600",
-              emerald: "bg-emerald-50 text-emerald-600",
-              slate: "bg-slate-50 text-slate-600",
-              amber: "bg-amber-50 text-amber-500",
-            };
             return (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
+                key={stat.label}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className={`${colorMap[stat.color]} p-4 rounded-2xl shadow-xl border border-${stat.color}-100 backdrop-blur-md`}
+                transition={{ delay: i * 0.08 }}
+                className={`${stat.bg} relative p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold font-['Outfit',_sans-serif] uppercase tracking-wider text-gray-500">
-                    {stat.label}
-                  </span>
-                  <Icon size={16} className="opacity-40" />
-                </div>
-                <p className="text-2xl sm:text-3xl font-extrabold font-['Playfair_Display',_serif]">
-                  {stat.value}
-                </p>
+                {" "}
+                {/* Icon */}{" "}
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.iconBg} ${stat.iconColor} mb-4`}
+                >
+                  {" "}
+                  <Icon size={18} />{" "}
+                </div>{" "}
+                {/* Label */}{" "}
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+                  {" "}
+                  {stat.label}{" "}
+                </p>{" "}
+                {/* Value */}{" "}
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>{" "}
+                {/* Decorative Accent */}{" "}
+                <div
+                  className={`absolute top-0 right-0 h-full w-1 rounded-r-2xl ${stat.iconBg}`}
+                />{" "}
               </motion.div>
             );
-          })}
+          })}{" "}
         </div>
       </div>
 
@@ -350,13 +398,12 @@ const AdminEvents = () => {
                     }`}
                   >
                     {option.label}
-                    {sortBy === option.value && (
-                      sortOrder === "asc" ? (
+                    {sortBy === option.value &&
+                      (sortOrder === "asc" ? (
                         <ChevronUp size={12} />
                       ) : (
                         <ChevronDown size={12} />
-                      )
-                    )}
+                      ))}
                   </button>
                 ))}
               </div>
@@ -384,10 +431,13 @@ const AdminEvents = () => {
             {/* View Toggle and Stats */}
             <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap justify-between sm:justify-end">
               <div className="text-xs text-gray-500 font-['Outfit',_sans-serif] font-medium whitespace-nowrap">
-                Showing <strong className="text-[#0c0e1a]">{paginatedData.length}</strong> of{" "}
-                <strong className="text-[#0c0e1a]">{sorted.length}</strong>
+                Showing{" "}
+                <strong className="text-[#0c0e1a]">
+                  {paginatedData.length}
+                </strong>{" "}
+                of <strong className="text-[#0c0e1a]">{sorted.length}</strong>
               </div>
-              
+
               {/* View Mode Toggle */}
               <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm shadow-black/5">
                 <button
@@ -442,140 +492,145 @@ const AdminEvents = () => {
             {/* GRID VIEW */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {paginatedData.map((event, idx) => {
-              const cc = CATEGORY_COLORS[event.category] || "#667eea";
-              return (
-                <motion.div
-                  key={event._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm shadow-black/5 hover:shadow-md hover:shadow-black/8 transition-all duration-300 group"
-                >
-                  {/* ========== EVENT HEADER ========== */}
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
-                    <div className="flex-1">
-                      {/* Title with highlight badge */}
-                      <div className="flex items-center gap-2 mb-2">
-                        {event.highlight && (
-                          <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-200">
-                            <Star size={11} className="fill-amber-500 text-amber-500" />
-                            <span className="text-[10px] font-bold font-['Outfit',_sans-serif]">
-                              Featured
-                            </span>
-                          </div>
+                const cc = CATEGORY_COLORS[event.category] || "#667eea";
+                return (
+                  <motion.div
+                    key={event._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm shadow-black/5 hover:shadow-md hover:shadow-black/8 transition-all duration-300 group"
+                  >
+                    {/* ========== EVENT HEADER ========== */}
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                      <div className="flex-1">
+                        {/* Title with highlight badge */}
+                        <div className="flex items-center gap-2 mb-2">
+                          {event.highlight && (
+                            <div className="flex items-center gap-1 bg-amber-50 text-amber-600 px-2 py-1 rounded-full border border-amber-200">
+                              <Star
+                                size={11}
+                                className="fill-amber-500 text-amber-500"
+                              />
+                              <span className="text-[10px] font-bold font-['Outfit',_sans-serif]">
+                                Featured
+                              </span>
+                            </div>
+                          )}
+                          <h3 className="text-lg font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
+                            {event.title}
+                          </h3>
+                        </div>
+
+                        {/* Category and Venue */}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className="inline-block rounded-full px-3 py-1 text-[10px] font-bold font-['Outfit',_sans-serif] tracking-wider border"
+                            style={{
+                              background: `${cc}15`,
+                              color: cc,
+                              borderColor: `${cc}30`,
+                            }}
+                          >
+                            {event.category}
+                          </span>
+                          <span className="text-xs text-gray-500 font-['Outfit',_sans-serif]">
+                            {event.venue?.split(",")[0]}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold font-['Outfit',_sans-serif] uppercase tracking-wider whitespace-nowrap border ${
+                          event.status === "upcoming"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-gray-50 text-gray-600 border-gray-200"
+                        }`}
+                      >
+                        {event.status === "upcoming" ? (
+                          <Clock size={11} />
+                        ) : (
+                          <CheckCircle size={11} />
                         )}
-                        <h3 className="text-lg font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
-                          {event.title}
-                        </h3>
-                      </div>
-
-                      {/* Category and Venue */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span
-                          className="inline-block rounded-full px-3 py-1 text-[10px] font-bold font-['Outfit',_sans-serif] tracking-wider border"
-                          style={{
-                            background: `${cc}15`,
-                            color: cc,
-                            borderColor: `${cc}30`,
-                          }}
-                        >
-                          {event.category}
-                        </span>
-                        <span className="text-xs text-gray-500 font-['Outfit',_sans-serif]">
-                          {event.venue?.split(",")[0]}
-                        </span>
+                        {event.status === "upcoming" ? "Upcoming" : "Completed"}
                       </div>
                     </div>
 
-                    {/* Status Badge */}
-                    <div
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold font-['Outfit',_sans-serif] uppercase tracking-wider whitespace-nowrap border ${
-                        event.status === "upcoming"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                          : "bg-gray-50 text-gray-600 border-gray-200"
-                      }`}
-                    >
-                      {event.status === "upcoming" ? (
-                        <Clock size={11} />
-                      ) : (
-                        <CheckCircle size={11} />
-                      )}
-                      {event.status === "upcoming" ? "Upcoming" : "Completed"}
-                    </div>
-                  </div>
+                    {/* Event imageUrl */}
+                    {event.imageUrl && (
+                      <img
+                        src={`${API_BASE}/${event.imageUrl}`}
+                        alt={event.title}
+                        className="w-full h-32 object-cover rounded-lg mb-4"
+                      />
+                    )}
 
-                  {/* Event imageUrl */}
-                  {event.imageUrl && (
-                    <img
-                      src={`${API_BASE}/${event.imageUrl}`}
-                      alt={event.title}
-                      className="w-full h-32 object-cover rounded-lg mb-4"
-                    />
-                  )}
+                    {/* ========== EVENT DETAILS ========== */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
+                          Date
+                        </p>
+                        <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
+                          {fmtDate(event.date)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
+                          Time
+                        </p>
+                        <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
+                          {fmtTime(event.time)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
+                          Attendees
+                        </p>
+                        <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
+                          {event.attendees || "0"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
+                          Location
+                        </p>
+                        <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif] truncate">
+                          {event.venue?.split(",")[1] || "N/A"}
+                        </p>
+                      </div>
+                    </div>
 
-                  {/* ========== EVENT DETAILS ========== */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
-                        Date
+                    {/* Description */}
+                    {event.description && (
+                      <p className="text-xs text-gray-600 font-['Outfit',_sans-serif] line-clamp-2 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                        {event.description}
                       </p>
-                      <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
-                        {fmtDate(event.date)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
-                        Time
-                      </p>
-                      <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
-                        {fmtTime(event.time)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
-                        Attendees
-                      </p>
-                      <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif]">
-                        {event.attendees || "0"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-['Outfit',_sans-serif] mb-1">
-                        Location
-                      </p>
-                      <p className="text-sm font-semibold text-[#0c0e1a] font-['Outfit',_sans-serif] truncate">
-                        {event.venue?.split(",")[1] || "N/A"}
-                      </p>
-                    </div>
-                  </div>
+                    )}
 
-                  {/* Description */}
-                  {event.description && (
-                    <p className="text-xs text-gray-600 font-['Outfit',_sans-serif] line-clamp-2 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
-                      {event.description}
-                    </p>
-                  )}
-
-                  {/* ========== ACTIONS ========== */}
-                  <div className="flex gap-2 pt-3 border-t border-slate-100">
-                    <button
-                      onClick={() => setModal({ type: "edit", data: event })}
-                      disabled={isLoading}
-                      className="flex-1 px-4 py-2.5 border border-blue-200 hover:bg-blue-50 rounded-lg bg-white text-blue-600 font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Pencil size={14} /> Edit
-                    </button>
-                    <button
-                      onClick={() => setModal({ type: "delete", data: event })}
-                      disabled={isLoading}
-                      className="flex-1 px-4 py-2.5 border border-red-200 hover:bg-red-50 rounded-lg bg-white text-red-600 font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    {/* ========== ACTIONS ========== */}
+                    <div className="flex gap-2 pt-3 border-t border-slate-100">
+                      <button
+                        onClick={() => setModal({ type: "edit", data: event })}
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-2.5 border border-blue-200 hover:bg-blue-50 rounded-lg bg-white text-blue-600 font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Pencil size={14} /> Edit
+                      </button>
+                      <button
+                        onClick={() =>
+                          setModal({ type: "delete", data: event })
+                        }
+                        disabled={isLoading}
+                        className="flex-1 px-4 py-2.5 border border-red-200 hover:bg-red-50 rounded-lg bg-white text-red-600 font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* PAGINATION - GRID VIEW */}
@@ -588,21 +643,25 @@ const AdminEvents = () => {
                 >
                   Previous
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-9 h-9 rounded-lg text-sm font-bold font-['Outfit',_sans-serif] transition-all ${
-                      currentPage === page
-                        ? "bg-blue-500 text-white border border-blue-500"
-                        : "border border-slate-200 hover:bg-slate-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-9 h-9 rounded-lg text-sm font-bold font-['Outfit',_sans-serif] transition-all ${
+                        currentPage === page
+                          ? "bg-blue-500 text-white border border-blue-500"
+                          : "border border-slate-200 hover:bg-slate-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
                   disabled={currentPage === totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
                 >
@@ -680,7 +739,10 @@ const AdminEvents = () => {
                               )}
                               <div className="flex items-center gap-2">
                                 {event.highlight && (
-                                  <Star size={14} className="fill-amber-500 text-amber-500 shrink-0" />
+                                  <Star
+                                    size={14}
+                                    className="fill-amber-500 text-amber-500 shrink-0"
+                                  />
                                 )}
                                 <div className="flex-1">
                                   <p className="text-sm font-bold text-[#0c0e1a] font-['Playfair_Display',_serif] line-clamp-2">
@@ -728,7 +790,10 @@ const AdminEvents = () => {
                           {/* Location */}
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-1">
-                              <MapPin size={14} className="text-gray-400 shrink-0" />
+                              <MapPin
+                                size={14}
+                                className="text-gray-400 shrink-0"
+                              />
                               <p className="text-sm text-gray-600 font-['Outfit',_sans-serif] truncate max-w-[120px]">
                                 {event.venue?.split(",")[1] || "N/A"}
                               </p>
@@ -749,7 +814,9 @@ const AdminEvents = () => {
                               ) : (
                                 <CheckCircle size={11} />
                               )}
-                              {event.status === "upcoming" ? "Upcoming" : "Completed"}
+                              {event.status === "upcoming"
+                                ? "Upcoming"
+                                : "Completed"}
                             </span>
                           </td>
 
@@ -757,7 +824,9 @@ const AdminEvents = () => {
                           <td className="px-6 py-4 text-center">
                             <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
-                                onClick={() => setModal({ type: "edit", data: event })}
+                                onClick={() =>
+                                  setModal({ type: "edit", data: event })
+                                }
                                 disabled={isLoading}
                                 className="p-2 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Edit"
@@ -765,7 +834,9 @@ const AdminEvents = () => {
                                 <Pencil size={14} />
                               </button>
                               <button
-                                onClick={() => setModal({ type: "delete", data: event })}
+                                onClick={() =>
+                                  setModal({ type: "delete", data: event })
+                                }
                                 disabled={isLoading}
                                 className="p-2 rounded-lg border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Delete"
@@ -786,7 +857,8 @@ const AdminEvents = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-200 p-4 shadow-sm shadow-black/5">
                 <div className="text-sm text-gray-600 font-['Outfit',_sans-serif]">
-                  Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong> · 
+                  Page <strong>{currentPage}</strong> of{" "}
+                  <strong>{totalPages}</strong> ·
                   <select
                     value={pageSize}
                     onChange={(e) => {
@@ -810,23 +882,25 @@ const AdminEvents = () => {
                   >
                     Previous
                   </button>
-                  
+
                   {/* Page buttons */}
                   <div className="flex items-center gap-1">
                     {totalPages <= 5 ? (
-                      Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] transition-all ${
-                            currentPage === page
-                              ? "bg-blue-500 text-white border border-blue-500"
-                              : "border border-slate-200 hover:bg-slate-50"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))
+                      Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (page) => (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] transition-all ${
+                              currentPage === page
+                                ? "bg-blue-500 text-white border border-blue-500"
+                                : "border border-slate-200 hover:bg-slate-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ),
+                      )
                     ) : (
                       <>
                         <button
@@ -839,7 +913,9 @@ const AdminEvents = () => {
                         >
                           1
                         </button>
-                        {currentPage > 3 && <span className="px-2 text-gray-400">…</span>}
+                        {currentPage > 3 && (
+                          <span className="px-2 text-gray-400">…</span>
+                        )}
                         {currentPage > 2 && currentPage < totalPages - 1 && (
                           <button
                             onClick={() => setCurrentPage(currentPage)}
@@ -848,7 +924,9 @@ const AdminEvents = () => {
                             {currentPage}
                           </button>
                         )}
-                        {currentPage < totalPages - 2 && <span className="px-2 text-gray-400">…</span>}
+                        {currentPage < totalPages - 2 && (
+                          <span className="px-2 text-gray-400">…</span>
+                        )}
                         <button
                           onClick={() => setCurrentPage(totalPages)}
                           className={`w-8 h-8 rounded-lg text-xs font-bold font-['Outfit',_sans-serif] ${
@@ -862,9 +940,11 @@ const AdminEvents = () => {
                       </>
                     )}
                   </div>
-                  
+
                   <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, currentPage + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold font-['Outfit',_sans-serif] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50"
                   >

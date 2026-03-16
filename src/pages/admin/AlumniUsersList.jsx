@@ -110,18 +110,18 @@ const AlumniUsersList = () => {
   };
 
   const handleMakeAdmin = async (id) => {
-      try {
-        await adminAPI.makeAlumniAdmin(id);
-        setSuccess("Admin privileges granted!");
-        setSelectedItem(null);
-        const r = await adminAPI.getAllAlumni();
-        setAlumniUsers(r.data.alumni || []);
-        setTimeout(() => setSuccess(""), 3000);
-      } catch (e) {
-        console.log(e.response?.data?.message || "Failed");
-        setTimeout(() => setError(""), 3000);
-      }
-    };
+    try {
+      await adminAPI.makeAlumniAdmin(id);
+      setSuccess("Admin privileges granted!");
+      setSelectedItem(null);
+      const r = await adminAPI.getAllAlumni();
+      setAlumniUsers(r.data.alumni || []);
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e) {
+      console.log(e.response?.data?.message || "Failed");
+      setTimeout(() => setError(""), 3000);
+    }
+  };
 
   const handleReject = async (id) => {
     try {
@@ -179,58 +179,77 @@ const AlumniUsersList = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-8">
+          {" "}
           {[
             {
               label: "Total Users",
               value: alumniUsers.length,
               icon: Users,
               color: "blue",
+              bg: "bg-blue-50",
+              iconBg: "bg-blue-100",
+              iconColor: "text-blue-600",
             },
             {
               label: "Approved",
               value: alumniUsers.filter((u) => u.isApproved).length,
               icon: CheckCircle,
               color: "green",
+              bg: "bg-emerald-50",
+              iconBg: "bg-emerald-100",
+              iconColor: "text-emerald-600",
             },
             {
               label: "Pending",
               value: alumniUsers.filter((u) => !u.isApproved).length,
               icon: XCircle,
               color: "yellow",
+              bg: "bg-amber-50",
+              iconBg: "bg-amber-100",
+              iconColor: "text-amber-600",
             },
             {
               label: "Admins",
               value: alumniUsers.filter((u) => u.isAdmin).length,
               icon: UserCheck,
               color: "purple",
+              bg: "bg-purple-50",
+              iconBg: "bg-purple-100",
+              iconColor: "text-purple-600",
             },
           ].map((stat, i) => {
             const Icon = stat.icon;
-            const colorClasses = {
-              blue: "bg-blue-50 text-blue-600",
-              green: "bg-green-50 text-green-600",
-              yellow: "bg-yellow-50 text-yellow-600",
-              purple: "bg-purple-50 text-purple-600",
-            };
             return (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
+                key={stat.label}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className={`${colorClasses[stat.color]} p-4 rounded-xl shadow-lg  border-${stat.color}-100 backdrop-blur-md`}
+                transition={{ delay: i * 0.08 }}
+                className={`${stat.bg} relative p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    {stat.label}
-                  </span>
-                  <Icon size={16} className="opacity-60" />
-                </div>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                {" "}
+                {/* Icon */}{" "}
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.iconBg} ${stat.iconColor} mb-4`}
+                >
+                  {" "}
+                  <Icon size={18} />{" "}
+                </div>{" "}
+                {/* Label */}{" "}
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+                  {" "}
+                  {stat.label}{" "}
+                </p>{" "}
+                {/* Value */}{" "}
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>{" "}
+                {/* Decorative Accent */}{" "}
+                <div
+                  className={`absolute top-0 right-0 h-full w-1 rounded-r-2xl ${stat.iconBg}`}
+                />{" "}
               </motion.div>
             );
-          })}
+          })}{" "}
         </div>
       </div>
 
@@ -439,7 +458,7 @@ const AlumniUsersList = () => {
                       Approve
                     </button>
                   )}
-                  <button 
+                  <button
                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                     onClick={() => setSelectedItem(alumni)}
                   >
