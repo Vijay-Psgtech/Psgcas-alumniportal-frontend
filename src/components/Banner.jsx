@@ -520,7 +520,7 @@ const EpicBanner = () => {
                       Sign in or create an account to unlock exclusive alumni benefits
                     </p>
                     <button
-                      onClick={() => setAuthMode("signup")}
+                      onClick={() => setAuthMode("login")}
                       style={{
                         padding: "10px 20px",
                         background: "linear-gradient(135deg, #c83e7d, #ff6b9d)",

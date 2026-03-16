@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { AlertCircle, Mail, Eye, EyeOff, Apple, Chrome } from "lucide-react";
+import { authAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const LoginCard = ({ onSwitchToSignup }) => {
   const [email, setEmail] = useState("");
@@ -7,10 +10,12 @@ const LoginCard = ({ onSwitchToSignup }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       setError("Please enter your email address");
       return;
@@ -33,7 +38,32 @@ const LoginCard = ({ onSwitchToSignup }) => {
 
     setError("");
     setIsLoading(true);
-    
+    try {
+      const response = await authAPI.login({ email, password });
+      const alumni = response.data.alumni;
+      if (!alumni) {
+        setError({ general: "Login failed: no user data received" });
+        return;
+      }
+      await login(alumni);
+
+      // Role-based redirect
+      if (alumni.isAdmin) {
+        navigate("/admin/dashboard");
+      } else if (alumni.isApproved) {
+        navigate("/alumni/profile");
+      } else {
+        // Registered but pending admin approval
+        navigate("/alumni/register");
+      }
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Invalid email or password";
+      // Keep error as a string so it can be rendered safely in JSX
+      setError(errorMessage);
+      console.error("Login Error:", error);
+    }
+
     setTimeout(() => {
       setIsLoading(false);
       console.log("Login attempt:", { email, password });
@@ -401,7 +431,7 @@ const LoginCard = ({ onSwitchToSignup }) => {
             <label className="form-label">Email Address</label>
             <input
               type="email"
-              className={`form-input ${error && !password ? 'error' : ''}`}
+              className={`form-input ${error && !password ? "error" : ""}`}
               placeholder="you@example.com"
               value={email}
               onChange={(e) => {
@@ -418,7 +448,7 @@ const LoginCard = ({ onSwitchToSignup }) => {
             <div className="form-input-wrapper">
               <input
                 type={showPassword ? "text" : "password"}
-                className={`form-input ${error && password ? 'error' : ''}`}
+                className={`form-input ${error && password ? "error" : ""}`}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
@@ -439,14 +469,14 @@ const LoginCard = ({ onSwitchToSignup }) => {
 
           {/* Forgot Password */}
           <div className="forgot-password">
-            <a href="/alumni/forgot-password" className="forgot-password-link">
+            <a href="/forgot-password" className="forgot-password-link">
               Forgot Password?
             </a>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className={`error-message ${error ? 'show' : ''}`}>
+            <div className={`error-message ${error ? "show" : ""}`}>
               <AlertCircle size={16} />
               {error}
             </div>
@@ -469,15 +499,27 @@ const LoginCard = ({ onSwitchToSignup }) => {
 
         {/* Social Methods */}
         <div className="social-methods">
-          <button className="social-btn" type="button" aria-label="Sign in with Apple">
+          <button
+            className="social-btn"
+            type="button"
+            aria-label="Sign in with Apple"
+          >
             <Apple size={16} />
             Apple
           </button>
-          <button className="social-btn" type="button" aria-label="Sign in with Google">
+          <button
+            className="social-btn"
+            type="button"
+            aria-label="Sign in with Google"
+          >
             <Chrome size={16} />
             Google
           </button>
-          <button className="social-btn" type="button" aria-label="Sign in with Microsoft">
+          <button
+            className="social-btn"
+            type="button"
+            aria-label="Sign in with Microsoft"
+          >
             <Mail size={16} />
             Microsoft
           </button>
