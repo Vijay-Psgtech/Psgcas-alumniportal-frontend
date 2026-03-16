@@ -116,4 +116,10 @@ export const donationAPI = {
   create: (data) => api.post("/donations", data),
 };
 
+// ── Donation API ────────────────────────────────────────────────────────
+export const adminReportsAPI = {
+  fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
+  fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month")
+};
+
 export default api;
