@@ -22,6 +22,7 @@
     "react-leaflet-markercluster": "^5.0.0-rc.0",
     "react-parallax-tilt": "^1.7.313",
     "react-router-dom": "^7.9.6",
+    "recharts": "^3.8.0",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
