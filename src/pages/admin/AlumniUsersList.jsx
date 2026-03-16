@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
   Mail,
@@ -18,17 +18,19 @@ import {
   Eye,
   UserCheck,
   UserX,
-} from 'lucide-react';
-import { adminAPI, API_BASE } from '../../services/api';
+  X,
+} from "lucide-react";
+import { adminAPI, API_BASE } from "../../services/api";
 
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); // all, approved, pending
-  const [viewMode, setViewMode] = useState('grid'); // grid or table
-  const [sortBy, setSortBy] = useState('name'); // name, graduationYear, department
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
+  const [viewMode, setViewMode] = useState("grid"); // grid or table
+  const [sortBy, setSortBy] = useState("name"); // name, graduationYear, department
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
     const fetchAlumni = async () => {
@@ -37,12 +39,12 @@ const AlumniUsersList = () => {
         const res = await adminAPI.getAllAlumni();
         setAlumniUsers(res.data.alumni);
       } catch (error) {
-        console.error('Alumni error:', error);
+        console.error("Alumni error:", error);
       } finally {
         setLoading(false);
       }
     };
-   
+
     fetchAlumni();
   }, []);
 
@@ -55,12 +57,13 @@ const AlumniUsersList = () => {
         fullName.includes(query) ||
         alumni.email.toLowerCase().includes(query) ||
         alumni.department.toLowerCase().includes(query) ||
-        (alumni.currentCompany && alumni.currentCompany.toLowerCase().includes(query));
+        (alumni.currentCompany &&
+          alumni.currentCompany.toLowerCase().includes(query));
 
       const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'approved' && alumni.isApproved) ||
-        (statusFilter === 'pending' && !alumni.isApproved);
+        statusFilter === "all" ||
+        (statusFilter === "approved" && alumni.isApproved) ||
+        (statusFilter === "pending" && !alumni.isApproved);
 
       return matchesSearch && matchesStatus;
     });
@@ -68,15 +71,15 @@ const AlumniUsersList = () => {
     filtered.sort((a, b) => {
       let aVal, bVal;
       switch (sortBy) {
-        case 'name':
+        case "name":
           aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
           bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
           break;
-        case 'graduationYear':
+        case "graduationYear":
           aVal = a.graduationYear;
           bVal = b.graduationYear;
           break;
-        case 'department':
+        case "department":
           aVal = a.department.toLowerCase();
           bVal = b.department.toLowerCase();
           break;
@@ -84,8 +87,8 @@ const AlumniUsersList = () => {
           return 0;
       }
 
-      if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-      if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -95,11 +98,28 @@ const AlumniUsersList = () => {
   const handleApprove = async (id) => {
     try {
       await adminAPI.approveAlumni(id);
+      setSelectedItem(null);
       setAlumniUsers((prev) =>
-        prev.map((user) => (user._id === id ? { ...user, isApproved: true } : user))
+        prev.map((user) =>
+          user._id === id ? { ...user, isApproved: true } : user,
+        ),
       );
     } catch (error) {
-      console.error('Approve error:', error);
+      console.error("Approve error:", error);
+    }
+  };
+
+  const handleMakeAdmin = async (id) => {
+    try {
+      await adminAPI.makeAlumniAdmin(id);
+      setSuccess("Admin privileges granted!");
+      setSelectedItem(null);
+      const r = await adminAPI.getAllAlumni();
+      setAlumniUsers(r.data.alumni || []);
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (e) {
+      console.log(e.response?.data?.message || "Failed");
+      setTimeout(() => setError(""), 3000);
     }
   };
 
@@ -107,18 +127,20 @@ const AlumniUsersList = () => {
     try {
       await adminAPI.rejectAlumni(id);
       setAlumniUsers((prev) =>
-        prev.map((user) => (user._id === id ? { ...user, isApproved: false } : user))
+        prev.map((user) =>
+          user._id === id ? { ...user, isApproved: false } : user,
+        ),
       );
     } catch (error) {
-      console.error('Reject error:', error);
+      console.error("Reject error:", error);
     }
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -126,7 +148,10 @@ const AlumniUsersList = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
         <div className="text-center">
-          <Users size={48} className="mx-auto mb-4 text-blue-500 animate-pulse" />
+          <Users
+            size={48}
+            className="mx-auto mb-4 text-blue-500 animate-pulse"
+          />
           <p className="text-gray-600 font-medium">Loading alumni users...</p>
         </div>
       </div>
@@ -147,43 +172,84 @@ const AlumniUsersList = () => {
             </p>
           </div>
           <div className="text-sm text-gray-500">
-            Total: <strong className="text-gray-900">{alumniUsers.length}</strong> users
+            Total:{" "}
+            <strong className="text-gray-900">{alumniUsers.length}</strong>{" "}
+            users
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-8">
+          {" "}
           {[
-            { label: 'Total Users', value: alumniUsers.length, icon: Users, color: 'blue' },
-            { label: 'Approved', value: alumniUsers.filter(u => u.isApproved).length, icon: CheckCircle, color: 'green' },
-            { label: 'Pending', value: alumniUsers.filter(u => !u.isApproved).length, icon: XCircle, color: 'yellow' },
-            { label: 'Admins', value: alumniUsers.filter(u => u.isAdmin).length, icon: UserCheck, color: 'purple' },
+            {
+              label: "Total Users",
+              value: alumniUsers.length,
+              icon: Users,
+              color: "blue",
+              bg: "bg-blue-50",
+              iconBg: "bg-blue-100",
+              iconColor: "text-blue-600",
+            },
+            {
+              label: "Approved",
+              value: alumniUsers.filter((u) => u.isApproved).length,
+              icon: CheckCircle,
+              color: "green",
+              bg: "bg-emerald-50",
+              iconBg: "bg-emerald-100",
+              iconColor: "text-emerald-600",
+            },
+            {
+              label: "Pending",
+              value: alumniUsers.filter((u) => !u.isApproved).length,
+              icon: XCircle,
+              color: "yellow",
+              bg: "bg-amber-50",
+              iconBg: "bg-amber-100",
+              iconColor: "text-amber-600",
+            },
+            {
+              label: "Admins",
+              value: alumniUsers.filter((u) => u.isAdmin).length,
+              icon: UserCheck,
+              color: "purple",
+              bg: "bg-purple-50",
+              iconBg: "bg-purple-100",
+              iconColor: "text-purple-600",
+            },
           ].map((stat, i) => {
             const Icon = stat.icon;
-            const colorClasses = {
-              blue: 'bg-blue-50 text-blue-600',
-              green: 'bg-green-50 text-green-600',
-              yellow: 'bg-yellow-50 text-yellow-600',
-              purple: 'bg-purple-50 text-purple-600',
-            };
             return (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
+                key={stat.label}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className={`${colorClasses[stat.color]} p-4 rounded-xl shadow-lg  border-${stat.color}-100 backdrop-blur-md`}
+                transition={{ delay: i * 0.08 }}
+                className={`${stat.bg} relative p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-                    {stat.label}
-                  </span>
-                  <Icon size={16} className="opacity-60" />
-                </div>
-                <p className="text-2xl font-bold">{stat.value}</p>
+                {" "}
+                {/* Icon */}{" "}
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.iconBg} ${stat.iconColor} mb-4`}
+                >
+                  {" "}
+                  <Icon size={18} />{" "}
+                </div>{" "}
+                {/* Label */}{" "}
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
+                  {" "}
+                  {stat.label}{" "}
+                </p>{" "}
+                {/* Value */}{" "}
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>{" "}
+                {/* Decorative Accent */}{" "}
+                <div
+                  className={`absolute top-0 right-0 h-full w-1 rounded-r-2xl ${stat.iconBg}`}
+                />{" "}
               </motion.div>
             );
-          })}
+          })}{" "}
         </div>
       </div>
 
@@ -192,7 +258,10 @@ const AlumniUsersList = () => {
         <div className="flex flex-col gap-4">
           {/* Search */}
           <div className="relative">
-            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search
+              size={16}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -205,17 +274,17 @@ const AlumniUsersList = () => {
           <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
             <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
               {[
-                { label: 'All Users', value: 'all' },
-                { label: 'Approved', value: 'approved' },
-                { label: 'Pending', value: 'pending' },
+                { label: "All Users", value: "all" },
+                { label: "Approved", value: "approved" },
+                { label: "Pending", value: "pending" },
               ].map((filter) => (
                 <button
                   key={filter.value}
                   onClick={() => setStatusFilter(filter.value)}
                   className={`flex-1 sm:flex-none px-4 py-2.5 border-none text-xs sm:text-sm font-bold transition-all capitalize ${
                     statusFilter === filter.value
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-600 hover:bg-slate-50'
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-gray-600 hover:bg-slate-50"
                   }`}
                 >
                   {filter.label}
@@ -225,17 +294,18 @@ const AlumniUsersList = () => {
 
             <div className="flex items-center gap-3">
               <div className="text-xs text-gray-500">
-                Showing <strong>{filteredAndSortedAlumni.length}</strong> of <strong>{alumniUsers.length}</strong>
+                Showing <strong>{filteredAndSortedAlumni.length}</strong> of{" "}
+                <strong>{alumniUsers.length}</strong>
               </div>
 
               {/* View Toggle */}
               <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                 <button
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setViewMode("grid")}
                   className={`p-2.5 transition-all ${
-                    viewMode === 'grid'
-                      ? 'bg-blue-500 text-white'
-                      : 'bg-white text-gray-500 hover:bg-slate-50'
+                    viewMode === "grid"
+                      ? "bg-blue-500 text-white"
+                      : "bg-white text-gray-500 hover:bg-slate-50"
                   }`}
                   title="Grid View"
                 >
@@ -243,11 +313,11 @@ const AlumniUsersList = () => {
                 </button>
                 <div className="w-px bg-slate-200"></div>
                 <button
-                  onClick={() => setViewMode('table')}
+                  onClick={() => setViewMode("table")}
                   className={`p-2.5 transition-all ${
-                    viewMode === 'table'
-                      ? 'bg-purple-500 text-white'
-                      : 'bg-white text-gray-500 hover:bg-slate-50'
+                    viewMode === "table"
+                      ? "bg-purple-500 text-white"
+                      : "bg-white text-gray-500 hover:bg-slate-50"
                   }`}
                   title="Table View"
                 >
@@ -268,14 +338,16 @@ const AlumniUsersList = () => {
             className="bg-white rounded-2xl border border-slate-200 p-12 text-center"
           >
             <Users size={48} className="mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-bold text-gray-700 mb-1">No alumni found</h3>
+            <h3 className="text-lg font-bold text-gray-700 mb-1">
+              No alumni found
+            </h3>
             <p className="text-sm text-gray-500">
-              {search || statusFilter !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'No alumni users registered yet'}
+              {search || statusFilter !== "all"
+                ? "Try adjusting your search or filters"
+                : "No alumni users registered yet"}
             </p>
           </motion.div>
-        ) : viewMode === 'grid' ? (
+        ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedAlumni.map((alumni, idx) => (
               <motion.div
@@ -296,7 +368,8 @@ const AlumniUsersList = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                        {alumni.firstName[0]}{alumni.lastName[0]}
+                        {alumni.firstName[0]}
+                        {alumni.lastName[0]}
                       </div>
                     )}
                   </div>
@@ -304,15 +377,23 @@ const AlumniUsersList = () => {
                     <h3 className="text-lg font-bold text-gray-900 truncate">
                       {alumni.firstName} {alumni.lastName}
                     </h3>
-                    <p className="text-sm text-gray-600 truncate">{alumni.email}</p>
+                    <p className="text-sm text-gray-600 truncate">
+                      {alumni.email}
+                    </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        alumni.isApproved
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {alumni.isApproved ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                        {alumni.isApproved ? 'Approved' : 'Pending'}
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                          alumni.isApproved
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {alumni.isApproved ? (
+                          <CheckCircle size={12} />
+                        ) : (
+                          <XCircle size={12} />
+                        )}
+                        {alumni.isApproved ? "Approved" : "Pending"}
                       </span>
                       {alumni.isAdmin && (
                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
@@ -328,22 +409,30 @@ const AlumniUsersList = () => {
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center gap-2 text-sm">
                     <Building size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{alumni.department.toUpperCase()}</span>
+                    <span className="text-gray-600">
+                      {alumni.department.toUpperCase()}
+                    </span>
                     <span className="text-gray-400">•</span>
                     <Calendar size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{alumni.graduationYear}</span>
+                    <span className="text-gray-600">
+                      {alumni.graduationYear}
+                    </span>
                   </div>
 
                   {alumni.currentCompany && (
                     <div className="flex items-center gap-2 text-sm">
                       <Briefcase size={14} className="text-gray-400" />
-                      <span className="text-gray-600">{alumni.jobTitle} at {alumni.currentCompany}</span>
+                      <span className="text-gray-600">
+                        {alumni.jobTitle} at {alumni.currentCompany}
+                      </span>
                     </div>
                   )}
 
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin size={14} className="text-gray-400" />
-                    <span className="text-gray-600 truncate">{alumni.city}, {alumni.country}</span>
+                    <span className="text-gray-600 truncate">
+                      {alumni.city}, {alumni.country}
+                    </span>
                   </div>
 
                   {alumni.linkedin && (
@@ -369,7 +458,10 @@ const AlumniUsersList = () => {
                       Approve
                     </button>
                   )}
-                  <button className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                  <button
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                    onClick={() => setSelectedItem(alumni)}
+                  >
                     View Details
                   </button>
                 </div>
@@ -422,7 +514,8 @@ const AlumniUsersList = () => {
                               />
                             ) : (
                               <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                                {alumni.firstName[0]}{alumni.lastName[0]}
+                                {alumni.firstName[0]}
+                                {alumni.lastName[0]}
                               </div>
                             )}
                           </div>
@@ -430,7 +523,9 @@ const AlumniUsersList = () => {
                             <p className="text-sm font-bold text-gray-900">
                               {alumni.firstName} {alumni.lastName}
                             </p>
-                            <p className="text-xs text-gray-500">{alumni.email}</p>
+                            <p className="text-xs text-gray-500">
+                              {alumni.email}
+                            </p>
                           </div>
                         </div>
                       </td>
@@ -448,8 +543,12 @@ const AlumniUsersList = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-600">
-                          <p className="font-medium">{alumni.department.toUpperCase()}</p>
-                          <p className="text-xs">Graduated {alumni.graduationYear}</p>
+                          <p className="font-medium">
+                            {alumni.department.toUpperCase()}
+                          </p>
+                          <p className="text-xs">
+                            Graduated {alumni.graduationYear}
+                          </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -465,13 +564,19 @@ const AlumniUsersList = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                          alumni.isApproved
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {alumni.isApproved ? <CheckCircle size={12} /> : <XCircle size={12} />}
-                          {alumni.isApproved ? 'Approved' : 'Pending'}
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            alumni.isApproved
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {alumni.isApproved ? (
+                            <CheckCircle size={12} />
+                          ) : (
+                            <XCircle size={12} />
+                          )}
+                          {alumni.isApproved ? "Approved" : "Pending"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-center">
@@ -485,7 +590,11 @@ const AlumniUsersList = () => {
                               <CheckCircle size={14} />
                             </button>
                           )}
-                          <button className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" title="View Details">
+                          <button
+                            className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                            title="View Details"
+                            onClick={() => setSelectedItem(alumni)}
+                          >
                             <Eye size={14} />
                           </button>
                         </div>
@@ -497,6 +606,179 @@ const AlumniUsersList = () => {
             </div>
           </div>
         )}
+        {/* Detail Modal for Alumni & Donations */}
+        <AnimatePresence>
+          {selectedItem && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
+              onClick={() => setSelectedItem(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.92, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.92, y: 10 }}
+                className="bg-white rounded-2xl w-full max-w-[620px] max-h-[90vh] overflow-y-auto p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => setSelectedItem(null)}
+                  className="absolute top-5 right-5 bg-slate-50 hover:bg-slate-100 text-gray-500 transition border w-9 h-9 rounded-xl flex items-center justify-center"
+                >
+                  <X size={16} />
+                </button>
+
+                {/* Alumni View */}
+                {selectedItem.firstName ? (
+                  <>
+                    {/* Header with Profile Image */}
+                    <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                        {selectedItem.profileImage ? (
+                          <img
+                            src={`${API_BASE}/${selectedItem.profileImage}`}
+                            alt="profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          `${selectedItem.firstName?.[0] || ""}${
+                            selectedItem.lastName?.[0] || ""
+                          }`
+                        )}
+                      </div>
+
+                      <div>
+                        <h2 className="text-[22px] font-bold text-[#0c0e1a] font-['Playfair_Display']">
+                          {selectedItem.firstName} {selectedItem.lastName}
+                        </h2>
+
+                        <p className="text-sm text-gray-500 font-medium">
+                          {selectedItem.department || "Department N/A"} •{" "}
+                          {selectedItem.graduationYear || "Year N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Info Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { l: "Email", v: selectedItem.email },
+                        { l: "Phone", v: selectedItem.phone || "N/A" },
+                        {
+                          l: "Company",
+                          v: selectedItem.currentCompany || "N/A",
+                        },
+                        { l: "Job Title", v: selectedItem.jobTitle || "N/A" },
+                        { l: "City", v: selectedItem.city || "N/A" },
+                        { l: "Country", v: selectedItem.country || "N/A" },
+                      ].map((it) => (
+                        <div
+                          key={it.l}
+                          className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-sm transition"
+                        >
+                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+                            {it.l}
+                          </p>
+
+                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 break-words">
+                            {it.v}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* LinkedIn */}
+                    {selectedItem.linkedin && (
+                      <a
+                        href={selectedItem.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-block mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                      >
+                        View LinkedIn Profile
+                      </a>
+                    )}
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap gap-3 pt-6 mt-6 border-t border-slate-100">
+                      {!selectedItem.isApproved && (
+                        <button
+                          onClick={() => handleApprove(selectedItem._id)}
+                          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
+                        >
+                          Approve Alumni
+                        </button>
+                      )}
+
+                      {selectedItem.isApproved && !selectedItem.isAdmin && (
+                        <button
+                          onClick={() => handleMakeAdmin(selectedItem._id)}
+                          className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
+                        >
+                          Make Admin
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => setSelectedItem(null)}
+                        className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Donation View */}
+                    <h2 className="text-[22px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
+                      Donation Details
+                    </h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                      {[
+                        {
+                          l: "Amount",
+                          v: `${
+                            selectedItem.currency === "INR" ? "₹" : "$"
+                          }${selectedItem.amount}`,
+                        },
+                        { l: "Status", v: selectedItem.status },
+                        {
+                          l: "Date",
+                          v: new Date(selectedItem.donatedAt).toLocaleString(),
+                        },
+                        { l: "Payment Method", v: selectedItem.paymentMethod },
+                      ].map((it) => (
+                        <div
+                          key={it.l}
+                          className="p-4 rounded-xl bg-slate-50 border border-slate-100"
+                        >
+                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+                            {it.l}
+                          </p>
+
+                          <p className="text-[15px] font-bold text-[#0c0e1a] mt-1">
+                            {it.v}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedItem(null)}
+                      className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
+                    >
+                      Close
+                    </button>
+                  </>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

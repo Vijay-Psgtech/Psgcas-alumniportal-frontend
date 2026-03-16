@@ -11,7 +11,7 @@ import {
   Trash2,
   Loader,
 } from "lucide-react";
-import { eventsAPI } from "../../services/api";
+import { eventsAPI, API_BASE } from "../../services/api";
 import { DeleteModal } from "./AdminSharedUI";
 import { EventFormModal } from "./EventFormModal";
 
@@ -67,7 +67,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
 
   // ✅ Handle save (create/update)
   const handleSave = async (form) => {
-    console.log('FormData', form);
+    console.log("FormData", form);
     console.log(form.imageUrl instanceof File);
     try {
       setIsLoading(true);
@@ -220,16 +220,25 @@ export const EventsTab = ({ onError, onSuccess }) => {
                 className={`flex flex-col sm:grid sm:grid-cols-[2.4fr_1fr_1fr_1fr_0.6fr_90px] px-4 py-3.5 gap-3 sm:gap-2 sm:items-center transition-colors hover:bg-slate-50/80 ${i < filtered.length - 1 ? "border-b border-slate-100" : ""}`}
               >
                 <div>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    {ev.highlight && (
-                      <Star
-                        size={11}
-                        className="fill-amber-500 text-amber-500 shrink-0"
+                  <div className="flex items-center gap-3 mb-0.5">
+                    {ev.imageUrl && (
+                      <img
+                        src={`${API_BASE}/${ev.imageUrl}`}
+                        alt={ev.title}
+                        className="w-10 h-10 object-cover rounded-lg shrink-0"
                       />
                     )}
-                    <span className="font-semibold text-[16px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
-                      {ev.title}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {ev.highlight && (
+                        <Star
+                          size={11}
+                          className="fill-amber-500 text-amber-500 shrink-0"
+                        />
+                      )}
+                      <span className="font-semibold text-[16px] text-[#0c0e1a] font-['Outfit',_sans-serif] leading-tight">
+                        {ev.title}
+                      </span>
+                    </div>
                   </div>
                   <span className="text-[12px] text-gray-500 font-['Outfit',_sans-serif] block line-clamp-1">
                     {ev.venue?.split(",")[0]}
