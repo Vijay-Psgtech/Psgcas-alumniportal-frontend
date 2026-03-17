@@ -190,7 +190,7 @@ const FindAlumni = () => {
             margin-bottom: 50px;
           }
 
-          .section-title {
+          .sectionTitle  {
             font-size: 24px;
             font-weight: 700;
             color: #1e3c72;
@@ -375,7 +375,7 @@ const FindAlumni = () => {
 
             {/* Quick Access Section */}
             <div className="quick-access-section">
-              <h2 className="section-title">
+              <h2 className="sectionTitle">
                 <Home size={24} />
                 Quick Access
               </h2>
