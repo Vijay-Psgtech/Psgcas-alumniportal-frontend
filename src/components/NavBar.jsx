@@ -45,14 +45,7 @@ export default function NavBar() {
     const baseItems = [
       { label: "Home", path: "/" },
       { label: "Leadership", path: "/leadership" },
-      {
-        label: "Discover",
-        submenu: [
-          { label: "Alumni Directory", path: "/alumni/directory", requireAuth: true },
-          { label: "Success Stories", path: "/alumni/stories" },
-          { label: "Alumni Map", path: "/alumni/map", requireAuth: true },
-        ],
-      },
+      { label: "Newsletter", path: "/newsletter" },
       {
         label: "Events",
         submenu: [
@@ -62,7 +55,19 @@ export default function NavBar() {
           { label: "Reunions", path: "/reunions" },
         ],
       },
-      { label: "Newsletter", path: "/newsletter" },
+      {
+        label: "Find Alumni",
+        submenu: [
+          {
+            label: "Alumni Directory",
+            path: "/alumni/directory",
+            requireAuth: true,
+          },
+          // { label: "Success Stories", path: "/alumni/stories" },
+          { label: "Alumni Map", path: "/alumni/map", requireAuth: true },
+        ],
+      },
+
       { label: "Contact", path: "/contact" },
     ];
 
@@ -127,26 +132,26 @@ export default function NavBar() {
   }, []);
 
   const isDropdownOpen = (label) => {
-    if (label === "Discover") return discoverOpen;
+    if (label === "Find Alumni") return discoverOpen;
     if (label === "Events") return eventsOpen;
     if (label === "Admin") return alumniOpen;
     return false;
   };
 
   const toggleDropdown = (label) => {
-    if (label === "Discover") setDiscoverOpen((p) => !p);
+    if (label === "Find Alumni") setDiscoverOpen((p) => !p);
     if (label === "Events") setEventsOpen((p) => !p);
     if (label === "Admin") setAlumniOpen((p) => !p);
   };
 
   const toggleMobileDropdown = (label) => {
-    if (label === "Discover") setMobileDiscoverOpen((p) => !p);
+    if (label === "Find Alumni") setMobileDiscoverOpen((p) => !p);
     if (label === "Events") setMobileEventsOpen((p) => !p);
     if (label === "Admin") setMobileAlumniOpen((p) => !p);
   };
 
   const isMobileDropdownOpen = (label) => {
-    if (label === "Discover") return mobileDiscoverOpen;
+    if (label === "Find Alumni") return mobileDiscoverOpen;
     if (label === "Events") return mobileEventsOpen;
     if (label === "Admin") return mobileAlumniOpen;
     return false;
@@ -184,9 +189,9 @@ export default function NavBar() {
         .navbar-bg {
           position: absolute;
           inset: 0;
-          background: ${scrolled
-            ? "rgba(255, 255, 255, 0.8)"
-            : "rgba(255, 255, 255, 0.4)"};
+          background: ${
+            scrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.4)"
+          };
           backdrop-filter: blur(20px) saturate(180%);
           border-bottom: 1px solid rgba(59, 130, 246, 0.12);
           transition: all 0.4s ease;
@@ -772,7 +777,10 @@ export default function NavBar() {
         }
       `}</style>
 
-      <nav className={`psg-navbar ${!navVisible ? "navbar-hidden" : ""}`} ref={navRef}>
+      <nav
+        className={`psg-navbar ${!navVisible ? "navbar-hidden" : ""}`}
+        ref={navRef}
+      >
         <div className="navbar-glow"></div>
         <div className="navbar-bg"></div>
 
@@ -803,7 +811,9 @@ export default function NavBar() {
                       className={`chevron-icon ${isDropdownOpen(item.label) ? "chevron-open" : ""}`}
                     />
                   </button>
-                  <div className={`dropdown-panel ${isDropdownOpen(item.label) ? "open" : ""}`}>
+                  <div
+                    className={`dropdown-panel ${isDropdownOpen(item.label) ? "open" : ""}`}
+                  >
                     <div className="dropdown-bar" />
                     <div style={{ padding: "6px 0" }}>
                       {item.submenu
@@ -828,12 +838,14 @@ export default function NavBar() {
                   <NavLink
                     to={item.path}
                     onClick={() => closeAllMenus()}
-                    className={({ isActive }) => `menu-link ${isActive ? "active" : ""}`}
+                    className={({ isActive }) =>
+                      `menu-link ${isActive ? "active" : ""}`
+                    }
                   >
                     {item.label}
                   </NavLink>
                 </li>
-              )
+              ),
             )}
           </ul>
 
@@ -973,7 +985,11 @@ export default function NavBar() {
                   </button>
                   <div
                     className="m-submenu"
-                    style={{ maxHeight: isMobileDropdownOpen(item.label) ? "300px" : "0" }}
+                    style={{
+                      maxHeight: isMobileDropdownOpen(item.label)
+                        ? "300px"
+                        : "0",
+                    }}
                   >
                     {item.submenu
                       .filter((sub) => !sub.requireAuth || user)
@@ -994,11 +1010,13 @@ export default function NavBar() {
                   key={item.path}
                   to={item.path}
                   onClick={() => closeAllMenus()}
-                  className={({ isActive }) => `m-link ${isActive ? "active" : ""}`}
+                  className={({ isActive }) =>
+                    `m-link ${isActive ? "active" : ""}`
+                  }
                 >
                   {item.label}
                 </NavLink>
-              )
+              ),
             )}
 
             {user ? (
@@ -1008,7 +1026,9 @@ export default function NavBar() {
                   <div className="ud-name">
                     {user.firstName} {user.lastName}
                   </div>
-                  <div className="ud-role">{user.isAdmin ? "Admin User" : "Alumni Member"}</div>
+                  <div className="ud-role">
+                    {user.isAdmin ? "Admin User" : "Alumni Member"}
+                  </div>
                 </div>
 
                 <NavLink
@@ -1065,10 +1085,18 @@ export default function NavBar() {
               </>
             ) : (
               <div className="m-btn-group">
-                <Link to="/alumni/login" onClick={() => closeAllMenus()} className="m-btn m-btn-ghost">
+                <Link
+                  to="/alumni/login"
+                  onClick={() => closeAllMenus()}
+                  className="m-btn m-btn-ghost"
+                >
                   Alumni Login
                 </Link>
-                <Link to="/donate" onClick={() => closeAllMenus()} className="m-btn m-btn-blue">
+                <Link
+                  to="/donate"
+                  onClick={() => closeAllMenus()}
+                  className="m-btn m-btn-blue"
+                >
                   Donate Now
                 </Link>
               </div>
