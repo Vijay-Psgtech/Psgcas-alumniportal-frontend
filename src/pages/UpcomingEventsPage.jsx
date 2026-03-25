@@ -1,10 +1,18 @@
 // frontend/src/pages/UpcomingEventsPage.jsx
 // ✅ FIXED: Import corrected from ../Context/ to ../context/ (lowercase)
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Users, Search, ChevronRight, Sparkles, Star } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Search,
+  ChevronRight,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { useData, CATEGORY_COLORS } from "../context/dataConstants"; // ✅ FIXED - lowercase 'context'
+import { eventsAPI } from "../services/api";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -18,7 +26,7 @@ const formatDate = (dateString) => {
 
 const EventCard = ({ event, idx }) => {
   const dateInfo = formatDate(event.date);
-  const catColor = CATEGORY_COLORS[event.category] || "#8b5a3c";
+  const catColor = "#8b5a3c";
 
   return (
     <motion.div
@@ -27,7 +35,9 @@ const EventCard = ({ event, idx }) => {
       transition={{ duration: 0.45, delay: idx * 0.07 }}
       style={{
         background: "#ffffff",
-        border: event.highlight ? `1px solid ${catColor}55` : "1px solid rgba(139,90,60,0.09)",
+        border: event.highlight
+          ? `1px solid ${catColor}55`
+          : "1px solid rgba(139,90,60,0.09)",
         borderRadius: "20px",
         overflow: "hidden",
         position: "relative",
@@ -82,8 +92,18 @@ const EventCard = ({ event, idx }) => {
             {event.category}
           </span>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            {event.highlight && <Star size={14} fill={catColor} color={catColor} />}
-            <span style={{ color: "#9ca3af", fontSize: "11px", fontFamily: "'DM Mono', monospace" }}>UPCOMING</span>
+            {event.highlight && (
+              <Star size={14} fill={catColor} color={catColor} />
+            )}
+            <span
+              style={{
+                color: "#9ca3af",
+                fontSize: "11px",
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
+              UPCOMING
+            </span>
           </div>
         </div>
 
@@ -122,7 +142,13 @@ const EventCard = ({ event, idx }) => {
             >
               {dateInfo.month.toUpperCase()}
             </div>
-            <div style={{ fontSize: "10px", color: "#adb5bd", fontFamily: "'DM Mono', monospace" }}>
+            <div
+              style={{
+                fontSize: "10px",
+                color: "#adb5bd",
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
               {dateInfo.year}
             </div>
           </div>
@@ -156,13 +182,42 @@ const EventCard = ({ event, idx }) => {
         </div>
       </div>
 
-      <div style={{ padding: "16px 24px 20px", marginTop: "16px", borderTop: "1px solid rgba(139,90,60,0.06)" }}>
-        <div style={{ display: "flex", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9ca3af", fontSize: "12px" }}>
+      <div
+        style={{
+          padding: "16px 24px 20px",
+          marginTop: "16px",
+          borderTop: "1px solid rgba(139,90,60,0.06)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#9ca3af",
+              fontSize: "12px",
+            }}
+          >
             <MapPin size={12} />
             {event.venue?.split(",")[0]}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9ca3af", fontSize: "12px" }}>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#9ca3af",
+              fontSize: "12px",
+            }}
+          >
             <Users size={12} />
             {event.attendees} expected
           </span>
@@ -183,8 +238,12 @@ const EventCard = ({ event, idx }) => {
             textDecoration: "none",
             transition: "all 0.2s ease",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "translateX(3px)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "translateX(0)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateX(3px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateX(0)")
+          }
         >
           <span>View Details & Register</span>
           <ChevronRight size={14} />
@@ -195,17 +254,30 @@ const EventCard = ({ event, idx }) => {
 };
 
 const UpcomingEventsPage = () => {
-  const { casEvents } = useData(); // ✅ Now works - useData is within DataProvider
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter for upcoming events only
-  const upcomingEvents = casEvents.filter(e => e.status === "upcoming");
+  // ✅ Fetch events on mount
+  useEffect(() => {
+    fetchUpcomingEvents();
+  }, []);
+
+  // ✅ Fetch Upcoming events from API
+  const fetchUpcomingEvents = async () => {
+    try {
+      const response = await eventsAPI.getAll({ status: "upcoming" });
+      setUpcomingEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+
+      setUpcomingEvents([]);
+    }
+  };
 
   const filteredEvents = upcomingEvents.filter((e) => {
     const q = searchTerm.toLowerCase();
     return (
-      e.title.toLowerCase().includes(q) ||
-      e.category.toLowerCase().includes(q)
+      e.title.toLowerCase().includes(q) || e.category.toLowerCase().includes(q)
     );
   });
 
@@ -213,7 +285,8 @@ const UpcomingEventsPage = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
+        background:
+          "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
         fontFamily: "'Inter', sans-serif",
       }}
     >
@@ -225,7 +298,14 @@ const UpcomingEventsPage = () => {
       `}</style>
 
       {/* Hero */}
-      <div style={{ position: "relative", padding: "100px 40px 60px", textAlign: "center", overflow: "hidden" }}>
+      <div
+        style={{
+          position: "relative",
+          padding: "100px 40px 60px",
+          textAlign: "center",
+          overflow: "hidden",
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -234,7 +314,8 @@ const UpcomingEventsPage = () => {
             transform: "translateX(-50%)",
             width: "600px",
             height: "300px",
-            background: "radial-gradient(ellipse, rgba(139,90,60,0.1) 0%, transparent 70%)",
+            background:
+              "radial-gradient(ellipse, rgba(139,90,60,0.1) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -245,12 +326,17 @@ const UpcomingEventsPage = () => {
             right: "10%",
             width: "180px",
             height: "180px",
-            background: "radial-gradient(circle, rgba(168,120,80,0.07) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(168,120,80,0.07) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
 
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div
             style={{
               display: "inline-flex",
@@ -290,7 +376,8 @@ const UpcomingEventsPage = () => {
             <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #8b5a3c, #c89968, #a87850)",
+                background:
+                  "linear-gradient(135deg, #8b5a3c, #c89968, #a87850)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -307,7 +394,8 @@ const UpcomingEventsPage = () => {
               lineHeight: 1.6,
             }}
           >
-            Upcoming CAS alumni events featuring networking opportunities, celebrations, and career development sessions.
+            Upcoming CAS alumni events featuring networking opportunities,
+            celebrations, and career development sessions.
           </p>
           <div
             style={{
@@ -321,25 +409,51 @@ const UpcomingEventsPage = () => {
             }}
           >
             {[
-              { label: "Total Events", value: upcomingEvents.length, color: "#8b5a3c" },
-              { label: "This Month", value: upcomingEvents.filter(e => {
-                const eventDate = new Date(e.date);
-                const today = new Date();
-                return eventDate.getMonth() === today.getMonth() && eventDate.getFullYear() === today.getFullYear();
-              }).length, color: "#a87850" },
+              {
+                label: "Total Events",
+                value: upcomingEvents.length,
+                color: "#8b5a3c",
+              },
+              {
+                label: "This Month",
+                value: upcomingEvents.filter((e) => {
+                  const eventDate = new Date(e.date);
+                  const today = new Date();
+                  return (
+                    eventDate.getMonth() === today.getMonth() &&
+                    eventDate.getFullYear() === today.getFullYear()
+                  );
+                }).length,
+                color: "#a87850",
+              },
               { label: "Registrations Open", value: "Now", color: "#c89968" },
             ].map((stat, i) => (
               <div
                 key={i}
                 style={{
                   padding: "16px 28px",
-                  borderRight: i < 2 ? "1px solid rgba(139,90,60,0.08)" : "none",
+                  borderRight:
+                    i < 2 ? "1px solid rgba(139,90,60,0.08)" : "none",
                 }}
               >
-                <div style={{ fontSize: "26px", fontWeight: "800", color: stat.color, fontFamily: "'Playfair Display', serif" }}>
+                <div
+                  style={{
+                    fontSize: "26px",
+                    fontWeight: "800",
+                    color: stat.color,
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: "12px", color: "#9ca3af", fontFamily: "'DM Mono', monospace", letterSpacing: "1px" }}>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                    fontFamily: "'DM Mono', monospace",
+                    letterSpacing: "1px",
+                  }}
+                >
                   {stat.label.toUpperCase()}
                 </div>
               </div>
@@ -357,7 +471,16 @@ const UpcomingEventsPage = () => {
           style={{ marginBottom: "40px" }}
         >
           <div style={{ position: "relative" }}>
-            <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)" }} />
+            <Search
+              size={16}
+              color="#9ca3af"
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            />
             <input
               type="text"
               placeholder="Search events by name or category…"
@@ -375,14 +498,25 @@ const UpcomingEventsPage = () => {
                 fontFamily: "'Inter', sans-serif",
                 boxShadow: "0 2px 8px rgba(139,90,60,0.04)",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "rgba(139,90,60,0.5)")}
-              onBlur={(e) => (e.target.style.borderColor = "rgba(139,90,60,0.1)")}
+              onFocus={(e) =>
+                (e.target.style.borderColor = "rgba(139,90,60,0.5)")
+              }
+              onBlur={(e) =>
+                (e.target.style.borderColor = "rgba(139,90,60,0.1)")
+              }
             />
           </div>
         </motion.div>
 
         {/* Section label */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
           <div
             style={{
               width: "3px",
@@ -391,10 +525,25 @@ const UpcomingEventsPage = () => {
               borderRadius: "2px",
             }}
           />
-          <span style={{ color: "#2d1810", fontWeight: "700", fontSize: "18px", fontFamily: "'Playfair Display', serif" }}>
+          <span
+            style={{
+              color: "#2d1810",
+              fontWeight: "700",
+              fontSize: "18px",
+              fontFamily: "'Playfair Display', serif",
+            }}
+          >
             Upcoming Events
           </span>
-          <span style={{ color: "#9ca3af", fontSize: "14px", fontFamily: "'DM Mono', monospace" }}>({filteredEvents.length})</span>
+          <span
+            style={{
+              color: "#9ca3af",
+              fontSize: "14px",
+              fontFamily: "'DM Mono', monospace",
+            }}
+          >
+            ({filteredEvents.length})
+          </span>
         </div>
 
         <AnimatePresence mode="wait">
@@ -428,7 +577,10 @@ const UpcomingEventsPage = () => {
               >
                 No events found
               </h3>
-              <p style={{ color: "#9ca3af" }}>Try adjusting your search or check back later for upcoming events.</p>
+              <p style={{ color: "#9ca3af" }}>
+                Try adjusting your search or check back later for upcoming
+                events.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>

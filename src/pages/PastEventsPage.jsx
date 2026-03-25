@@ -1,9 +1,17 @@
 // frontend/src/pages/PastEventsPage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Users, Search, ChevronRight, Sparkles, Award } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Search,
+  ChevronRight,
+  Sparkles,
+  Award,
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { useData, CATEGORY_COLORS } from "../context/dataConstants";
+import { eventsAPI } from "../services/api";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -43,7 +51,8 @@ const EventCard = ({ event, idx }) => {
         overflow: "hidden",
         position: "relative",
         boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
-        transition: "transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
+        transition:
+          "transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease",
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "translateY(-6px)";
@@ -92,7 +101,14 @@ const EventCard = ({ event, idx }) => {
           >
             {event.category}
           </span>
-          <span style={{ color: "#94A3B8", fontSize: "11px", fontFamily: "'Poppins', sans-serif", fontWeight: "600" }}>
+          <span
+            style={{
+              color: "#94A3B8",
+              fontSize: "11px",
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: "600",
+            }}
+          >
             ✓ COMPLETED
           </span>
         </div>
@@ -133,7 +149,14 @@ const EventCard = ({ event, idx }) => {
             >
               {dateInfo.month}
             </div>
-            <div style={{ fontSize: "10px", color: "#94A3B8", fontFamily: "'Poppins', sans-serif", marginTop: "2px" }}>
+            <div
+              style={{
+                fontSize: "10px",
+                color: "#94A3B8",
+                fontFamily: "'Poppins', sans-serif",
+                marginTop: "2px",
+              }}
+            >
               {dateInfo.year}
             </div>
           </div>
@@ -169,13 +192,44 @@ const EventCard = ({ event, idx }) => {
         </div>
       </div>
 
-      <div style={{ padding: "16px 24px 20px", marginTop: "16px", borderTop: `1px solid ${PROFESSIONAL_THEME.border}` }}>
-        <div style={{ display: "flex", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px", color: PROFESSIONAL_THEME.text, fontSize: "12px", fontFamily: "'Poppins', sans-serif" }}>
+      <div
+        style={{
+          padding: "16px 24px 20px",
+          marginTop: "16px",
+          borderTop: `1px solid ${PROFESSIONAL_THEME.border}`,
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              color: PROFESSIONAL_THEME.text,
+              fontSize: "12px",
+              fontFamily: "'Poppins', sans-serif",
+            }}
+          >
             <MapPin size={14} color={PROFESSIONAL_THEME.primary} />
             {event.venue?.split(",")[0]}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px", color: PROFESSIONAL_THEME.text, fontSize: "12px", fontFamily: "'Poppins', sans-serif" }}>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              color: PROFESSIONAL_THEME.text,
+              fontSize: "12px",
+              fontFamily: "'Poppins', sans-serif",
+            }}
+          >
             <Users size={14} color={PROFESSIONAL_THEME.primary} />
             {event.attendees} attended
           </span>
@@ -219,11 +273,25 @@ const EventCard = ({ event, idx }) => {
 };
 
 const PastEventsPage = () => {
-  const { casEvents } = useData();
+  const [pastEvents, setpastEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter only completed events
-  const pastEvents = casEvents.filter((e) => e.status === "completed");
+  useEffect(() => {
+    fetchPastEvents();
+  }, []);
+
+  // ✅ Fetch Upcoming events from API
+  const fetchPastEvents = async () => {
+    try {
+      const response = await eventsAPI.getAll({ status: "completed" });
+      setpastEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+
+      setpastEvents([]);
+    }
+  };
+
   const filteredEvents = pastEvents.filter((e) => {
     const matchSearch =
       e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -231,10 +299,19 @@ const PastEventsPage = () => {
     return matchSearch;
   });
 
-  const totalAttended = pastEvents.reduce((sum, event) => sum + (event.attendees || 0), 0);
+  const totalAttended = pastEvents.reduce(
+    (sum, event) => sum + (event.attendees || 0),
+    0,
+  );
 
   return (
-    <div style={{ minHeight: "100vh", background: "#FFFFFF", fontFamily: "'Poppins', sans-serif" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#FFFFFF",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
         .events-grid {
@@ -253,7 +330,8 @@ const PastEventsPage = () => {
       {/* Hero Section */}
       <div
         style={{
-          background: "linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 50%, #F0F9FF 100%)",
+          background:
+            "linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 50%, #F0F9FF 100%)",
           paddingTop: "100px",
           paddingBottom: "60px",
           position: "relative",
@@ -268,7 +346,8 @@ const PastEventsPage = () => {
             right: "5%",
             width: "300px",
             height: "300px",
-            background: "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
             filter: "blur(40px)",
@@ -281,7 +360,8 @@ const PastEventsPage = () => {
             left: "10%",
             width: "400px",
             height: "400px",
-            background: "radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, transparent 70%)",
             borderRadius: "50%",
             pointerEvents: "none",
             filter: "blur(40px)",
@@ -292,7 +372,13 @@ const PastEventsPage = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            padding: "0 24px",
+            position: "relative",
+            zIndex: 1,
+          }}
         >
           <div
             style={{
@@ -332,10 +418,12 @@ const PastEventsPage = () => {
               letterSpacing: "-1px",
             }}
           >
-            Celebrating Our<br />
+            Celebrating Our
+            <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #3B82F6, #0EA5E9, #06B6D4)",
+                background:
+                  "linear-gradient(135deg, #3B82F6, #0EA5E9, #06B6D4)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -354,7 +442,8 @@ const PastEventsPage = () => {
               fontFamily: "'Poppins', sans-serif",
             }}
           >
-            Relive the moments of connection, celebration, and achievement from our past events. Explore memories with the CAS community.
+            Relive the moments of connection, celebration, and achievement from
+            our past events. Explore memories with the CAS community.
           </p>
           <div
             style={{
@@ -368,21 +457,52 @@ const PastEventsPage = () => {
             }}
           >
             {[
-              { label: "Total Events", value: pastEvents.length, color: PROFESSIONAL_THEME.primary },
-              { label: "Total Attendees", value: Math.ceil(totalAttended / 100) + "00+", color: PROFESSIONAL_THEME.secondary },
-              { label: "Alumni Base", value: "8K+", color: PROFESSIONAL_THEME.tertiary },
+              {
+                label: "Total Events",
+                value: pastEvents.length,
+                color: PROFESSIONAL_THEME.primary,
+              },
+              {
+                label: "Total Attendees",
+                value: Math.ceil(totalAttended / 100) + "00+",
+                color: PROFESSIONAL_THEME.secondary,
+              },
+              {
+                label: "Alumni Base",
+                value: "8K+",
+                color: PROFESSIONAL_THEME.tertiary,
+              },
             ].map((stat, i) => (
               <div
                 key={i}
                 style={{
                   padding: "20px 32px",
-                  borderRight: i < 2 ? `1px solid ${PROFESSIONAL_THEME.border}` : "none",
+                  borderRight:
+                    i < 2 ? `1px solid ${PROFESSIONAL_THEME.border}` : "none",
                 }}
               >
-                <div style={{ fontSize: "32px", fontWeight: "800", color: stat.color, fontFamily: "'Playfair Display', serif", letterSpacing: "-0.5px" }}>
+                <div
+                  style={{
+                    fontSize: "32px",
+                    fontWeight: "800",
+                    color: stat.color,
+                    fontFamily: "'Playfair Display', serif",
+                    letterSpacing: "-0.5px",
+                  }}
+                >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: "12px", color: PROFESSIONAL_THEME.text, fontFamily: "'Poppins', sans-serif", letterSpacing: "0.5px", marginTop: "4px", fontWeight: "600", textTransform: "uppercase" }}>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: PROFESSIONAL_THEME.text,
+                    fontFamily: "'Poppins', sans-serif",
+                    letterSpacing: "0.5px",
+                    marginTop: "4px",
+                    fontWeight: "600",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {stat.label}
                 </div>
               </div>
@@ -397,10 +517,28 @@ const PastEventsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ display: "flex", gap: "16px", marginBottom: "40px", marginTop: "-30px", flexWrap: "wrap", alignItems: "center", position: "relative", zIndex: 10 }}
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "40px",
+            marginTop: "-30px",
+            flexWrap: "wrap",
+            alignItems: "center",
+            position: "relative",
+            zIndex: 10,
+          }}
         >
           <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
-            <Search size={16} color={PROFESSIONAL_THEME.text} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)" }} />
+            <Search
+              size={16}
+              color={PROFESSIONAL_THEME.text}
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            />
             <input
               type="text"
               placeholder="Search events, categories..."
@@ -432,7 +570,14 @@ const PastEventsPage = () => {
         </motion.div>
 
         {/* Section label */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
           <div
             style={{
               width: "3px",
@@ -441,10 +586,25 @@ const PastEventsPage = () => {
               borderRadius: "2px",
             }}
           />
-          <span style={{ color: PROFESSIONAL_THEME.dark, fontWeight: "800", fontSize: "18px", fontFamily: "'Playfair Display', serif", letterSpacing: "-0.3px" }}>
+          <span
+            style={{
+              color: PROFESSIONAL_THEME.dark,
+              fontWeight: "800",
+              fontSize: "18px",
+              fontFamily: "'Playfair Display', serif",
+              letterSpacing: "-0.3px",
+            }}
+          >
             Past Events
           </span>
-          <span style={{ color: PROFESSIONAL_THEME.text, fontSize: "14px", fontFamily: "'Poppins', sans-serif", fontWeight: "600" }}>
+          <span
+            style={{
+              color: PROFESSIONAL_THEME.text,
+              fontSize: "14px",
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: "600",
+            }}
+          >
             ({filteredEvents.length})
           </span>
         </div>
@@ -482,7 +642,14 @@ const PastEventsPage = () => {
               >
                 No events found
               </h3>
-              <p style={{ color: PROFESSIONAL_THEME.text, fontFamily: "'Poppins', sans-serif" }}>Try adjusting your search to find past events.</p>
+              <p
+                style={{
+                  color: PROFESSIONAL_THEME.text,
+                  fontFamily: "'Poppins', sans-serif",
+                }}
+              >
+                Try adjusting your search to find past events.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
