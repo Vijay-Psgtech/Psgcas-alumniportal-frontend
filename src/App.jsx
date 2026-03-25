@@ -218,7 +218,6 @@ export default function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/leadership" element={<LeadershipPage />} />
               <Route path="/newsletter" element={<NewsPage />} />
-              <Route path="/alumni/stories" element={<NewsPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 

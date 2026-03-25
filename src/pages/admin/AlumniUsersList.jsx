@@ -27,9 +27,9 @@ const AlumniUsersList = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
-  const [viewMode, setViewMode] = useState("grid"); // grid or table
+  const [viewMode, setViewMode] = useState("table"); // grid or table
   const [sortBy, setSortBy] = useState("name"); // name, graduationYear, department
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
 
   useEffect(() => {
@@ -44,7 +44,6 @@ const AlumniUsersList = () => {
         setLoading(false);
       }
     };
-
     fetchAlumni();
   }, []);
 
@@ -349,7 +348,7 @@ const AlumniUsersList = () => {
           </motion.div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedAlumni.map((alumni, idx) => (
+            {alumniUsers.map((alumni, idx) => (
               <motion.div
                 key={alumni._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -495,7 +494,7 @@ const AlumniUsersList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAndSortedAlumni.map((alumni, idx) => (
+                  {alumniUsers.map((alumni, idx) => (
                     <motion.tr
                       key={alumni._id}
                       initial={{ opacity: 0, y: 10 }}

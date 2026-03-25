@@ -35,6 +35,7 @@ export const Patrons = [
     note: "",
     bio: "",
     image: patronImg1,
+    rank: "Cheif Patron"
   },
   {
     name: "Dr.T.Kannaian",
@@ -42,6 +43,7 @@ export const Patrons = [
     note: "",
     bio: "",
     image: patronImg2,
+    rank: "Patron"
   },
   {
     name: "Dr.M.Jayanthi",
@@ -49,6 +51,7 @@ export const Patrons = [
     note: "Ph.D. '68",
     bio: "PSG College of Arts and Science",
     image: patronImg3,
+    rank: "Patron"
   },
   {
     name: "Mr.J.Prithiviraj",
@@ -56,6 +59,7 @@ export const Patrons = [
     note: "Class of 1982",
     bio: "B.Com",
     image: patronImg4,
+    rank: "Office Bearer"
   },
   {
     name: "Mr.S.Krishna Kumar",
@@ -63,6 +67,7 @@ export const Patrons = [
     note: "Class of 1984",
     bio: "BA Psychology",
     image: patronImg5,
+    rank: "Office Bearer"
   },
   {
     name: "CA L.Kamesh",
@@ -70,6 +75,7 @@ export const Patrons = [
     note: "Class of 1995",
     bio: "B.Com",
     image: patronImg6,
+    rank: "Office Bearer"
   },
   {
     name: "Preetha S Priyadarsini Naidu",
@@ -77,6 +83,7 @@ export const Patrons = [
     note: "Class of 2002",
     bio: "BBM",
     image: patronImg7,
+    rank: "Office Bearer"
   },
   {
     name: "Mr. S.Chandrasekhar",
@@ -84,6 +91,7 @@ export const Patrons = [
     note: "Class of 1991",
     bio: "MA",
     image: patronImg8,
+    rank: "Office Bearer"
   },
   {
     name: "Dr P.Govindaraj",
@@ -91,6 +99,7 @@ export const Patrons = [
     note: "Class of 2007",
     bio: "Ph.d in Commerce",
     image: patronImg9,
+    rank: "Office Bearer"
   },
 
   {
@@ -99,6 +108,7 @@ export const Patrons = [
     note: "Class of 1983",
     bio: "BCOM",
     image: patronImg10,
+    rank: "Executive Committee Members"
   },
   {
     name: "Ms. V. Kavitha",
@@ -106,6 +116,7 @@ export const Patrons = [
     note: "Class of 2006",
     bio: "MSC",
     image: patronImg11,
+    rank: "Executive Committee Members"
   },
   {
     name: "Mr. D.Naresh Kumar",
@@ -113,6 +124,7 @@ export const Patrons = [
     note: "Class of 1996",
     bio: "BBM",
     image: patronImg12,
+    rank: "Executive Committee Members"
   },
   {
     name: "Mr. N. Krishna Kumar",
@@ -120,6 +132,7 @@ export const Patrons = [
     note: "Class of 1980",
     bio: "BSC",
     image: patronImg13,
+    rank: "Executive Committee Members"
   },
   {
     name: "Mr. K. Ravindran",
@@ -127,6 +140,7 @@ export const Patrons = [
     note: "Class of 1992",
     bio: "BCOM",
     image: patronImg14,
+    rank: "Executive Committee Members"
   },
   {
     name: "Dr. K. Rajeswari",
@@ -134,6 +148,7 @@ export const Patrons = [
     note: "Class of 2007",
     bio: "Ph.D",
     image: patronImg15,
+    rank: "Executive Committee Members"
   },
   {
     name: "Ki. Antony Johnson",
@@ -141,6 +156,7 @@ export const Patrons = [
     note: "",
     bio: "",
     image: patronImg16,
+    rank: "Executive Committee Members"
   },
   {
     name: "Ravichandar Venugopal",
@@ -148,6 +164,7 @@ export const Patrons = [
     note: "",
     bio: "",
     image: patronImg17,
+    rank: "Executive Committee Members"
   },
   {
     name: "Mr. R. Arun Karthik",
@@ -155,6 +172,7 @@ export const Patrons = [
     note: "Class of 1994",
     bio: "BBM",
     image: patronImg18,
+    rank: "Executive Committee Members"
   },
   {
     name: "Ramesh B",
@@ -162,6 +180,7 @@ export const Patrons = [
     note: "Class of 2010",
     bio: "Ph.d",
     image: patronImg19,
+    rank: "Executive Committee Members"
   },
   {
     name: "CA N. Pratap Balaji",
@@ -169,6 +188,7 @@ export const Patrons = [
     note: "Class of 2001",
     bio: "BCOM",
     image: patronImg20,
+    rank: "Executive Committee Members"
   },
   {
     name: "Ms. R. Poornima",
@@ -176,6 +196,7 @@ export const Patrons = [
     note: "",
     bio: "",
     image: patronImg21,
+    rank: "Executive Committee Members"
   },
   {
     name: "Mr. Mahendra Ramdas",
@@ -183,6 +204,7 @@ export const Patrons = [
     note: "Class of 1978",
     bio: "BSC",
     image: patronImg22,
+    rank: "Past Presidents"
   },
   {
     name: "Dr. R. Nandagopal",
@@ -190,6 +212,7 @@ export const Patrons = [
     note: "Class of 1980",
     bio: "MCOM",
     image: patronImg23,
+    rank: "Past Presidents"
   },
   {
     name: "Mr. T. Rajkumar",
@@ -197,6 +220,7 @@ export const Patrons = [
     note: "Class of 1988",
     bio: "BA",
     image: patronImg24,
+    rank: "Past Presidents"
   },
   {
     name: "Mr. V. Lakshminarayanasamy",
@@ -204,6 +228,7 @@ export const Patrons = [
     note: "Class of 1976",
     bio: "BCOM",
     image: patronImg25,
+    rank: "Past Presidents"
   },
   {
     name: "Mr. R. Mahendran",
@@ -211,6 +236,7 @@ export const Patrons = [
     note: "Class of 1976",
     bio: "BCOM",
     image: patronImg26,
+    rank: "Past Presidents"
   },
   {
     name: "Jayakumar Ramdass",
@@ -218,5 +244,6 @@ export const Patrons = [
     note: "Class of 1983'57",
     bio: "B.Sc",
     image: patronImg27,
+    rank: "Past Presidents"
   },
 ];

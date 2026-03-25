@@ -4,13 +4,59 @@ import { Patrons } from "../content/data/PatronsData";
 
 const LeadershipPage = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [activeTab, setActiveTab] = useState("all");
   const [animatedStats, setAnimatedStats] = useState({});
 
-  // Organize patrons by role/category
-  const chiefPatron = Patrons.filter(p => p.role === "Managing Trustee" || p.role === "Secretary")[0];
-  const leadership = Patrons.slice(0, 9);
-  const allMembers = Patrons;
+  // Organize patrons by role/category for role-wise UI sections
+  const chiefPatron = Patrons.find(
+    (p) => p.rank === "Chief Patron" || p.role === "Managing Trustee",
+  );
+
+  const roleGroupsConfig = [
+    { title: "Patrons", roles: ["Secretary", "Principal"], rank: "Patron" },
+    {
+      title: "Office Bearers",
+      roles: [
+        "President",
+        "Vice President",
+        "Joint Secretary",
+        "Treasurer",
+        "Auditor",
+        "Co-ordinator",
+      ],
+      rank: "Office Bearer"
+    },
+    {
+      title: "Executive Committee Members",
+      roles: ["EC Member", "Executive Committee Member"],
+      rank: "Executive Committee Members"
+    },
+    {
+      title: "Past Presidents",
+      roles: [
+        "Founder President",
+        "Past President",
+        "Immediate Past President",
+      ],
+      rank: "Past Presidents"
+    },
+  ];
+
+  const groupedPatrons = roleGroupsConfig.map((group) => ({
+    ...group,
+    members: Patrons.filter((p) => group.rank.includes(p.rank)),
+  }));
+
+  // const otherMembers = Patrons.filter(
+  //   (p) => !roleGroupsConfig.some((group) => group.rank.includes(p.rank)),
+  // );
+
+  // if (otherMembers.length) {
+  //   groupedPatrons.push({
+  //     title: "Other Leadership",
+  //     roles: [],
+  //     members: otherMembers,
+  //   });
+  // }
 
   // Animation for counting stats
   useEffect(() => {
@@ -18,19 +64,22 @@ const LeadershipPage = () => {
       { key: "members", target: 27 },
       { key: "commitment", target: 100 },
       { key: "alumni", target: 10 },
-      { key: "rank", target: 1 }
+      { key: "rank", target: 1 },
     ];
 
-    stats.forEach(stat => {
+    stats.forEach((stat) => {
       let current = 0;
       const increment = stat.target / 30;
       const interval = setInterval(() => {
         current += increment;
         if (current >= stat.target) {
-          setAnimatedStats(prev => ({ ...prev, [stat.key]: stat.target }));
+          setAnimatedStats((prev) => ({ ...prev, [stat.key]: stat.target }));
           clearInterval(interval);
         } else {
-          setAnimatedStats(prev => ({ ...prev, [stat.key]: Math.floor(current) }));
+          setAnimatedStats((prev) => ({
+            ...prev,
+            [stat.key]: Math.floor(current),
+          }));
         }
       }, 50);
       return () => clearInterval(interval);
@@ -228,7 +277,7 @@ const LeadershipPage = () => {
           font-family: 'Poppins', sans-serif;
         }
 
-        .section-title {
+        .leadership-title {
           text-align: center;
           font-family: 'Playfair Display', serif;
           font-size: 42px;
@@ -240,7 +289,7 @@ const LeadershipPage = () => {
         }
 
         @media (min-width: 768px) {
-          .section-title {
+          .leadership-title {
             font-size: 56px;
           }
         }
@@ -360,6 +409,23 @@ const LeadershipPage = () => {
         .leadership-section {
           padding: 100px 24px;
           background: linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 100%);
+        }
+
+        .role-group-wrapper {
+          margin-top: 64px;
+        }
+
+        .section-heading {
+          margin-bottom: 24px;
+          text-align: center;
+        }
+
+        .section-subtitle {
+          font-family: 'Playfair Display', serif;
+          font-size: 28px;
+          font-weight: 800;
+          color: #0F172A;
+          margin: 8px 0 0;
         }
 
         @media (min-width: 768px) {
@@ -713,11 +779,7 @@ const LeadershipPage = () => {
       `}</style>
 
       <div className="leadership-wrapper">
-        <motion.div
-          variants={pageVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <motion.div variants={pageVariants} initial="hidden" animate="visible">
           {/* Hero Section */}
           <section className="hero-section">
             <motion.div
@@ -735,10 +797,14 @@ const LeadershipPage = () => {
               </motion.h1>
 
               <motion.p variants={itemVariants} className="hero-subtitle">
-                Visionary leaders and mentors dedicated to institutional excellence and student success
+                Visionary leaders and mentors dedicated to institutional
+                excellence and student success
               </motion.p>
 
-              <motion.div variants={itemVariants} className="hero-divider"></motion.div>
+              <motion.div
+                variants={itemVariants}
+                className="hero-divider"
+              ></motion.div>
             </motion.div>
           </section>
 
@@ -752,17 +818,28 @@ const LeadershipPage = () => {
                 viewport={{ once: true, margin: "-100px" }}
               >
                 <p className="section-label">Institutional Leadership</p>
-                <h2 className="section-title">Chief Patron</h2>
+                <h2 className="leadership-title">Chief Patron</h2>
 
                 <div className="chief-content">
-                  <motion.div className="chief-image-wrapper" variants={itemVariants} whileInView={{ scale: 1 }} viewport={{ once: true }}>
-                    <motion.div className="chief-image" whileHover={{ scale: 1.02 }}>
+                  <motion.div
+                    className="chief-image-wrapper"
+                    variants={itemVariants}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                  >
+                    <motion.div
+                      className="chief-image"
+                      whileHover={{ scale: 1.02 }}
+                    >
                       <img src={chiefPatron.image} alt={chiefPatron.name} />
                       <div className="chief-overlay"></div>
                     </motion.div>
                   </motion.div>
 
-                  <motion.div className="chief-text" variants={containerVariants}>
+                  <motion.div
+                    className="chief-text"
+                    variants={containerVariants}
+                  >
                     <motion.div variants={itemVariants} className="chief-badge">
                       Managing Trustee
                     </motion.div>
@@ -776,7 +853,8 @@ const LeadershipPage = () => {
                     </motion.p>
 
                     <motion.p variants={itemVariants} className="chief-bio">
-                      {chiefPatron.bio || "Dedicated leader committed to institutional excellence and student success."}
+                      {chiefPatron.bio ||
+                        "Dedicated leader committed to institutional excellence and student success."}
                     </motion.p>
                   </motion.div>
                 </div>
@@ -794,68 +872,65 @@ const LeadershipPage = () => {
                 viewport={{ once: true, margin: "-100px" }}
               >
                 <p className="section-label">Our Team</p>
-                <h2 className="section-title">Leadership Team</h2>
+                <h2 className="leadership-title">Leadership Team</h2>
               </motion.div>
-
-              <motion.div 
-                className="tabs-wrapper" 
-                variants={itemVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {["all", "leadership"].map((tab) => (
-                  <motion.button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`tab-button ${activeTab === tab ? "active" : ""}`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {tab === "all" ? "All Members" : "Leadership"}
-                  </motion.button>
-                ))}
-              </motion.div>
-
-              <motion.div
-                className="cards-grid"
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-              >
-                {(activeTab === "leadership" ? leadership : allMembers).map((patron, index) => (
+              {groupedPatrons.map((group, groupIndex) => (
+                <div key={group.title} className="role-group-wrapper">
                   <motion.div
-                    key={`${patron.name}-${index}`}
-                    variants={cardVariants}
-                    whileHover="hover"
-                    onMouseEnter={() => setHoveredCard(`${patron.name}-${index}`)}
-                    onMouseLeave={() => setHoveredCard(null)}
+                    className="section-heading"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-100px" }}
                   >
-                    <div className="card">
-                      <div className="card-image">
-                        <img src={patron.image} alt={patron.name} />
-                        <div className="card-overlay"></div>
-                        <motion.div 
-                          className="card-role-tag"
-                          initial={{ opacity: 0, y: -10 }}
-                          whileInView={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          {patron.role}
-                        </motion.div>
-                      </div>
-
-                      <div className="card-content">
-                        <h3 className="card-name">{patron.name}</h3>
-                        <p className="card-position">{patron.role}</p>
-                        <p className="card-bio">{patron.note || patron.bio}</p>
-                        <div className="card-accent"></div>
-                      </div>
-                    </div>
+                    <h3 className="section-subtitle">{`${group.title} (${group.members.length})`}</h3>
                   </motion.div>
-                ))}
-              </motion.div>
+                  <motion.div
+                    className="cards-grid"
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-100px" }}
+                  >
+                    {group.members.map((patron, index) => (
+                      <motion.div
+                        key={`${patron.name}-${groupIndex}-${index}`}
+                        variants={cardVariants}
+                        whileHover="hover"
+                        onMouseEnter={() =>
+                          setHoveredCard(
+                            `${patron.name}-${groupIndex}-${index}`,
+                          )
+                        }
+                        onMouseLeave={() => setHoveredCard(null)}
+                      >
+                        <div className="card">
+                          <div className="card-image">
+                            <img src={patron.image} alt={patron.name} />
+                            <div className="card-overlay"></div>
+                            <motion.div
+                              className="card-role-tag"
+                              initial={{ opacity: 0, y: -10 }}
+                              whileInView={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.1 }}
+                            >
+                              {patron.role}
+                            </motion.div>
+                          </div>
+                          <div className="card-content">
+                            <h3 className="card-name">{patron.name}</h3>
+                            <p className="card-position">{patron.role}</p>
+                            <p className="card-bio">
+                              {patron.note || patron.bio}
+                            </p>
+                            <div className="card-accent"></div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+              ))}
             </div>
           </section>
 
@@ -873,14 +948,23 @@ const LeadershipPage = () => {
               </motion.h2>
 
               <motion.p variants={itemVariants} className="cta-text">
-                Connect with our leadership team and become part of a thriving community dedicated to excellence.
+                Connect with our leadership team and become part of a thriving
+                community dedicated to excellence.
               </motion.p>
 
               <motion.div className="cta-buttons" variants={itemVariants}>
-                <motion.button className="btn btn-primary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.button
+                  className="btn btn-primary"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   Get In Touch
                 </motion.button>
-                <motion.button className="btn btn-secondary" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <motion.button
+                  className="btn btn-secondary"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   Learn More
                 </motion.button>
               </motion.div>
@@ -903,14 +987,14 @@ const LeadershipPage = () => {
                   { number: "10K+", label: "Alumni Network", key: "alumni" },
                   { number: "#1", label: "Institution", key: "rank" },
                 ].map((stat, index) => (
-                  <motion.div 
-                    key={index} 
-                    variants={itemVariants} 
+                  <motion.div
+                    key={index}
+                    variants={itemVariants}
                     className="stat"
                     whileInView={{ scale: 1.05 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <motion.p 
+                    <motion.p
                       className="stat-number"
                       initial={{ opacity: 0, scale: 0.5 }}
                       whileInView={{ opacity: 1, scale: 1 }}

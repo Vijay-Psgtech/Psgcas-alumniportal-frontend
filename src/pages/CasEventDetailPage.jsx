@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Users, Clock, Calendar, Share2, BookmarkPlus, ChevronRight, CheckCircle, Award, Mic, Coffee, Star } from "lucide-react";
-import { useData, CATEGORY_COLORS } from "../Context/dataConstants";
+import { useData, CATEGORY_COLORS } from "../context/dataConstants";
 
 const ICON_MAP = { Coffee, Mic, Award, Users, Clock, Star };
 
