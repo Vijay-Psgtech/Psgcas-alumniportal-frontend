@@ -1,10 +1,20 @@
 // frontend/src/pages/CasEventsPage.jsx — reads from DataContext (live sync with admin)
 // ✅ FIXED: Import corrected from ../Context/ to ../context/ (lowercase)
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MapPin, Users, Search, ChevronRight, Sparkles, Star } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Search,
+  ChevronRight,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { Link } from "react-router-dom";
-import { useData, CATEGORY_COLORS } from "../context/dataConstants"; // ✅ FIXED - lowercase 'context'
+import { eventsAPI } from "../services/api";
+//import { useData, CATEGORY_COLORS } from "../context/dataConstants"; // ✅ FIXED - lowercase 'context'
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -18,7 +28,8 @@ const formatDate = (dateString) => {
 
 const EventCard = ({ event, idx }) => {
   const dateInfo = formatDate(event.date);
-  const catColor = CATEGORY_COLORS[event.category] || "#8b5a3c";
+  //const catColor = CATEGORY_COLORS[event.category] || "#8b5a3c";
+  const catColor = "#8b5a3c";
   const isUpcoming = event.status === "upcoming";
 
   return (
@@ -28,7 +39,9 @@ const EventCard = ({ event, idx }) => {
       transition={{ duration: 0.45, delay: idx * 0.07 }}
       style={{
         background: "#ffffff",
-        border: event.highlight ? `1px solid ${catColor}55` : "1px solid rgba(139,90,60,0.09)",
+        border: event.highlight
+          ? `1px solid ${catColor}55`
+          : "1px solid rgba(139,90,60,0.09)",
         borderRadius: "20px",
         overflow: "hidden",
         position: "relative",
@@ -83,9 +96,17 @@ const EventCard = ({ event, idx }) => {
             {event.category}
           </span>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            {event.highlight && <Star size={14} fill={catColor} color={catColor} />}
+            {event.highlight && (
+              <Star size={14} fill={catColor} color={catColor} />
+            )}
             {!isUpcoming && (
-              <span style={{ color: "#9ca3af", fontSize: "11px", fontFamily: "'DM Mono', monospace" }}>
+              <span
+                style={{
+                  color: "#9ca3af",
+                  fontSize: "11px",
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              >
                 COMPLETED
               </span>
             )}
@@ -127,7 +148,13 @@ const EventCard = ({ event, idx }) => {
             >
               {dateInfo.month.toUpperCase()}
             </div>
-            <div style={{ fontSize: "10px", color: "#adb5bd", fontFamily: "'DM Mono', monospace" }}>
+            <div
+              style={{
+                fontSize: "10px",
+                color: "#adb5bd",
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
               {dateInfo.year}
             </div>
           </div>
@@ -161,13 +188,42 @@ const EventCard = ({ event, idx }) => {
         </div>
       </div>
 
-      <div style={{ padding: "16px 24px 20px", marginTop: "16px", borderTop: "1px solid rgba(139,90,60,0.06)" }}>
-        <div style={{ display: "flex", gap: "16px", marginBottom: "16px", flexWrap: "wrap" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9ca3af", fontSize: "12px" }}>
+      <div
+        style={{
+          padding: "16px 24px 20px",
+          marginTop: "16px",
+          borderTop: "1px solid rgba(139,90,60,0.06)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#9ca3af",
+              fontSize: "12px",
+            }}
+          >
             <MapPin size={12} />
             {event.venue?.split(",")[0]}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: "5px", color: "#9ca3af", fontSize: "12px" }}>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#9ca3af",
+              fontSize: "12px",
+            }}
+          >
             <Users size={12} />
             {event.attendees} {isUpcoming ? "expected" : "attended"}
           </span>
@@ -188,10 +244,16 @@ const EventCard = ({ event, idx }) => {
             textDecoration: "none",
             transition: "all 0.2s ease",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "translateX(3px)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "translateX(0)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "translateX(3px)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "translateX(0)")
+          }
         >
-          <span>{isUpcoming ? "View Details & Register" : "View Event Summary"}</span>
+          <span>
+            {isUpcoming ? "View Details & Register" : "View Event Summary"}
+          </span>
           <ChevronRight size={14} />
         </Link>
       </div>
@@ -200,9 +262,27 @@ const EventCard = ({ event, idx }) => {
 };
 
 const CasEventsPage = () => {
-  const { casEvents } = useData(); // ✅ live from DataContext
+  const [casEvents, setEvents] = useState([]);
+  //const { casEvents } = useData(); // ✅ live from DataContext
   const [filter, setFilter] = useState("upcoming");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // ✅ Fetch events on mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  // ✅ Fetch all events from API
+  const fetchEvents = async () => {
+    try {
+      const response = await eventsAPI.getAll();
+      setEvents(response.data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+
+      setEvents([]);
+    }
+  };
 
   const filteredEvents = casEvents.filter((e) => {
     const matchFilter = e.status === filter;
@@ -219,7 +299,8 @@ const CasEventsPage = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
+        background:
+          "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
         fontFamily: "'Inter', sans-serif",
       }}
     >
@@ -231,7 +312,14 @@ const CasEventsPage = () => {
       `}</style>
 
       {/* Hero */}
-      <div style={{ position: "relative", padding: "100px 40px 60px", textAlign: "center", overflow: "hidden" }}>
+      <div
+        style={{
+          position: "relative",
+          padding: "100px 40px 60px",
+          textAlign: "center",
+          overflow: "hidden",
+        }}
+      >
         <div
           style={{
             position: "absolute",
@@ -240,7 +328,8 @@ const CasEventsPage = () => {
             transform: "translateX(-50%)",
             width: "600px",
             height: "300px",
-            background: "radial-gradient(ellipse, rgba(139,90,60,0.1) 0%, transparent 70%)",
+            background:
+              "radial-gradient(ellipse, rgba(139,90,60,0.1) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
@@ -251,12 +340,17 @@ const CasEventsPage = () => {
             right: "10%",
             width: "180px",
             height: "180px",
-            background: "radial-gradient(circle, rgba(168,120,80,0.07) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(168,120,80,0.07) 0%, transparent 70%)",
             pointerEvents: "none",
           }}
         />
 
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div
             style={{
               display: "inline-flex",
@@ -268,7 +362,7 @@ const CasEventsPage = () => {
               padding: "6px 18px",
               marginBottom: "24px",
             }}
-          > 
+          >
             <Sparkles size={14} color="#8b5a3c" />
             <span
               style={{
@@ -292,10 +386,12 @@ const CasEventsPage = () => {
               marginBottom: "20px",
             }}
           >
-            Where CAS Alumni<br />
+            Where CAS Alumni
+            <br />
             <span
               style={{
-                background: "linear-gradient(135deg, #8b5a3c, #c89968, #a87850)",
+                background:
+                  "linear-gradient(135deg, #8b5a3c, #c89968, #a87850)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -312,7 +408,8 @@ const CasEventsPage = () => {
               lineHeight: 1.6,
             }}
           >
-            Discover upcoming events, celebrate achievements, and strengthen bonds with your CAS family and alma mater.
+            Discover upcoming events, celebrate achievements, and strengthen
+            bonds with your CAS family and alma mater.
           </p>
           <div
             style={{
@@ -334,13 +431,28 @@ const CasEventsPage = () => {
                 key={i}
                 style={{
                   padding: "16px 28px",
-                  borderRight: i < 2 ? "1px solid rgba(139,90,60,0.08)" : "none",
+                  borderRight:
+                    i < 2 ? "1px solid rgba(139,90,60,0.08)" : "none",
                 }}
               >
-                <div style={{ fontSize: "26px", fontWeight: "800", color: stat.color, fontFamily: "'Playfair Display', serif" }}>
+                <div
+                  style={{
+                    fontSize: "26px",
+                    fontWeight: "800",
+                    color: stat.color,
+                    fontFamily: "'Playfair Display', serif",
+                  }}
+                >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: "12px", color: "#9ca3af", fontFamily: "'DM Mono', monospace", letterSpacing: "1px" }}>
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#9ca3af",
+                    fontFamily: "'DM Mono', monospace",
+                    letterSpacing: "1px",
+                  }}
+                >
                   {stat.label.toUpperCase()}
                 </div>
               </div>
@@ -355,10 +467,25 @@ const CasEventsPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          style={{ display: "flex", gap: "16px", marginBottom: "40px", flexWrap: "wrap", alignItems: "center" }}
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "40px",
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
         >
           <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
-            <Search size={16} color="#9ca3af" style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)" }} />
+            <Search
+              size={16}
+              color="#9ca3af"
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+              }}
+            />
             <input
               type="text"
               placeholder="Search events, categories..."
@@ -376,8 +503,12 @@ const CasEventsPage = () => {
                 fontFamily: "'Inter', sans-serif",
                 boxShadow: "0 2px 8px rgba(139,90,60,0.04)",
               }}
-              onFocus={(e) => (e.target.style.borderColor = "rgba(139,90,60,0.5)")}
-              onBlur={(e) => (e.target.style.borderColor = "rgba(139,90,60,0.1)")}
+              onFocus={(e) =>
+                (e.target.style.borderColor = "rgba(139,90,60,0.5)")
+              }
+              onBlur={(e) =>
+                (e.target.style.borderColor = "rgba(139,90,60,0.1)")
+              }
             />
           </div>
           <div
@@ -419,19 +550,44 @@ const CasEventsPage = () => {
         </motion.div>
 
         {/* Section label */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
           <div
             style={{
               width: "3px",
               height: "24px",
-              background: filter === "upcoming" ? "linear-gradient(#8b5a3c,#a87850)" : "linear-gradient(#c89968,#a87850)",
+              background:
+                filter === "upcoming"
+                  ? "linear-gradient(#8b5a3c,#a87850)"
+                  : "linear-gradient(#c89968,#a87850)",
               borderRadius: "2px",
             }}
           />
-          <span style={{ color: "#2d1810", fontWeight: "700", fontSize: "18px", fontFamily: "'Playfair Display', serif" }}>
+          <span
+            style={{
+              color: "#2d1810",
+              fontWeight: "700",
+              fontSize: "18px",
+              fontFamily: "'Playfair Display', serif",
+            }}
+          >
             {filter === "upcoming" ? "Upcoming Events" : "Completed Events"}
           </span>
-          <span style={{ color: "#9ca3af", fontSize: "14px", fontFamily: "'DM Mono', monospace" }}>({filteredEvents.length})</span>
+          <span
+            style={{
+              color: "#9ca3af",
+              fontSize: "14px",
+              fontFamily: "'DM Mono', monospace",
+            }}
+          >
+            ({filteredEvents.length})
+          </span>
         </div>
 
         <AnimatePresence mode="wait">
@@ -454,7 +610,9 @@ const CasEventsPage = () => {
                 boxShadow: "0 2px 16px rgba(139,90,60,0.05)",
               }}
             >
-              <div style={{ fontSize: "48px", marginBottom: "16px" }}>{filter === "upcoming" ? "📅" : "✓"}</div>
+              <div style={{ fontSize: "48px", marginBottom: "16px" }}>
+                {filter === "upcoming" ? "📅" : "✓"}
+              </div>
               <h3
                 style={{
                   color: "#2d1810",
@@ -465,7 +623,9 @@ const CasEventsPage = () => {
               >
                 No events found
               </h3>
-              <p style={{ color: "#9ca3af" }}>Try adjusting your search or check back later.</p>
+              <p style={{ color: "#9ca3af" }}>
+                Try adjusting your search or check back later.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
