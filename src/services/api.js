@@ -83,7 +83,7 @@ export const adminAPI = {
 
 // ── Events API ────────────────────────────────────────────────────────
 export const eventsAPI = {
-  getAll: () => api.get("/events"),
+  getAll: (params) => api.get("/events", { params }),
   getById: (id) => api.get(`/events/${id}`),
   create: (data) =>
     api.post("/events", data, {
