@@ -1,9 +1,9 @@
 // frontend/src/pages/ReunionsPage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, MapPin, Users, Search, ChevronRight, Sparkles, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useData, CATEGORY_COLORS } from "../context/dataConstants";
+import { eventsAPI } from "../services/api";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -233,13 +233,23 @@ const EventCard = ({ event, idx }) => {
 };
 
 const ReunionsPage = () => {
-  const { casEvents } = useData();
+  const [reunionEvents, setReunionEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Filter only reunion events (by category)
-  const reunionEvents = casEvents.filter((e) =>
-    e.category.toLowerCase().includes("reunion")
-  );
+  // Fetch only reunion events (by category)
+  useEffect(() => {
+    const fetchReunionEvents = async() =>{
+      try{
+        const res = await eventsAPI.getAll({ category: "Reunion" });
+        setReunionEvents(res.data.data || []);
+      }catch(error){
+        console.error("Failed to fetch events:", error);
+      }
+    } 
+    fetchReunionEvents();
+  },[])
+
+
   const filteredEvents = reunionEvents.filter((e) => {
     const matchSearch =
       e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
