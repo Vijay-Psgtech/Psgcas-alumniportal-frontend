@@ -5,6 +5,7 @@ import { API_BASE } from "../../services/api";
 
 const CATEGORIES = [
   "Awards",
+  "Reunion",
   "Lecture",
   "Sports",
   "Memorial",
