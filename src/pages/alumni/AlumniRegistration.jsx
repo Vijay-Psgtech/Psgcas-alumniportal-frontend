@@ -8,39 +8,80 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  UserPlus, AlertCircle, Check, Clock, ChevronRight, ChevronLeft,
-  GraduationCap, Briefcase, Share2, FileImage, MapPin, User,
-  Upload, X, Eye, EyeOff,
+  UserPlus,
+  AlertCircle,
+  Check,
+  Clock,
+  ChevronRight,
+  ChevronLeft,
+  GraduationCap,
+  Briefcase,
+  Share2,
+  FileImage,
+  MapPin,
+  User,
+  Upload,
+  X,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const STEPS = [
-  { id: 1, label: "Personal",   icon: User },
-  { id: 2, label: "Education",  icon: GraduationCap },
+  { id: 1, label: "Personal", icon: User },
+  { id: 2, label: "Education", icon: GraduationCap },
   { id: 3, label: "Employment", icon: Briefcase },
-  { id: 4, label: "More",       icon: Share2 },
+  { id: 4, label: "More", icon: Share2 },
 ];
 
 const DEPARTMENTS = [
-  "B.Sc. Computer Science", "B.Sc. Mathematics", "B.Sc. Physics",
-  "B.Sc. Chemistry", "B.Sc. Zoology", "B.Sc. Botany",
-  "B.Sc. Microbiology", "B.Sc. Biochemistry", "B.Sc. Statistics",
-  "B.Com", "B.Com (CA)", "B.Com (Professional)",
-  "BBA", "B.Sc. IT", "B.Sc. Visual Communication",
-  "B.Sc. Fashion Design", "M.Sc. Computer Science", "M.Sc. Mathematics",
-  "M.Sc. Physics", "M.Sc. Chemistry", "M.Sc. Biotechnology",
-  "MBA", "M.Com", "MCA", "M.Phil.", "PhD",
+  "B.Sc. Computer Science",
+  "B.Sc. Mathematics",
+  "B.Sc. Physics",
+  "B.Sc. Chemistry",
+  "B.Sc. Zoology",
+  "B.Sc. Botany",
+  "B.Sc. Microbiology",
+  "B.Sc. Biochemistry",
+  "B.Sc. Statistics",
+  "B.Com",
+  "B.Com (CA)",
+  "B.Com (Professional)",
+  "BBA",
+  "B.Sc. IT",
+  "B.Sc. Visual Communication",
+  "B.Sc. Fashion Design",
+  "M.Sc. Computer Science",
+  "M.Sc. Mathematics",
+  "M.Sc. Physics",
+  "M.Sc. Chemistry",
+  "M.Sc. Biotechnology",
+  "MBA",
+  "M.Com",
+  "MCA",
+  "M.Phil.",
+  "PhD",
 ];
 
 const INDUSTRIES = [
-  "Information Technology", "Banking & Finance", "Healthcare",
-  "Education", "Manufacturing", "Retail & E-Commerce",
-  "Government & Public Sector", "Media & Entertainment",
-  "Consulting", "Telecommunications", "Real Estate",
-  "Agriculture", "Hospitality & Tourism", "Logistics & Supply Chain",
-  "Non-Profit / NGO", "Other",
+  "Information Technology",
+  "Banking & Finance",
+  "Healthcare",
+  "Education",
+  "Manufacturing",
+  "Retail & E-Commerce",
+  "Government & Public Sector",
+  "Media & Entertainment",
+  "Consulting",
+  "Telecommunications",
+  "Real Estate",
+  "Agriculture",
+  "Hospitality & Tourism",
+  "Logistics & Supply Chain",
+  "Non-Profit / NGO",
+  "Other",
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -71,7 +112,14 @@ const selectCls = (err) =>
    ${err ? "border-red-400 bg-red-50/30" : "border-slate-200 hover:border-slate-300"}`;
 
 // ─── File Upload Widget ──────────────────────────────────────────────────────
-const FileUpload = ({ label, icon, accept = "image/*", required = false, value, onChange }) => {
+const FileUpload = ({
+  label,
+  icon,
+  accept = "image/*",
+  required = false,
+  value,
+  onChange,
+}) => {
   const ref = useRef();
   const handleDrop = (e) => {
     e.preventDefault();
@@ -81,7 +129,12 @@ const FileUpload = ({ label, icon, accept = "image/*", required = false, value, 
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-        {label} {!required && <span className="text-slate-400 normal-case font-normal">(optional)</span>}
+        {label}{" "}
+        {!required && (
+          <span className="text-slate-400 normal-case font-normal">
+            (optional)
+          </span>
+        )}
         {required && <span className="text-blue-600"> *</span>}
       </label>
       <div
@@ -90,9 +143,10 @@ const FileUpload = ({ label, icon, accept = "image/*", required = false, value, 
         onDragOver={(e) => e.preventDefault()}
         className={`relative border-2 border-dashed rounded-xl p-4 cursor-pointer
           transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-22.5
-          ${value
-            ? "border-blue-400 bg-blue-50/40"
-            : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/20"
+          ${
+            value
+              ? "border-blue-400 bg-blue-50/40"
+              : "border-slate-200 hover:border-blue-300 hover:bg-blue-50/20"
           }`}
       >
         <input
@@ -109,13 +163,20 @@ const FileUpload = ({ label, icon, accept = "image/*", required = false, value, 
                 <Check size={14} />
               </div>
               <div>
-                <p className="text-xs font-semibold text-slate-700 truncate max-w-40">{value.name}</p>
-                <p className="text-[10px] text-slate-400">{(value.size / 1024).toFixed(0)} KB</p>
+                <p className="text-xs font-semibold text-slate-700 truncate max-w-40">
+                  {value.name}
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  {(value.size / 1024).toFixed(0)} KB
+                </p>
               </div>
             </div>
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); onChange(null); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(null);
+              }}
               className="absolute top-2 right-2 w-5 h-5 bg-red-100 rounded-full flex items-center justify-center text-red-500 hover:bg-red-200"
             >
               <X size={10} />
@@ -125,7 +186,10 @@ const FileUpload = ({ label, icon, accept = "image/*", required = false, value, 
           <>
             <div className="text-2xl">{icon}</div>
             <p className="text-xs text-slate-500 text-center">
-              <span className="text-blue-600 font-semibold">Click to upload</span> or drag & drop
+              <span className="text-blue-600 font-semibold">
+                Click to upload
+              </span>{" "}
+              or drag & drop
             </p>
           </>
         )}
@@ -163,7 +227,8 @@ const AlumniRegistration = () => {
 
   const [form, setForm] = useState({
     // Personal
-    name: "",
+    firstName: "",
+    lastName: "",
     rollNumber: "",
     gender: "",
     contactNumber: "",
@@ -209,16 +274,22 @@ const AlumniRegistration = () => {
   // Nominatim debounce
   useEffect(() => {
     if (!activeLocField) return;
-    const query = activeLocField === "residence" ? form.resCity : form.officeCity;
+    const query =
+      activeLocField === "residence" ? form.resCity : form.officeCity;
     if (!query || query.length < 3) {
-      activeLocField === "residence" ? setResSuggestions([]) : setOffSuggestions([]);
+      activeLocField === "residence"
+        ? setResSuggestions([])
+        : setOffSuggestions([]);
       return;
     }
     const t = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${query}`)
+      fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${query}`,
+      )
         .then((r) => r.json())
         .then((data) => {
-          if (activeLocField === "residence") setResSuggestions(data.slice(0, 6));
+          if (activeLocField === "residence")
+            setResSuggestions(data.slice(0, 6));
           else setOffSuggestions(data.slice(0, 6));
         })
         .catch(() => {});
@@ -273,7 +344,7 @@ const AlumniRegistration = () => {
   const validate = useCallback(() => {
     const e = {};
     if (step === 1) {
-      if (!form.name.trim()) e.name = "Full name required";
+      if (!form.firstName.trim()) e.firstName = "First Name required";
       if (!form.gender) e.gender = "Please select gender";
       if (!/^\d{10}$/.test(form.contactNumber.replace(/\s/g, "")))
         e.contactNumber = "Enter valid 10-digit number";
@@ -287,7 +358,8 @@ const AlumniRegistration = () => {
     }
     if (step === 2) {
       if (!form.programmeType) e.programmeType = "Select programme type";
-      if (!form.programmeName.trim()) e.programmeName = "Programme name required";
+      if (!form.programmeName.trim())
+        e.programmeName = "Programme name required";
       if (!form.degree.trim()) e.degree = "Degree required";
       if (!form.batchYear) e.batchYear = "Batch year required";
       if (!form.studyStartYear) e.studyStartYear = "Start year required";
@@ -295,7 +367,10 @@ const AlumniRegistration = () => {
     }
     if (step === 3) {
       // Employment is mostly optional, but validate office contact if filled
-      if (form.officeContact && !/^\d{10,}$/.test(form.officeContact.replace(/\s/g, "")))
+      if (
+        form.officeContact &&
+        !/^\d{10,}$/.test(form.officeContact.replace(/\s/g, ""))
+      )
         e.officeContact = "Enter valid phone number";
     }
     if (step === 4) {
@@ -324,25 +399,22 @@ const AlumniRegistration = () => {
     async (e) => {
       e.preventDefault();
       if (!validate()) return;
+
       setLoading(true);
       setErrors({});
 
       try {
-        // Split name into first/last for existing API
-        const nameParts = form.name.trim().split(" ");
-        const firstName = nameParts[0] || "";
-        const lastName = nameParts.slice(1).join(" ") || "";
-
         const payload = {
-          firstName,
-          lastName,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
           email: form.email.toLowerCase().trim(),
           password: form.password,
           phone: form.contactNumber.trim(),
           rollNumber: form.rollNumber.trim(),
           gender: form.gender,
           occupation: form.occupation,
-          // Education → mapped to existing fields
+
+          // Education
           department: form.programmeName.trim(),
           graduationYear: Number(form.studyEndYear) || Number(form.batchYear),
           programmeType: form.programmeType,
@@ -350,11 +422,13 @@ const AlumniRegistration = () => {
           batchYear: form.batchYear,
           studyStartYear: form.studyStartYear,
           studyEndYear: form.studyEndYear,
+
           // Employment
           jobTitle: form.jobTitle.trim(),
           currentCompany: form.companyName.trim(),
           industry: form.industry.trim(),
           officeContact: form.officeContact.trim(),
+
           officeAddress: {
             line1: form.officeAddress1.trim(),
             line2: form.officeAddress2.trim(),
@@ -363,24 +437,50 @@ const AlumniRegistration = () => {
             pincode: form.officePincode.trim(),
             country: form.officeCountry.trim(),
           },
+
           // Social
           linkedin: form.linkedin.trim(),
           twitter: form.twitter.trim(),
           instagram: form.instagram.trim(),
           facebook: form.facebook.trim(),
           website: form.website.trim(),
-          // Residence → mapped to existing location fields
+
+          // Residence
           city: form.resCity.trim(),
           country: form.resCountry.trim(),
           fullAddress: `${form.resAddress1}, ${form.resAddress2}, ${form.resCity}, ${form.resState} - ${form.resPincode}, ${form.resCountry}`,
           coordinates: form.resCoordinates.length ? form.resCoordinates : [],
         };
 
-        const response = await authAPI.register(payload);
-        const alumni = response.data?.alumni;
+        // Create FormData
+        const formData = new FormData();
+
+        // Append payload
+        formData.append("payload", JSON.stringify(payload));
+
+        // Append files
+        if (files.businessCard)
+          formData.append("businessCard", files.businessCard);
+
+        if (files.idCard) formData.append("idCard", files.idCard);
+
+        if (files.entrepreneurPoster)
+          formData.append("entrepreneurPoster", files.entrepreneurPoster);
+
+        if (files.studentPhoto)
+          formData.append("studentPhoto", files.studentPhoto);
+
+        if (files.currentPhoto)
+          formData.append("currentPhoto", files.currentPhoto);
+
+        const response = await authAPI.register(formData);
+
+        const alumni = response.data?.data;
+
         if (alumni) {
           await login(alumni);
         }
+
         setRegistered(true);
       } catch (err) {
         setErrors({
@@ -392,7 +492,7 @@ const AlumniRegistration = () => {
         setLoading(false);
       }
     },
-    [form, validate, login],
+    [form, files, validate, login],
   );
 
   // ── Pending Approval Screen ────────────────────────────────────────────────
@@ -413,24 +513,42 @@ const AlumniRegistration = () => {
           </h2>
           <p className="text-sm text-slate-500 mb-8 leading-relaxed">
             Your alumni profile has been submitted for review. An admin will
-            verify and approve your account. You'll receive full access once approved.
+            verify and approve your account. You'll receive full access once
+            approved.
           </p>
 
           <div className="space-y-3 text-left mb-8">
             {[
-              { done: true,  color: "green",  label: "Account registered successfully" },
+              {
+                done: true,
+                color: "green",
+                label: "Account registered successfully",
+              },
               { done: false, color: "yellow", label: "Admin approval pending" },
-              { done: false, color: "blue",   label: "Access alumni network & features" },
+              {
+                done: false,
+                color: "blue",
+                label: "Access alumni network & features",
+              },
             ].map(({ done, color, label }, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
-                  ${done
-                    ? "bg-green-100 text-green-600"
-                    : color === "yellow"
-                    ? "bg-amber-100 text-amber-600"
-                    : "bg-blue-100 text-blue-600"
-                  }`}>
-                  {done ? <Check size={13} /> : color === "yellow" ? <Clock size={13} /> : i + 1}
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
+                  ${
+                    done
+                      ? "bg-green-100 text-green-600"
+                      : color === "yellow"
+                        ? "bg-amber-100 text-amber-600"
+                        : "bg-blue-100 text-blue-600"
+                  }`}
+                >
+                  {done ? (
+                    <Check size={13} />
+                  ) : color === "yellow" ? (
+                    <Clock size={13} />
+                  ) : (
+                    i + 1
+                  )}
                 </div>
                 <span className="text-sm text-slate-600">{label}</span>
               </div>
@@ -452,10 +570,12 @@ const AlumniRegistration = () => {
   return (
     <div
       className="fixed inset-0 overflow-y-auto z-50 md: p-12"
-      style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f0f7ff 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f0f7ff 100%)",
+      }}
     >
       <div className="min-h-full flex flex-col items-center justify-start py-10 px-4">
-
         {/* Header */}
         <div className="w-full max-w-3xl mb-7 text-center">
           <p className="text-[11px] font-bold uppercase tracking-widest text-[#0052ab]/60 mb-1">
@@ -476,29 +596,40 @@ const AlumniRegistration = () => {
               return (
                 <React.Fragment key={s.id}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 font-bold text-sm
-                      ${done
-                        ? "bg-green-500 text-white shadow-sm shadow-green-200"
-                        : active
-                        ? "bg-[#0052ab] text-white shadow-md shadow-blue-200"
-                        : "bg-slate-100 text-slate-400"
-                      }`}>
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 font-bold text-sm
+                      ${
+                        done
+                          ? "bg-green-500 text-white shadow-sm shadow-green-200"
+                          : active
+                            ? "bg-[#0052ab] text-white shadow-md shadow-blue-200"
+                            : "bg-slate-100 text-slate-400"
+                      }`}
+                    >
                       {done ? <Check size={15} /> : <Icon size={15} />}
                     </div>
                     <div className="hidden sm:flex flex-col">
-                      <span className={`text-[10px] font-bold uppercase tracking-widest leading-none
-                        ${active ? "text-[#0052ab]" : done ? "text-green-600" : "text-slate-400"}`}>
+                      <span
+                        className={`text-[10px] font-bold uppercase tracking-widest leading-none
+                        ${active ? "text-[#0052ab]" : done ? "text-green-600" : "text-slate-400"}`}
+                      >
                         Step {s.id}
                       </span>
-                      <span className={`text-sm font-semibold leading-tight
-                        ${active ? "text-slate-800" : done ? "text-slate-600" : "text-slate-400"}`}>
+                      <span
+                        className={`text-sm font-semibold leading-tight
+                        ${active ? "text-slate-800" : done ? "text-slate-600" : "text-slate-400"}`}
+                      >
                         {s.label}
                       </span>
                     </div>
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className="flex-1 mx-3 h-0.5 rounded-full transition-all duration-500"
-                      style={{ background: step > s.id ? "#22c55e" : "#e2e8f0" }} />
+                    <div
+                      className="flex-1 mx-3 h-0.5 rounded-full transition-all duration-500"
+                      style={{
+                        background: step > s.id ? "#22c55e" : "#e2e8f0",
+                      }}
+                    />
                   )}
                 </React.Fragment>
               );
@@ -508,48 +639,51 @@ const AlumniRegistration = () => {
 
         {/* Card */}
         <div className="w-full max-w-3xl">
-        <motion.div
-          className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {/* Card Header Bar */}
-          <div className="bg-linear-to-r from-[#0052ab] to-[#0073e6] px-8 py-5 flex items-center gap-3">
-            {(() => { const Icon = STEPS[step - 1].icon; return <Icon size={18} className="text-white/80" />; })()}
-            <div>
-              <p className="text-[10px] text-blue-200 uppercase tracking-widest font-semibold">
-                Step {step} of {STEPS.length}
-              </p>
-              <h2 className="text-white font-bold text-base tracking-tight">
-                {step === 1 && "Personal Information"}
-                {step === 2 && "Education Details"}
-                {step === 3 && "Employment Details"}
-                {step === 4 && "Social Media, Documents & Address"}
-              </h2>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="p-8">
-            {errors.general && (
-              <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-700 text-sm">
-                <AlertCircle size={16} className="shrink-0" />
-                {errors.general}
+          <motion.div
+            className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Card Header Bar */}
+            <div className="bg-linear-to-r from-[#0052ab] to-[#0073e6] px-8 py-5 flex items-center gap-3">
+              {(() => {
+                const Icon = STEPS[step - 1].icon;
+                return <Icon size={18} className="text-white/80" />;
+              })()}
+              <div>
+                <p className="text-[10px] text-blue-200 uppercase tracking-widest font-semibold">
+                  Step {step} of {STEPS.length}
+                </p>
+                <h2 className="text-white font-bold text-base tracking-tight">
+                  {step === 1 && "Personal Information"}
+                  {step === 2 && "Education Details"}
+                  {step === 3 && "Employment Details"}
+                  {step === 4 && "Social Media, Documents & Address"}
+                </h2>
               </div>
-            )}
+            </div>
 
-            <AnimatePresence mode="wait">
-              {/* ══════════ STEP 1: PERSONAL ══════════ */}
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-5"
-                >
-                  <Field label="Full Name" required error={errors.name}>
+            <form onSubmit={handleSubmit} className="p-8">
+              {errors.general && (
+                <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-700 text-sm">
+                  <AlertCircle size={16} className="shrink-0" />
+                  {errors.general}
+                </div>
+              )}
+
+              <AnimatePresence mode="wait">
+                {/* ══════════ STEP 1: PERSONAL ══════════ */}
+                {step === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -24 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-5"
+                  >
+                    {/* <Field label="Full Name" required error={errors.name}>
                     <input
                       type="text"
                       name="name"
@@ -558,551 +692,777 @@ const AlumniRegistration = () => {
                       placeholder="e.g. Arjun Kumar"
                       className={inputCls(errors.name)}
                     />
-                  </Field>
+                  </Field> */}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Roll Number" error={errors.rollNumber}>
-                      <input
-                        type="text"
-                        name="rollNumber"
-                        value={form.rollNumber}
-                        onChange={set}
-                        placeholder="e.g. 20CSE001"
-                        className={inputCls(errors.rollNumber)}
-                      />
-                    </Field>
-                    <Field label="Gender" required error={errors.gender}>
-                      <div className="relative">
-                        <select
-                          name="gender"
-                          value={form.gender}
-                          onChange={set}
-                          className={selectCls(errors.gender)}
-                        >
-                          <option value="">Select Gender</option>
-                          <option>Male</option>
-                          <option>Female</option>
-                          <option>Other</option>
-                        </select>
-                        <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
-                      </div>
-                    </Field>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Contact Number" required error={errors.contactNumber}>
-                      <input
-                        type="tel"
-                        name="contactNumber"
-                        value={form.contactNumber}
-                        onChange={set}
-                        placeholder="+91 98765 43210"
-                        className={inputCls(errors.contactNumber)}
-                      />
-                    </Field>
-                    <Field label="Occupation" required error={errors.occupation}>
-                      <div className="relative">
-                        <select
-                          name="occupation"
-                          value={form.occupation}
-                          onChange={set}
-                          className={selectCls(errors.occupation)}
-                        >
-                          <option value="">Select Occupation</option>
-                          <option>Employed</option>
-                          <option>Entrepreneur</option>
-                          <option>Professional</option>
-                          <option>Home Maker</option>
-                          <option>Agriculture</option>
-                          <option>Others</option>
-                        </select>
-                        <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
-                      </div>
-                    </Field>
-                  </div>
-
-                  <Field label="Email Address" required error={errors.email}>
-                    <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={set}
-                      placeholder="your.email@example.com"
-                      autoComplete="email"
-                      className={inputCls(errors.email)}
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Password" required error={errors.password}>
-                      <div className="relative">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field label="First Name" error={errors.firstName}>
                         <input
-                          type={showPassword ? "text" : "password"}
-                          name="password"
-                          value={form.password}
+                          type="text"
+                          name="firstName"
+                          value={form.firstName}
                           onChange={set}
-                          placeholder="Min. 6 characters"
-                          autoComplete="new-password"
-                          className={inputCls(errors.password)}
+                          placeholder="e.g. Arjun"
+                          className={inputCls(errors.firstName)}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword((p) => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                      </div>
-                    </Field>
-                    <Field label="Confirm Password" required error={errors.confirmPassword}>
-                      <div className="relative">
+                      </Field>
+
+                      <Field label="Last Name" error={errors.lastName}>
                         <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          name="confirmPassword"
-                          value={form.confirmPassword}
+                          type="text"
+                          name="lastName"
+                          value={form.lastName}
                           onChange={set}
-                          placeholder="Re-enter password"
-                          autoComplete="new-password"
-                          className={inputCls(errors.confirmPassword)}
+                          placeholder="e.g. Kumar"
+                          className={inputCls(errors.lastName)}
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword((p) => !p)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
-                        </button>
-                      </div>
-                    </Field>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* ══════════ STEP 2: EDUCATION ══════════ */}
-              {step === 2 && (
-                <motion.div
-                  key="step2"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-5"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Programme Type" required error={errors.programmeType}>
-                      <div className="relative">
-                        <select
-                          name="programmeType"
-                          value={form.programmeType}
-                          onChange={set}
-                          className={selectCls(errors.programmeType)}
-                        >
-                          <option value="">Select Programme</option>
-                          <option>UG</option>
-                          <option>PG</option>
-                          <option>M.Phil</option>
-                          <option>PhD</option>
-                        </select>
-                        <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
-                      </div>
-                    </Field>
-                    <Field label="Programme Name" required error={errors.programmeName}>
-                      <div className="relative">
-                        <select
-                          name="programmeName"
-                          value={form.programmeName}
-                          onChange={set}
-                          className={selectCls(errors.programmeName)}
-                        >
-                          <option value="">Select Department</option>
-                          {DEPARTMENTS.map((d) => (
-                            <option key={d}>{d}</option>
-                          ))}
-                        </select>
-                        <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
-                      </div>
-                    </Field>
-                  </div>
-
-                  <Field label="Degree Completed" required error={errors.degree}>
-                    <input
-                      type="text"
-                      name="degree"
-                      value={form.degree}
-                      onChange={set}
-                      placeholder="e.g. B.Sc. Computer Science"
-                      className={inputCls(errors.degree)}
-                    />
-                  </Field>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                    <Field label="Batch Year" required error={errors.batchYear}>
-                      <input
-                        type="number"
-                        name="batchYear"
-                        value={form.batchYear}
-                        onChange={set}
-                        placeholder="2020"
-                        min="1950"
-                        max="2030"
-                        className={inputCls(errors.batchYear)}
-                      />
-                    </Field>
-                    <Field label="Study Start Year" required error={errors.studyStartYear}>
-                      <input
-                        type="number"
-                        name="studyStartYear"
-                        value={form.studyStartYear}
-                        onChange={set}
-                        placeholder="2017"
-                        min="1950"
-                        max="2030"
-                        className={inputCls(errors.studyStartYear)}
-                      />
-                    </Field>
-                    <Field label="Study End Year" required error={errors.studyEndYear}>
-                      <input
-                        type="number"
-                        name="studyEndYear"
-                        value={form.studyEndYear}
-                        onChange={set}
-                        placeholder="2020"
-                        min="1950"
-                        max="2030"
-                        className={inputCls(errors.studyEndYear)}
-                      />
-                    </Field>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* ══════════ STEP 3: EMPLOYMENT ══════════ */}
-              {step === 3 && (
-                <motion.div
-                  key="step3"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-5"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Job Title / Designation" error={errors.jobTitle}>
-                      <input
-                        type="text"
-                        name="jobTitle"
-                        value={form.jobTitle}
-                        onChange={set}
-                        placeholder="e.g. Software Engineer"
-                        className={inputCls(errors.jobTitle)}
-                      />
-                    </Field>
-                    <Field label="Company Name" error={errors.companyName}>
-                      <input
-                        type="text"
-                        name="companyName"
-                        value={form.companyName}
-                        onChange={set}
-                        placeholder="e.g. Infosys"
-                        className={inputCls(errors.companyName)}
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Industry" error={errors.industry}>
-                      <div className="relative">
-                        <select
-                          name="industry"
-                          value={form.industry}
-                          onChange={set}
-                          className={selectCls(errors.industry)}
-                        >
-                          <option value="">Select Industry</option>
-                          {INDUSTRIES.map((ind) => (
-                            <option key={ind}>{ind}</option>
-                          ))}
-                        </select>
-                        <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none" />
-                      </div>
-                    </Field>
-                    <Field label="Office Contact Number" error={errors.officeContact}>
-                      <input
-                        type="tel"
-                        name="officeContact"
-                        value={form.officeContact}
-                        onChange={set}
-                        placeholder="+91 44 2222 3333"
-                        className={inputCls(errors.officeContact)}
-                      />
-                    </Field>
-                  </div>
-
-                  <div className="pt-2 border-t border-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                      Office Address
-                    </p>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <Field label="Address Line 1" error={errors.officeAddress1}>
-                          <input type="text" name="officeAddress1" value={form.officeAddress1}
-                            onChange={set} placeholder="Street / Building" className={inputCls(errors.officeAddress1)} />
-                        </Field>
-                        <Field label="Address Line 2" error={errors.officeAddress2}>
-                          <input type="text" name="officeAddress2" value={form.officeAddress2}
-                            onChange={set} placeholder="Area / Landmark" className={inputCls(errors.officeAddress2)} />
-                        </Field>
-                      </div>
-
-                      {/* Office City with autocomplete */}
-                      <div className="relative">
-                        <Field label="City" error={errors.officeCity}>
-                          <input
-                            type="text"
-                            name="officeCity"
-                            value={form.officeCity}
-                            onChange={(e) => {
-                              set(e);
-                              setActiveLocField("office");
-                            }}
-                            placeholder="Type to search city..."
-                            autoComplete="off"
-                            className={inputCls(errors.officeCity)}
-                          />
-                        </Field>
-                        {offSuggestions.length > 0 && (
-                          <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto">
-                            {offSuggestions.map((pl) => (
-                              <div
-                                key={pl.place_id}
-                                onClick={() => handleSelectLocation(pl, "office")}
-                                className="px-4 py-2.5 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer border-b last:border-0 border-slate-100 flex items-center gap-2"
-                              >
-                                <MapPin size={11} className="text-slate-400 shrink-0" />
-                                {pl.display_name}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <Field label="State" error={errors.officeState}>
-                          <input type="text" name="officeState" value={form.officeState}
-                            onChange={set} placeholder="Tamil Nadu" className={inputCls(errors.officeState)} />
-                        </Field>
-                        <Field label="Pincode" error={errors.officePincode}>
-                          <input type="text" name="officePincode" value={form.officePincode}
-                            onChange={set} placeholder="641004" className={inputCls(errors.officePincode)} />
-                        </Field>
-                        <Field label="Country" error={errors.officeCountry}>
-                          <input type="text" name="officeCountry" value={form.officeCountry}
-                            onChange={set} placeholder="India" className={inputCls(errors.officeCountry)} />
-                        </Field>
-                      </div>
+                      </Field>
                     </div>
-                  </div>
-                </motion.div>
-              )}
 
-              {/* ══════════ STEP 4: SOCIAL + DOCS + RESIDENCE ══════════ */}
-              {step === 4 && (
-                <motion.div
-                  key="step4"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-6"
-                >
-                  {/* Social Media */}
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                      Social Media Links
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { name: "linkedin",  label: "LinkedIn",         placeholder: "https://linkedin.com/in/username" },
-                        { name: "twitter",   label: "Twitter / X",      placeholder: "https://twitter.com/username" },
-                        { name: "instagram", label: "Instagram",        placeholder: "https://instagram.com/username" },
-                        { name: "facebook",  label: "Facebook",         placeholder: "https://facebook.com/username" },
-                        { name: "website",   label: "Personal Website", placeholder: "https://yoursite.com" },
-                      ].map(({ name, label, placeholder }) => (
-                        <Field key={name} label={label}>
-                          <input
-                            type="url"
-                            name={name}
-                            value={form[name]}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field label="Roll Number" error={errors.rollNumber}>
+                        <input
+                          type="text"
+                          name="rollNumber"
+                          value={form.rollNumber}
+                          onChange={set}
+                          placeholder="e.g. 20CSE001"
+                          className={inputCls(errors.rollNumber)}
+                        />
+                      </Field>
+                      <Field label="Gender" required error={errors.gender}>
+                        <div className="relative">
+                          <select
+                            name="gender"
+                            value={form.gender}
                             onChange={set}
-                            placeholder={placeholder}
-                            className={inputCls(false)}
+                            className={selectCls(errors.gender)}
+                          >
+                            <option value="">Select Gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                          </select>
+                          <ChevronRight
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
                           />
-                        </Field>
-                      ))}
+                        </div>
+                      </Field>
                     </div>
-                  </div>
 
-                  {/* Documents & Photos */}
-                  <div className="pt-2 border-t border-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                      Documents &amp; Photos
-                    </p>
-                    {errors.currentPhoto && (
-                      <p className="text-[11px] text-red-500 flex items-center gap-1 mb-3">
-                        <AlertCircle size={11} /> {errors.currentPhoto}
-                      </p>
-                    )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <FileUpload label="Business Card" icon="📇"
-                        value={files.businessCard}
-                        onChange={(f) => setFiles((p) => ({ ...p, businessCard: f }))} />
-                      <FileUpload label="ID Card" icon="🪪"
-                        value={files.idCard}
-                        onChange={(f) => setFiles((p) => ({ ...p, idCard: f }))} />
-                      <FileUpload label="Entrepreneur Poster" icon="📢"
-                        value={files.entrepreneurPoster}
-                        onChange={(f) => setFiles((p) => ({ ...p, entrepreneurPoster: f }))} />
-                      <FileUpload label="Student Photo" icon="🎓"
-                        value={files.studentPhoto}
-                        onChange={(f) => setFiles((p) => ({ ...p, studentPhoto: f }))} />
-                      <FileUpload label="Current Photo" icon="📷" required
-                        value={files.currentPhoto}
-                        onChange={(f) => setFiles((p) => ({ ...p, currentPhoto: f }))} />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field
+                        label="Contact Number"
+                        required
+                        error={errors.contactNumber}
+                      >
+                        <input
+                          type="tel"
+                          name="contactNumber"
+                          value={form.contactNumber}
+                          onChange={set}
+                          placeholder="+91 98765 43210"
+                          className={inputCls(errors.contactNumber)}
+                        />
+                      </Field>
+                      <Field
+                        label="Occupation"
+                        required
+                        error={errors.occupation}
+                      >
+                        <div className="relative">
+                          <select
+                            name="occupation"
+                            value={form.occupation}
+                            onChange={set}
+                            className={selectCls(errors.occupation)}
+                          >
+                            <option value="">Select Occupation</option>
+                            <option>Employed</option>
+                            <option>Entrepreneur</option>
+                            <option>Professional</option>
+                            <option>Home Maker</option>
+                            <option>Agriculture</option>
+                            <option>Others</option>
+                          </select>
+                          <ChevronRight
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                      </Field>
                     </div>
-                  </div>
 
-                  {/* Residence Address */}
-                  <div className="pt-2 border-t border-slate-100">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
-                      Residence Address
-                    </p>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <Field label="Address Line 1" error={errors.resAddress1}>
-                          <input type="text" name="resAddress1" value={form.resAddress1}
-                            onChange={set} placeholder="Door No / Street" className={inputCls(errors.resAddress1)} />
-                        </Field>
-                        <Field label="Address Line 2" error={errors.resAddress2}>
-                          <input type="text" name="resAddress2" value={form.resAddress2}
-                            onChange={set} placeholder="Area / Locality" className={inputCls(errors.resAddress2)} />
-                        </Field>
-                      </div>
+                    <Field label="Email Address" required error={errors.email}>
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={set}
+                        placeholder="your.email@example.com"
+                        autoComplete="email"
+                        className={inputCls(errors.email)}
+                      />
+                    </Field>
 
-                      {/* Residence City with autocomplete */}
-                      <div className="relative">
-                        <Field label="City" required error={errors.resCity}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field label="Password" required error={errors.password}>
+                        <div className="relative">
                           <input
-                            type="text"
-                            name="resCity"
-                            value={form.resCity}
-                            onChange={(e) => {
-                              set(e);
-                              setActiveLocField("residence");
-                            }}
-                            placeholder="Type to search city..."
-                            autoComplete="off"
-                            className={inputCls(errors.resCity)}
+                            type={showPassword ? "text" : "password"}
+                            name="password"
+                            value={form.password}
+                            onChange={set}
+                            placeholder="Min. 6 characters"
+                            autoComplete="new-password"
+                            className={inputCls(errors.password)}
                           />
-                        </Field>
-                        {resSuggestions.length > 0 && (
-                          <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto">
-                            {resSuggestions.map((pl) => (
-                              <div
-                                key={pl.place_id}
-                                onClick={() => handleSelectLocation(pl, "residence")}
-                                className="px-4 py-2.5 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer border-b last:border-0 border-slate-100 flex items-center gap-2"
-                              >
-                                <MapPin size={11} className="text-slate-400 shrink-0" />
-                                {pl.display_name}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((p) => !p)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            {showPassword ? (
+                              <EyeOff size={15} />
+                            ) : (
+                              <Eye size={15} />
+                            )}
+                          </button>
+                        </div>
+                      </Field>
+                      <Field
+                        label="Confirm Password"
+                        required
+                        error={errors.confirmPassword}
+                      >
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            name="confirmPassword"
+                            value={form.confirmPassword}
+                            onChange={set}
+                            placeholder="Re-enter password"
+                            autoComplete="new-password"
+                            className={inputCls(errors.confirmPassword)}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword((p) => !p)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff size={15} />
+                            ) : (
+                              <Eye size={15} />
+                            )}
+                          </button>
+                        </div>
+                      </Field>
+                    </div>
+                  </motion.div>
+                )}
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                        <Field label="State" required error={errors.resState}>
-                          <input type="text" name="resState" value={form.resState}
-                            onChange={set} placeholder="Tamil Nadu" className={inputCls(errors.resState)} />
-                        </Field>
-                        <Field label="Pincode" error={errors.resPincode}>
-                          <input type="text" name="resPincode" value={form.resPincode}
-                            onChange={set} placeholder="641004" className={inputCls(errors.resPincode)} />
-                        </Field>
-                        <Field label="Country" required error={errors.resCountry}>
-                          <input type="text" name="resCountry" value={form.resCountry}
-                            onChange={set} placeholder="India" className={inputCls(errors.resCountry)} />
-                        </Field>
+                {/* ══════════ STEP 2: EDUCATION ══════════ */}
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -24 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-5"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field
+                        label="Programme Type"
+                        required
+                        error={errors.programmeType}
+                      >
+                        <div className="relative">
+                          <select
+                            name="programmeType"
+                            value={form.programmeType}
+                            onChange={set}
+                            className={selectCls(errors.programmeType)}
+                          >
+                            <option value="">Select Programme</option>
+                            <option>UG</option>
+                            <option>PG</option>
+                            <option>M.Phil</option>
+                            <option>PhD</option>
+                          </select>
+                          <ChevronRight
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                      </Field>
+                      <Field
+                        label="Programme Name"
+                        required
+                        error={errors.programmeName}
+                      >
+                        <div className="relative">
+                          <select
+                            name="programmeName"
+                            value={form.programmeName}
+                            onChange={set}
+                            className={selectCls(errors.programmeName)}
+                          >
+                            <option value="">Select Department</option>
+                            {DEPARTMENTS.map((d) => (
+                              <option key={d}>{d}</option>
+                            ))}
+                          </select>
+                          <ChevronRight
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                      </Field>
+                    </div>
+
+                    <Field
+                      label="Degree Completed"
+                      required
+                      error={errors.degree}
+                    >
+                      <input
+                        type="text"
+                        name="degree"
+                        value={form.degree}
+                        onChange={set}
+                        placeholder="e.g. B.Sc. Computer Science"
+                        className={inputCls(errors.degree)}
+                      />
+                    </Field>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                      <Field
+                        label="Batch Year"
+                        required
+                        error={errors.batchYear}
+                      >
+                        <input
+                          type="number"
+                          name="batchYear"
+                          value={form.batchYear}
+                          onChange={set}
+                          placeholder="2020"
+                          min="1950"
+                          max="2030"
+                          className={inputCls(errors.batchYear)}
+                        />
+                      </Field>
+                      <Field
+                        label="Study Start Year"
+                        required
+                        error={errors.studyStartYear}
+                      >
+                        <input
+                          type="number"
+                          name="studyStartYear"
+                          value={form.studyStartYear}
+                          onChange={set}
+                          placeholder="2017"
+                          min="1950"
+                          max="2030"
+                          className={inputCls(errors.studyStartYear)}
+                        />
+                      </Field>
+                      <Field
+                        label="Study End Year"
+                        required
+                        error={errors.studyEndYear}
+                      >
+                        <input
+                          type="number"
+                          name="studyEndYear"
+                          value={form.studyEndYear}
+                          onChange={set}
+                          placeholder="2020"
+                          min="1950"
+                          max="2030"
+                          className={inputCls(errors.studyEndYear)}
+                        />
+                      </Field>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ══════════ STEP 3: EMPLOYMENT ══════════ */}
+                {step === 3 && (
+                  <motion.div
+                    key="step3"
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -24 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-5"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field
+                        label="Job Title / Designation"
+                        error={errors.jobTitle}
+                      >
+                        <input
+                          type="text"
+                          name="jobTitle"
+                          value={form.jobTitle}
+                          onChange={set}
+                          placeholder="e.g. Software Engineer"
+                          className={inputCls(errors.jobTitle)}
+                        />
+                      </Field>
+                      <Field label="Company Name" error={errors.companyName}>
+                        <input
+                          type="text"
+                          name="companyName"
+                          value={form.companyName}
+                          onChange={set}
+                          placeholder="e.g. Infosys"
+                          className={inputCls(errors.companyName)}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <Field label="Industry" error={errors.industry}>
+                        <div className="relative">
+                          <select
+                            name="industry"
+                            value={form.industry}
+                            onChange={set}
+                            className={selectCls(errors.industry)}
+                          >
+                            <option value="">Select Industry</option>
+                            {INDUSTRIES.map((ind) => (
+                              <option key={ind}>{ind}</option>
+                            ))}
+                          </select>
+                          <ChevronRight
+                            size={14}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                      </Field>
+                      <Field
+                        label="Office Contact Number"
+                        error={errors.officeContact}
+                      >
+                        <input
+                          type="tel"
+                          name="officeContact"
+                          value={form.officeContact}
+                          onChange={set}
+                          placeholder="+91 44 2222 3333"
+                          className={inputCls(errors.officeContact)}
+                        />
+                      </Field>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                        Office Address
+                      </p>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <Field
+                            label="Address Line 1"
+                            error={errors.officeAddress1}
+                          >
+                            <input
+                              type="text"
+                              name="officeAddress1"
+                              value={form.officeAddress1}
+                              onChange={set}
+                              placeholder="Street / Building"
+                              className={inputCls(errors.officeAddress1)}
+                            />
+                          </Field>
+                          <Field
+                            label="Address Line 2"
+                            error={errors.officeAddress2}
+                          >
+                            <input
+                              type="text"
+                              name="officeAddress2"
+                              value={form.officeAddress2}
+                              onChange={set}
+                              placeholder="Area / Landmark"
+                              className={inputCls(errors.officeAddress2)}
+                            />
+                          </Field>
+                        </div>
+
+                        {/* Office City with autocomplete */}
+                        <div className="relative">
+                          <Field label="City" error={errors.officeCity}>
+                            <input
+                              type="text"
+                              name="officeCity"
+                              value={form.officeCity}
+                              onChange={(e) => {
+                                set(e);
+                                setActiveLocField("office");
+                              }}
+                              placeholder="Type to search city..."
+                              autoComplete="off"
+                              className={inputCls(errors.officeCity)}
+                            />
+                          </Field>
+                          {offSuggestions.length > 0 && (
+                            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto">
+                              {offSuggestions.map((pl) => (
+                                <div
+                                  key={pl.place_id}
+                                  onClick={() =>
+                                    handleSelectLocation(pl, "office")
+                                  }
+                                  className="px-4 py-2.5 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer border-b last:border-0 border-slate-100 flex items-center gap-2"
+                                >
+                                  <MapPin
+                                    size={11}
+                                    className="text-slate-400 shrink-0"
+                                  />
+                                  {pl.display_name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                          <Field label="State" error={errors.officeState}>
+                            <input
+                              type="text"
+                              name="officeState"
+                              value={form.officeState}
+                              onChange={set}
+                              placeholder="Tamil Nadu"
+                              className={inputCls(errors.officeState)}
+                            />
+                          </Field>
+                          <Field label="Pincode" error={errors.officePincode}>
+                            <input
+                              type="text"
+                              name="officePincode"
+                              value={form.officePincode}
+                              onChange={set}
+                              placeholder="641004"
+                              className={inputCls(errors.officePincode)}
+                            />
+                          </Field>
+                          <Field label="Country" error={errors.officeCountry}>
+                            <input
+                              type="text"
+                              name="officeCountry"
+                              value={form.officeCountry}
+                              onChange={set}
+                              placeholder="India"
+                              className={inputCls(errors.officeCountry)}
+                            />
+                          </Field>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </motion.div>
+                )}
 
-            {/* Navigation Buttons */}
-            <div className={`flex mt-8 pt-6 border-t border-slate-100 ${step > 1 ? "justify-between" : "justify-end"}`}>
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200
+                {/* ══════════ STEP 4: SOCIAL + DOCS + RESIDENCE ══════════ */}
+                {step === 4 && (
+                  <motion.div
+                    key="step4"
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -24 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-6"
+                  >
+                    {/* Social Media */}
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                        Social Media Links
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                          {
+                            name: "linkedin",
+                            label: "LinkedIn",
+                            placeholder: "https://linkedin.com/in/username",
+                          },
+                          {
+                            name: "twitter",
+                            label: "Twitter / X",
+                            placeholder: "https://twitter.com/username",
+                          },
+                          {
+                            name: "instagram",
+                            label: "Instagram",
+                            placeholder: "https://instagram.com/username",
+                          },
+                          {
+                            name: "facebook",
+                            label: "Facebook",
+                            placeholder: "https://facebook.com/username",
+                          },
+                          {
+                            name: "website",
+                            label: "Personal Website",
+                            placeholder: "https://yoursite.com",
+                          },
+                        ].map(({ name, label, placeholder }) => (
+                          <Field key={name} label={label}>
+                            <input
+                              type="url"
+                              name={name}
+                              value={form[name]}
+                              onChange={set}
+                              placeholder={placeholder}
+                              className={inputCls(false)}
+                            />
+                          </Field>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Documents & Photos */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                        Documents &amp; Photos
+                      </p>
+                      {errors.currentPhoto && (
+                        <p className="text-[11px] text-red-500 flex items-center gap-1 mb-3">
+                          <AlertCircle size={11} /> {errors.currentPhoto}
+                        </p>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <FileUpload
+                          label="Business Card"
+                          icon="📇"
+                          value={files.businessCard}
+                          onChange={(f) =>
+                            setFiles((p) => ({ ...p, businessCard: f }))
+                          }
+                        />
+                        <FileUpload
+                          label="ID Card"
+                          icon="🪪"
+                          value={files.idCard}
+                          onChange={(f) =>
+                            setFiles((p) => ({ ...p, idCard: f }))
+                          }
+                        />
+                        <FileUpload
+                          label="Entrepreneur Poster"
+                          icon="📢"
+                          value={files.entrepreneurPoster}
+                          onChange={(f) =>
+                            setFiles((p) => ({ ...p, entrepreneurPoster: f }))
+                          }
+                        />
+                        <FileUpload
+                          label="Student Photo"
+                          icon="🎓"
+                          value={files.studentPhoto}
+                          onChange={(f) =>
+                            setFiles((p) => ({ ...p, studentPhoto: f }))
+                          }
+                        />
+                        <FileUpload
+                          label="Current Photo"
+                          icon="📷"
+                          required
+                          value={files.currentPhoto}
+                          onChange={(f) =>
+                            setFiles((p) => ({ ...p, currentPhoto: f }))
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    {/* Residence Address */}
+                    <div className="pt-2 border-t border-slate-100">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                        Residence Address
+                      </p>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <Field
+                            label="Address Line 1"
+                            error={errors.resAddress1}
+                          >
+                            <input
+                              type="text"
+                              name="resAddress1"
+                              value={form.resAddress1}
+                              onChange={set}
+                              placeholder="Door No / Street"
+                              className={inputCls(errors.resAddress1)}
+                            />
+                          </Field>
+                          <Field
+                            label="Address Line 2"
+                            error={errors.resAddress2}
+                          >
+                            <input
+                              type="text"
+                              name="resAddress2"
+                              value={form.resAddress2}
+                              onChange={set}
+                              placeholder="Area / Locality"
+                              className={inputCls(errors.resAddress2)}
+                            />
+                          </Field>
+                        </div>
+
+                        {/* Residence City with autocomplete */}
+                        <div className="relative">
+                          <Field label="City" required error={errors.resCity}>
+                            <input
+                              type="text"
+                              name="resCity"
+                              value={form.resCity}
+                              onChange={(e) => {
+                                set(e);
+                                setActiveLocField("residence");
+                              }}
+                              placeholder="Type to search city..."
+                              autoComplete="off"
+                              className={inputCls(errors.resCity)}
+                            />
+                          </Field>
+                          {resSuggestions.length > 0 && (
+                            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-30 max-h-48 overflow-y-auto">
+                              {resSuggestions.map((pl) => (
+                                <div
+                                  key={pl.place_id}
+                                  onClick={() =>
+                                    handleSelectLocation(pl, "residence")
+                                  }
+                                  className="px-4 py-2.5 text-xs text-slate-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer border-b last:border-0 border-slate-100 flex items-center gap-2"
+                                >
+                                  <MapPin
+                                    size={11}
+                                    className="text-slate-400 shrink-0"
+                                  />
+                                  {pl.display_name}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                          <Field label="State" required error={errors.resState}>
+                            <input
+                              type="text"
+                              name="resState"
+                              value={form.resState}
+                              onChange={set}
+                              placeholder="Tamil Nadu"
+                              className={inputCls(errors.resState)}
+                            />
+                          </Field>
+                          <Field label="Pincode" error={errors.resPincode}>
+                            <input
+                              type="text"
+                              name="resPincode"
+                              value={form.resPincode}
+                              onChange={set}
+                              placeholder="641004"
+                              className={inputCls(errors.resPincode)}
+                            />
+                          </Field>
+                          <Field
+                            label="Country"
+                            required
+                            error={errors.resCountry}
+                          >
+                            <input
+                              type="text"
+                              name="resCountry"
+                              value={form.resCountry}
+                              onChange={set}
+                              placeholder="India"
+                              className={inputCls(errors.resCountry)}
+                            />
+                          </Field>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Navigation Buttons */}
+              <div
+                className={`flex mt-8 pt-6 border-t border-slate-100 ${step > 1 ? "justify-between" : "justify-end"}`}
+              >
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200
                     text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all duration-150"
-                >
-                  <ChevronLeft size={16} /> Back
-                </button>
-              )}
+                  >
+                    <ChevronLeft size={16} /> Back
+                  </button>
+                )}
 
-              {step < STEPS.length ? (
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-linear-to-r
+                {step < STEPS.length ? (
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-linear-to-r
                     from-[#0052ab] to-[#0073e6] text-white text-sm font-semibold
                     hover:shadow-lg hover:shadow-blue-200 transition-all duration-200"
-                >
-                  Next <ChevronRight size={16} />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-linear-to-r
+                  >
+                    Next <ChevronRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex items-center gap-2 px-8 py-2.5 rounded-xl bg-linear-to-r
                     from-[#0052ab] to-[#0073e6] text-white text-sm font-semibold
                     hover:shadow-lg hover:shadow-blue-200 transition-all duration-200
                     disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <Check size={16} /> Submit Alumni Information
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
+                  >
+                    {loading ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} /> Submit Alumni Information
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
 
-            <p className="text-center text-xs text-slate-400 mt-5">
-              Already registered?{" "}
-              <Link to="/alumni/login" className="text-[#0052ab] font-semibold hover:underline">
-                Sign in here
-              </Link>
-            </p>
-          </form>
-        </motion.div>
+              <p className="text-center text-xs text-slate-400 mt-5">
+                Already registered?{" "}
+                <Link
+                  to="/alumni/login"
+                  className="text-[#0052ab] font-semibold hover:underline"
+                >
+                  Sign in here
+                </Link>
+              </p>
+            </form>
+          </motion.div>
 
           <p className="text-center text-[11px] text-slate-400 mt-6 pb-2">
-            © {new Date().getFullYear()} PSG College of Arts &amp; Science Alumni Platform · Version 1.0.0
+            © {new Date().getFullYear()} PSG College of Arts &amp; Science
+            Alumni Platform · Version 1.0.0
           </p>
         </div>
       </div>
     </div>
-
-  )};
-
+  );
+};
 
 export default AlumniRegistration;

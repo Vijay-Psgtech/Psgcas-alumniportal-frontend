@@ -49,7 +49,7 @@ export default function NavBar() {
       {
         label: "Events",
         submenu: [
-          { label: "All Events", path: "/cas-events" },
+          { label: "Current Events", path: "/cas-events" },
           { label: "Upcoming Events", path: "/upcoming-events" },
           { label: "Past Events", path: "/past-events" },
           { label: "Reunions", path: "/reunions" },

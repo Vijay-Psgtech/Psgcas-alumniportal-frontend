@@ -40,7 +40,12 @@ export const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
 // ──────────────── Auth API ──────────────────────── //
 export const authAPI = {
-  register: (data) => api.post("/auth/register", data),
+  register: (data) =>
+    api.post("/auth/register", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   login: (data) => api.post("/auth/login", data),
   getProfile: () => api.get("/auth/profile"),
   changePassword: (currentPassword, newPassword) =>
@@ -119,7 +124,7 @@ export const donationAPI = {
 // ── Donation API ────────────────────────────────────────────────────────
 export const adminReportsAPI = {
   fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
-  fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month")
+  fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
 };
 
 export default api;
