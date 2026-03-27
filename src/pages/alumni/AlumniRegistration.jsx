@@ -163,7 +163,8 @@ const AlumniRegistration = () => {
 
   const [form, setForm] = useState({
     // Personal
-    name: "",
+    firstName: "",
+    lastName:"",
     rollNumber: "",
     gender: "",
     contactNumber: "",
@@ -273,7 +274,7 @@ const AlumniRegistration = () => {
   const validate = useCallback(() => {
     const e = {};
     if (step === 1) {
-      if (!form.name.trim()) e.name = "Full name required";
+      if (!form.firstName.trim()) e.firstName = "First Name required";
       if (!form.gender) e.gender = "Please select gender";
       if (!/^\d{10}$/.test(form.contactNumber.replace(/\s/g, "")))
         e.contactNumber = "Enter valid 10-digit number";
@@ -328,14 +329,9 @@ const AlumniRegistration = () => {
       setErrors({});
 
       try {
-        // Split name into first/last for existing API
-        const nameParts = form.name.trim().split(" ");
-        const firstName = nameParts[0] || "";
-        const lastName = nameParts.slice(1).join(" ") || "";
-
         const payload = {
-          firstName,
-          lastName,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
           email: form.email.toLowerCase().trim(),
           password: form.password,
           phone: form.contactNumber.trim(),
@@ -549,7 +545,7 @@ const AlumniRegistration = () => {
                   transition={{ duration: 0.25 }}
                   className="space-y-5"
                 >
-                  <Field label="Full Name" required error={errors.name}>
+                  {/* <Field label="Full Name" required error={errors.name}>
                     <input
                       type="text"
                       name="name"
@@ -558,7 +554,32 @@ const AlumniRegistration = () => {
                       placeholder="e.g. Arjun Kumar"
                       className={inputCls(errors.name)}
                     />
-                  </Field>
+                  </Field> */}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <Field label="First Name" error={errors.firstName}>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={form.firstName}
+                        onChange={set}
+                        placeholder="e.g. Arjun"
+                        className={inputCls(errors.firstName)}
+                      />
+                    </Field>
+
+                    <Field label="Last Name" error={errors.lastName}>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={form.lastName}
+                        onChange={set}
+                        placeholder="e.g. Kumar"
+                        className={inputCls(errors.lastName)}
+                      />
+                    </Field>
+                    
+                  </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Field label="Roll Number" error={errors.rollNumber}>
