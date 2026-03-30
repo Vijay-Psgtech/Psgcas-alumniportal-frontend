@@ -22,6 +22,7 @@ import {
   Users,
 } from "lucide-react";
 import ImageModal from "../../components/ImageModal";
+import { useAuth } from "../../context/AuthContext";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -91,10 +92,22 @@ const ModalRow = ({
   </div>
 );
 
+/* ─────────────────────────────────────────
+   Privacy — what a non-admin alumni can see
+───────────────────────────────────────── */
+const canSeeFullDetails = (viewer, subject) => {
+  if (!viewer || !subject) return false;
+  if (viewer.isAdmin) return true;
+  return String(viewer.batchYear) === String(subject.batchYear);
+};
+
 /* ═══════════════════════════════════════════════
    MAIN COMPONENT
 ═══════════════════════════════════════════════ */
 const AlumniMap = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.isAdmin || false;
+
   const [selectedAlumni, setSelectedAlumni] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -128,6 +141,8 @@ const AlumniMap = () => {
       ),
     [mapData.alumni],
   );
+
+  const canViewSelectedAlumni = selectedAlumni && canSeeFullDetails(user, selectedAlumni);
 
   const selectedInitials = selectedAlumni
     ? `${selectedAlumni.firstName?.charAt(0) ?? ""}${selectedAlumni.lastName?.charAt(0) ?? ""}`.toUpperCase()
@@ -330,115 +345,173 @@ const AlumniMap = () => {
 
                   {/* Info rows */}
                   <div className="flex-1 px-5 py-2 overflow-y-auto">
-                    <ModalRow
-                      icon={Mail}
-                      label="Email"
-                      iconColor="text-blue-500"
-                      bgColor="bg-blue-50"
-                    >
-                      <a
-                        href={`mailto:${selectedAlumni.email}`}
-                        className="text-sm text-blue-600 font-medium hover:underline break-all"
-                      >
-                        {selectedAlumni.email}
-                      </a>
-                    </ModalRow>
-
-                    <ModalRow
-                      icon={MapPin}
-                      label="Location"
-                      iconColor="text-emerald-600"
-                      bgColor="bg-emerald-50"
-                    >
-                      <p className="text-sm text-slate-700 font-medium">
-                        {selectedAlumni.fullAddress ||
-                          `${selectedAlumni.city || ""}${selectedAlumni.country ? `, ${selectedAlumni.country}` : ""}`}
-                      </p>
-                    </ModalRow>
-
-                    {selectedAlumni.currentCompany && (
-                      <ModalRow
-                        icon={Building2}
-                        label="Company"
-                        iconColor="text-amber-600"
-                        bgColor="bg-amber-50"
-                      >
-                        <p className="text-sm text-slate-700 font-medium">
-                          {selectedAlumni.currentCompany}
-                        </p>
-                      </ModalRow>
+                    {!canViewSelectedAlumni && (
+                      <div className="mb-4 rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 text-sm text-amber-700">
+                        Full contact details are restricted. Only admins and alumni from the same batch can view them.
+                      </div>
                     )}
 
-                    {selectedAlumni.jobTitle && (
-                      <ModalRow
-                        icon={Briefcase}
-                        label="Position"
-                        iconColor="text-blue-600"
-                        bgColor="bg-blue-50"
-                      >
-                        <p className="text-sm text-slate-700 font-medium">
-                          {selectedAlumni.jobTitle}
-                        </p>
-                      </ModalRow>
-                    )}
-
-                    {selectedAlumni.phone && (
-                      <ModalRow
-                        icon={Phone}
-                        label="Phone"
-                        iconColor="text-sky-600"
-                        bgColor="bg-sky-50"
-                      >
-                        <a
-                          href={`tel:${selectedAlumni.phone}`}
-                          className="text-sm text-sky-600 font-medium hover:underline"
+                    {canViewSelectedAlumni ? (
+                      <>
+                        <ModalRow
+                          icon={Mail}
+                          label="Email"
+                          iconColor="text-blue-500"
+                          bgColor="bg-blue-50"
                         >
-                          {selectedAlumni.phone}
-                        </a>
-                      </ModalRow>
-                    )}
+                          <a
+                            href={`mailto:${selectedAlumni.email}`}
+                            className="text-sm text-blue-600 font-medium hover:underline break-all"
+                          >
+                            {selectedAlumni.email}
+                          </a>
+                        </ModalRow>
 
-                    {selectedAlumni.linkedin && (
-                      <ModalRow
-                        icon={Linkedin}
-                        label="LinkedIn"
-                        iconColor="text-blue-600"
-                        bgColor="bg-blue-50"
-                      >
-                        <a
-                          href={selectedAlumni.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 font-medium hover:underline"
+                        <ModalRow
+                          icon={MapPin}
+                          label="Location"
+                          iconColor="text-emerald-600"
+                          bgColor="bg-emerald-50"
                         >
-                          View Profile ↗
-                        </a>
-                      </ModalRow>
+                          <p className="text-sm text-slate-700 font-medium">
+                            {selectedAlumni.fullAddress ||
+                              `${selectedAlumni.city || ""}${selectedAlumni.country ? `, ${selectedAlumni.country}` : ""}`}
+                          </p>
+                        </ModalRow>
+
+                        {selectedAlumni.currentCompany && (
+                          <ModalRow
+                            icon={Building2}
+                            label="Company"
+                            iconColor="text-amber-600"
+                            bgColor="bg-amber-50"
+                          >
+                            <p className="text-sm text-slate-700 font-medium">
+                              {selectedAlumni.currentCompany}
+                            </p>
+                          </ModalRow>
+                        )}
+
+                        {selectedAlumni.jobTitle && (
+                          <ModalRow
+                            icon={Briefcase}
+                            label="Position"
+                            iconColor="text-blue-600"
+                            bgColor="bg-blue-50"
+                          >
+                            <p className="text-sm text-slate-700 font-medium">
+                              {selectedAlumni.jobTitle}
+                            </p>
+                          </ModalRow>
+                        )}
+
+                        {selectedAlumni.phone && (
+                          <ModalRow
+                            icon={Phone}
+                            label="Phone"
+                            iconColor="text-sky-600"
+                            bgColor="bg-sky-50"
+                          >
+                            <a
+                              href={`tel:${selectedAlumni.phone}`}
+                              className="text-sm text-sky-600 font-medium hover:underline"
+                            >
+                              {selectedAlumni.phone}
+                            </a>
+                          </ModalRow>
+                        )}
+
+                        {selectedAlumni.linkedin && (
+                          <ModalRow
+                            icon={Linkedin}
+                            label="LinkedIn"
+                            iconColor="text-blue-600"
+                            bgColor="bg-blue-50"
+                          >
+                            <a
+                              href={selectedAlumni.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 font-medium hover:underline"
+                            >
+                              View Profile ↗
+                            </a>
+                          </ModalRow>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <ModalRow
+                          icon={MapPin}
+                          label="Location"
+                          iconColor="text-emerald-600"
+                          bgColor="bg-emerald-50"
+                        >
+                          <p className="text-sm text-slate-700 font-medium">
+                            {selectedAlumni.fullAddress ||
+                              `${selectedAlumni.city || ""}${selectedAlumni.country ? `, ${selectedAlumni.country}` : ""}`}
+                          </p>
+                        </ModalRow>
+
+                        {selectedAlumni.batchYear && (
+                          <ModalRow
+                            icon={GraduationCap}
+                            label="Batch"
+                            iconColor="text-indigo-600"
+                            bgColor="bg-indigo-50"
+                          >
+                            <p className="text-sm text-slate-700 font-medium">
+                              {selectedAlumni.batchYear}
+                            </p>
+                          </ModalRow>
+                        )}
+
+                        {selectedAlumni.department && (
+                          <ModalRow
+                            icon={Building2}
+                            label="Department"
+                            iconColor="text-blue-600"
+                            bgColor="bg-blue-50"
+                          >
+                            <p className="text-sm text-slate-700 font-medium">
+                              {selectedAlumni.department}
+                            </p>
+                          </ModalRow>
+                        )}
+                      </>
                     )}
                   </div>
 
                   {/* CTA footer */}
                   <div className="px-5 py-4 border-t border-slate-100 flex gap-2.5">
-                    {selectedAlumni.linkedin && (
-                      <a
-                        href={selectedAlumni.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 active:scale-95 transition-all"
-                      >
-                        <Linkedin size={13} /> LinkedIn
-                      </a>
+                    {canViewSelectedAlumni ? (
+                      <>
+                        {selectedAlumni.linkedin && (
+                          <a
+                            href={selectedAlumni.linkedin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 active:scale-95 transition-all"
+                          >
+                            <Linkedin size={13} /> LinkedIn
+                          </a>
+                        )}
+                        <a
+                          href={`mailto:${selectedAlumni.email}`}
+                          className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
+                            selectedAlumni.linkedin
+                              ? "px-4 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                              : "flex-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                          }`}
+                        >
+                          <Mail size={13} /> Email
+                        </a>
+                      </>
+                    ) : (
+                      <div className="flex-1 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-500">
+                        Contact details are hidden for privacy.
+                      </div>
                     )}
-                    <a
-                      href={`mailto:${selectedAlumni.email}`}
-                      className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold active:scale-95 transition-all ${
-                        selectedAlumni.linkedin
-                          ? "px-4 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                          : "flex-1 border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                      }`}
-                    >
-                      <Mail size={13} /> Email
-                    </a>
                   </div>
                 </motion.aside>
               ) : (
