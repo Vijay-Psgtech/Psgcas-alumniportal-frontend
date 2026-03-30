@@ -58,7 +58,7 @@ export const authAPI = {
 
 // ── ALUMNI ───────────────────────────────────────────────────────
 export const alumniAPI = {
-  getAllAlumni: () => api.get("/alumni"),
+  getAllAlumni: (params) => api.get("/alumni", { params }),
   getAlumniById: (id) => api.get(`/alumni/${id}`),
   updateProfile: (id, data) =>
     api.put(`/alumni/${id}`, data, {
@@ -68,6 +68,8 @@ export const alumniAPI = {
     }),
   getStats: () => api.get("/alumni/stats/get-stats"),
   getMapData: () => api.get("/alumni/map/data"),
+  getBatches : () => api.get("/alumni/batches"),
+  getByBatch : (params) => api.get("/alumni/batch-wise", { params }),
 };
 
 // ── ADMIN ────────────────────────────────────────────────────────
