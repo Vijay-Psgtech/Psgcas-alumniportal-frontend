@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 const HomePage = lazy(() => import("./components/Homepage"));
 const LeadershipPage = lazy(() => import("./pages/LeadershipPage"));
 const NewsPage = lazy(() => import("./pages/Newspage"));
+const NewsDetailPage = lazy(() => import("./pages/NewsDetailPage"));
 const ContactPage = lazy(() => import("./sections/Contact"));
 const DonatePage = lazy(() => import("./pages/DonatePage"));
 
@@ -219,6 +220,7 @@ export default function App() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/leadership" element={<LeadershipPage />} />
               <Route path="/newsletter" element={<NewsPage />} />
+              <Route path="/news/:id" element={<NewsDetailPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/donate" element={<DonatePage />} />
 
@@ -311,7 +313,7 @@ export default function App() {
               />
 
               <Route
-                path="admin/newsletter"
+                path="admin/newsletters"
                 element={
                   <ProtectedAdminRoute>
                     <AdminNewsLetter />
