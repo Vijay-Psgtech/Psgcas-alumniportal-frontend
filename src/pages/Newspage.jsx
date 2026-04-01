@@ -4,69 +4,7 @@ import { motion } from "framer-motion";
 import { newsLetterAPI, API_BASE } from "../services/api";
 
 const NewsPage = () => {
-  // News/Posts data - DEFINE FIRST before using in useState
-  // const newsData = [
-  //   {
-  //     id: 1,
-  //     title: "PSG Arts Alumni Newsletter- Oct-Dec 2025",
-  //     date: "Feb 04, 2026",
-  //     category: "Newsletters",
-  //     excerpt: "Our latest quarterly newsletter featuring updates and achievements from our alumni community.",
-  //     image: null,
-  //     tags: ["Newsletters"],
-  //     author: "Alumni Team",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "PSG Arts Alumni Newsletter- Jul-Sep 2025",
-  //     date: "Nov 03, 2025",
-  //     category: "Newsletters",
-  //     excerpt: "Summer edition featuring success stories and upcoming events.",
-  //     image: null,
-  //     tags: ["Newsletters"],
-  //     author: "Alumni Team",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "In Their Words: Thank You to Our Teachers",
-  //     date: "Sep 09, 2025",
-  //     category: "Alumni Stories",
-  //     excerpt: "Mahalakshmi D Duraiswamy - Teacher's name Dr. K. Palaniappan (Statistics Department) If you could dedicate one line to them this Teacher's Day, what...",
-  //     image: "https://via.placeholder.com/300x200?text=Teachers+Day",
-  //     tags: ["Alumni Stories"],
-  //     author: "Mahalakshmi D Duraiswamy",
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "New Accolades for Our Alumni",
-  //     date: "Aug 15, 2025",
-  //     category: "Accolades",
-  //     excerpt: "Celebrating recent achievements and recognitions of our distinguished alumni.",
-  //     image: null,
-  //     tags: ["Accolades/Accreditations"],
-  //     author: "Alumni Team",
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Institute Updates: Campus Expansion",
-  //     date: "Jul 20, 2025",
-  //     category: "Institute Updates",
-  //     excerpt: "Exciting developments in our institution's infrastructure and academic programs.",
-  //     image: null,
-  //     tags: ["Institute Updates"],
-  //     author: "Institute Communications",
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Annual Reunion 2025 - Save the Date",
-  //     date: "Jun 10, 2025",
-  //     category: "Events",
-  //     excerpt: "Join us for our annual reunion celebration featuring networking, awards, and memorable moments.",
-  //     image: null,
-  //     tags: ["Events"],
-  //     author: "Alumni Events Team",
-  //   },
-  // ];
+
   const [newsData, setNewsData] = useState([]);
 
   // Now use the defined newsData in state
@@ -125,7 +63,7 @@ const NewsPage = () => {
       filtered = filtered.filter(
         (news) =>
           news.title.toLowerCase().includes(query.toLowerCase()) ||
-          news.excerpt.toLowerCase().includes(query.toLowerCase())
+          news.description.toLowerCase().includes(query.toLowerCase())
       );
     }
 
@@ -375,6 +313,10 @@ const NewsPage = () => {
         .news-excerpt {
           font-size: 14px;
           color: #6b7280;
+          -webkit-line-clamp: 2;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
           line-height: 1.6;
           margin-bottom: 16px;
         }
@@ -564,7 +506,12 @@ const NewsPage = () => {
                         <div className="news-header">
                           <span className="news-date">
                             <Calendar size={16} />
-                            {new Date(news.date).toLocaleDateString()}
+                            {new Date(news.date).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              
+                            })}
                           </span>
                           <span className="news-share">
                             <Share2 size={18} />
@@ -573,7 +520,7 @@ const NewsPage = () => {
 
                         <h2 className="news-title">{news.title}</h2>
 
-                        <p className="news-excerpt">{news.excerpt}</p>
+                        <p className="news-excerpt">{news.description}</p>
                       </div>
 
                       <div className="news-footer">
