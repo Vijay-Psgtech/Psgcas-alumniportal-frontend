@@ -1,71 +1,73 @@
 import React, { useState, useEffect } from "react";
 import { Search, Calendar, Share2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { newsLetterAPI, API_BASE } from "../services/api";
 
 const NewsPage = () => {
   // News/Posts data - DEFINE FIRST before using in useState
-  const newsData = [
-    {
-      id: 1,
-      title: "PSG Arts Alumni Newsletter- Oct-Dec 2025",
-      date: "Feb 04, 2026",
-      category: "Newsletters",
-      excerpt: "Our latest quarterly newsletter featuring updates and achievements from our alumni community.",
-      image: null,
-      tags: ["Newsletters"],
-      author: "Alumni Team",
-    },
-    {
-      id: 2,
-      title: "PSG Arts Alumni Newsletter- Jul-Sep 2025",
-      date: "Nov 03, 2025",
-      category: "Newsletters",
-      excerpt: "Summer edition featuring success stories and upcoming events.",
-      image: null,
-      tags: ["Newsletters"],
-      author: "Alumni Team",
-    },
-    {
-      id: 3,
-      title: "In Their Words: Thank You to Our Teachers",
-      date: "Sep 09, 2025",
-      category: "Alumni Stories",
-      excerpt: "Mahalakshmi D Duraiswamy - Teacher's name Dr. K. Palaniappan (Statistics Department) If you could dedicate one line to them this Teacher's Day, what...",
-      image: "https://via.placeholder.com/300x200?text=Teachers+Day",
-      tags: ["Alumni Stories"],
-      author: "Mahalakshmi D Duraiswamy",
-    },
-    {
-      id: 4,
-      title: "New Accolades for Our Alumni",
-      date: "Aug 15, 2025",
-      category: "Accolades",
-      excerpt: "Celebrating recent achievements and recognitions of our distinguished alumni.",
-      image: null,
-      tags: ["Accolades/Accreditations"],
-      author: "Alumni Team",
-    },
-    {
-      id: 5,
-      title: "Institute Updates: Campus Expansion",
-      date: "Jul 20, 2025",
-      category: "Institute Updates",
-      excerpt: "Exciting developments in our institution's infrastructure and academic programs.",
-      image: null,
-      tags: ["Institute Updates"],
-      author: "Institute Communications",
-    },
-    {
-      id: 6,
-      title: "Annual Reunion 2025 - Save the Date",
-      date: "Jun 10, 2025",
-      category: "Events",
-      excerpt: "Join us for our annual reunion celebration featuring networking, awards, and memorable moments.",
-      image: null,
-      tags: ["Events"],
-      author: "Alumni Events Team",
-    },
-  ];
+  // const newsData = [
+  //   {
+  //     id: 1,
+  //     title: "PSG Arts Alumni Newsletter- Oct-Dec 2025",
+  //     date: "Feb 04, 2026",
+  //     category: "Newsletters",
+  //     excerpt: "Our latest quarterly newsletter featuring updates and achievements from our alumni community.",
+  //     image: null,
+  //     tags: ["Newsletters"],
+  //     author: "Alumni Team",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "PSG Arts Alumni Newsletter- Jul-Sep 2025",
+  //     date: "Nov 03, 2025",
+  //     category: "Newsletters",
+  //     excerpt: "Summer edition featuring success stories and upcoming events.",
+  //     image: null,
+  //     tags: ["Newsletters"],
+  //     author: "Alumni Team",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "In Their Words: Thank You to Our Teachers",
+  //     date: "Sep 09, 2025",
+  //     category: "Alumni Stories",
+  //     excerpt: "Mahalakshmi D Duraiswamy - Teacher's name Dr. K. Palaniappan (Statistics Department) If you could dedicate one line to them this Teacher's Day, what...",
+  //     image: "https://via.placeholder.com/300x200?text=Teachers+Day",
+  //     tags: ["Alumni Stories"],
+  //     author: "Mahalakshmi D Duraiswamy",
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "New Accolades for Our Alumni",
+  //     date: "Aug 15, 2025",
+  //     category: "Accolades",
+  //     excerpt: "Celebrating recent achievements and recognitions of our distinguished alumni.",
+  //     image: null,
+  //     tags: ["Accolades/Accreditations"],
+  //     author: "Alumni Team",
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Institute Updates: Campus Expansion",
+  //     date: "Jul 20, 2025",
+  //     category: "Institute Updates",
+  //     excerpt: "Exciting developments in our institution's infrastructure and academic programs.",
+  //     image: null,
+  //     tags: ["Institute Updates"],
+  //     author: "Institute Communications",
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Annual Reunion 2025 - Save the Date",
+  //     date: "Jun 10, 2025",
+  //     category: "Events",
+  //     excerpt: "Join us for our annual reunion celebration featuring networking, awards, and memorable moments.",
+  //     image: null,
+  //     tags: ["Events"],
+  //     author: "Alumni Events Team",
+  //   },
+  // ];
+  const [newsData, setNewsData] = useState([]);
 
   // Now use the defined newsData in state
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,6 +83,21 @@ const NewsPage = () => {
     { id: "events", label: "Events", icon: "🎯" },
     { id: "accolades", label: "Accolades/Accreditations", icon: "🏆" },
   ];
+
+  // Fetch news data from API on component mount
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const response = await newsLetterAPI.getAll();
+        setNewsData(response.data.data);
+        setFilteredNews(response.data.data);
+      } catch (error) {
+        console.error("Error fetching news data:", error);
+      }
+    };
+
+    fetchNews();
+  }, []);
 
   // Handle search
   const handleSearch = (query) => {
@@ -526,45 +543,47 @@ const NewsPage = () => {
           {/* Main Content */}
           <motion.main className="news-content" variants={containerVariants}>
             {filteredNews.length > 0 ? (
-              filteredNews.map((news, idx) => (
-                <motion.article
-                  key={news.id}
-                  className={`news-card ${news.image ? "with-image" : ""}`}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {news.image && (
-                    <img src={news.image} alt={news.title} className="news-image" />
-                  )}
-                  <div className="news-body">
-                    <div>
-                      <div className="news-header">
-                        <span className="news-date">
-                          <Calendar size={16} />
-                          {news.date}
-                        </span>
-                        <span className="news-share">
-                          <Share2 size={18} />
-                        </span>
+              filteredNews.map((news, idx) => {
+                const imageSrc = news.imageUrl
+                  ? `${API_BASE}/${news.imageUrl}`
+                  : news.image;
+                const hasImage = Boolean(imageSrc);
+                return (
+                  <motion.article
+                    key={news._id || news.id || idx}
+                    className={`news-card ${hasImage ? "with-image" : ""}`}
+                    variants={itemVariants}
+                    initial="hidden"
+                    animate="visible"
+                  >
+                    {hasImage && (
+                      <img src={imageSrc} alt={news.title} className="news-image" />
+                    )}
+                    <div className="news-body">
+                      <div>
+                        <div className="news-header">
+                          <span className="news-date">
+                            <Calendar size={16} />
+                            {new Date(news.date).toLocaleDateString()}
+                          </span>
+                          <span className="news-share">
+                            <Share2 size={18} />
+                          </span>
+                        </div>
+
+                        <h2 className="news-title">{news.title}</h2>
+
+                        <p className="news-excerpt">{news.excerpt}</p>
                       </div>
 
-                      <h2 className="news-title">{news.title}</h2>
-
-                      <p className="news-excerpt">{news.excerpt}</p>
+                      <div className="news-footer">
+                        <span className="news-tag">{news.category}</span>
+                        <span className="news-author">{news.author}</span>
+                      </div>
                     </div>
-
-                    <div className="news-footer">
-                      {news.tags.map((tag, idx) => (
-                        <span key={idx} className="news-tag">
-                          {tag}
-                        </span>
-                      ))}
-                      <span className="news-author">{news.author}</span>
-                    </div>
-                  </div>
-                </motion.article>
-              ))
+                  </motion.article>
+                );
+              })
             ) : (
               <div className="empty-state">
                 <div className="empty-state-icon">📭</div>
