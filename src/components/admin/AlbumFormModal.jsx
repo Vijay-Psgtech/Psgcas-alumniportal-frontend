@@ -32,6 +32,18 @@ export const AlbumFormModal = ({
   );
   const isEdit = !!initial?.id;
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+  const addImages = (files) => {
+    setForm((prev) => {
+      const existing = Array.isArray(prev.images) ? prev.images : [];
+      const nextImages = [...existing, ...files];
+      return {
+        ...prev,
+        images: nextImages,
+        photos: String(nextImages.length),
+      };
+    });
+  };
+
   const valid = form.title.trim() && form.event.trim();
 
   return (
@@ -93,10 +105,9 @@ export const AlbumFormModal = ({
                 multiple
                 onChange={(e) => {
                   const files = Array.from(e.target.files || []);
-                  set("images", files);
-                  if (files.length > 0) {
-                    set("photos", String(files.length));
-                  }
+                  if (files.length === 0) return;
+                  addImages(files);
+                  e.target.value = null;
                 }}
                 disabled={isLoading}
                 className="w-full text-sm text-gray-600 file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:rounded-xl file:text-sm file:font-semibold file:text-slate-700"
