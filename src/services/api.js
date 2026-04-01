@@ -68,8 +68,8 @@ export const alumniAPI = {
     }),
   getStats: () => api.get("/alumni/stats/get-stats"),
   getMapData: () => api.get("/alumni/map/data"),
-  getBatches : () => api.get("/alumni/batches"),
-  getByBatch : (params) => api.get("/alumni/batch-wise", { params }),
+  getBatches: () => api.get("/alumni/batches"),
+  getByBatch: (params) => api.get("/alumni/batch-wise", { params }),
 };
 
 // ── ADMIN ────────────────────────────────────────────────────────
@@ -111,9 +111,38 @@ export const eventsAPI = {
 export const albumsAPI = {
   getAll: () => api.get("/albums"),
   getByYear: (year) => api.post(`/albums/${year}`),
-  create: (data) => api.post("/albums", data),
-  update: (id, data) => api.put(`/albums/${id}`, data),
+  create: (data) =>
+    api.post("/albums", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  update: (id, data) =>
+    api.put(`/albums/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   delete: (id) => api.delete(`/albums/${id}`),
+};
+  
+// ── NewsLetter API ────────────────────────────────────────────────────────
+export const newsLetterAPI = {
+  getAll: () => api.get("/newsletters"),
+  getById: (id) => api.get(`/newsletters/${id}`),
+  create: (data) =>
+    api.post("/newsletters", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  update: (id, data) =>
+    api.put(`/newsletters/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  delete: (id) => api.delete(`/newsletters/${id}`),
 };
 
 // ── Donation API ────────────────────────────────────────────────────────

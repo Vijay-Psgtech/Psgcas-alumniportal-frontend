@@ -46,6 +46,7 @@ const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminEvents = lazy(() => import("./pages/admin/AdminEvents"));
 const AlumniUsers = lazy(() => import("./pages/admin/AlumniUsersList"));
+const AdminNewsLetter = lazy(() => import("./pages/admin/AdminNewsLetter"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 
 // ── Redirects logged-in ALUMNI away from login/register ──────────
@@ -305,6 +306,15 @@ export default function App() {
                 element={
                   <ProtectedAdminRoute>
                     <AdminEvents />
+                  </ProtectedAdminRoute>
+                }
+              />
+
+              <Route
+                path="admin/newsletter"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminNewsLetter />
                   </ProtectedAdminRoute>
                 }
               />
