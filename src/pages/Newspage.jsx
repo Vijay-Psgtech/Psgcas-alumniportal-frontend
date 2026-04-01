@@ -137,17 +137,11 @@ const NewsPage = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
         /* News Page Container */
         .news-page {
           min-height: 100vh;
           background: #f8f9fa;
-          padding: 60px 40px;
+          padding: 100px 60px;
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
@@ -537,6 +531,8 @@ const NewsPage = () => {
                   key={news.id}
                   className={`news-card ${news.image ? "with-image" : ""}`}
                   variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
                 >
                   {news.image && (
                     <img src={news.image} alt={news.title} className="news-image" />

@@ -125,6 +125,25 @@ export const albumsAPI = {
     }),
   delete: (id) => api.delete(`/albums/${id}`),
 };
+  
+// ── NewsLetter API ────────────────────────────────────────────────────────
+export const newsLetterAPI = {
+  getAll: () => api.get("/newsletters"),
+  getById: (id) => api.get(`/newsletters/${id}`),
+  create: (data) =>
+    api.post("/newsletters", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  update: (id, data) =>
+    api.put(`/newsletters/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  delete: (id) => api.delete(`/newsletters/${id}`),
+};
 
 // ── Donation API ────────────────────────────────────────────────────────
 export const donationAPI = {
