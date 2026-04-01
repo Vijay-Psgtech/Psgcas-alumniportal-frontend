@@ -77,6 +77,7 @@ export default function NavBar() {
         submenu: [
           { label: "Dashboard", path: "/admin/dashboard" },
           { label: "Events", path: "/admin/events" },
+          { label: "Newsletters", path: "/admin/newsletters" },
           { label: "Users", path: "/admin/users" },
           { label: "Reports", path: "/admin/reports" },
         ],

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Search, Calendar, Share2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { newsLetterAPI, API_BASE } from "../services/api";
+import { Link } from "react-router-dom";
 
 const NewsPage = () => {
-
   const [newsData, setNewsData] = useState([]);
 
   // Now use the defined newsData in state
@@ -55,7 +55,7 @@ const NewsPage = () => {
 
     if (category !== "All Posts") {
       filtered = filtered.filter(
-        (news) => news.category === category || news.tags.includes(category)
+        (news) => news.category === category || news.tags.includes(category),
       );
     }
 
@@ -63,7 +63,7 @@ const NewsPage = () => {
       filtered = filtered.filter(
         (news) =>
           news.title.toLowerCase().includes(query.toLowerCase()) ||
-          news.description.toLowerCase().includes(query.toLowerCase())
+          news.description.toLowerCase().includes(query.toLowerCase()),
       );
     }
 
@@ -456,7 +456,10 @@ const NewsPage = () => {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
               />
-              <button className="search-btn" onClick={() => handleSearch(searchQuery)}>
+              <button
+                className="search-btn"
+                onClick={() => handleSearch(searchQuery)}
+              >
                 <Search size={20} />
               </button>
             </div>
@@ -499,26 +502,33 @@ const NewsPage = () => {
                     animate="visible"
                   >
                     {hasImage && (
-                      <img src={imageSrc} alt={news.title} className="news-image" />
+                      <img
+                        src={imageSrc}
+                        alt={news.title}
+                        className="news-image"
+                      />
                     )}
                     <div className="news-body">
                       <div>
                         <div className="news-header">
                           <span className="news-date">
                             <Calendar size={16} />
-                            {new Date(news.date).toLocaleString('en-US', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              
+                            {new Date(news.date).toLocaleString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
                             })}
                           </span>
                           <span className="news-share">
                             <Share2 size={18} />
                           </span>
                         </div>
-
-                        <h2 className="news-title">{news.title}</h2>
+                        <Link
+                          to={`/news/${news._id || news.id}`}
+                          className="news-title"
+                        >
+                          <h2 className="news-title">{news.title}</h2>
+                        </Link>
 
                         <p className="news-excerpt">{news.description}</p>
                       </div>
