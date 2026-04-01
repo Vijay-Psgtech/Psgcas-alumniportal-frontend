@@ -196,7 +196,7 @@ const AdminDashboard = () => {
       {/* Background glowing orb */}
       <div className="absolute -top-44 -right-44 w-[480px] h-[480px] bg-[radial-gradient(circle,rgba(201,168,76,.07)_0%,transparent_70%)] pointer-events-none rounded-full" />
 
-      <div className="max-w-[1400px] mx-auto relative z-10">
+      <div className="max-w-[1400px] mx-auto relative">
         {/* Header */}
         <motion.div
           className="flex justify-between items-center mb-9 flex-wrap gap-4"

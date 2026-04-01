@@ -1,21 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Plus, Camera, Image, Pencil, Trash2 } from "lucide-react";
-import { useData } from "../../context/dataConstants";
+import { Search, Plus, Camera, Image, Pencil, Trash2, Loader } from "lucide-react";
+import { albumsAPI } from "../../services/api";
 import { DeleteModal } from "./AdminSharedUI";
 import { AlbumFormModal } from "./AlbumFormModal";
 
+const DEFAULT_ALBUMS_DATA = {};
+
+const normalizeAlbumsData = (payload) => {
+  if (!payload) return DEFAULT_ALBUMS_DATA;
+  if (Array.isArray(payload)) {
+    return payload.reduce((acc, album) => {
+      const year = String(
+        album.year ??
+          (album.date ? new Date(album.date).getFullYear() : "unknown"),
+      );
+      const photos =
+        parseInt(album.photos, 10) ||
+        (Array.isArray(album.images) ? album.images.length : 0) ||
+        0;
+
+      if (!acc[year]) {
+        acc[year] = {
+          coverColor: album.coverColor || "#667eea",
+          totalPhotos: 0,
+          albums: [],
+        };
+      }
+
+      acc[year].albums.push(album);
+      acc[year].totalPhotos += photos;
+      return acc;
+    }, {});
+  }
+  return payload;
+};
+
 export const AlbumsTab = ({ onError, onSuccess }) => {
-  const { albumsData, addAlbum, updateAlbum, deleteAlbum, addYear } = useData();
-  const years = Object.keys(albumsData).sort((a, b) => b - a);
-  const [selectedYear, setSelectedYear] = useState(years[0] || "2026");
+  const [albumsData, setAlbumsData] = useState(DEFAULT_ALBUMS_DATA);
+  const [selectedYear, setSelectedYear] = useState("");
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [newYear, setNewYear] = useState("");
   const [showAddYear, setShowAddYear] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
-  const yearData = albumsData[selectedYear];
+  const years = Object.keys(albumsData).sort((a, b) => b - a);
+  const activeYear =
+    selectedYear && albumsData[selectedYear] ? selectedYear : years[0] || "";
+  const yearData = albumsData[activeYear];
+
   const filtered = (yearData?.albums || []).filter(
     (a) =>
       a.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -24,17 +59,77 @@ export const AlbumsTab = ({ onError, onSuccess }) => {
       ),
   );
 
+  useEffect(() => {
+    fetchAlbums();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedYear && years.length) {
+      setSelectedYear(years[0]);
+    } else if (selectedYear && !albumsData[selectedYear] && years.length) {
+      setSelectedYear(years[0]);
+    }
+  }, [albumsData, years, selectedYear]);
+
+  const fetchAlbums = async () => {
+    try {
+      setIsFetching(true);
+      const response = await albumsAPI.getAll();
+      const payload = response.data?.data ?? response.data;
+      const normalized = normalizeAlbumsData(payload);
+      setAlbumsData(normalized);
+
+      if (!selectedYear && Object.keys(normalized).length) {
+        setSelectedYear(Object.keys(normalized).sort((a, b) => b - a)[0]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch albums:", err);
+      onError("Failed to load albums");
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  const buildFormData = (form) => {
+    const fd = new FormData();
+
+    Object.entries(form).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      if (key === "tags" && Array.isArray(value)) {
+        fd.append("tags", JSON.stringify(value));
+      } else if (key === "images" && Array.isArray(value)) {
+        value.forEach((file) => {
+          if (file instanceof File) {
+            fd.append("images", file);
+          }
+        });
+      } else {
+        fd.append(key, String(value));
+      }
+    });
+
+    if (activeYear) {
+      fd.append("year", activeYear);
+    }
+
+    return fd;
+  };
+
   const handleSaveAlbum = async (form) => {
     try {
       setIsLoading(true);
+      const fd = buildFormData(form);
+
       if (modal.data?.id) {
-        await updateAlbum(selectedYear, modal.data.id, form);
+        await albumsAPI.update(modal.data.id, fd);
         onSuccess(`✓ Album "${form.title}" updated successfully!`);
       } else {
-        await addAlbum(selectedYear, form);
+        await albumsAPI.create(fd);
         onSuccess(`✓ Album "${form.title}" created successfully!`);
       }
+
       setModal(null);
+      await fetchAlbums();
     } catch (err) {
       const msg =
         err.response?.data?.message || err.message || "Failed to save album";
@@ -47,9 +142,10 @@ export const AlbumsTab = ({ onError, onSuccess }) => {
   const handleDeleteAlbum = async (id, title) => {
     try {
       setIsLoading(true);
-      await deleteAlbum(selectedYear, id);
+      await albumsAPI.delete(id);
       onSuccess(`✓ Album "${title}" deleted successfully!`);
       setModal(null);
+      await fetchAlbums();
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to delete album";
       onError(msg);
@@ -59,16 +155,29 @@ export const AlbumsTab = ({ onError, onSuccess }) => {
   };
 
   const handleAddYear = () => {
-    const y = parseInt(newYear);
+    const y = parseInt(newYear, 10);
     if (!y || y < 1980 || y > 2100 || albumsData[y]) return;
-    addYear(y);
+
+    setAlbumsData((prev) => ({
+      ...prev,
+      [String(y)]: {
+        coverColor: "#667eea",
+        totalPhotos: 0,
+        albums: [],
+      },
+    }));
     setSelectedYear(String(y));
     setNewYear("");
     setShowAddYear(false);
   };
 
   return (
-    <div>
+    <div className="relative">
+      {isFetching && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-20 rounded-2xl flex items-center justify-center">
+          <Loader size={32} className="text-blue-500 animate-spin" />
+        </div>
+      )}
       {/* Year pills */}
       <div className="flex flex-wrap items-center gap-2 mb-4.5">
         <span className="text-[10px] text-gray-400 font-bold tracking-[1.5px] font-['Outfit',_sans-serif] mr-1">

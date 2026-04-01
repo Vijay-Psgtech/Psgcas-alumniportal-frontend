@@ -9,6 +9,7 @@ const BLANK_ALBUM = {
   photos: "",
   accent: "#b8882a",
   tags: "",
+  images: [],
 };
 
 export const AlbumFormModal = ({
@@ -25,6 +26,7 @@ export const AlbumFormModal = ({
           tags: Array.isArray(initial.tags)
             ? initial.tags.join(", ")
             : initial.tags || "",
+          images: Array.isArray(initial.images) ? initial.images : [],
         }
       : BLANK_ALBUM,
   );
@@ -82,6 +84,39 @@ export const AlbumFormModal = ({
               placeholder="e.g. Awards, Gala, Networking"
               disabled={isLoading}
             />
+          </FLabel>
+          <FLabel label="Upload Photos">
+            <div className="space-y-2">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  set("images", files);
+                  if (files.length > 0) {
+                    set("photos", String(files.length));
+                  }
+                }}
+                disabled={isLoading}
+                className="w-full text-sm text-gray-600 file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:rounded-xl file:text-sm file:font-semibold file:text-slate-700"
+              />
+              <div className="text-xs text-gray-400">
+                Upload multiple album photos. Selected files will be sent with the album.
+              </div>
+              {Array.isArray(form.images) && form.images.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {form.images.map((img, idx) => (
+                    <span
+                      key={`${typeof img === "string" ? img : img.name}-${idx}`}
+                      className="px-2 py-1 rounded-full bg-slate-100 text-[11px] text-slate-600"
+                    >
+                      {img instanceof File ? img.name : img}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </FLabel>
           <FLabel label="Accent Color">
             <div className="flex gap-2.5 items-center">
