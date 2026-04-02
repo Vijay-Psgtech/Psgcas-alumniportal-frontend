@@ -70,6 +70,31 @@ export const alumniAPI = {
   getMapData: () => api.get("/alumni/map/data"),
   getBatches: () => api.get("/alumni/batches"),
   getByBatch: (params) => api.get("/alumni/batch-wise", { params }),
+  // ✅ ALUMNI CHAPTERS API
+  getChapters: (params) => api.get("/alumni/chapters", { params }),
+  getChapter: (id) => api.get(`/alumni/chapters/${id}`),
+  createChapter: (data) =>
+    api.post("/alumni/chapters", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  updateChapter: (id, data) =>
+    api.put(`/alumni/chapters/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  deleteChapter: (id) => api.delete(`/alumni/chapters/${id}`),
+  joinChapter: (id) => api.post(`/alumni/chapters/${id}/join`),
+  leaveChapter: (id) => api.delete(`/alumni/chapters/${id}/leave`),
+  getChapterMembers: (id) => api.get(`/alumni/chapters/${id}/members`),
+   // Search chapters by category
+  getChaptersByCategory: (category, params) =>
+    api.get(`/alumni/chapters/category/${category}`, { params }),
+ 
+  // Get user's chapters (chapters I've joined)
+  getMyChapters: () => api.get("/alumni/chapters/my-chapters"),
 };
 
 // ── ADMIN ────────────────────────────────────────────────────────
