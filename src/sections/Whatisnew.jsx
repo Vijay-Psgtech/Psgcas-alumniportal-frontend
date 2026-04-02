@@ -111,29 +111,11 @@ const WhatIsNew = () => {
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
       pdfUrl:
         "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table.pdf",
-      category: "special",
+      category: "alumni-stories",
       excerpt:
         "Celebrating the dedication and impact of our beloved faculty members.",
       color: "#8B5CF6",
       bgColor: "#FAF5FF",
-    },
-    {
-      id: 4,
-      title: "Alumni Success Stories 2025",
-      date: "Aug 15, 2025",
-      views: 1024,
-      fileName: "Alumni_Success_Stories_2025.pdf",
-      fileSize: "22 MB",
-      thumbnail: "linear-gradient(135deg, #EC4899 0%, #F97316 100%)",
-      image:
-        "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl:
-        "https://arxiv.org/pdf/quant-ph/0410100.pdf",
-      category: "newsletter",
-      excerpt:
-        "Inspiring journeys of alumni making a difference in their careers and communities.",
-      color: "#EC4899",
-      bgColor: "#FDF2F8",
     },
   ];
 
@@ -1129,10 +1111,10 @@ const WhatIsNew = () => {
             Newsletters
           </button>
           <button
-            className={`tab-btn ${activeTab === "special" ? "active" : ""}`}
-            onClick={() => setActiveTab("special")}
+            className={`tab-btn ${activeTab === "alumni-stories" ? "active" : ""}`}
+            onClick={() => setActiveTab("alumni-stories")}
           >
-            Special
+            Alumni Stories
           </button>
         </div>
 
