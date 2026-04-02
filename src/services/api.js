@@ -183,4 +183,31 @@ export const adminReportsAPI = {
   fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
 };
 
+// ── ✅ Notification API ───────────────────────────────────────────────
+export const notificationAPI = {
+  // Alumni: submit a new notification (with optional file attachment)
+ submit: (data) => api.post("/notifications", data),
+ 
+  // Alumni: get approved notifications visible to me
+  getMyNotifications: () => api.get("/notifications"),
+ 
+  // Alumni: see my own submitted notifications (all statuses)
+  getMySubmissions: () => api.get("/notifications/mine"),
+ 
+  // Admin: get all notifications, optionally filter by status
+  adminGetAll: (status) =>
+    api.get("/notifications/admin/all", { params: status ? { status } : {} }),
+ 
+  // Admin: approve
+  adminApprove: (id, adminNote = "") =>
+    api.put(`/notifications/admin/${id}/approve, { adminNote }`),
+ 
+  // Admin: reject with reason
+  adminReject: (id, reason) =>
+    api.put(`/notifications/admin/${id}/reject, { reason }`),
+ 
+  // Admin: delete
+  adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
+};
+
 export default api;
