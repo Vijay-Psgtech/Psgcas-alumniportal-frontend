@@ -167,7 +167,7 @@ const AdminReports = () => {
                             />
                             {alumni.firstName} {alumni.lastName || ""}
                           </td>
-                          <td className="py-3 px-4 border-b">{alumni.graduationYear || "—"}</td>
+                          <td className="py-3 px-4 border-b">{alumni.batchYear || "—"}</td>
                           <td className="py-3 px-4 border-b">{alumni.department || "—"}</td>
                           <td className="py-3 px-4 border-b">{alumni.email || "—"}</td>
                         </tr>
@@ -203,7 +203,7 @@ const AdminReports = () => {
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600">
                         <div className="rounded-lg bg-white p-2 shadow-sm">
                           <p className="font-medium text-slate-700">Batch</p>
-                          <p>{alumni.graduationYear || "—"}</p>
+                          <p>{alumni.batchYear || "—"}</p>
                         </div>
                         <div className="rounded-lg bg-white p-2 shadow-sm">
                           <p className="font-medium text-slate-700">Branch</p>

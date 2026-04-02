@@ -23,7 +23,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
 
   const filtered = alumniList.filter((a) => {
     const matchesSearch =
-      `${a.firstName} ${a.lastName} ${a.email} ${a.department || ""} ${a.graduationYear || ""}`
+      `${a.firstName} ${a.lastName} ${a.email} ${a.department || ""} ${a.batchYear || ""}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
     const matchesStatus =
@@ -186,7 +186,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
 
                       <div className="flex items-center gap-1 text-slate-600">
                         <GraduationCap size={14} />
-                        {a.graduationYear || "N/A"}
+                        {a.batchYear || "N/A"}
                       </div>
                     </div>
 
