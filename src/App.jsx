@@ -33,6 +33,7 @@ const ReunionsPage = lazy(() => import("./pages/ReunionsPage"));
 const AlumniRegistration = lazy(
   () => import("./pages/alumni/AlumniRegistration"),
 );
+const AlumniDashboard = lazy(() => import("./pages/alumni/AlumniDashboard"));
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
 const AlumniProfile = lazy(() => import("./pages/alumni/AlumniProfile"));
@@ -40,6 +41,7 @@ const AlumniDirectory = lazy(() => import("./pages/alumni/AlumniDirectory"));
 const AlumniMap = lazy(() => import("./pages/alumni/AlumniMap"));
 const AlumniDonations = lazy(() => import("./pages/alumni/AlumniDonations"));
 const AlumniChapters = lazy(() => import("./pages/alumni/AlumniChapters"));
+const NotificationInbox = lazy(() => import("./pages/alumni/NotificationInbox"));
 
 // ═══════════════════════════════════════════════════════════════════════
 // ADMIN PAGES
@@ -233,6 +235,16 @@ export default function App() {
               <Route path="/reunions" element={<ReunionsPage />} />
 
               {/* ALUMNI AUTH */}
+
+              <Route
+                path="alumni/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <AlumniDashboard />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route
                 path="alumni/register"
                 element={
@@ -294,6 +306,15 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                  path="/alumni/notifications"
+                  element={
+                    <ProtectedRoute>
+                      <NotificationInbox />
+                    </ProtectedRoute>
+                  }
+                />
 
               {/* ADMIN */}
               <Route
