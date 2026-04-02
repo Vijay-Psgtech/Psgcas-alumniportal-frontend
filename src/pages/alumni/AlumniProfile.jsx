@@ -390,7 +390,7 @@ const AlumniProfile = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save profile");
     }
-  }, [profileData?._id, editData, locationQuery, selectedFile]);
+  }, [profileData?._id, editData, locationQuery, selectedFile, selectedDocFiles]);
 
   const handleCancel = useCallback(() => {
     setEditData(profileData);
