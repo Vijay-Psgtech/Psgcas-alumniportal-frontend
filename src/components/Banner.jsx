@@ -243,7 +243,7 @@ const EpicBanner = () => {
           gap: 14px;
           padding: 12px 0;
           animation: fadeInUp 1s ease-out backwards;
-          opacity: 0;
+          opacity: 1;
         }
 
         .feature-item:nth-child(1) { animation-delay: 0.2s; }
@@ -503,7 +503,7 @@ const EpicBanner = () => {
             </div>
           </div>
 
-          <div className="banner-right">
+          {/* <div className="banner-right">
             <div className="auth-glass">
               <div className="auth-inner">
                 {authMode === "login" ? (
@@ -538,7 +538,7 @@ const EpicBanner = () => {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </>

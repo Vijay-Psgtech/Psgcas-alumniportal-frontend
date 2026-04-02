@@ -658,7 +658,7 @@ const NotableAlumni = () => {
         {/* Header */}
         <div className="alumni-header">
           <div className="alumni-badge">⭐ Excellence in Education</div>
-          <h2 className="alumni-title">Notable Alumni</h2>
+          <h2 className="alumni-title">Distinguished Alumni</h2>
           <p className="alumni-subtitle">
             Celebrating the achievements of our distinguished graduates who are
             making a global impact across various fields
