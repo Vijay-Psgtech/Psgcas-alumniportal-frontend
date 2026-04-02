@@ -65,6 +65,12 @@ export default function NavBar() {
           },
           // { label: "Success Stories", path: "/alumni/stories" },
           { label: "Alumni Map", path: "/alumni/map", requireAuth: true },
+          {
+            label: "Alumni Chapters",
+            path: "/alumni/chapters",
+            requireAuth: true,
+            icon: "Layers",
+          },
         ],
       },
 
