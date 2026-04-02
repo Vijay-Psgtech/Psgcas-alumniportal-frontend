@@ -80,18 +80,78 @@ const Events = () => {
     },
   ];
 
+  // ✅ UPDATED: each gallery image now has a `caption` field
   const galleryImages = [
-    { id: 1, src: Gal1, alt: "Alumni Group Photo", event: "50th Jubilee" },
-    { id: 2, src: Gal2, alt: "Award Ceremony", event: "Recognition Event" },
-    { id: 3, src: Gal3, alt: "Felicitation Ceremony", event: "Tribute" },
-    { id: 4, src: Gal4, alt: "Guest Lecture", event: "Academic Event" },
-    { id: 5, src: Gal5, alt: "Inauguration", event: "Ceremony" },
-    { id: 6, src: Gal6, alt: "Panel Discussion", event: "Seminar" },
-    { id: 7, src: Gal7, alt: "Workshop Session", event: "Training" },
-    { id: 8, src: Gal8, alt: "Alumni Gathering", event: "Reunion" },
-    { id: 9, src: Gal9, alt: "Golden Jubilee Banner", event: "Celebration" },
-    { id: 10, src: Gal10, alt: "Interactive Session", event: "Workshop" },
-    
+    {
+      id: 1,
+      src: Gal1,
+      alt: "Alumni Group Photo",
+      event: "50th Jubilee",
+      caption: "Alumni of the 1975 batch gather for a historic group photograph at the 50th Golden Jubilee celebrations.",
+    },
+    {
+      id: 2,
+      src: Gal2,
+      alt: "Award Ceremony",
+      event: "Recognition Event",
+      caption: "Distinguished alumni receiving awards for their outstanding contributions to society and their fields.",
+    },
+    {
+      id: 3,
+      src: Gal3,
+      alt: "Felicitation Ceremony",
+      event: "Tribute",
+      caption: "Felicitation of long-serving faculty members who have shaped generations of PSG CAS students.",
+    },
+    {
+      id: 4,
+      src: Gal4,
+      alt: "Guest Lecture",
+      event: "Academic Event",
+      caption: "An eminent guest speaker addressing students and alumni during an academic enrichment session.",
+    },
+    {
+      id: 5,
+      src: Gal5,
+      alt: "Inauguration",
+      event: "Ceremony",
+      caption: "The lamp-lighting inauguration ceremony marking the commencement of the annual alumni meet.",
+    },
+    {
+      id: 6,
+      src: Gal6,
+      alt: "Panel Discussion",
+      event: "Seminar",
+      caption: "Industry leaders and academicians share insights during a thought-provoking panel discussion.",
+    },
+    {
+      id: 7,
+      src: Gal7,
+      alt: "Workshop Session",
+      event: "Training",
+      caption: "Participants engage in hands-on activities during the Elevate 2025 career development workshop.",
+    },
+    {
+      id: 8,
+      src: Gal8,
+      alt: "Alumni Gathering",
+      event: "Reunion",
+      caption: "Alumni reconnecting and reminiscing over shared memories at the Silver Jubilee reunion dinner.",
+    },
+    {
+      id: 9,
+      src: Gal9,
+      alt: "Golden Jubilee Banner",
+      event: "Celebration",
+      caption: "The iconic Golden Jubilee banner marks five decades of academic excellence at PSG Arts College.",
+    },
+    {
+      id: 10,
+      src: Gal10,
+      alt: "Interactive Session",
+      event: "Workshop",
+      caption: "Students and alumni participate in an interactive session on mentorship and career guidance.",
+    },
   ];
 
   return (
@@ -127,14 +187,8 @@ const Events = () => {
         }
 
         @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-30px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .events-title::after {
@@ -173,14 +227,8 @@ const Events = () => {
         .event-card:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes cardPop {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
+          from { opacity: 0; transform: scale(0.9) translateY(30px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .event-card:hover {
@@ -224,14 +272,8 @@ const Events = () => {
         }
 
         @keyframes slideUp {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(-20px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
 
         .event-content {
@@ -288,10 +330,7 @@ const Events = () => {
           font-weight: 600;
         }
 
-        .event-meta-item svg {
-          width: 16px;
-          height: 16px;
-        }
+        .event-meta-item svg { width: 16px; height: 16px; }
 
         .event-button {
           background: linear-gradient(135deg, #1e40af 0%, #0369a1 100%);
@@ -334,7 +373,7 @@ const Events = () => {
 
         @keyframes fadeIn {
           from { opacity: 0; }
-          to { opacity: 1; }
+          to   { opacity: 1; }
         }
 
         .event-modal {
@@ -351,14 +390,8 @@ const Events = () => {
         }
 
         @keyframes slideUpModal {
-          from {
-            opacity: 0;
-            transform: translateY(60px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
+          from { opacity: 0; transform: translateY(60px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .modal-header {
@@ -445,17 +478,9 @@ const Events = () => {
           gap: 12px;
         }
 
-        .modal-meta-icon {
-          width: 24px;
-          height: 24px;
-          color: #1e40af;
-          flex-shrink: 0;
-        }
+        .modal-meta-icon { width: 24px; height: 24px; color: #1e40af; flex-shrink: 0; }
 
-        .modal-meta-content {
-          display: flex;
-          flex-direction: column;
-        }
+        .modal-meta-content { display: flex; flex-direction: column; }
 
         .modal-meta-label {
           font-size: 11px;
@@ -561,37 +586,32 @@ const Events = () => {
           gap: 24px;
         }
 
+        /* ── Gallery Item with Caption ── */
         .gallery-item {
           position: relative;
           overflow: hidden;
           border-radius: 20px;
           cursor: pointer;
-          animation: galleryItem 0.6s ease-out;
           height: 280px;
+          animation: galleryItem 0.6s ease-out both;
         }
+
+        .gallery-item:nth-child(1)  { animation-delay: 0.1s; }
+        .gallery-item:nth-child(2)  { animation-delay: 0.2s; }
+        .gallery-item:nth-child(3)  { animation-delay: 0.3s; }
+        .gallery-item:nth-child(4)  { animation-delay: 0.4s; }
+        .gallery-item:nth-child(5)  { animation-delay: 0.5s; }
+        .gallery-item:nth-child(6)  { animation-delay: 0.6s; }
+        .gallery-item:nth-child(7)  { animation-delay: 0.7s; }
+        .gallery-item:nth-child(8)  { animation-delay: 0.8s; }
+        .gallery-item:nth-child(9)  { animation-delay: 0.9s; }
+        .gallery-item:nth-child(10) { animation-delay: 1s;   }
+        .gallery-item:nth-child(11) { animation-delay: 1.1s; }
 
         @keyframes galleryItem {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
+          from { opacity: 0; transform: scale(0.9); }
+          to   { opacity: 1; transform: scale(1); }
         }
-
-        .gallery-item:nth-child(1) { animation-delay: 0.1s; }
-        .gallery-item:nth-child(2) { animation-delay: 0.2s; }
-        .gallery-item:nth-child(3) { animation-delay: 0.3s; }
-        .gallery-item:nth-child(4) { animation-delay: 0.4s; }
-        .gallery-item:nth-child(5) { animation-delay: 0.5s; }
-        .gallery-item:nth-child(6) { animation-delay: 0.6s; }
-        .gallery-item:nth-child(7) { animation-delay: 0.7s; }
-        .gallery-item:nth-child(8) { animation-delay: 0.8s; }
-        .gallery-item:nth-child(9) { animation-delay: 0.9s; }
-        .gallery-item:nth-child(10) { animation-delay: 1s; }
-        .gallery-item:nth-child(11) { animation-delay: 1.1s; }
 
         .gallery-image {
           width: 100%;
@@ -605,39 +625,88 @@ const Events = () => {
           transform: scale(1.15) rotate(2deg);
         }
 
-        .gallery-overlay {
+        /* Caption overlay — slides up on hover */
+        .gallery-caption-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, rgba(30, 64, 175, 0.4), rgba(3, 105, 161, 0.4));
+          background: linear-gradient(
+            to top,
+            rgba(12, 35, 64, 0.92) 0%,
+            rgba(12, 35, 64, 0.55) 45%,
+            rgba(30, 64, 175, 0.18) 100%
+          );
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          padding: 20px 18px 18px;
           opacity: 0;
-          transition: opacity 0.3s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          transform: translateY(8px);
+          transition: opacity 0.32s ease, transform 0.32s ease;
         }
 
-        .gallery-item:hover .gallery-overlay {
+        .gallery-item:hover .gallery-caption-overlay {
           opacity: 1;
+          transform: translateY(0);
         }
 
-        .gallery-overlay-icon {
-          width: 50px;
-          height: 50px;
-          background: white;
-          border-radius: 12px;
+        /* Eye icon — top-right corner */
+        .gallery-eye-icon {
+          position: absolute;
+          top: 14px;
+          right: 14px;
+          width: 36px;
+          height: 36px;
+          background: rgba(255, 255, 255, 0.18);
+          backdrop-filter: blur(6px);
+          border-radius: 9px;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #1e40af;
+          color: white;
+          opacity: 0;
+          transform: scale(0.8);
+          transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* ==================== GALLERY MODAL ==================== */
+        .gallery-item:hover .gallery-eye-icon {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+        /* Event tag pill */
+        .gallery-event-tag {
+          display: inline-block;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.65);
+          background: rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.2);
+          padding: 3px 9px;
+          border-radius: 20px;
+          margin-bottom: 7px;
+          width: fit-content;
+        }
+
+        /* Caption text */
+        .gallery-caption-text {
+          font-family: 'Poppins', sans-serif;
+          font-size: 12.5px;
+          font-weight: 400;
+          color: rgba(255, 255, 255, 0.92);
+          line-height: 1.55;
+          margin: 0;
+        }
+
+        /* ==================== GALLERY LIGHTBOX MODAL ==================== */
         .gallery-modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(12, 35, 64, 0.95);
-          backdrop-filter: blur(8px);
+          background: rgba(12, 35, 64, 0.97);
+          backdrop-filter: blur(10px);
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           z-index: 1100;
@@ -647,131 +716,121 @@ const Events = () => {
 
         .gallery-modal {
           position: relative;
-          max-width: 90vw;
-          max-height: 90vh;
+          max-width: 880px;
+          width: 100%;
           animation: slideUpModal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0;
         }
 
         .gallery-modal-image {
           width: 100%;
           height: auto;
-          max-height: 80vh;
+          max-height: 72vh;
           object-fit: contain;
+          border-radius: 18px 18px 0 0;
+          display: block;
+        }
+
+        /* ── Lightbox caption bar ── */
+        .gallery-modal-caption-bar {
+          width: 100%;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-top: none;
+          border-radius: 0 0 18px 18px;
+          padding: 16px 24px;
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+        }
+
+        .gallery-modal-event-pill {
+          flex-shrink: 0;
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #93c5fd;
+          background: rgba(30, 64, 175, 0.35);
+          border: 1px solid rgba(96, 165, 250, 0.3);
+          padding: 4px 10px;
           border-radius: 20px;
+          margin-top: 2px;
+          white-space: nowrap;
+        }
+
+        .gallery-modal-caption-text {
+          font-family: 'Poppins', sans-serif;
+          font-size: 13.5px;
+          color: rgba(255, 255, 255, 0.78);
+          line-height: 1.6;
+          margin: 0;
         }
 
         .gallery-modal-close {
           position: absolute;
-          top: -50px;
+          top: -52px;
           right: 0;
-          width: 44px;
-          height: 44px;
-          background: white;
-          border: none;
+          width: 42px;
+          height: 42px;
+          background: rgba(255, 255, 255, 0.12);
+          border: 1px solid rgba(255,255,255,0.2);
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          color: #1e40af;
+          color: white;
           transition: all 0.3s ease;
         }
 
         .gallery-modal-close:hover {
+          background: white;
+          color: #1e40af;
           transform: scale(1.1);
         }
 
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 1024px) {
-          .events-section {
-            padding: 80px 30px;
-          }
-
-          .events-title {
-            font-size: 48px;
-          }
-
-          .events-grid {
-            gap: 40px;
-          }
+          .events-section { padding: 80px 30px; }
+          .events-title   { font-size: 48px; }
+          .events-grid    { gap: 40px; }
         }
 
         @media (max-width: 768px) {
-          .events-section {
-            padding: 60px 20px;
-          }
-
-          .events-title {
-            font-size: 36px;
-          }
-
-          .events-grid {
-            grid-template-columns: 1fr;
-            gap: 32px;
-          }
-
-          .gallery-section {
-            padding: 60px 20px;
-          }
-
-          .gallery-header {
-            flex-direction: column;
-            gap: 24px;
-            text-align: center;
-          }
-
-          .gallery-title {
-            font-size: 36px;
-          }
-
-          .gallery-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-          }
-
-          .modal-content {
-            padding: 32px;
-          }
-
-          .modal-title {
-            font-size: 36px;
-          }
+          .events-section     { padding: 60px 20px; }
+          .events-title       { font-size: 36px; }
+          .events-grid        { grid-template-columns: 1fr; gap: 32px; }
+          .gallery-section    { padding: 60px 20px; }
+          .gallery-header     { flex-direction: column; gap: 24px; text-align: center; }
+          .gallery-title      { font-size: 36px; }
+          .gallery-grid       { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+          .modal-content      { padding: 32px; }
+          .modal-title        { font-size: 36px; }
+          /* Always show captions on touch devices */
+          .gallery-caption-overlay { opacity: 1; transform: translateY(0); }
+          .gallery-eye-icon   { opacity: 1; transform: scale(1); }
         }
 
         @media (max-width: 480px) {
-          .events-section {
-            padding: 40px 16px;
-          }
-
-          .events-title {
-            font-size: 28px;
-          }
-
-          .event-content {
-            padding: 24px;
-          }
-
-          .gallery-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .modal-content {
-            padding: 24px;
-          }
-
-          .modal-title {
-            font-size: 28px;
-          }
-
-          .modal-header {
-            height: 250px;
-          }
+          .events-section   { padding: 40px 16px; }
+          .events-title     { font-size: 28px; }
+          .event-content    { padding: 24px; }
+          .gallery-grid     { grid-template-columns: 1fr; }
+          .modal-content    { padding: 24px; }
+          .modal-title      { font-size: 28px; }
+          .modal-header     { height: 250px; }
+          .gallery-modal-caption-bar { flex-direction: column; gap: 8px; }
         }
       `}</style>
 
       <section className="events-section">
         <h2 className="events-title">Upcoming & Past Events</h2>
 
+        {/* ── Events Grid ── */}
         <div className="events-grid">
           {events.map((event) => (
             <div
@@ -780,15 +839,8 @@ const Events = () => {
               onClick={() => setSelectedEvent(event)}
             >
               <div className="event-image-wrapper">
-                <img
-                  src={event.cardImage}
-                  alt={event.title}
-                  className="event-image"
-                />
-                <div
-                  className="event-status-badge"
-                  style={{ background: event.statusColor }}
-                >
+                <img src={event.cardImage} alt={event.title} className="event-image" />
+                <div className="event-status-badge" style={{ background: event.statusColor }}>
                   {event.status}
                 </div>
               </div>
@@ -818,7 +870,7 @@ const Events = () => {
           ))}
         </div>
 
-        {/* Gallery Section */}
+        {/* ── Gallery Section ── */}
         <div className="gallery-section">
           <div className="gallery-header">
             <h3 className="gallery-title">Photo Gallery</h3>
@@ -836,10 +888,16 @@ const Events = () => {
                 onClick={() => setSelectedGalleryImage(img)}
               >
                 <img src={img.src} alt={img.alt} className="gallery-image" />
-                <div className="gallery-overlay">
-                  <div className="gallery-overlay-icon">
-                    <Eye size={24} />
-                  </div>
+
+                {/* ✅ Caption overlay — slides up on hover */}
+                <div className="gallery-caption-overlay">
+                  <span className="gallery-event-tag">{img.event}</span>
+                  <p className="gallery-caption-text">{img.caption}</p>
+                </div>
+
+                {/* Eye icon — top-right */}
+                <div className="gallery-eye-icon">
+                  <Eye size={16} />
                 </div>
               </div>
             ))}
@@ -847,24 +905,14 @@ const Events = () => {
         </div>
       </section>
 
-      {/* Event Detail Modal */}
+      {/* ── Event Detail Modal ── */}
       {selectedEvent && (
-        <div
-          className="event-modal-overlay"
-          onClick={() => setSelectedEvent(null)}
-        >
+        <div className="event-modal-overlay" onClick={() => setSelectedEvent(null)}>
           <div className="event-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <img
-                src={selectedEvent.cardImage}
-                alt={selectedEvent.title}
-                className="modal-header-image"
-              />
-              <div className="modal-header-overlay"></div>
-              <button
-                className="modal-close-btn"
-                onClick={() => setSelectedEvent(null)}
-              >
+              <img src={selectedEvent.cardImage} alt={selectedEvent.title} className="modal-header-image" />
+              <div className="modal-header-overlay" />
+              <button className="modal-close-btn" onClick={() => setSelectedEvent(null)}>
                 <X size={24} color="#1e40af" />
               </button>
             </div>
@@ -885,18 +933,14 @@ const Events = () => {
                   <MapPin className="modal-meta-icon" />
                   <div className="modal-meta-content">
                     <div className="modal-meta-label">Location</div>
-                    <div className="modal-meta-value">
-                      {selectedEvent.location}
-                    </div>
+                    <div className="modal-meta-value">{selectedEvent.location}</div>
                   </div>
                 </div>
                 <div className="modal-meta-item">
                   <Users className="modal-meta-icon" />
                   <div className="modal-meta-content">
                     <div className="modal-meta-label">Attendees</div>
-                    <div className="modal-meta-value">
-                      {selectedEvent.attendees}+
-                    </div>
+                    <div className="modal-meta-value">{selectedEvent.attendees}+</div>
                   </div>
                 </div>
               </div>
@@ -904,42 +948,34 @@ const Events = () => {
               <p className="modal-description">{selectedEvent.fullDetails}</p>
 
               <div className="modal-social-row">
-                <button className="social-btn">
-                  <Share2 size={18} />
-                  Share
-                </button>
-                <button className="social-btn">
-                  <Heart size={18} />
-                  Like
-                </button>
-                <button className="social-btn">
-                  <MessageCircle size={18} />
-                  Comment
-                </button>
+                <button className="social-btn"><Share2 size={18} /> Share</button>
+                <button className="social-btn"><Heart size={18} /> Like</button>
+                <button className="social-btn"><MessageCircle size={18} /> Comment</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Gallery Image Modal */}
+      {/* ── Gallery Lightbox Modal — with caption bar ── */}
       {selectedGalleryImage && (
-        <div
-          className="gallery-modal-overlay"
-          onClick={() => setSelectedGalleryImage(null)}
-        >
+        <div className="gallery-modal-overlay" onClick={() => setSelectedGalleryImage(null)}>
           <div className="gallery-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="gallery-modal-close" onClick={() => setSelectedGalleryImage(null)}>
+              <X size={20} />
+            </button>
+
             <img
               src={selectedGalleryImage.src}
               alt={selectedGalleryImage.alt}
               className="gallery-modal-image"
             />
-            <button
-              className="gallery-modal-close"
-              onClick={() => setSelectedGalleryImage(null)}
-            >
-              <X size={20} />
-            </button>
+
+            {/* ✅ Caption bar below the lightbox image */}
+            <div className="gallery-modal-caption-bar">
+              <span className="gallery-modal-event-pill">{selectedGalleryImage.event}</span>
+              <p className="gallery-modal-caption-text">{selectedGalleryImage.caption}</p>
+            </div>
           </div>
         </div>
       )}
