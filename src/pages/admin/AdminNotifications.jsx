@@ -421,7 +421,7 @@ const AdminNotifications = () => {
   ];
 
   return (
-    <div style={{ fontFamily: "'Outfit','Inter',sans-serif", padding: "0 0 40px" }}>
+    <div style={{ fontFamily: "'Outfit','Inter',sans-serif", padding: "100px 50px" }}>
       {/* Toast */}
       {toast && (
         <div style={{

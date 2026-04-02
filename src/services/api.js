@@ -200,11 +200,11 @@ export const notificationAPI = {
  
   // Admin: approve
   adminApprove: (id, adminNote = "") =>
-    api.put(`/notifications/admin/${id}/approve, { adminNote }`),
+    api.put(`/notifications/admin/${id}/approve`, { adminNote }),
  
   // Admin: reject with reason
   adminReject: (id, reason) =>
-    api.put(`/notifications/admin/${id}/reject, { reason }`),
+    api.put(`/notifications/admin/${id}/reject`, { reason }),
  
   // Admin: delete
   adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
