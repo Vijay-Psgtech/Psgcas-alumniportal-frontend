@@ -55,7 +55,7 @@ const TRACKED_FIELDS = [
   "gender",
   "occupation",
   "department",
-  "graduationYear",
+  "batchYear",
   "rollNumber",
   "degree",
   "programmeType",
@@ -374,6 +374,7 @@ const AlumniProfile = () => {
       };
       flatten(payload);
       if (selectedFile) formData.append("profileImage", selectedFile);
+      
       // Append each document file under its own field key (e.g. "studentPhoto", "idCard", …)
       Object.entries(selectedDocFiles).forEach(([key, file]) => {
         if (file) formData.append(key, file);
@@ -613,12 +614,7 @@ const AlumniProfile = () => {
                       <Layers size={10} /> {profileData.programmeType}
                     </Badge>
                   )}
-                  {profileData.graduationYear && (
-                    <Badge color="slate">
-                      <Calendar size={10} /> Class of{" "}
-                      {profileData.graduationYear}
-                    </Badge>
-                  )}
+                  
                   {profileData.jobTitle && profileData.currentCompany && (
                     <Badge color="amber">
                       <Briefcase size={10} /> {profileData.jobTitle} @{" "}
@@ -860,21 +856,9 @@ const AlumniProfile = () => {
                         max="2099"
                       />
                     </FormField>
-                    <FormField label="Graduation Year" required>
+                    <FormField label="Batch Year" required> 
                       <input
                         type="number"
-                        name="graduationYear"
-                        className={inputCls}
-                        value={editData.graduationYear || ""}
-                        onChange={handleChange}
-                        placeholder="e.g. 2015"
-                        min="1980"
-                        max="2099"
-                      />
-                    </FormField>
-                    <FormField label="Batch Year">
-                      <input
-                        type="text"
                         name="batchYear"
                         className={inputCls}
                         value={editData.batchYear || ""}
@@ -1437,11 +1421,6 @@ const AlumniProfile = () => {
                             icon={Calendar}
                             label="Study End Year"
                             value={profileData.studyEndYear}
-                          />
-                          <InfoRow
-                            icon={GraduationCap}
-                            label="Graduation Year"
-                            value={profileData.graduationYear}
                           />
                           <InfoRow
                             icon={Hash}

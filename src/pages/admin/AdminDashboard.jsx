@@ -409,7 +409,7 @@ const AdminDashboard = () => {
 
                         <p className="text-sm text-gray-500 font-medium">
                           {selectedItem.department || "Department N/A"} •{" "}
-                          {selectedItem.graduationYear || "Year N/A"}
+                          {selectedItem.batchYear || "Year N/A"}
                         </p>
                       </div>
                     </div>

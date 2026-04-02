@@ -350,7 +350,7 @@ const FindAlumni = () => {
                   {user.department && (
                     <div className="info-item">
                       <Building2 size={14} />
-                      {user.department} • {user.graduationYear}
+                      {user.department} • {user.batchYear}
                     </div>
                   )}
                   {user.city && (

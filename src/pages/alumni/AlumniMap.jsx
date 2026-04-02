@@ -329,10 +329,10 @@ const AlumniMap = () => {
 
                     {/* Quick stat chips */}
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {selectedAlumni.graduationYear && (
+                      {selectedAlumni.batchYear && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white border border-blue-100 text-blue-600 shadow-sm">
                           <GraduationCap size={11} /> Class of{" "}
-                          {selectedAlumni.graduationYear}
+                          {selectedAlumni.batchYear}
                         </span>
                       )}
                       {selectedAlumni.department && (

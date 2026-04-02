@@ -66,7 +66,7 @@ export const alumniAPI = {
         "Content-Type": "multipart/form-data",
       },
     }),
-  getStats: () => api.get("/alumni/stats/get-stats"),
+  getStats: () => api.get("/alumni/stats"),
   getMapData: () => api.get("/alumni/map/data"),
   getBatches: () => api.get("/alumni/batches"),
   getByBatch: (params) => api.get("/alumni/batch-wise", { params }),

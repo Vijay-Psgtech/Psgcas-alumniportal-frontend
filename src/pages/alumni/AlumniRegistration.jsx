@@ -416,7 +416,6 @@ const AlumniRegistration = () => {
 
           // Education
           department: form.programmeName.trim(),
-          graduationYear: Number(form.studyEndYear) || Number(form.batchYear),
           programmeType: form.programmeType,
           degree: form.degree.trim(),
           batchYear: form.batchYear,
@@ -898,7 +897,7 @@ const AlumniRegistration = () => {
                         </div>
                       </Field>
                       <Field
-                        label="Programme Name"
+                        label="Department Name"
                         required
                         error={errors.programmeName}
                       >

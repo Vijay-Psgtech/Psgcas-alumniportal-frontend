@@ -28,7 +28,7 @@ const AlumniUsersList = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
   const [viewMode, setViewMode] = useState("table"); // grid or table
-  const [sortBy, setSortBy] = useState("name"); // name, graduationYear, department
+  const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -74,9 +74,9 @@ const AlumniUsersList = () => {
           aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
           bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
           break;
-        case "graduationYear":
-          aVal = a.graduationYear;
-          bVal = b.graduationYear;
+        case "batchYear":
+          aVal = a.batchYear;
+          bVal = b.batchYear;
           break;
         case "department":
           aVal = a.department.toLowerCase();
@@ -414,7 +414,7 @@ const AlumniUsersList = () => {
                     <span className="text-gray-400">•</span>
                     <Calendar size={14} className="text-gray-400" />
                     <span className="text-gray-600">
-                      {alumni.graduationYear}
+                      {alumni.batchYear}
                     </span>
                   </div>
 
@@ -546,7 +546,7 @@ const AlumniUsersList = () => {
                             {alumni.department.toUpperCase()}
                           </p>
                           <p className="text-xs">
-                            Graduated {alumni.graduationYear}
+                            Graduated {alumni.batchYear}
                           </p>
                         </div>
                       </td>
@@ -656,7 +656,7 @@ const AlumniUsersList = () => {
 
                         <p className="text-sm text-gray-500 font-medium">
                           {selectedItem.department || "Department N/A"} •{" "}
-                          {selectedItem.graduationYear || "Year N/A"}
+                          {selectedItem.batchYear || "Year N/A"}
                         </p>
                       </div>
                     </div>
