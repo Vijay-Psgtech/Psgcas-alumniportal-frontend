@@ -61,7 +61,7 @@ const PublicOnlyRoute = ({ children }) => {
   if (authLoading) return <AppLoader />;
   if (!user) return children;
   if (user.isAdmin) return <Navigate to="/admin/dashboard" replace />;
-  if (user.isApproved) return <Navigate to="/alumni/profile" replace />;
+  if (user.isApproved) return <Navigate to="/alumni/dashboard" replace />;
   return children; // pending alumni can still see registration page
 };
 

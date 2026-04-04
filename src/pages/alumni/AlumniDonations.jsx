@@ -660,7 +660,7 @@ const AlumniDonations = () => {
         {/* Header */}
         <div className="donations-header">
           <div className="header-left">
-            <button className="back-btn" onClick={() => navigate("/alumni/profile")}>
+            <button className="back-btn" onClick={() => navigate("/alumni/dashboard")}>
               <ChevronLeft size={16} />
               Back
             </button>
