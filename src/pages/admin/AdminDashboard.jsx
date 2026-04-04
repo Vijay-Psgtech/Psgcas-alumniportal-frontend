@@ -2,7 +2,7 @@
 // ✅ Works even if donationsAPI is missing
 // ✅ Falls back gracefully
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LogOut,
@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Calendar,
   Camera,
+  Bell,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useData } from "../../context/dataConstants";
@@ -212,15 +213,22 @@ const AdminDashboard = () => {
               Manage alumni, donations, events & albums
             </p>
           </div>
-          <motion.button
-            onClick={handleLogout}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-700 border-none rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer uppercase tracking-wider hover:bg-red-100 transition-colors shadow-sm"
-          >
-            <LogOut size={14} strokeWidth={2.5} /> Logout
-          </motion.button>
+          <div className="inline-flex items-center gap-4">
+            <Link to="/admin/notifications" className="relative w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+              <Bell size={18} className="text-gray-900" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
+            </Link>
+            <motion.button
+              onClick={handleLogout}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-700 border-none rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer uppercase tracking-wider hover:bg-red-100 transition-colors shadow-sm"
+            >
+              <LogOut size={14} strokeWidth={2.5} /> Logout
+            </motion.button>
+            </div>
         </motion.div>
+
         {/* Status Messages */}
         <AnimatePresence>
           {error && (
@@ -357,7 +365,7 @@ const AdminDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {/* Detail Modal for Alumni & Donations */}
         <AnimatePresence>
           {selectedItem && (
@@ -531,7 +539,6 @@ const AdminDashboard = () => {
             </motion.div>
           )}
         </AnimatePresence>
-        
       </div>
     </div>
   );
