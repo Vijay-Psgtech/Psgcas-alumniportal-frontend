@@ -16,6 +16,7 @@ import {
   FileText,
   Heart,
   Settings,
+  LayoutDashboardIcon,
 } from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -890,6 +891,16 @@ export default function NavBar() {
                       </div>
                     </div>
                     <div style={{ padding: "6px 0" }}>
+                      
+                       <NavLink
+                        to="/alumni/dashboard"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="ud-item"
+                      >
+                        <LayoutDashboardIcon size={14} />
+                        Dashboard
+                      </NavLink>
+
                       <NavLink
                         to="/alumni/profile"
                         onClick={() => setUserMenuOpen(false)}
@@ -898,6 +909,8 @@ export default function NavBar() {
                         <User size={14} />
                         My Profile
                       </NavLink>
+                     
+                  
                       <NavLink
                         to="/alumni/donations"
                         onClick={() => setUserMenuOpen(false)}
@@ -1037,6 +1050,14 @@ export default function NavBar() {
                     {user.isAdmin ? "Admin User" : "Alumni Member"}
                   </div>
                 </div>
+                <NavLink
+                  to="/alumni/dashboard"
+                  onClick={() => closeAllMenus()}
+                  className="m-link"
+                >
+                  <LayoutDashboardIcon size={15} />
+                  Dashboard
+                </NavLink>
 
                 <NavLink
                   to="/alumni/profile"

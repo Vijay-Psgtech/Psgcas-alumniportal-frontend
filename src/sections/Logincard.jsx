@@ -51,7 +51,7 @@ const LoginCard = ({ onSwitchToSignup }) => {
       if (alumni.isAdmin) {
         navigate("/admin/dashboard");
       } else if (alumni.isApproved) {
-        navigate("/alumni/profile");
+        navigate("/alumni/dashboard");
       } else {
         // Registered but pending admin approval
         navigate("/alumni/register");
