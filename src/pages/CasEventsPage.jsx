@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { eventsAPI } from "../services/api";
-//import { useData, CATEGORY_COLORS } from "../context/dataConstants"; // ✅ FIXED - lowercase 'context'
 
 
 const formatDate = (dateString) => {
@@ -263,7 +262,6 @@ const EventCard = ({ event, idx }) => {
 
 const CasEventsPage = () => {
   const [casEvents, setEvents] = useState([]);
-  //const { casEvents } = useData(); // ✅ live from DataContext
   const [filter, setFilter] = useState("upcoming");
   const [searchTerm, setSearchTerm] = useState("");
 

@@ -16,7 +16,6 @@ import {
   Bell,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
-import { useData } from "../../context/dataConstants";
 import { useAuth } from "../../context/AuthContext";
 
 // Import Refactored Components
@@ -43,7 +42,6 @@ const formatINR = (amount) =>
 const AdminDashboard = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { albumsData } = useData();
   const [activeTab, setActiveTab] = useState("alumni");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -56,6 +54,7 @@ const AdminDashboard = () => {
     totalDonatedAmount: 0,
     completedDonations: 0,
     totalEvents: 0,
+    totalAlbums: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -87,6 +86,7 @@ const AdminDashboard = () => {
                   totalDonatedAmount: 0,
                   completedDonations: 0,
                   totalEvents: 0,
+                  totalAlbums: 0,
                 },
               },
             };
@@ -149,11 +149,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const totalAlbums = Object.values(albumsData).reduce(
-    (s, y) => s + y.albums.length,
-    0,
-  );
-
   const TABS = [
     { key: "alumni", Icon: Users, label: "Alumni", badge: stats.totalAlumni },
     {
@@ -168,7 +163,7 @@ const AdminDashboard = () => {
       label: "Events",
       badge: stats.totalEvents,
     },
-    { key: "albums", Icon: Camera, label: "Albums", badge: totalAlbums },
+    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
   ];
 
   const STAT_CARDS = [
