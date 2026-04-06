@@ -63,7 +63,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
     visible: { opacity: 1, y: 0 },
   };
 
-   const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
   return (
     <motion.div
@@ -126,110 +126,117 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           <AnimatePresence>
-            {filtered.map((a, i) => (
-              <motion.div
-                key={a._id}
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                layout
-                whileHover={{ y: -6 }}
-                onClick={() => setSelectedItem(a)}
-                className="group bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300"
-              >
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-lg">
-                      {a.profileImage ? (
-                        <img
-                          src={`${API_BASE}/${a.profileImage}`}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                      `${a.firstName?.charAt(0)}
-                      ${a.lastName?.charAt(0)}`)}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    {/* Name + Status */}
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-lg text-slate-800 truncate">
-                        {a.firstName} {a.lastName}
-                      </h3>
-
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-lg ${
-                          a.isApproved
-                            ? "bg-emerald-100 text-emerald-600"
-                            : "bg-amber-100 text-amber-600"
-                        }`}
-                      >
-                        {a.isApproved ? "Approved" : "Pending"}
-                      </span>
-                    </div>
-
-                    {/* Email */}
-                    <p className="text-sm text-slate-500 truncate mb-3">
-                      {a.email}
-                    </p>
-
-                    {/* Dept + Batch */}
-                    <div className="flex gap-6 text-sm mb-3">
-                      <div className="flex items-center gap-1 text-slate-600">
-                        <Building2 size={14} />
-                        {a.department || "N/A"}
-                      </div>
-
-                      <div className="flex items-center gap-1 text-slate-600">
-                        <GraduationCap size={14} />
-                        {a.batchYear || "N/A"}
+            {filtered.map((a, i) => {
+              const photo = a.files?.currentPhoto || a.profileImage;
+              return (
+                <motion.div
+                  key={a._id}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  layout
+                  whileHover={{ y: -6 }}
+                  onClick={() => setSelectedItem(a)}
+                  className="group bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div className="relative">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-lg">
+                        {photo ? (
+                          <img
+                            src={`${API_BASE}/uploads/${photo}`}
+                            alt="Profile"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          `${a.firstName?.charAt(0)}
+                      ${a.lastName?.charAt(0)}`
+                        )}
                       </div>
                     </div>
 
-                    {/* Comapny + title*/}
-                    {a.currentCompany && (
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      {/* Name + Status */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-lg text-slate-800 truncate">
+                          {a.firstName} {a.lastName}
+                        </h3>
+
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-lg ${
+                            a.isApproved
+                              ? "bg-emerald-100 text-emerald-600"
+                              : "bg-amber-100 text-amber-600"
+                          }`}
+                        >
+                          {a.isApproved ? "Approved" : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Email */}
+                      <p className="text-sm text-slate-500 truncate mb-3">
+                        {a.email}
+                      </p>
+
+                      {/* Dept + Batch */}
                       <div className="flex gap-6 text-sm mb-3">
-                      <div className="flex items-center gap-1 text-slate-600">
-                        <Briefcase size={14} />
-                        {a.jobTitle || "N/A"}
+                        <div className="flex items-center gap-1 text-slate-600">
+                          <Building2 size={14} />
+                          {a.department || "N/A"}
+                        </div>
+
+                        <div className="flex items-center gap-1 text-slate-600">
+                          <GraduationCap size={14} />
+                          {a.batchYear || "N/A"}
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1 text-slate-600">
-                        <Building2Icon size={14} />
-                        {a.currentCompany || "N/A"}
-                      </div>
-                    </div>
-                    )}
+                      {/* Comapny + title*/}
+                      {a.currentCompany && (
+                        <div className="flex gap-6 text-sm mb-3">
+                          <div className="flex items-center gap-1 text-slate-600">
+                            <Briefcase size={14} />
+                            {a.jobTitle || "N/A"}
+                          </div>
 
-                    {/* Location */}
-                  {a.city && (
-                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                      <MapPin size={12} className="text-slate-400 flex-shrink-0" />
-                      {a.city}
-                      {a.country && `, ${a.country}`}
-                    </div>
-                  )}
-
-                    {/* Actions */}
-                    <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition mt-2">
-                      <button className="text-blue-600 text-sm font-medium hover:underline">
-                        View
-                      </button>
-
-                      {!a.isApproved && (
-                        <button className="text-green-600 text-sm font-medium hover:underline">
-                          Approve
-                        </button>
+                          <div className="flex items-center gap-1 text-slate-600">
+                            <Building2Icon size={14} />
+                            {a.currentCompany || "N/A"}
+                          </div>
+                        </div>
                       )}
+
+                      {/* Location */}
+                      {a.city && (
+                        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                          <MapPin
+                            size={12}
+                            className="text-slate-400 flex-shrink-0"
+                          />
+                          {a.city}
+                          {a.country && `, ${a.country}`}
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition mt-2">
+                        <button className="text-blue-600 text-sm font-medium hover:underline">
+                          View
+                        </button>
+
+                        {!a.isApproved && (
+                          <button className="text-green-600 text-sm font-medium hover:underline">
+                            Approve
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
       ) : (
