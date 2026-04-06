@@ -20,7 +20,7 @@ const CasEventDetailPage = () => {
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
-  const catColor = "#8b5a3c";
+  const catColor = "#8b5a3c"; // You can map different categories to different colors if needed
   const isUpcoming = event?.status === "upcoming";
   const date = new Date(event?.date);
   const dateFormatted = date.toLocaleDateString("en-US", {
