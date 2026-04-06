@@ -3,20 +3,24 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Users, Clock, Calendar, Share2, BookmarkPlus, ChevronRight, CheckCircle, Award, Mic, Coffee, Star } from "lucide-react";
-import { useData, CATEGORY_COLORS } from "../context/dataConstants";
+import { eventsAPI } from "../services/api";
 
 const ICON_MAP = { Coffee, Mic, Award, Users, Clock, Star };
 
 const CasEventDetailPage = () => {
   const { id } = useParams();
-  const { casEvents } = useData(); // ✅ live from DataContext
+  const [casEvents, setCasEvents] = useState([]);
 
-  const event = casEvents.find((e) => e._id === id) || casEvents[0];
+  React.useEffect(() => {
+    eventsAPI.getById(id).then((res) => setCasEvents([res.data.data]));
+  }, [id]);
+
+  const event = casEvents[0];
   const [registered, setRegistered] = useState(false);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
-  const catColor = CATEGORY_COLORS[event?.category] || "#8b5a3c";
+  const catColor = "#8b5a3c";
   const isUpcoming = event?.status === "upcoming";
   const date = new Date(event?.date);
   const dateFormatted = date.toLocaleDateString("en-US", {
