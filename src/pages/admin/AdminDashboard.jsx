@@ -56,6 +56,7 @@ const AdminDashboard = () => {
     totalDonatedAmount: 0,
     completedDonations: 0,
     totalEvents: 0,
+    totalAlbums: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -87,6 +88,7 @@ const AdminDashboard = () => {
                   totalDonatedAmount: 0,
                   completedDonations: 0,
                   totalEvents: 0,
+                  totalAlbums: 0,
                 },
               },
             };
@@ -168,7 +170,7 @@ const AdminDashboard = () => {
       label: "Events",
       badge: stats.totalEvents,
     },
-    { key: "albums", Icon: Camera, label: "Albums", badge: totalAlbums },
+    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
   ];
 
   const STAT_CARDS = [
