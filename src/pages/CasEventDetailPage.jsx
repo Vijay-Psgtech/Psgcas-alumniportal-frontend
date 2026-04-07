@@ -2,8 +2,22 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Users, Clock, Calendar, Share2, BookmarkPlus, ChevronRight, CheckCircle, Award, Mic, Coffee, Star } from "lucide-react";
-import { eventsAPI } from "../services/api";
+import {
+  ArrowLeft,
+  MapPin,
+  Users,
+  Clock,
+  Calendar,
+  Share2,
+  BookmarkPlus,
+  ChevronRight,
+  CheckCircle,
+  Award,
+  Mic,
+  Coffee,
+  Star,
+} from "lucide-react";
+import { eventsAPI, API_BASE } from "../services/api";
 
 const ICON_MAP = { Coffee, Mic, Award, Users, Clock, Star };
 
@@ -46,10 +60,23 @@ const CasEventDetailPage = () => {
       >
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: "48px", marginBottom: "16px" }}>📅</div>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", color: "#2d1810", marginBottom: "8px" }}>
+          <h2
+            style={{
+              fontFamily: "'Playfair Display', serif",
+              color: "#2d1810",
+              marginBottom: "8px",
+            }}
+          >
             Event not found
           </h2>
-          <Link to="/cas-events" style={{ color: "#8b5a3c", textDecoration: "none", fontWeight: "600" }}>
+          <Link
+            to="/cas-events"
+            style={{
+              color: "#8b5a3c",
+              textDecoration: "none",
+              fontWeight: "600",
+            }}
+          >
             ← Back to Events
           </Link>
         </div>
@@ -60,7 +87,8 @@ const CasEventDetailPage = () => {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
+        background:
+          "linear-gradient(160deg, #fef5f0 0%, #f5ede5 50%, #fef5f0 100%)",
         fontFamily: "'Inter', sans-serif",
       }}
     >
@@ -126,7 +154,15 @@ const CasEventDetailPage = () => {
           />
         ))}
 
-        <div style={{ position: "relative", maxWidth: "1100px", margin: "0 auto", padding: "100px 24px 40px", width: "100%" }}>
+        <div
+          style={{
+            position: "relative",
+            maxWidth: "1100px",
+            margin: "0 auto",
+            padding: "100px 24px 40px",
+            width: "100%",
+          }}
+        >
           <Link
             to="/cas-events"
             style={{
@@ -145,7 +181,14 @@ const CasEventDetailPage = () => {
             <ArrowLeft size={14} /> Back to Events
           </Link>
 
-          <div style={{ display: "flex", gap: "16px", marginBottom: "20px", flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginBottom: "20px",
+              flexWrap: "wrap",
+            }}
+          >
             <span
               style={{
                 background: `${catColor}12`,
@@ -163,7 +206,9 @@ const CasEventDetailPage = () => {
             </span>
             <span
               style={{
-                background: isUpcoming ? "rgba(139,90,60,0.1)" : "rgba(15,27,53,0.06)",
+                background: isUpcoming
+                  ? "rgba(139,90,60,0.1)"
+                  : "rgba(15,27,53,0.06)",
                 color: isUpcoming ? "#8b5a3c" : "#9ca3af",
                 border: `1px solid ${isUpcoming ? "#8b5a3c35" : "rgba(15,27,53,0.1)"}`,
                 borderRadius: "20px",
@@ -177,6 +222,21 @@ const CasEventDetailPage = () => {
               {isUpcoming ? "● UPCOMING" : "✓ COMPLETED"}
             </span>
           </div>
+          {/* Image */}
+          {event.imageUrl && (
+            <img
+              src={`${API_BASE}/${event.imageUrl}`}
+              alt={event.title}
+              style={{
+                width: "100%",
+                height: "400px",
+                objectFit: "cover",
+                borderRadius: "12px",
+                marginBottom: "32px",
+              }}
+            />
+          )}
+
           <h1
             style={{
               fontSize: "clamp(24px, 4vw, 48px)",
@@ -195,9 +255,21 @@ const CasEventDetailPage = () => {
               { Icon: Calendar, label: dateFormatted },
               { Icon: Clock, label: event.time || "TBD" },
               { Icon: MapPin, label: event.venue?.split(",")[0] },
-              { Icon: Users, label: `${event.attendees} ${isUpcoming ? "Expected" : "Attended"}` },
+              {
+                Icon: Users,
+                label: `${event.attendees} ${isUpcoming ? "Expected" : "Attended"}`,
+              },
             ].map(({ Icon, label }, i) => (
-              <span key={i} style={{ display: "flex", alignItems: "center", gap: "7px", color: "#6b7280", fontSize: "14px" }}>
+              <span
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "7px",
+                  color: "#6b7280",
+                  fontSize: "14px",
+                }}
+              >
                 <Icon size={14} color={catColor} />
                 {label}
               </span>
@@ -207,12 +279,27 @@ const CasEventDetailPage = () => {
       </div>
 
       {/* Main Content */}
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px 80px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "32px" }}>
+      <div
+        style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px 80px" }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 320px",
+            gap: "32px",
+          }}
+        >
           {/* Left */}
           <div>
             {/* Actions */}
-            <div style={{ display: "flex", gap: "12px", marginBottom: "32px", flexWrap: "wrap" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "12px",
+                marginBottom: "32px",
+                flexWrap: "wrap",
+              }}
+            >
               {isUpcoming && (
                 <motion.button
                   whileTap={{ scale: 0.97 }}
@@ -222,7 +309,9 @@ const CasEventDetailPage = () => {
                     borderRadius: "12px",
                     border: "none",
                     cursor: "pointer",
-                    background: registered ? "rgba(139,90,60,0.1)" : `linear-gradient(135deg, ${catColor}, ${catColor}bb)`,
+                    background: registered
+                      ? "rgba(139,90,60,0.1)"
+                      : `linear-gradient(135deg, ${catColor}, ${catColor}bb)`,
                     color: registered ? catColor : "#fff",
                     fontSize: "15px",
                     fontWeight: "700",
@@ -283,7 +372,13 @@ const CasEventDetailPage = () => {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: "flex", borderBottom: "1px solid rgba(139,90,60,0.1)", marginBottom: "32px" }}>
+            <div
+              style={{
+                display: "flex",
+                borderBottom: "1px solid rgba(139,90,60,0.1)",
+                marginBottom: "32px",
+              }}
+            >
               {["details", "schedule", "speakers"].map((tab) => (
                 <button
                   key={tab}
@@ -294,7 +389,10 @@ const CasEventDetailPage = () => {
                     fontSize: "14px",
                     fontWeight: "600",
                     color: activeTab === tab ? catColor : "#9ca3af",
-                    borderBottom: activeTab === tab ? `2px solid ${catColor}` : "2px solid transparent",
+                    borderBottom:
+                      activeTab === tab
+                        ? `2px solid ${catColor}`
+                        : "2px solid transparent",
                     marginBottom: "-1px",
                     textTransform: "capitalize",
                   }}
@@ -354,7 +452,8 @@ const CasEventDetailPage = () => {
                       <div
                         style={{
                           display: "grid",
-                          gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                          gridTemplateColumns:
+                            "repeat(auto-fill, minmax(200px, 1fr))",
                           gap: "12px",
                         }}
                       >
@@ -372,14 +471,29 @@ const CasEventDetailPage = () => {
                             }}
                           >
                             <CheckCircle size={14} color={catColor} />
-                            <span style={{ color: "#374151", fontSize: "13px", fontWeight: "500" }}>{h}</span>
+                            <span
+                              style={{
+                                color: "#374151",
+                                fontSize: "13px",
+                                fontWeight: "500",
+                              }}
+                            >
+                              {h}
+                            </span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
                   {event.tags?.length > 0 && (
-                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "32px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        flexWrap: "wrap",
+                        marginTop: "32px",
+                      }}
+                    >
                       {event.tags.map((tag) => (
                         <span
                           key={tag}
@@ -415,7 +529,14 @@ const CasEventDetailPage = () => {
                     Event Schedule
                   </h2>
                   {!event.schedule || event.schedule.length === 0 ? (
-                    <p style={{ color: "#9ca3af", fontFamily: "'Inter', sans-serif" }}>Schedule will be announced soon.</p>
+                    <p
+                      style={{
+                        color: "#9ca3af",
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                    >
+                      Schedule will be announced soon.
+                    </p>
                   ) : (
                     <div style={{ position: "relative" }}>
                       <div
@@ -472,7 +593,13 @@ const CasEventDetailPage = () => {
                               >
                                 {item.time}
                               </div>
-                              <div style={{ color: "#2d1810", fontSize: "15px", fontWeight: "600" }}>
+                              <div
+                                style={{
+                                  color: "#2d1810",
+                                  fontSize: "15px",
+                                  fontWeight: "600",
+                                }}
+                              >
                                 {item.title}
                               </div>
                             </div>
@@ -498,12 +625,15 @@ const CasEventDetailPage = () => {
                     Speakers & Guests
                   </h2>
                   {!event.speakers || event.speakers.length === 0 ? (
-                    <p style={{ color: "#9ca3af" }}>Speaker information will be announced soon.</p>
+                    <p style={{ color: "#9ca3af" }}>
+                      Speaker information will be announced soon.
+                    </p>
                   ) : (
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                        gridTemplateColumns:
+                          "repeat(auto-fill, minmax(200px, 1fr))",
                         gap: "16px",
                       }}
                     >
@@ -540,10 +670,19 @@ const CasEventDetailPage = () => {
                           >
                             {s.avatar}
                           </div>
-                          <div style={{ color: "#2d1810", fontWeight: "700", fontSize: "15px", marginBottom: "4px" }}>
+                          <div
+                            style={{
+                              color: "#2d1810",
+                              fontWeight: "700",
+                              fontSize: "15px",
+                              marginBottom: "4px",
+                            }}
+                          >
                             {s.name}
                           </div>
-                          <div style={{ color: "#9ca3af", fontSize: "12px" }}>{s.role}</div>
+                          <div style={{ color: "#9ca3af", fontSize: "12px" }}>
+                            {s.role}
+                          </div>
                         </motion.div>
                       ))}
                     </div>
@@ -554,7 +693,9 @@ const CasEventDetailPage = () => {
           </div>
 
           {/* Sidebar */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          >
             <div
               style={{
                 background: "#fff",
@@ -610,11 +751,25 @@ const CasEventDetailPage = () => {
                   >
                     {label}
                   </div>
-                  <div style={{ color: "#2d1810", fontWeight: "600", fontSize: "14px", lineHeight: 1.5 }}>
+                  <div
+                    style={{
+                      color: "#2d1810",
+                      fontWeight: "600",
+                      fontSize: "14px",
+                      lineHeight: 1.5,
+                    }}
+                  >
                     {value}
                   </div>
                   {sub && (
-                    <div style={{ color: catColor, fontSize: "13px", fontFamily: "'DM Mono', monospace", marginTop: "2px" }}>
+                    <div
+                      style={{
+                        color: catColor,
+                        fontSize: "13px",
+                        fontFamily: "'DM Mono', monospace",
+                        marginTop: "2px",
+                      }}
+                    >
                       {sub}
                     </div>
                   )}
@@ -650,11 +805,19 @@ const CasEventDetailPage = () => {
                     }}
                   />
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
                   <span style={{ color: "#9ca3af", fontSize: "12px" }}>
                     {Math.floor((event.attendees || 0) * 0.72)} spots taken
                   </span>
-                  <span style={{ color: catColor, fontSize: "12px", fontWeight: "600" }}>
+                  <span
+                    style={{
+                      color: catColor,
+                      fontSize: "12px",
+                      fontWeight: "600",
+                    }}
+                  >
                     {event.attendees} total
                   </span>
                 </div>
@@ -734,14 +897,28 @@ const CasEventDetailPage = () => {
                       e.currentTarget.style.background = `${catColor}05`;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "rgba(139,90,60,0.07)";
+                      e.currentTarget.style.borderColor =
+                        "rgba(139,90,60,0.07)";
                       e.currentTarget.style.background = "rgba(139,90,60,0.02)";
                     }}
                   >
-                    <div style={{ color: "#2d1810", fontWeight: "600", fontSize: "13px", marginBottom: "4px" }}>
+                    <div
+                      style={{
+                        color: "#2d1810",
+                        fontWeight: "600",
+                        fontSize: "13px",
+                        marginBottom: "4px",
+                      }}
+                    >
                       {rel.title}
                     </div>
-                    <div style={{ color: "#9ca3af", fontSize: "11px", fontFamily: "'DM Mono', monospace" }}>
+                    <div
+                      style={{
+                        color: "#9ca3af",
+                        fontSize: "11px",
+                        fontFamily: "'DM Mono', monospace",
+                      }}
+                    >
                       {new Date(rel.date).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
