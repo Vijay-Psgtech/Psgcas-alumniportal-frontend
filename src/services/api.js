@@ -89,10 +89,10 @@ export const alumniAPI = {
   joinChapter: (id) => api.post(`/alumni/chapters/${id}/join`),
   leaveChapter: (id) => api.delete(`/alumni/chapters/${id}/leave`),
   getChapterMembers: (id) => api.get(`/alumni/chapters/${id}/members`),
-   // Search chapters by category
+  // Search chapters by category
   getChaptersByCategory: (category, params) =>
     api.get(`/alumni/chapters/category/${category}`, { params }),
- 
+
   // Get user's chapters (chapters I've joined)
   getMyChapters: () => api.get("/alumni/chapters/my-chapters"),
 };
@@ -150,7 +150,7 @@ export const albumsAPI = {
     }),
   delete: (id) => api.delete(`/albums/${id}`),
 };
-  
+
 // ── NewsLetter API ────────────────────────────────────────────────────────
 export const newsLetterAPI = {
   getAll: () => api.get("/newsletters"),
@@ -186,26 +186,31 @@ export const adminReportsAPI = {
 // ── ✅ Notification API ───────────────────────────────────────────────
 export const notificationAPI = {
   // Alumni: submit a new notification (with optional file attachment)
- submit: (data) => api.post("/notifications", data),
- 
+  submit: (data) =>
+    api.post("/notifications", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
   // Alumni: get approved notifications visible to me
   getMyNotifications: () => api.get("/notifications"),
- 
+
   // Alumni: see my own submitted notifications (all statuses)
   getMySubmissions: () => api.get("/notifications/mine"),
- 
+
   // Admin: get all notifications, optionally filter by status
   adminGetAll: (status) =>
     api.get("/notifications/admin/all", { params: status ? { status } : {} }),
- 
+
   // Admin: approve
   adminApprove: (id, adminNote = "") =>
     api.put(`/notifications/admin/${id}/approve`, { adminNote }),
- 
+
   // Admin: reject with reason
   adminReject: (id, reason) =>
     api.put(`/notifications/admin/${id}/reject`, { reason }),
- 
+
   // Admin: delete
   adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
 };
