@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Award,
-  Briefcase,
-  Zap,
-  ChevronRight,
-  Star,
-} from "lucide-react";
+import { Award, Briefcase, Zap, ChevronRight, Star } from "lucide-react";
 import alumniImage1 from "../assets/Images/Alum1.png";
 import alumniImage2 from "../assets/Images/Alum2.png";
 import alumniImage3 from "../assets/Images/Alum3.png";
@@ -277,7 +271,7 @@ const NotableAlumni = () => {
         /* Alumni Grid */
         .alumni-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
           gap: 32px;
           margin-bottom: 60px;
           position: relative;
@@ -709,10 +703,10 @@ const NotableAlumni = () => {
               <div
                 key={person.id}
                 className="alumni-card"
-                style={{ 
-                  '--accent-color': person.color,
-                  '--accent-darker': person.borderColor,
-                  '--bg-color': person.bgColor
+                style={{
+                  "--accent-color": person.color,
+                  "--accent-darker": person.borderColor,
+                  "--bg-color": person.bgColor,
                 }}
                 onMouseEnter={() => setHoveredId(person.id)}
                 onMouseLeave={() => setHoveredId(null)}
@@ -743,9 +737,7 @@ const NotableAlumni = () => {
                 </div>
 
                 <div className="alumni-content">
-                  <div className="alumni-meta">
-                    {person.batch}
-                  </div>
+                  <div className="alumni-meta">{person.batch}</div>
                   <h3 className="alumni-name">{person.name}</h3>
                   <p className="alumni-degree">{person.degree}</p>
                   <p className="alumni-position">
@@ -783,9 +775,3 @@ const NotableAlumni = () => {
 };
 
 export default NotableAlumni;
-
-
-
-
-
-
