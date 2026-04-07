@@ -24,7 +24,7 @@ import {
 const CATEGORY_OPTIONS = [
   "Newsletters",
   "Alumni Stories",
-  "Accolades",
+  "Accolades/Accreditations",
   "Institute Updates",
   "Events",
 ];
