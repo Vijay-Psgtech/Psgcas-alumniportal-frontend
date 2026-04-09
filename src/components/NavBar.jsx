@@ -21,6 +21,7 @@ import {
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from ".././assets/Images/1280.png";
+import { label } from "framer-motion/client";
 
 export default function NavBar() {
   const { user, logout } = useAuth();
@@ -54,6 +55,7 @@ export default function NavBar() {
           { label: "Upcoming Events", path: "/upcoming-events" },
           { label: "Past Events", path: "/past-events" },
           { label: "Reunions", path: "/reunions" },
+          { label: "Gallery", path: "/gallery" },
         ],
       },
       {

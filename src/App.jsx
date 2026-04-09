@@ -28,6 +28,11 @@ const PastEventsPage = lazy(() => import("./pages/PastEventsPage"));
 const ReunionsPage = lazy(() => import("./pages/ReunionsPage"));
 
 // ═══════════════════════════════════════════════════════════════════════
+// Gallery PAGES
+// ═══════════════════════════════════════════════════════════════════════
+const GalleryPage = lazy(() => import("./pages/GalleryPage"));
+
+// ═══════════════════════════════════════════════════════════════════════
 // ALUMNI PAGES - All components
 // ═══════════════════════════════════════════════════════════════════════
 const AlumniRegistration = lazy(
@@ -234,6 +239,9 @@ export default function App() {
               <Route path="/upcoming-events" element={<UpcomingEventsPage />} />
               <Route path="/past-events" element={<PastEventsPage />} />
               <Route path="/reunions" element={<ReunionsPage />} />
+
+              {/* Gallery ROUTES */}
+              <Route path="/gallery" element={<GalleryPage />} />
 
               {/* ALUMNI AUTH */}
 
