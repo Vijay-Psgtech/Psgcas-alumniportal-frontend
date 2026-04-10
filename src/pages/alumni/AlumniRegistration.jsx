@@ -1006,7 +1006,7 @@ const AlumniRegistration = () => {
   <option>Professional</option>
   <option>Home Maker</option>
   <option>Agriculture</option>
-  <option>Others</option>
+  {/* <option>Others</option> */}
 
   {/* Finance & Accounting */}
   <option>Chartered Accountant (CA)</option>
