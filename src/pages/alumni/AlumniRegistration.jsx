@@ -3,6 +3,8 @@
 // ✅ Uses existing authAPI.register + useAuth from AuthContext
 // ✅ 4-step multi-section form with location autocomplete
 // ✅ File upload support (Business Card, ID, Poster, Photos)
+// ✅ Calendar date picker for batch year, study start year, study end year
+// ✅ AUTO-FILTER: Program names update automatically based on programme type
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -24,6 +26,7 @@ import {
   X,
   Eye,
   EyeOff,
+  Calendar,
 } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -36,6 +39,66 @@ const STEPS = [
   { id: 4, label: "More", icon: Share2 },
 ];
 
+// ──────────────────────────────────────────────────────────────────────────────
+// DEPARTMENTS ORGANIZED BY PROGRAMME TYPE
+// ──────────────────────────────────────────────────────────────────────────────
+
+const DEPARTMENTS_BY_TYPE = {
+  UG: [
+    "B.Sc. Computer Science",
+    "B.Sc. Mathematics",
+    "B.Sc. Physics",
+    "B.Sc. Chemistry",
+    "B.Sc. Zoology",
+    "B.Sc. Botany",
+    "B.Sc. Microbiology",
+    "B.Sc. Biochemistry",
+    "B.Sc. Statistics",
+    "B.Sc. IT",
+    "B.Sc. Visual Communication",
+    "B.Sc. Fashion Design",
+    "B.Sc. Electronics",
+    "B.Sc. Psychology",
+    "B.Sc. Nutrition, Food Service Management & Dietetics",
+    "B.Com",
+    "B.Com (CA)",
+    "B.Com (Professional)",
+    "B.Com Corporate Secretaryship",
+    "BBA",
+    "BA Economics",
+    "BA English",
+    "BA Sociology",
+  ],
+  PG: [
+    "M.Sc. Computer Science",
+    "M.Sc. Mathematics",
+    "M.Sc. Physics",
+    "M.Sc. Chemistry",
+    "M.Sc. Biotechnology",
+    "MBA",
+    "M.Com",
+    "MCA",
+  ],
+  "M.Phil": [
+    "M.Phil. Computer Science",
+    "M.Phil. Mathematics",
+    "M.Phil. Physics",
+    "M.Phil. Chemistry",
+    "M.Phil. Zoology",
+    "M.Phil. Botany",
+  ],
+  PhD: [
+    "PhD Computer Science",
+    "PhD Mathematics",
+    "PhD Physics",
+    "PhD Chemistry",
+    "PhD Zoology",
+    "PhD Botany",
+    "PhD Biotechnology",
+  ],
+};
+
+// Flat list of all departments for backward compatibility
 const DEPARTMENTS = [
   "B.Sc. Computer Science",
   "B.Sc. Mathematics",
@@ -46,13 +109,20 @@ const DEPARTMENTS = [
   "B.Sc. Microbiology",
   "B.Sc. Biochemistry",
   "B.Sc. Statistics",
-  "B.Com",
-  "B.Com (CA)",
-  "B.Com (Professional)",
-  "BBA",
   "B.Sc. IT",
   "B.Sc. Visual Communication",
   "B.Sc. Fashion Design",
+  "B.Sc. Electronics",
+  "B.Sc. Psychology",
+  "B.Sc. Nutrition, Food Service Management & Dietetics",
+  "B.Com",
+  "B.Com (CA)",
+  "B.Com (Professional)",
+  "B.Com Corporate Secretaryship",
+  "BBA",
+  "BA Economics",
+  "BA English",
+  "BA Sociology",
   "M.Sc. Computer Science",
   "M.Sc. Mathematics",
   "M.Sc. Physics",
@@ -61,28 +131,149 @@ const DEPARTMENTS = [
   "MBA",
   "M.Com",
   "MCA",
-  "M.Phil.",
-  "PhD",
+  "M.Phil. Computer Science",
+  "M.Phil. Mathematics",
+  "M.Phil. Physics",
+  "M.Phil. Chemistry",
+  "M.Phil. Zoology",
+  "M.Phil. Botany",
+  "PhD Computer Science",
+  "PhD Mathematics",
+  "PhD Physics",
+  "PhD Chemistry",
+  "PhD Zoology",
+  "PhD Botany",
+  "PhD Biotechnology",
 ];
 
 const INDUSTRIES = [
   "Information Technology",
-  "Banking & Finance",
-  "Healthcare",
-  "Education",
+  "Banking & Financial Services",
+  "Insurance",
+  "Healthcare & Pharmaceuticals",
+  "Education & Training",
   "Manufacturing",
-  "Retail & E-Commerce",
-  "Government & Public Sector",
+  "Construction & Engineering",
+  "Retail",
+  "E-Commerce",
+  "Consumer Goods (FMCG)",
   "Media & Entertainment",
-  "Consulting",
   "Telecommunications",
-  "Real Estate",
-  "Agriculture",
+  "Energy & Utilities",
+  "Oil & Gas",
+  "Mining & Metals",
+  "Real Estate & Property",
+  "Agriculture & Farming",
+  "Food & Beverage",
   "Hospitality & Tourism",
+  "Transportation",
   "Logistics & Supply Chain",
+  "Automotive",
+  "Aerospace & Defense",
+  "Government & Public Administration",
+  "Public Sector / PSU",
   "Non-Profit / NGO",
+  "Legal Services",
+  "Accounting & Auditing",
+  "Consulting Services",
+  "Human Resources",
+  "Marketing & Advertising",
+  "Market Research",
+  "Design & Creative Services",
+  "Architecture & Planning",
+  "Scientific Research & Development",
+  "Biotechnology",
+  "Environmental Services",
+  "Waste Management",
+  "Security & Investigation",
+  "Sports & Recreation",
+  "Arts & Culture",
+  "Import & Export",
+  "Wholesale Trade",
+  "Retail Trade",
+  "Textiles & Apparel",
+  "Electronics",
+  "Semiconductors",
+  "Internet & Web Services",
+  "Artificial Intelligence & Data",
+  "Cybersecurity",
+  "Blockchain & Web3",
+  "Cloud Computing",
+  "Venture Capital & Private Equity",
+  "Investment & Asset Management",
+  "Startup & Innovation",
+  "Freelancing & Gig Economy",
   "Other",
 ];
+// ─── Year Picker Component ──────────────────────────────────────────────────
+const YearPicker = ({ value, onChange, min = 1950, max = 2030 }) => {
+  const [showPicker, setShowPicker] = useState(false);
+  const pickerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target)) {
+        setShowPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const years = Array.from(
+    { length: max - min + 1 },
+    (_, i) => max - i
+  );
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <div className="relative w-full" ref={pickerRef}>
+      <button
+        type="button"
+        onClick={() => setShowPicker(!showPicker)}
+        className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-sm text-slate-800 bg-white
+        placeholder:text-slate-400 transition-all duration-150 outline-none
+        focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 hover:border-slate-300
+        flex items-center justify-between"
+      >
+        <span>{value || "Select Year"}</span>
+        <Calendar size={16} className="text-slate-400" />
+      </button>
+
+      {showPicker && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl z-40 max-h-64 overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-slate-100 px-3 py-2">
+            <p className="text-xs font-semibold text-slate-500 text-center">
+              Select Year
+            </p>
+          </div>
+          <div className="grid grid-cols-4 gap-1 p-3">
+            {years.map((year) => (
+              <button
+                key={year}
+                type="button"
+                onClick={() => {
+                  onChange(year.toString());
+                  setShowPicker(false);
+                }}
+                className={`py-2 px-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                  value === year.toString()
+                    ? "bg-blue-500 text-white shadow-md shadow-blue-200"
+                    : year === currentYear
+                      ? "bg-blue-50 text-blue-600 border border-blue-200"
+                      : "hover:bg-slate-100 text-slate-700"
+                }`}
+              >
+                {year}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const Field = ({ label, required, error, children, className = "" }) => (
@@ -126,6 +317,7 @@ const FileUpload = ({
     const file = e.dataTransfer.files[0];
     if (file) onChange(file);
   };
+
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
@@ -142,7 +334,7 @@ const FileUpload = ({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         className={`relative border-2 border-dashed rounded-xl p-4 cursor-pointer
-          transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-22.5
+          transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-[90px]
           ${
             value
               ? "border-blue-400 bg-blue-50/40"
@@ -271,6 +463,29 @@ const AlumniRegistration = () => {
     resCoordinates: [],
   });
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // GET FILTERED DEPARTMENTS BASED ON PROGRAMME TYPE
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const getFilteredDepartments = useCallback(() => {
+    if (!form.programmeType) return [];
+    return DEPARTMENTS_BY_TYPE[form.programmeType] || [];
+  }, [form.programmeType]);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // HANDLE PROGRAMME TYPE CHANGE - AUTO UPDATE PROGRAMME NAME
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleProgrammeTypeChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({
+      ...p,
+      [name]: value,
+      programmeName: "", // Reset programme name when type changes
+    }));
+    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined }));
+  }, []);
+
   // Nominatim debounce
   useEffect(() => {
     if (!activeLocField) return;
@@ -389,6 +604,7 @@ const AlumniRegistration = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
   const handleBack = () => {
     setStep((s) => s - 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -568,7 +784,7 @@ const AlumniRegistration = () => {
   // ── Form ───────────────────────────────────────────────────────────────────
   return (
     <div
-      className="fixed inset-0 overflow-y-auto z-50 md: p-12"
+      className="fixed inset-0 overflow-y-auto z-50 md:p-12"
       style={{
         background:
           "linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f0f7ff 100%)",
@@ -682,19 +898,8 @@ const AlumniRegistration = () => {
                     transition={{ duration: 0.25 }}
                     className="space-y-5"
                   >
-                    {/* <Field label="Full Name" required error={errors.name}>
-                    <input
-                      type="text"
-                      name="name"
-                      value={form.name}
-                      onChange={set}
-                      placeholder="e.g. Arjun Kumar"
-                      className={inputCls(errors.name)}
-                    />
-                  </Field> */}
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <Field label="First Name" error={errors.firstName}>
+                      <Field label="First Name" required error={errors.firstName}>
                         <input
                           type="text"
                           name="firstName"
@@ -770,20 +975,137 @@ const AlumniRegistration = () => {
                         error={errors.occupation}
                       >
                         <div className="relative">
-                          <select
-                            name="occupation"
-                            value={form.occupation}
-                            onChange={set}
-                            className={selectCls(errors.occupation)}
-                          >
-                            <option value="">Select Occupation</option>
-                            <option>Employed</option>
-                            <option>Entrepreneur</option>
-                            <option>Professional</option>
-                            <option>Home Maker</option>
-                            <option>Agriculture</option>
-                            <option>Others</option>
-                          </select>
+                         <select
+  name="occupation"
+  value={form.occupation}
+  onChange={set}
+  className={selectCls(errors.occupation)}
+>
+  <option value="">Select Occupation</option>
+
+  {/* General */}
+  <option>Employed</option>
+  <option>Entrepreneur</option>
+  <option>Professional</option>
+  <option>Home Maker</option>
+  <option>Agriculture</option>
+  <option>Others</option>
+
+  {/* Finance & Accounting */}
+  <option>Chartered Accountant (CA)</option>
+  <option>Cost and Management Accountant (CMA)</option>
+  <option>Company Secretary (CS)</option>
+  <option>CFA (Chartered Financial Analyst)</option>
+  <option>CPA (Certified Public Accountant)</option>
+  <option>FRM (Financial Risk Manager)</option>
+  <option>CFP (Certified Financial Planner)</option>
+  <option>ACCA</option>
+  <option>Accountant</option>
+  <option>Internal Auditor</option>
+  <option>External Auditor</option>
+  <option>Tax Consultant</option>
+  <option>Tax Practitioner</option>
+  <option>Financial Analyst</option>
+  <option>Investment Banker</option>
+  <option>Credit Analyst</option>
+  <option>Risk Analyst</option>
+  <option>Equity Research Analyst</option>
+
+  {/* Legal */}
+  <option>Lawyer / Advocate</option>
+  <option>Legal Advisor</option>
+  <option>Corporate Counsel</option>
+  <option>Company Law Consultant</option>
+  <option>Compliance Officer</option>
+  <option>Arbitrator / Mediator</option>
+
+  {/* Medical */}
+  <option>Doctor</option>
+  <option>Dentist</option>
+  <option>Pharmacist</option>
+  <option>Physiotherapist</option>
+  <option>Nurse</option>
+  <option>Medical Lab Technician</option>
+  <option>Radiologist</option>
+  <option>Psychologist / Psychiatrist</option>
+  <option>Nutritionist / Dietitian</option>
+
+  {/* IT & Tech */}
+  <option>Software Engineer</option>
+  <option>Data Analyst / Data Scientist</option>
+  <option>Cyber Security Expert</option>
+  <option>Web Developer</option>
+  <option>AI / Machine Learning Engineer</option>
+  <option>Cloud Engineer</option>
+  <option>DevOps Engineer</option>
+  <option>UI/UX Designer</option>
+  <option>Blockchain Developer</option>
+
+  {/* Education & Research */}
+  <option>Professor / Lecturer</option>
+  <option>Teacher</option>
+  <option>Research Analyst</option>
+  <option>Academic Consultant</option>
+  <option>Scientist</option>
+  <option>Research Scholar</option>
+  <option>Education Administrator</option>
+
+  {/* Management & Corporate */}
+  <option>Managing Director</option>
+  <option>General Manager</option>
+  <option>HR Manager</option>
+  <option>Marketing Manager</option>
+  <option>Operations Manager</option>
+  <option>Finance Manager</option>
+  <option>Supervisor</option>
+  <option>Administrator</option>
+  <option>Business Analyst</option>
+  <option>Project Manager</option>
+  <option>Product Manager</option>
+  <option>Supply Chain Manager</option>
+
+  {/* Business & Startup */}
+  <option>Entrepreneur / Business Owner</option>
+  <option>Startup Founder</option>
+  <option>Co-founder</option>
+  <option>Business Consultant</option>
+  <option>Franchise Owner</option>
+
+  {/* Creative */}
+  <option>Graphic Designer</option>
+  <option>Content Creator</option>
+  <option>Film Maker</option>
+  <option>Fashion Designer</option>
+  <option>Digital Marketer</option>
+  <option>Social Media Manager</option>
+  <option>Animator / Video Editor</option>
+  <option>Photographer</option>
+
+  {/* Hospitality */}
+  <option>Master Chef</option>
+  <option>Hotel Manager</option>
+  <option>Event Manager</option>
+  <option>Travel Consultant</option>
+
+  {/* Admin & Support */}
+  <option>Clerical Staff</option>
+  <option>Associate</option>
+  <option>Office Assistant</option>
+  <option>Executive Assistant</option>
+
+  {/* Government */}
+  <option>Civil Servant (IAS/IPS/IFS)</option>
+  <option>Government Officer</option>
+  <option>Public Policy Analyst</option>
+  <option>PSU Professional</option>
+
+  {/* Engineering */}
+  <option>Mechanical Engineer</option>
+  <option>Civil Engineer</option>
+  <option>Electrical Engineer</option>
+  <option>Architect</option>
+  <option>Industrial Engineer</option>
+</select>
                           <ChevronRight
                             size={14}
                             className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
@@ -792,7 +1114,11 @@ const AlumniRegistration = () => {
                       </Field>
                     </div>
 
-                    <Field label="Email Address" required error={errors.email}>
+                    <Field
+                      label="Email Address"
+                      required
+                      error={errors.email}
+                    >
                       <input
                         type="email"
                         name="email"
@@ -805,7 +1131,11 @@ const AlumniRegistration = () => {
                     </Field>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <Field label="Password" required error={errors.password}>
+                      <Field
+                        label="Password"
+                        required
+                        error={errors.password}
+                      >
                         <div className="relative">
                           <input
                             type={showPassword ? "text" : "password"}
@@ -846,7 +1176,9 @@ const AlumniRegistration = () => {
                           />
                           <button
                             type="button"
-                            onClick={() => setShowConfirmPassword((p) => !p)}
+                            onClick={() =>
+                              setShowConfirmPassword((p) => !p)
+                            }
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                           >
                             {showConfirmPassword ? (
@@ -871,6 +1203,7 @@ const AlumniRegistration = () => {
                     transition={{ duration: 0.25 }}
                     className="space-y-5"
                   >
+                    {/* PROGRAMME TYPE DROPDOWN */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <Field
                         label="Programme Type"
@@ -881,10 +1214,10 @@ const AlumniRegistration = () => {
                           <select
                             name="programmeType"
                             value={form.programmeType}
-                            onChange={set}
+                            onChange={handleProgrammeTypeChange}
                             className={selectCls(errors.programmeType)}
                           >
-                            <option value="">Select Programme</option>
+                            <option value="">Select Programme Type</option>
                             <option>UG</option>
                             <option>PG</option>
                             <option>M.Phil</option>
@@ -896,6 +1229,8 @@ const AlumniRegistration = () => {
                           />
                         </div>
                       </Field>
+
+                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED */}
                       <Field
                         label="Department Name"
                         required
@@ -906,11 +1241,22 @@ const AlumniRegistration = () => {
                             name="programmeName"
                             value={form.programmeName}
                             onChange={set}
-                            className={selectCls(errors.programmeName)}
+                            disabled={!form.programmeType}
+                            className={`${selectCls(errors.programmeName)} ${
+                              !form.programmeType
+                                ? "opacity-50 cursor-not-allowed bg-slate-50"
+                                : ""
+                            }`}
                           >
-                            <option value="">Select Department</option>
-                            {DEPARTMENTS.map((d) => (
-                              <option key={d}>{d}</option>
+                            <option value="">
+                              {form.programmeType
+                                ? "Select Department"
+                                : "Select Programme Type First"}
+                            </option>
+                            {getFilteredDepartments().map((dept) => (
+                              <option key={dept} value={dept}>
+                                {dept}
+                              </option>
                             ))}
                           </select>
                           <ChevronRight
@@ -942,15 +1288,13 @@ const AlumniRegistration = () => {
                         required
                         error={errors.batchYear}
                       >
-                        <input
-                          type="number"
-                          name="batchYear"
+                        <YearPicker
                           value={form.batchYear}
-                          onChange={set}
-                          placeholder="2020"
-                          min="1950"
-                          max="2030"
-                          className={inputCls(errors.batchYear)}
+                          onChange={(value) =>
+                            setForm((p) => ({ ...p, batchYear: value }))
+                          }
+                          min={1950}
+                          max={2030}
                         />
                       </Field>
                       <Field
@@ -958,15 +1302,16 @@ const AlumniRegistration = () => {
                         required
                         error={errors.studyStartYear}
                       >
-                        <input
-                          type="number"
-                          name="studyStartYear"
+                        <YearPicker
                           value={form.studyStartYear}
-                          onChange={set}
-                          placeholder="2017"
-                          min="1950"
-                          max="2030"
-                          className={inputCls(errors.studyStartYear)}
+                          onChange={(value) =>
+                            setForm((p) => ({
+                              ...p,
+                              studyStartYear: value,
+                            }))
+                          }
+                          min={1950}
+                          max={2030}
                         />
                       </Field>
                       <Field
@@ -974,15 +1319,13 @@ const AlumniRegistration = () => {
                         required
                         error={errors.studyEndYear}
                       >
-                        <input
-                          type="number"
-                          name="studyEndYear"
+                        <YearPicker
                           value={form.studyEndYear}
-                          onChange={set}
-                          placeholder="2020"
-                          min="1950"
-                          max="2030"
-                          className={inputCls(errors.studyEndYear)}
+                          onChange={(value) =>
+                            setForm((p) => ({ ...p, studyEndYear: value }))
+                          }
+                          min={1950}
+                          max={2030}
                         />
                       </Field>
                     </div>
@@ -1257,7 +1600,10 @@ const AlumniRegistration = () => {
                           icon="📢"
                           value={files.entrepreneurPoster}
                           onChange={(f) =>
-                            setFiles((p) => ({ ...p, entrepreneurPoster: f }))
+                            setFiles((p) => ({
+                              ...p,
+                              entrepreneurPoster: f,
+                            }))
                           }
                         />
                         <FileUpload
@@ -1265,7 +1611,10 @@ const AlumniRegistration = () => {
                           icon="🎓"
                           value={files.studentPhoto}
                           onChange={(f) =>
-                            setFiles((p) => ({ ...p, studentPhoto: f }))
+                            setFiles((p) => ({
+                              ...p,
+                              studentPhoto: f,
+                            }))
                           }
                         />
                         <FileUpload
