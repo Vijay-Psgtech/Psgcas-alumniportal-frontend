@@ -5,6 +5,7 @@
 // ✅ File upload support (Business Card, ID, Poster, Photos)
 // ✅ Calendar date picker for batch year, study start year, study end year
 // ✅ AUTO-FILTER: Program names update automatically based on programme type
+// ✅ AUTO-MAP: Degree auto-fills when department is selected
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -45,105 +46,212 @@ const STEPS = [
 
 const DEPARTMENTS_BY_TYPE = {
   UG: [
-    "B.Sc. Computer Science",
-    "B.Sc. Mathematics",
-    "B.Sc. Physics",
-    "B.Sc. Chemistry",
-    "B.Sc. Zoology",
-    "B.Sc. Botany",
-    "B.Sc. Microbiology",
-    "B.Sc. Biochemistry",
-    "B.Sc. Statistics",
-    "B.Sc. IT",
-    "B.Sc. Visual Communication",
-    "B.Sc. Fashion Design",
-    "B.Sc. Electronics",
-    "B.Sc. Psychology",
-    "B.Sc. Nutrition, Food Service Management & Dietetics",
-    "B.Com",
-    "B.Com (CA)",
-    "B.Com (Professional)",
-    "B.Com Corporate Secretaryship",
-    "BBA",
-    "BA Economics",
-    "BA English",
-    "BA Sociology",
+    // UG Aided Programs
+    "BA Economics (Aided)",
+    "BA English (Aided)",
+    "BA Sociology (Aided)",
+    "B.Com Commerce (Aided)",
+    "B.Com Corporate Secretaryship (Aided)",
+    "B.Sc. Biochemistry (Aided)",
+    "B.Sc. Botany (Aided)",
+    "B.Sc. Chemistry (Aided)",
+    "B.Sc. Electronics (Aided)",
+    "B.Sc. Mathematics (Aided)",
+    "B.Sc. Nutrition, Food Service Management & Dietetics (Aided)",
+    "B.Sc. Physics (Aided)",
+    "B.Sc. Psychology (Aided)",
+    "B.Sc. Statistics (Aided)",
+    "B.Sc. Zoology (Aided)",
+    
+    // UG Self-Financing Programs
+    "B.Voc. Banking, Stock and Insurance (SF)",
+    "B.Voc. Food Processing Technology (SF)",
+    "B.Voc. Hospitality Management (SF)",
+    "B.Voc. Networking and Mobile Applications (SF)",
+    "BA Carnatic Music (SF)",
+    "BA Economics (SF)",
+    "BA English (SF)",
+    "BA Tamil (SF)",
+    "BBA Business Administration (SF)",
+    "BBA Business Administration (Information Systems) (SF)",
+    "BBA Logistics (SF)",
+    "BBA Retail Management (SF)",
+    "BCA Computer Applications (SF)",
+    "B.Com Accounting & Finance (SF)",
+    "B.Com Banking & Insurance (SF)",
+    "B.Com Business Analytics (SF)",
+    "B.Com Business Process Services (SF)",
+    "B.Com Commerce (SF)",
+    "B.Com Commerce with Computer Applications (SF)",
+    "B.Com Corporate Secretaryship (SF)",
+    "B.Com Cost & Management Accounting (SF)",
+    "B.Com E-Commerce (SF)",
+    "B.Com Financial System (SF)",
+    "B.Com Foreign Trade (SF)",
+    "B.Com Professional Accounting (SF)",
+    "B.Com Retail Marketing (SF)",
+    "B.Sc. Biochemistry (SF)",
+    "B.Sc. Biotechnology (SF)",
+    "B.Sc. Catering Science & Hotel Management (SF)",
+    "B.Sc. Chemistry (SF)",
+    "B.Sc. Computer Science (SF)",
+    "B.Sc. Computer Science with Data Analytics (SF)",
+    "B.Sc. Computer Technology (SF)",
+    "B.Sc. Costume Design & Fashion (SF)",
+    "B.Sc. Electronics (SF)",
+    "B.Sc. Information Technology (SF)",
+    "B.Sc. Mathematics (SF)",
+    "B.Sc. Mathematics with Computer Applications (SF)",
+    "B.Sc. Microbiology (SF)",
+    "B.Sc. Physics (SF)",
+    "B.Sc. Psychology (SF)",
+    "B.Sc. Visual Communication (Electronic Media) (SF)",
   ],
   PG: [
-    "M.Sc. Computer Science",
-    "M.Sc. Mathematics",
-    "M.Sc. Physics",
-    "M.Sc. Chemistry",
-    "M.Sc. Biotechnology",
-    "MBA",
-    "M.Com",
-    "MCA",
-  ],
-  "M.Phil": [
-    "M.Phil. Computer Science",
-    "M.Phil. Mathematics",
-    "M.Phil. Physics",
-    "M.Phil. Chemistry",
-    "M.Phil. Zoology",
-    "M.Phil. Botany",
-  ],
-  PhD: [
-    "PhD Computer Science",
-    "PhD Mathematics",
-    "PhD Physics",
-    "PhD Chemistry",
-    "PhD Zoology",
-    "PhD Botany",
-    "PhD Biotechnology",
+    // PG Aided Programs
+    "MA Economics (Aided)",
+    "MA Journalism & Mass Communication (Aided)",
+    "MA Tamil (Aided)",
+    "M.Com Commerce (Aided)",
+    "M.Sc. Applied Microbiology (Aided)",
+    "M.Sc. Applied Psychology (Aided)",
+    "M.Sc. Biochemistry (Aided)",
+    "M.Sc. Chemistry (Aided)",
+    "M.Sc. Computer Science (Aided)",
+    "M.Sc. Environmental Science (Aided)",
+    "M.Sc. Foods and Nutrition (Aided)",
+    "M.Sc. Mathematics (Aided)",
+    "M.Sc. Physics (Aided)",
+    "M.Sc. Statistics (Aided)",
+    "MSW Social Work (Aided)",
+    
+    // PG Self-Financing Programs
+    "MA English (SF)",
+    "MCA Computer Applications (SF)",
+    "M.Com Commerce with Computer Applications (SF)",
+    "M.Com Corporate Secretaryship (SF)",
+    "M.Com International Business (SF)",
+    "M.Sc. Applied Electronics (SF)",
+    "M.Sc. Biotechnology (SF)",
+    "M.Sc. Botany (SF)",
+    "M.Sc. Clinical Nutrition and Dietetics (SF)",
+    "M.Sc. Clinical Psychology (SF)",
+    "M.Sc. Costume Design & Fashion (SF)",
+    "M.Sc. Electronic Media (SF)",
+    "M.Sc. Food Technology Management (SF)",
+    "M.Sc. Hospital Administration (SF)",
+    "M.Sc. Mathematics (SF)",
+    "M.Sc. Zoology (SF)",
+    "M.Sc. Software Systems (SF)",
+    "PGDBM (SF)",
+    "PGDFH (SF)",
+    "PGDHRM (SF)",
+    "PGDIS (SF)",
   ],
 };
 
 // Flat list of all departments for backward compatibility
 const DEPARTMENTS = [
-  "B.Sc. Computer Science",
-  "B.Sc. Mathematics",
-  "B.Sc. Physics",
-  "B.Sc. Chemistry",
-  "B.Sc. Zoology",
-  "B.Sc. Botany",
-  "B.Sc. Microbiology",
-  "B.Sc. Biochemistry",
-  "B.Sc. Statistics",
-  "B.Sc. IT",
-  "B.Sc. Visual Communication",
-  "B.Sc. Fashion Design",
-  "B.Sc. Electronics",
-  "B.Sc. Psychology",
-  "B.Sc. Nutrition, Food Service Management & Dietetics",
-  "B.Com",
-  "B.Com (CA)",
-  "B.Com (Professional)",
-  "B.Com Corporate Secretaryship",
-  "BBA",
-  "BA Economics",
-  "BA English",
-  "BA Sociology",
-  "M.Sc. Computer Science",
-  "M.Sc. Mathematics",
-  "M.Sc. Physics",
-  "M.Sc. Chemistry",
-  "M.Sc. Biotechnology",
-  "MBA",
-  "M.Com",
-  "MCA",
-  "M.Phil. Computer Science",
-  "M.Phil. Mathematics",
-  "M.Phil. Physics",
-  "M.Phil. Chemistry",
-  "M.Phil. Zoology",
-  "M.Phil. Botany",
-  "PhD Computer Science",
-  "PhD Mathematics",
-  "PhD Physics",
-  "PhD Chemistry",
-  "PhD Zoology",
-  "PhD Botany",
-  "PhD Biotechnology",
+  // UG Aided Programs
+  "BA Economics (Aided)",
+  "BA English (Aided)",
+  "BA Sociology (Aided)",
+  "B.Com Commerce (Aided)",
+  "B.Com Corporate Secretaryship (Aided)",
+  "B.Sc. Biochemistry (Aided)",
+  "B.Sc. Botany (Aided)",
+  "B.Sc. Chemistry (Aided)",
+  "B.Sc. Electronics (Aided)",
+  "B.Sc. Mathematics (Aided)",
+  "B.Sc. Nutrition, Food Service Management & Dietetics (Aided)",
+  "B.Sc. Physics (Aided)",
+  "B.Sc. Psychology (Aided)",
+  "B.Sc. Statistics (Aided)",
+  "B.Sc. Zoology (Aided)",
+  
+  // UG Self-Financing Programs
+  "B.Voc. Banking, Stock and Insurance (SF)",
+  "B.Voc. Food Processing Technology (SF)",
+  "B.Voc. Hospitality Management (SF)",
+  "B.Voc. Networking and Mobile Applications (SF)",
+  "BA Carnatic Music (SF)",
+  "BA Economics (SF)",
+  "BA English (SF)",
+  "BA Tamil (SF)",
+  "BBA Business Administration (SF)",
+  "BBA Business Administration (Information Systems) (SF)",
+  "BBA Logistics (SF)",
+  "BBA Retail Management (SF)",
+  "BCA Computer Applications (SF)",
+  "B.Com Accounting & Finance (SF)",
+  "B.Com Banking & Insurance (SF)",
+  "B.Com Business Analytics (SF)",
+  "B.Com Business Process Services (SF)",
+  "B.Com Commerce (SF)",
+  "B.Com Commerce with Computer Applications (SF)",
+  "B.Com Corporate Secretaryship (SF)",
+  "B.Com Cost & Management Accounting (SF)",
+  "B.Com E-Commerce (SF)",
+  "B.Com Financial System (SF)",
+  "B.Com Foreign Trade (SF)",
+  "B.Com Professional Accounting (SF)",
+  "B.Com Retail Marketing (SF)",
+  "B.Sc. Biochemistry (SF)",
+  "B.Sc. Biotechnology (SF)",
+  "B.Sc. Catering Science & Hotel Management (SF)",
+  "B.Sc. Chemistry (SF)",
+  "B.Sc. Computer Science (SF)",
+  "B.Sc. Computer Science with Data Analytics (SF)",
+  "B.Sc. Computer Technology (SF)",
+  "B.Sc. Costume Design & Fashion (SF)",
+  "B.Sc. Electronics (SF)",
+  "B.Sc. Information Technology (SF)",
+  "B.Sc. Mathematics (SF)",
+  "B.Sc. Mathematics with Computer Applications (SF)",
+  "B.Sc. Microbiology (SF)",
+  "B.Sc. Physics (SF)",
+  "B.Sc. Psychology (SF)",
+  "B.Sc. Visual Communication (Electronic Media) (SF)",
+  
+  // PG Aided Programs
+  "MA Economics (Aided)",
+  "MA Journalism & Mass Communication (Aided)",
+  "MA Tamil (Aided)",
+  "M.Com Commerce (Aided)",
+  "M.Sc. Applied Microbiology (Aided)",
+  "M.Sc. Applied Psychology (Aided)",
+  "M.Sc. Biochemistry (Aided)",
+  "M.Sc. Chemistry (Aided)",
+  "M.Sc. Computer Science (Aided)",
+  "M.Sc. Environmental Science (Aided)",
+  "M.Sc. Foods and Nutrition (Aided)",
+  "M.Sc. Mathematics (Aided)",
+  "M.Sc. Physics (Aided)",
+  "M.Sc. Statistics (Aided)",
+  "MSW Social Work (Aided)",
+  
+  // PG Self-Financing Programs
+  "MA English (SF)",
+  "MCA Computer Applications (SF)",
+  "M.Com Commerce with Computer Applications (SF)",
+  "M.Com Corporate Secretaryship (SF)",
+  "M.Com International Business (SF)",
+  "M.Sc. Applied Electronics (SF)",
+  "M.Sc. Biotechnology (SF)",
+  "M.Sc. Botany (SF)",
+  "M.Sc. Clinical Nutrition and Dietetics (SF)",
+  "M.Sc. Clinical Psychology (SF)",
+  "M.Sc. Costume Design & Fashion (SF)",
+  "M.Sc. Electronic Media (SF)",
+  "M.Sc. Food Technology Management (SF)",
+  "M.Sc. Hospital Administration (SF)",
+  "M.Sc. Mathematics (SF)",
+  "M.Sc. Zoology (SF)",
+  "M.Sc. Software Systems (SF)",
+  "PGDBM (SF)",
+  "PGDFH (SF)",
+  "PGDHRM (SF)",
+  "PGDIS (SF)",
 ];
 
 const INDUSTRIES = [
@@ -482,8 +590,24 @@ const AlumniRegistration = () => {
       ...p,
       [name]: value,
       programmeName: "", // Reset programme name when type changes
+      degree: "", // Reset degree when type changes
     }));
-    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined }));
+    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined, degree: undefined }));
+  }, []);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // HANDLE PROGRAMME NAME CHANGE - AUTO MAP TO DEGREE
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleProgrammeNameChange = useCallback((e) => {
+    const { value } = e.target;
+    // Auto-fill degree with the selected programme name
+    setForm((p) => ({
+      ...p,
+      programmeName: value,
+      degree: value, // Auto-map the selected department to degree
+    }));
+    setErrors((p) => ({ ...p, programmeName: undefined, degree: undefined }));
   }, []);
 
   // Nominatim debounce
@@ -1222,6 +1346,7 @@ const AlumniRegistration = () => {
                             <option>PG</option>
                             <option>M.Phil</option>
                             <option>PhD</option>
+                            <option>PUC</option>
                           </select>
                           <ChevronRight
                             size={14}
@@ -1230,7 +1355,7 @@ const AlumniRegistration = () => {
                         </div>
                       </Field>
 
-                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED */}
+                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED AND AUTO-MAPS TO DEGREE */}
                       <Field
                         label="Department Name"
                         required
@@ -1240,7 +1365,7 @@ const AlumniRegistration = () => {
                           <select
                             name="programmeName"
                             value={form.programmeName}
-                            onChange={set}
+                            onChange={handleProgrammeNameChange}
                             disabled={!form.programmeType}
                             className={`${selectCls(errors.programmeName)} ${
                               !form.programmeType
@@ -1277,9 +1402,13 @@ const AlumniRegistration = () => {
                         name="degree"
                         value={form.degree}
                         onChange={set}
-                        placeholder="e.g. B.Sc. Computer Science"
-                        className={inputCls(errors.degree)}
+                        placeholder="Auto-filled from department selection"
+                        disabled
+                        className={`${inputCls(errors.degree)} cursor-not-allowed bg-slate-50 text-slate-600`}
                       />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        ℹ️ Auto-filled based on your department selection
+                      </p>
                     </Field>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

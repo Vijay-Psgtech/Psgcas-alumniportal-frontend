@@ -20,6 +20,11 @@ import { motion, AnimatePresence } from "framer-motion";
 export const AlumniTab = ({ alumniList, setSelectedItem }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'pending', 'approved'
+  const [deptFilter, setDeptFilter] = useState("");
+  const [batchFilter, setBatchFilter] = useState("");
+
+  const departments = Array.from(new Set(alumniList.map((a) => a.department).filter(Boolean))).sort();
+  const batches = Array.from(new Set(alumniList.map((a) => a.batchYear).filter(Boolean))).sort((a,b)=>String(b).localeCompare(String(a)));
 
   const filtered = alumniList.filter((a) => {
     const matchesSearch =
@@ -30,7 +35,9 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       statusFilter === "all" ||
       (statusFilter === "approved" && a.isApproved) ||
       (statusFilter === "pending" && !a.isApproved);
-    return matchesSearch && matchesStatus;
+    const matchesDept = !deptFilter || a.department === deptFilter;
+    const matchesBatch = !batchFilter || String(a.batchYear) === String(batchFilter);
+    return matchesSearch && matchesStatus && matchesDept && matchesBatch;
   });
 
   // Dynamic gradient generator based on initials for a premium feel
@@ -93,6 +100,39 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
               {filtered.length} Results
             </div>
           </div>
+        </div>
+
+        {/* Dept & Batch Filters */}
+        <div className="flex items-center gap-3 px-1">
+          <div className="relative">
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative">
+            <select
+              value={batchFilter}
+              onChange={(e) => setBatchFilter(e.target.value)}
+              className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+            >
+              <option value="">All Batches</option>
+              {batches.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
+
+          {(deptFilter || batchFilter) && (
+            <button onClick={() => { setDeptFilter(""); setBatchFilter(""); }} className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold">Clear</button>
+          )}
         </div>
 
         {/* Status Filters */}
