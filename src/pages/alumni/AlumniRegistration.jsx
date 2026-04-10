@@ -5,6 +5,7 @@
 // ✅ File upload support (Business Card, ID, Poster, Photos)
 // ✅ Calendar date picker for batch year, study start year, study end year
 // ✅ AUTO-FILTER: Program names update automatically based on programme type
+// ✅ AUTO-MAP: Degree auto-fills when department is selected
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -482,8 +483,24 @@ const AlumniRegistration = () => {
       ...p,
       [name]: value,
       programmeName: "", // Reset programme name when type changes
+      degree: "", // Reset degree when type changes
     }));
-    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined }));
+    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined, degree: undefined }));
+  }, []);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // HANDLE PROGRAMME NAME CHANGE - AUTO MAP TO DEGREE
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleProgrammeNameChange = useCallback((e) => {
+    const { value } = e.target;
+    // Auto-fill degree with the selected programme name
+    setForm((p) => ({
+      ...p,
+      programmeName: value,
+      degree: value, // Auto-map the selected department to degree
+    }));
+    setErrors((p) => ({ ...p, programmeName: undefined, degree: undefined }));
   }, []);
 
   // Nominatim debounce
@@ -1230,7 +1247,7 @@ const AlumniRegistration = () => {
                         </div>
                       </Field>
 
-                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED */}
+                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED AND AUTO-MAPS TO DEGREE */}
                       <Field
                         label="Department Name"
                         required
@@ -1240,7 +1257,7 @@ const AlumniRegistration = () => {
                           <select
                             name="programmeName"
                             value={form.programmeName}
-                            onChange={set}
+                            onChange={handleProgrammeNameChange}
                             disabled={!form.programmeType}
                             className={`${selectCls(errors.programmeName)} ${
                               !form.programmeType
@@ -1277,9 +1294,13 @@ const AlumniRegistration = () => {
                         name="degree"
                         value={form.degree}
                         onChange={set}
-                        placeholder="e.g. B.Sc. Computer Science"
-                        className={inputCls(errors.degree)}
+                        placeholder="Auto-filled from department selection"
+                        disabled
+                        className={`${inputCls(errors.degree)} cursor-not-allowed bg-slate-50 text-slate-600`}
                       />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        ℹ️ Auto-filled based on your department selection
+                      </p>
                     </Field>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -1596,7 +1617,7 @@ const AlumniRegistration = () => {
                           }
                         />
                         <FileUpload
-                          label="Entrepreneur Poster"
+                          label="Business Poster"
                           icon="📢"
                           value={files.entrepreneurPoster}
                           onChange={(f) =>
@@ -1607,7 +1628,7 @@ const AlumniRegistration = () => {
                           }
                         />
                         <FileUpload
-                          label="Student Photo"
+                          label="Photo when you were student "
                           icon="🎓"
                           value={files.studentPhoto}
                           onChange={(f) =>

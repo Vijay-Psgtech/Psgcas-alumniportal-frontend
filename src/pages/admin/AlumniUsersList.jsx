@@ -27,6 +27,8 @@ const AlumniUsersList = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
+  const [deptFilter, setDeptFilter] = useState("");
+  const [batchFilter, setBatchFilter] = useState("");
   const [viewMode, setViewMode] = useState("table"); // grid or table
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
@@ -64,7 +66,10 @@ const AlumniUsersList = () => {
         (statusFilter === "approved" && alumni.isApproved) ||
         (statusFilter === "pending" && !alumni.isApproved);
 
-      return matchesSearch && matchesStatus;
+      const matchesDept = !deptFilter || (alumni.department || "") === deptFilter;
+      const matchesBatch = !batchFilter || String(alumni.batchYear) === String(batchFilter);
+
+      return matchesSearch && matchesStatus && matchesDept && matchesBatch;
     });
 
     filtered.sort((a, b) => {
@@ -92,7 +97,15 @@ const AlumniUsersList = () => {
     });
 
     return filtered;
-  }, [alumniUsers, search, statusFilter, sortBy, sortOrder]);
+  }, [alumniUsers, search, statusFilter, sortBy, sortOrder, deptFilter, batchFilter]);
+
+  const departments = useMemo(() => {
+    return Array.from(new Set(alumniUsers.map((a) => a.department).filter(Boolean))).sort();
+  }, [alumniUsers]);
+
+  const batches = useMemo(() => {
+    return Array.from(new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean))).sort((a,b)=>String(b).localeCompare(String(a)));
+  }, [alumniUsers]);
 
   const handleApprove = async (id) => {
     try {
@@ -292,6 +305,34 @@ const AlumniUsersList = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              <select
+                value={deptFilter}
+                onChange={(e) => setDeptFilter(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+              >
+                <option value="">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+
+              <select
+                value={batchFilter}
+                onChange={(e) => setBatchFilter(e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+              >
+                <option value="">All Batches</option>
+                {batches.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+
+              {(deptFilter || batchFilter) && (
+                <button onClick={() => { setDeptFilter(""); setBatchFilter(""); }} className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold">Clear</button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
               <div className="text-xs text-gray-500">
                 Showing <strong>{filteredAndSortedAlumni.length}</strong> of{" "}
                 <strong>{alumniUsers.length}</strong>
@@ -348,7 +389,7 @@ const AlumniUsersList = () => {
           </motion.div>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {alumniUsers.map((alumni, idx) => (
+            {filteredAndSortedAlumni.map((alumni, idx) => (
               <motion.div
                 key={alumni._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -494,7 +535,7 @@ const AlumniUsersList = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {alumniUsers.map((alumni, idx) => (
+                  {filteredAndSortedAlumni.map((alumni, idx) => (
                     <motion.tr
                       key={alumni._id}
                       initial={{ opacity: 0, y: 10 }}
