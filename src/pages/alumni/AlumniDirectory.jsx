@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { alumniAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import AlumniDetailModal from "./AlumniDetailModal";
 
 /* ─────────────────────────────────────────
    Helpers
@@ -431,6 +432,7 @@ const AlumniDirectory = () => {
     batchStats: 0,
     departmentStats: 0,
   });
+  const [selectedAlumni, setSelectedAlumni] = useState(null);
 
   // ── Load batches ──
   useEffect(() => {
@@ -543,6 +545,7 @@ const AlumniDirectory = () => {
 
   /* ── Render ── */
   return (
+    <>
     <div className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         {/* ── Page Header ── */}
@@ -890,12 +893,17 @@ const AlumniDirectory = () => {
                           }`}
                         >
                           {fullCards.map((alumni, i) => (
-                            <AlumniCardFull
+                            <div
                               key={alumni._id}
-                              alumni={alumni}
-                              apiBase={API_BASE}
-                              index={i}
-                            />
+                              onClick={() => setSelectedAlumni(alumni)}
+                              className="cursor-pointer"
+                            >
+                              <AlumniCardFull
+                                alumni={alumni}
+                                apiBase={API_BASE}
+                                index={i}
+                              />
+                            </div>
                           ))}
                         </div>
                       ) : (
@@ -903,34 +911,79 @@ const AlumniDirectory = () => {
                           <table className="min-w-full table-fixed">
                             <thead className="bg-slate-50">
                               <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Name</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Department</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Programme</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Batch</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Email</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Phone</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Job</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Name
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Department
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Programme
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Batch
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Email
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Phone
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Job
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Status
+                                </th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-100">
                               {fullCards.map((alumni, i) => (
-                                <tr key={alumni._id} className="hover:bg-slate-50">
+                                <tr
+                                  key={alumni._id}
+                                  onClick={() => setSelectedAlumni(alumni)}
+                                  className="hover:bg-slate-50 cursor-pointer"
+                                >
                                   <td className="px-4 py-3 align-middle">
                                     <div className="flex items-center gap-3">
-                                      <div className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold`}>{getInitials(alumni.firstName, alumni.lastName)}</div>
+                                      <div
+                                        className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold`}
+                                      >
+                                        {getInitials(
+                                          alumni.firstName,
+                                          alumni.lastName,
+                                        )}
+                                      </div>
                                       <div className="min-w-0">
-                                        <div className="text-sm font-bold text-slate-900 truncate">{alumni.firstName} {alumni.lastName}</div>
-                                        <div className="text-xs text-slate-400 truncate">{alumni.email}</div>
+                                        <div className="text-sm font-bold text-slate-900 truncate">
+                                          {alumni.firstName} {alumni.lastName}
+                                        </div>
+                                        <div className="text-xs text-slate-400 truncate">
+                                          {alumni.email}
+                                        </div>
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.department || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.programmeType || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.batchYear || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">{alumni.email}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.phone || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">{alumni.jobTitle ? `${alumni.jobTitle}${alumni.currentCompany ? ' @ ' + alumni.currentCompany : ''}` : (alumni.occupation || '—')}</td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.department || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.programmeType || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.batchYear || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
+                                    {alumni.email}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.phone || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
+                                    {alumni.jobTitle
+                                      ? `${alumni.jobTitle}${alumni.currentCompany ? " @ " + alumni.currentCompany : ""}`
+                                      : alumni.occupation || "—"}
+                                  </td>
                                   <td className="px-4 py-3 align-middle">
                                     {alumni.isApproved ? (
                                       <Pill color="emerald">
@@ -970,11 +1023,13 @@ const AlumniDirectory = () => {
                           }`}
                         >
                           {limitedCards.map((alumni, i) => (
-                            <AlumniCardLimited
+                            <div
                               key={alumni._id}
-                              alumni={alumni}
-                              index={i}
-                            />
+                              onClick={() => setSelectedAlumni(alumni)}
+                              className="cursor-pointer"
+                            >
+                              <AlumniCardLimited alumni={alumni} index={i} />
+                            </div>
                           ))}
                         </div>
                       ) : (
@@ -982,30 +1037,67 @@ const AlumniDirectory = () => {
                           <table className="min-w-full table-fixed">
                             <thead className="bg-slate-50">
                               <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Name</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Department</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Batch</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">Location</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">View</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Name
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Department
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Batch
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  Location
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                  View
+                                </th>
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-100">
                               {limitedCards.map((alumni, i) => (
-                                <tr key={alumni._id} className="hover:bg-slate-50">
+                                <tr
+                                  key={alumni._id}
+                                  onClick={() => setSelectedAlumni(alumni)}
+                                  className="hover:bg-slate-50 cursor-pointer"
+                                >
                                   <td className="px-4 py-3 align-middle">
                                     <div className="flex items-center gap-3">
-                                      <div className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold opacity-60`}>{getInitials(alumni.firstName, alumni.lastName)}</div>
+                                      <div
+                                        className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold opacity-60`}
+                                      >
+                                        {getInitials(
+                                          alumni.firstName,
+                                          alumni.lastName,
+                                        )}
+                                      </div>
                                       <div className="min-w-0">
-                                        <div className="text-sm font-bold text-slate-800 truncate">{alumni.firstName} {alumni.lastName}</div>
+                                        <div className="text-sm font-bold text-slate-800 truncate">
+                                          {alumni.firstName} {alumni.lastName}
+                                        </div>
                                       </div>
                                     </div>
                                   </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.department || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{alumni.batchYear || '—'}</td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">{[alumni.city, alumni.country].filter(Boolean).join(', ') || '—'}</td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.department || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {alumni.batchYear || "—"}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                    {[alumni.city, alumni.country]
+                                      .filter(Boolean)
+                                      .join(", ") || "—"}
+                                  </td>
                                   <td className="px-4 py-3 align-middle">
-                                    <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center" title="Limited view">
-                                      <Lock size={14} className="text-slate-400" />
+                                    <div
+                                      className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center"
+                                      title="Limited view"
+                                    >
+                                      <Lock
+                                        size={14}
+                                        className="text-slate-400"
+                                      />
                                     </div>
                                   </td>
                                 </tr>
@@ -1023,6 +1115,22 @@ const AlumniDirectory = () => {
         </AnimatePresence>
       </div>
     </div>
+
+          
+      {/* ── Alumni Detail Modal ── */}
+      <AnimatePresence>
+        {selectedAlumni && (
+          <AlumniDetailModal
+            alumni={selectedAlumni}
+            isOpen={!!selectedAlumni}
+            onClose={() => setSelectedAlumni(null)}
+            apiBase={API_BASE}
+            viewer={user}
+          />
+        )}
+      </AnimatePresence>
+
+    </>
   );
 };
 
