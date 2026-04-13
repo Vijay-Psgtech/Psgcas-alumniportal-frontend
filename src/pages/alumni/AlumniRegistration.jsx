@@ -1,11 +1,10 @@
 // src/pages/AlumniRegistration.jsx
+// ✅ Dynamic departments from backend
+// ✅ Auto batch year = end year
+// ✅ Custom occupation field for "Other"
 // ✅ Matches PSG CAS demo form fields exactly
-// ✅ Uses existing authAPI.register + useAuth from AuthContext
-// ✅ 4-step multi-section form with location autocomplete
-// ✅ File upload support (Business Card, ID, Poster, Photos)
-// ✅ Calendar date picker for batch year, study start year, study end year
-// ✅ AUTO-FILTER: Program names update automatically based on programme type
-// ✅ AUTO-MAP: Degree auto-fills when department is selected
+// ✅ FIXED: Proper FormData field appending (not wrapped in payload)
+// ✅ FIXED: alumniId mapping from _id
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -28,8 +27,9 @@ import {
   Eye,
   EyeOff,
   Calendar,
+  Info,
 } from "lucide-react";
-import { authAPI } from "../../services/api";
+import { authAPI, departmentAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -40,279 +40,65 @@ const STEPS = [
   { id: 4, label: "More", icon: Share2 },
 ];
 
-// ──────────────────────────────────────────────────────────────────────────────
-// DEPARTMENTS ORGANIZED BY PROGRAMME TYPE
-// ──────────────────────────────────────────────────────────────────────────────
-
-const DEPARTMENTS_BY_TYPE = {
-  UG: [
-    // UG Aided Programs
-    "BA Economics (Aided)",
-    "BA English (Aided)",
-    "BA Sociology (Aided)",
-    "B.Com Commerce (Aided)",
-    "B.Com Corporate Secretaryship (Aided)",
-    "B.Sc. Biochemistry (Aided)",
-    "B.Sc. Botany (Aided)",
-    "B.Sc. Chemistry (Aided)",
-    "B.Sc. Electronics (Aided)",
-    "B.Sc. Mathematics (Aided)",
-    "B.Sc. Nutrition, Food Service Management & Dietetics (Aided)",
-    "B.Sc. Physics (Aided)",
-    "B.Sc. Psychology (Aided)",
-    "B.Sc. Statistics (Aided)",
-    "B.Sc. Zoology (Aided)",
-    
-    // UG Self-Financing Programs
-    "B.Voc. Banking, Stock and Insurance (SF)",
-    "B.Voc. Food Processing Technology (SF)",
-    "B.Voc. Hospitality Management (SF)",
-    "B.Voc. Networking and Mobile Applications (SF)",
-    "BA Carnatic Music (SF)",
-    "BA Economics (SF)",
-    "BA English (SF)",
-    "BA Tamil (SF)",
-    "BBA Business Administration (SF)",
-    "BBA Business Administration (Information Systems) (SF)",
-    "BBA Logistics (SF)",
-    "BBA Retail Management (SF)",
-    "BCA Computer Applications (SF)",
-    "B.Com Accounting & Finance (SF)",
-    "B.Com Banking & Insurance (SF)",
-    "B.Com Business Analytics (SF)",
-    "B.Com Business Process Services (SF)",
-    "B.Com Commerce (SF)",
-    "B.Com Commerce with Computer Applications (SF)",
-    "B.Com Corporate Secretaryship (SF)",
-    "B.Com Cost & Management Accounting (SF)",
-    "B.Com E-Commerce (SF)",
-    "B.Com Financial System (SF)",
-    "B.Com Foreign Trade (SF)",
-    "B.Com Professional Accounting (SF)",
-    "B.Com Retail Marketing (SF)",
-    "B.Sc. Biochemistry (SF)",
-    "B.Sc. Biotechnology (SF)",
-    "B.Sc. Catering Science & Hotel Management (SF)",
-    "B.Sc. Chemistry (SF)",
-    "B.Sc. Computer Science (SF)",
-    "B.Sc. Computer Science with Data Analytics (SF)",
-    "B.Sc. Computer Technology (SF)",
-    "B.Sc. Costume Design & Fashion (SF)",
-    "B.Sc. Electronics (SF)",
-    "B.Sc. Information Technology (SF)",
-    "B.Sc. Mathematics (SF)",
-    "B.Sc. Mathematics with Computer Applications (SF)",
-    "B.Sc. Microbiology (SF)",
-    "B.Sc. Physics (SF)",
-    "B.Sc. Psychology (SF)",
-    "B.Sc. Visual Communication (Electronic Media) (SF)",
-  ],
-  PG: [
-    // PG Aided Programs
-    "MA Economics (Aided)",
-    "MA Journalism & Mass Communication (Aided)",
-    "MA Tamil (Aided)",
-    "M.Com Commerce (Aided)",
-    "M.Sc. Applied Microbiology (Aided)",
-    "M.Sc. Applied Psychology (Aided)",
-    "M.Sc. Biochemistry (Aided)",
-    "M.Sc. Chemistry (Aided)",
-    "M.Sc. Computer Science (Aided)",
-    "M.Sc. Environmental Science (Aided)",
-    "M.Sc. Foods and Nutrition (Aided)",
-    "M.Sc. Mathematics (Aided)",
-    "M.Sc. Physics (Aided)",
-    "M.Sc. Statistics (Aided)",
-    "MSW Social Work (Aided)",
-    
-    // PG Self-Financing Programs
-    "MA English (SF)",
-    "MCA Computer Applications (SF)",
-    "M.Com Commerce with Computer Applications (SF)",
-    "M.Com Corporate Secretaryship (SF)",
-    "M.Com International Business (SF)",
-    "M.Sc. Applied Electronics (SF)",
-    "M.Sc. Biotechnology (SF)",
-    "M.Sc. Botany (SF)",
-    "M.Sc. Clinical Nutrition and Dietetics (SF)",
-    "M.Sc. Clinical Psychology (SF)",
-    "M.Sc. Costume Design & Fashion (SF)",
-    "M.Sc. Electronic Media (SF)",
-    "M.Sc. Food Technology Management (SF)",
-    "M.Sc. Hospital Administration (SF)",
-    "M.Sc. Mathematics (SF)",
-    "M.Sc. Zoology (SF)",
-    "M.Sc. Software Systems (SF)",
-    "PGDBM (SF)",
-    "PGDFH (SF)",
-    "PGDHRM (SF)",
-    "PGDIS (SF)",
-  ],
-};
-
-// Flat list of all departments for backward compatibility
-const DEPARTMENTS = [
-  // UG Aided Programs
-  "BA Economics (Aided)",
-  "BA English (Aided)",
-  "BA Sociology (Aided)",
-  "B.Com Commerce (Aided)",
-  "B.Com Corporate Secretaryship (Aided)",
-  "B.Sc. Biochemistry (Aided)",
-  "B.Sc. Botany (Aided)",
-  "B.Sc. Chemistry (Aided)",
-  "B.Sc. Electronics (Aided)",
-  "B.Sc. Mathematics (Aided)",
-  "B.Sc. Nutrition, Food Service Management & Dietetics (Aided)",
-  "B.Sc. Physics (Aided)",
-  "B.Sc. Psychology (Aided)",
-  "B.Sc. Statistics (Aided)",
-  "B.Sc. Zoology (Aided)",
-  
-  // UG Self-Financing Programs
-  "B.Voc. Banking, Stock and Insurance (SF)",
-  "B.Voc. Food Processing Technology (SF)",
-  "B.Voc. Hospitality Management (SF)",
-  "B.Voc. Networking and Mobile Applications (SF)",
-  "BA Carnatic Music (SF)",
-  "BA Economics (SF)",
-  "BA English (SF)",
-  "BA Tamil (SF)",
-  "BBA Business Administration (SF)",
-  "BBA Business Administration (Information Systems) (SF)",
-  "BBA Logistics (SF)",
-  "BBA Retail Management (SF)",
-  "BCA Computer Applications (SF)",
-  "B.Com Accounting & Finance (SF)",
-  "B.Com Banking & Insurance (SF)",
-  "B.Com Business Analytics (SF)",
-  "B.Com Business Process Services (SF)",
-  "B.Com Commerce (SF)",
-  "B.Com Commerce with Computer Applications (SF)",
-  "B.Com Corporate Secretaryship (SF)",
-  "B.Com Cost & Management Accounting (SF)",
-  "B.Com E-Commerce (SF)",
-  "B.Com Financial System (SF)",
-  "B.Com Foreign Trade (SF)",
-  "B.Com Professional Accounting (SF)",
-  "B.Com Retail Marketing (SF)",
-  "B.Sc. Biochemistry (SF)",
-  "B.Sc. Biotechnology (SF)",
-  "B.Sc. Catering Science & Hotel Management (SF)",
-  "B.Sc. Chemistry (SF)",
-  "B.Sc. Computer Science (SF)",
-  "B.Sc. Computer Science with Data Analytics (SF)",
-  "B.Sc. Computer Technology (SF)",
-  "B.Sc. Costume Design & Fashion (SF)",
-  "B.Sc. Electronics (SF)",
-  "B.Sc. Information Technology (SF)",
-  "B.Sc. Mathematics (SF)",
-  "B.Sc. Mathematics with Computer Applications (SF)",
-  "B.Sc. Microbiology (SF)",
-  "B.Sc. Physics (SF)",
-  "B.Sc. Psychology (SF)",
-  "B.Sc. Visual Communication (Electronic Media) (SF)",
-  
-  // PG Aided Programs
-  "MA Economics (Aided)",
-  "MA Journalism & Mass Communication (Aided)",
-  "MA Tamil (Aided)",
-  "M.Com Commerce (Aided)",
-  "M.Sc. Applied Microbiology (Aided)",
-  "M.Sc. Applied Psychology (Aided)",
-  "M.Sc. Biochemistry (Aided)",
-  "M.Sc. Chemistry (Aided)",
-  "M.Sc. Computer Science (Aided)",
-  "M.Sc. Environmental Science (Aided)",
-  "M.Sc. Foods and Nutrition (Aided)",
-  "M.Sc. Mathematics (Aided)",
-  "M.Sc. Physics (Aided)",
-  "M.Sc. Statistics (Aided)",
-  "MSW Social Work (Aided)",
-  
-  // PG Self-Financing Programs
-  "MA English (SF)",
-  "MCA Computer Applications (SF)",
-  "M.Com Commerce with Computer Applications (SF)",
-  "M.Com Corporate Secretaryship (SF)",
-  "M.Com International Business (SF)",
-  "M.Sc. Applied Electronics (SF)",
-  "M.Sc. Biotechnology (SF)",
-  "M.Sc. Botany (SF)",
-  "M.Sc. Clinical Nutrition and Dietetics (SF)",
-  "M.Sc. Clinical Psychology (SF)",
-  "M.Sc. Costume Design & Fashion (SF)",
-  "M.Sc. Electronic Media (SF)",
-  "M.Sc. Food Technology Management (SF)",
-  "M.Sc. Hospital Administration (SF)",
-  "M.Sc. Mathematics (SF)",
-  "M.Sc. Zoology (SF)",
-  "M.Sc. Software Systems (SF)",
-  "PGDBM (SF)",
-  "PGDFH (SF)",
-  "PGDHRM (SF)",
-  "PGDIS (SF)",
-];
-
+// Alphabetically sorted industries
 const INDUSTRIES = [
-  "Information Technology",
-  "Banking & Financial Services",
-  "Insurance",
-  "Healthcare & Pharmaceuticals",
-  "Education & Training",
-  "Manufacturing",
-  "Construction & Engineering",
-  "Retail",
-  "E-Commerce",
-  "Consumer Goods (FMCG)",
-  "Media & Entertainment",
-  "Telecommunications",
-  "Energy & Utilities",
-  "Oil & Gas",
-  "Mining & Metals",
-  "Real Estate & Property",
-  "Agriculture & Farming",
-  "Food & Beverage",
-  "Hospitality & Tourism",
-  "Transportation",
-  "Logistics & Supply Chain",
-  "Automotive",
-  "Aerospace & Defense",
-  "Government & Public Administration",
-  "Public Sector / PSU",
-  "Non-Profit / NGO",
-  "Legal Services",
   "Accounting & Auditing",
-  "Consulting Services",
-  "Human Resources",
-  "Marketing & Advertising",
-  "Market Research",
-  "Design & Creative Services",
-  "Architecture & Planning",
-  "Scientific Research & Development",
-  "Biotechnology",
-  "Environmental Services",
-  "Waste Management",
-  "Security & Investigation",
-  "Sports & Recreation",
-  "Arts & Culture",
-  "Import & Export",
-  "Wholesale Trade",
-  "Retail Trade",
-  "Textiles & Apparel",
-  "Electronics",
-  "Semiconductors",
-  "Internet & Web Services",
+  "Aerospace & Defense",
+  "Agriculture & Farming",
   "Artificial Intelligence & Data",
-  "Cybersecurity",
+  "Arts & Culture",
+  "Automotive",
+  "Banking & Financial Services",
+  "Biotechnology",
   "Blockchain & Web3",
   "Cloud Computing",
-  "Venture Capital & Private Equity",
-  "Investment & Asset Management",
-  "Startup & Innovation",
+  "Consulting Services",
+  "Construction & Engineering",
+  "Consumer Goods (FMCG)",
+  "Design & Creative Services",
+  "E-Commerce",
+  "Education & Training",
+  "Electronics",
+  "Energy & Utilities",
+  "Environmental Services",
+  "Food & Beverage",
   "Freelancing & Gig Economy",
+  "Government & Public Administration",
+  "Healthcare & Pharmaceuticals",
+  "Hospitality & Tourism",
+  "Human Resources",
+  "Import & Export",
+  "Information Technology",
+  "Insurance",
+  "Internet & Web Services",
+  "Investment & Asset Management",
+  "Legal Services",
+  "Logistics & Supply Chain",
+  "Manufacturing",
+  "Market Research",
+  "Marketing & Advertising",
+  "Media & Entertainment",
+  "Mining & Metals",
+  "Non-Profit / NGO",
+  "Oil & Gas",
+  "Public Sector / PSU",
+  "Real Estate & Property",
+  "Retail",
+  "Retail Trade",
+  "Scientific Research & Development",
+  "Security & Investigation",
+  "Semiconductors",
+  "Sports & Recreation",
+  "Startup & Innovation",
+  "Telecommunications",
+  "Textiles & Apparel",
+  "Transportation",
+  "Venture Capital & Private Equity",
+  "Waste Management",
+  "Wholesale Trade",
   "Other",
 ];
+
 // ─── Year Picker Component ──────────────────────────────────────────────────
 const YearPicker = ({ value, onChange, min = 1950, max = 2030 }) => {
   const [showPicker, setShowPicker] = useState(false);
@@ -329,10 +115,7 @@ const YearPicker = ({ value, onChange, min = 1950, max = 2030 }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const years = Array.from(
-    { length: max - min + 1 },
-    (_, i) => max - i
-  );
+  const years = Array.from({ length: max - min + 1 }, (_, i) => max - i);
   const currentYear = new Date().getFullYear();
 
   return (
@@ -418,6 +201,8 @@ const FileUpload = ({
   required = false,
   value,
   onChange,
+  maxSize = 5,
+  formats = ["JPG", "PNG", "GIF"],
 }) => {
   const ref = useRef();
   const handleDrop = (e) => {
@@ -491,6 +276,12 @@ const FileUpload = ({
               </span>{" "}
               or drag & drop
             </p>
+            <div className="flex items-center gap-1 text-[10px] text-slate-400">
+              <Info size={11} />
+              <span>
+                {formats.join(", ")} • Max {maxSize}MB
+              </span>
+            </div>
           </>
         )}
       </div>
@@ -511,15 +302,17 @@ const AlumniRegistration = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Location autocomplete
-  const [locationQuery, setLocationQuery] = useState("");
   const [resSuggestions, setResSuggestions] = useState([]);
   const [offSuggestions, setOffSuggestions] = useState([]);
-  const [activeLocField, setActiveLocField] = useState(null); // 'residence' | 'office'
+  const [activeLocField, setActiveLocField] = useState(null);
+
+  // ✅ DYNAMIC DEPARTMENTS STATE
+  const [departments, setDepartments] = useState([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(false);
 
   // File uploads
   const [files, setFiles] = useState({
     businessCard: null,
-    idCard: null,
     entrepreneurPoster: null,
     studentPhoto: null,
     currentPhoto: null,
@@ -536,8 +329,10 @@ const AlumniRegistration = () => {
     password: "",
     confirmPassword: "",
     occupation: "",
+    customOccupation: "", // ✅ NEW: Custom occupation field
     // Education
     programmeType: "",
+    fundingType: "",
     programmeName: "",
     degree: "",
     batchYear: "",
@@ -571,17 +366,41 @@ const AlumniRegistration = () => {
     resCoordinates: [],
   });
 
+  // ✅ FETCH DEPARTMENTS DYNAMICALLY
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setDepartmentsLoading(true);
+        const response = await departmentAPI.getAll();
+        if (response.data?.data?.departments) {
+          setDepartments(response.data.data.departments);
+        }
+      } catch (error) {
+        console.error("Failed to fetch departments:", error);
+        setDepartments([]);
+      } finally {
+        setDepartmentsLoading(false);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
   // ──────────────────────────────────────────────────────────────────────────
-  // GET FILTERED DEPARTMENTS BASED ON PROGRAMME TYPE
+  // ✅ GET FILTERED DEPARTMENTS BASED ON PROGRAMME AND FUNDING TYPE
   // ──────────────────────────────────────────────────────────────────────────
 
   const getFilteredDepartments = useCallback(() => {
-    if (!form.programmeType) return [];
-    return DEPARTMENTS_BY_TYPE[form.programmeType] || [];
-  }, [form.programmeType]);
+    if (!form.programmeType || !form.fundingType) return [];
+    return departments.filter(
+      (dept) =>
+        dept.programmeType === form.programmeType &&
+        dept.fundingType === form.fundingType,
+    );
+  }, [form.programmeType, form.fundingType, departments]);
 
   // ──────────────────────────────────────────────────────────────────────────
-  // HANDLE PROGRAMME TYPE CHANGE - AUTO UPDATE PROGRAMME NAME
+  // HANDLE PROGRAMME TYPE CHANGE
   // ──────────────────────────────────────────────────────────────────────────
 
   const handleProgrammeTypeChange = useCallback((e) => {
@@ -589,25 +408,86 @@ const AlumniRegistration = () => {
     setForm((p) => ({
       ...p,
       [name]: value,
-      programmeName: "", // Reset programme name when type changes
-      degree: "", // Reset degree when type changes
+      fundingType: "",
+      programmeName: "",
+      degree: "",
     }));
-    setErrors((p) => ({ ...p, [name]: undefined, programmeName: undefined, degree: undefined }));
+    setErrors((p) => ({
+      ...p,
+      [name]: undefined,
+      fundingType: undefined,
+      programmeName: undefined,
+      degree: undefined,
+    }));
   }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
-  // HANDLE PROGRAMME NAME CHANGE - AUTO MAP TO DEGREE
+  // HANDLE FUNDING TYPE CHANGE
   // ──────────────────────────────────────────────────────────────────────────
 
-  const handleProgrammeNameChange = useCallback((e) => {
-    const { value } = e.target;
-    // Auto-fill degree with the selected programme name
+  const handleFundingTypeChange = useCallback((e) => {
+    const { name, value } = e.target;
     setForm((p) => ({
       ...p,
-      programmeName: value,
-      degree: value, // Auto-map the selected department to degree
+      [name]: value,
+      programmeName: "",
+      degree: "",
     }));
-    setErrors((p) => ({ ...p, programmeName: undefined, degree: undefined }));
+    setErrors((p) => ({
+      ...p,
+      [name]: undefined,
+      programmeName: undefined,
+      degree: undefined,
+    }));
+  }, []);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ✅ HANDLE PROGRAMME NAME CHANGE - AUTO MAP TO DEGREE
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleProgrammeNameChange = useCallback(
+    (e) => {
+      const { value } = e.target;
+      const selectedDept = departments.find((d) => d.name === value);
+      setForm((p) => ({
+        ...p,
+        programmeName: value,
+        degree: selectedDept?.degree || value,
+      }));
+      setErrors((p) => ({ ...p, programmeName: undefined, degree: undefined }));
+    },
+    [departments],
+  );
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ✅ HANDLE STUDY END YEAR CHANGE - AUTO SET BATCH YEAR
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleStudyEndYearChange = useCallback((value) => {
+    setForm((p) => ({
+      ...p,
+      studyEndYear: value,
+      batchYear: value, // ✅ Auto-set batch year to end year
+    }));
+    setErrors((p) => ({
+      ...p,
+      studyEndYear: undefined,
+      batchYear: undefined,
+    }));
+  }, []);
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // ✅ HANDLE OCCUPATION CHANGE - SHOW CUSTOM FIELD IF "OTHER"
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const handleOccupationChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({
+      ...p,
+      [name]: value,
+      customOccupation: value === "Others" ? p.customOccupation : "", // Keep custom if Other, clear if not
+    }));
+    setErrors((p) => ({ ...p, [name]: undefined }));
   }, []);
 
   // Nominatim debounce
@@ -694,9 +574,12 @@ const AlumniRegistration = () => {
       if (form.password !== form.confirmPassword)
         e.confirmPassword = "Passwords don't match";
       if (!form.occupation) e.occupation = "Please select occupation";
+      if (form.occupation === "Others" && !form.customOccupation.trim())
+        e.customOccupation = "Please specify your occupation";
     }
     if (step === 2) {
       if (!form.programmeType) e.programmeType = "Select programme type";
+      if (!form.fundingType) e.fundingType = "Select funding type";
       if (!form.programmeName.trim())
         e.programmeName = "Programme name required";
       if (!form.degree.trim()) e.degree = "Degree required";
@@ -705,7 +588,8 @@ const AlumniRegistration = () => {
       if (!form.studyEndYear) e.studyEndYear = "End year required";
     }
     if (step === 3) {
-      // Employment is mostly optional, but validate office contact if filled
+      if (!form.jobTitle.trim()) e.jobTitle = "Job title is required";
+      if (!form.companyName.trim()) e.companyName = "Company name is required";
       if (
         form.officeContact &&
         !/^\d{10,}$/.test(form.officeContact.replace(/\s/g, ""))
@@ -752,11 +636,15 @@ const AlumniRegistration = () => {
           phone: form.contactNumber.trim(),
           rollNumber: form.rollNumber.trim(),
           gender: form.gender,
-          occupation: form.occupation,
+          occupation:
+            form.occupation === "Others"
+              ? form.customOccupation.trim()
+              : form.occupation,
 
           // Education
           department: form.programmeName.trim(),
           programmeType: form.programmeType,
+          fundingType: form.fundingType,
           degree: form.degree.trim(),
           batchYear: form.batchYear,
           studyStartYear: form.studyStartYear,
@@ -791,17 +679,54 @@ const AlumniRegistration = () => {
           coordinates: form.resCoordinates.length ? form.resCoordinates : [],
         };
 
-        // Create FormData
+        // ✅ FIXED: Create FormData with individual fields (NOT wrapped in payload)
         const formData = new FormData();
 
-        // Append payload
-        formData.append("payload", JSON.stringify(payload));
+        // ✅ Append individual fields directly
+        // Personal Info
+        formData.append("firstName", payload.firstName);
+        formData.append("lastName", payload.lastName);
+        formData.append("email", payload.email);
+        formData.append("password", payload.password);
+        formData.append("phone", payload.phone);
+        formData.append("rollNumber", payload.rollNumber);
+        formData.append("gender", payload.gender);
+        formData.append("occupation", payload.occupation);
 
-        // Append files
+        // Education
+        formData.append("department", payload.department);
+        formData.append("programmeType", payload.programmeType);
+        formData.append("fundingType", payload.fundingType);
+        formData.append("degree", payload.degree);
+        formData.append("batchYear", payload.batchYear);
+        formData.append("studyStartYear", payload.studyStartYear);
+        formData.append("studyEndYear", payload.studyEndYear);
+
+        // Employment
+        formData.append("jobTitle", payload.jobTitle);
+        formData.append("currentCompany", payload.currentCompany);
+        formData.append("industry", payload.industry);
+        formData.append("officeContact", payload.officeContact);
+
+        // Office Address (as JSON string)
+        formData.append("officeAddress", JSON.stringify(payload.officeAddress));
+
+        // Social Media
+        formData.append("linkedin", payload.linkedin);
+        formData.append("twitter", payload.twitter);
+        formData.append("instagram", payload.instagram);
+        formData.append("facebook", payload.facebook);
+        formData.append("website", payload.website);
+
+        // Residence
+        formData.append("city", payload.city);
+        formData.append("country", payload.country);
+        formData.append("fullAddress", payload.fullAddress);
+        formData.append("coordinates", JSON.stringify(payload.coordinates));
+
+        // ✅ Append files
         if (files.businessCard)
           formData.append("businessCard", files.businessCard);
-
-        if (files.idCard) formData.append("idCard", files.idCard);
 
         if (files.entrepreneurPoster)
           formData.append("entrepreneurPoster", files.entrepreneurPoster);
@@ -814,14 +739,23 @@ const AlumniRegistration = () => {
 
         const response = await authAPI.register(formData);
 
-        const alumni = response.data?.data;
+        let alumni = response.data?.data || response.data?.alumni;
 
         if (alumni) {
+          // ✅ FIXED: Ensure alumniId exists by mapping from common ID field names
+          if (!alumni.alumniId && alumni._id) {
+            alumni.alumniId = alumni._id;
+          }
+          if (!alumni.alumniId && alumni.id) {
+            alumni.alumniId = alumni.id;
+          }
+
           await login(alumni);
         }
 
         setRegistered(true);
       } catch (err) {
+        console.error("Registration error:", err);
         setErrors({
           general:
             err.response?.data?.message ||
@@ -1023,7 +957,11 @@ const AlumniRegistration = () => {
                     className="space-y-5"
                   >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <Field label="First Name" required error={errors.firstName}>
+                      <Field
+                        label="First Name"
+                        required
+                        error={errors.firstName}
+                      >
                         <input
                           type="text"
                           name="firstName"
@@ -1099,137 +1037,104 @@ const AlumniRegistration = () => {
                         error={errors.occupation}
                       >
                         <div className="relative">
-                         <select
-  name="occupation"
-  value={form.occupation}
-  onChange={set}
-  className={selectCls(errors.occupation)}
->
-  <option value="">Select Occupation</option>
-
-  {/* General */}
-  <option>Employed</option>
-  <option>Entrepreneur</option>
-  <option>Professional</option>
-  <option>Home Maker</option>
-  <option>Agriculture</option>
-  <option>Others</option>
-
-  {/* Finance & Accounting */}
-  <option>Chartered Accountant (CA)</option>
-  <option>Cost and Management Accountant (CMA)</option>
-  <option>Company Secretary (CS)</option>
-  <option>CFA (Chartered Financial Analyst)</option>
-  <option>CPA (Certified Public Accountant)</option>
-  <option>FRM (Financial Risk Manager)</option>
-  <option>CFP (Certified Financial Planner)</option>
-  <option>ACCA</option>
-  <option>Accountant</option>
-  <option>Internal Auditor</option>
-  <option>External Auditor</option>
-  <option>Tax Consultant</option>
-  <option>Tax Practitioner</option>
-  <option>Financial Analyst</option>
-  <option>Investment Banker</option>
-  <option>Credit Analyst</option>
-  <option>Risk Analyst</option>
-  <option>Equity Research Analyst</option>
-
-  {/* Legal */}
-  <option>Lawyer / Advocate</option>
-  <option>Legal Advisor</option>
-  <option>Corporate Counsel</option>
-  <option>Company Law Consultant</option>
-  <option>Compliance Officer</option>
-  <option>Arbitrator / Mediator</option>
-
-  {/* Medical */}
-  <option>Doctor</option>
-  <option>Dentist</option>
-  <option>Pharmacist</option>
-  <option>Physiotherapist</option>
-  <option>Nurse</option>
-  <option>Medical Lab Technician</option>
-  <option>Radiologist</option>
-  <option>Psychologist / Psychiatrist</option>
-  <option>Nutritionist / Dietitian</option>
-
-  {/* IT & Tech */}
-  <option>Software Engineer</option>
-  <option>Data Analyst / Data Scientist</option>
-  <option>Cyber Security Expert</option>
-  <option>Web Developer</option>
-  <option>AI / Machine Learning Engineer</option>
-  <option>Cloud Engineer</option>
-  <option>DevOps Engineer</option>
-  <option>UI/UX Designer</option>
-  <option>Blockchain Developer</option>
-
-  {/* Education & Research */}
-  <option>Professor / Lecturer</option>
-  <option>Teacher</option>
-  <option>Research Analyst</option>
-  <option>Academic Consultant</option>
-  <option>Scientist</option>
-  <option>Research Scholar</option>
-  <option>Education Administrator</option>
-
-  {/* Management & Corporate */}
-  <option>Managing Director</option>
-  <option>General Manager</option>
-  <option>HR Manager</option>
-  <option>Marketing Manager</option>
-  <option>Operations Manager</option>
-  <option>Finance Manager</option>
-  <option>Supervisor</option>
-  <option>Administrator</option>
-  <option>Business Analyst</option>
-  <option>Project Manager</option>
-  <option>Product Manager</option>
-  <option>Supply Chain Manager</option>
-
-  {/* Business & Startup */}
-  <option>Entrepreneur / Business Owner</option>
-  <option>Startup Founder</option>
-  <option>Co-founder</option>
-  <option>Business Consultant</option>
-  <option>Franchise Owner</option>
-
-  {/* Creative */}
-  <option>Graphic Designer</option>
-  <option>Content Creator</option>
-  <option>Film Maker</option>
-  <option>Fashion Designer</option>
-  <option>Digital Marketer</option>
-  <option>Social Media Manager</option>
-  <option>Animator / Video Editor</option>
-  <option>Photographer</option>
-
-  {/* Hospitality */}
-  <option>Master Chef</option>
-  <option>Hotel Manager</option>
-  <option>Event Manager</option>
-  <option>Travel Consultant</option>
-
-  {/* Admin & Support */}
-  <option>Clerical Staff</option>
-  <option>Associate</option>
-  <option>Office Assistant</option>
-  <option>Executive Assistant</option>
-
-  {/* Government */}
-  <option>Civil Servant (IAS/IPS/IFS)</option>
-  <option>Government Officer</option>
-  <option>Public Policy Analyst</option>
-  <option>PSU Professional</option>
-
-  {/* Engineering */}
-  <option>Mechanical Engineer</option>
-  <option>Civil Engineer</option>
-  <option>Electrical Engineer</option>
-  <option>Architect</option>
-  <option>Industrial Engineer</option>
-</select>
+                          <select
+                            name="occupation"
+                            value={form.occupation}
+                            onChange={handleOccupationChange}
+                            className={selectCls(errors.occupation)}
+                          >
+                            <option value="">Select Occupation</option>
+                            <option>Accountant</option>
+                            <option>Administrator</option>
+                            <option>Animator / Video Editor</option>
+                            <option>Arbitrator / Mediator</option>
+                            <option>Architect</option>
+                            <option>Associate</option>
+                            <option>Business Analyst</option>
+                            <option>Business Consultant</option>
+                            <option>Chartered Accountant (CA)</option>
+                            <option>Civil Engineer</option>
+                            <option>Civil Servant (IAS/IPS/IFS)</option>
+                            <option>Clerical Staff</option>
+                            <option>Company Law Consultant</option>
+                            <option>Company Secretary (CS)</option>
+                            <option>Compliance Officer</option>
+                            <option>Content Creator</option>
+                            <option>Corporate Counsel</option>
+                            <option>
+                              Cost and Management Accountant (CMA)
+                            </option>
+                            <option>Credit Analyst</option>
+                            <option>Cyber Security Expert</option>
+                            <option>Data Analyst / Data Scientist</option>
+                            <option>Dentist</option>
+                            <option>Designer</option>
+                            <option>DevOps Engineer</option>
+                            <option>Digital Marketer</option>
+                            <option>Doctor</option>
+                            <option>Education Administrator</option>
+                            <option>Electrical Engineer</option>
+                            <option>Employed</option>
+                            <option>Entrepreneur</option>
+                            <option>Entrepreneur / Business Owner</option>
+                            <option>Equity Research Analyst</option>
+                            <option>Event Manager</option>
+                            <option>Executive Assistant</option>
+                            <option>External Auditor</option>
+                            <option>Fashion Designer</option>
+                            <option>Film Maker</option>
+                            <option>Finance Manager</option>
+                            <option>Financial Analyst</option>
+                            <option>Franchise Owner</option>
+                            <option>General Manager</option>
+                            <option>Graphic Designer</option>
+                            <option>Government Officer</option>
+                            <option>Home Maker</option>
+                            <option>Hotel Manager</option>
+                            <option>HR Manager</option>
+                            <option>Industrial Engineer</option>
+                            <option>Insurance Agent</option>
+                            <option>Internal Auditor</option>
+                            <option>Investment Banker</option>
+                            <option>Legal Advisor</option>
+                            <option>Lawyer / Advocate</option>
+                            <option>Management Consultant</option>
+                            <option>Managing Director</option>
+                            <option>Marketing Manager</option>
+                            <option>Master Chef</option>
+                            <option>Mechanical Engineer</option>
+                            <option>Medical Lab Technician</option>
+                            <option>Nurse</option>
+                            <option>Office Assistant</option>
+                            <option>Operations Manager</option>
+                            <option>Pharmacist</option>
+                            <option>Photographer</option>
+                            <option>Physiotherapist</option>
+                            <option>Product Manager</option>
+                            <option>Professional</option>
+                            <option>Professor / Lecturer</option>
+                            <option>Project Manager</option>
+                            <option>PSU Professional</option>
+                            <option>Psychologist / Psychiatrist</option>
+                            <option>Public Policy Analyst</option>
+                            <option>Radiologist</option>
+                            <option>Research Analyst</option>
+                            <option>Research Scholar</option>
+                            <option>Risk Analyst</option>
+                            <option>Scientist</option>
+                            <option>Social Media Manager</option>
+                            <option>Software Engineer</option>
+                            <option>Startup Founder</option>
+                            <option>Supervisor</option>
+                            <option>Supply Chain Manager</option>
+                            <option>Tax Consultant</option>
+                            <option>Tax Practitioner</option>
+                            <option>Teacher</option>
+                            <option>Travel Consultant</option>
+                            <option>UI/UX Designer</option>
+                            <option>Web Developer</option>
+                            <option>Others</option>
+                          </select>
                           <ChevronRight
                             size={14}
                             className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
@@ -1238,11 +1143,31 @@ const AlumniRegistration = () => {
                       </Field>
                     </div>
 
-                    <Field
-                      label="Email Address"
-                      required
-                      error={errors.email}
-                    >
+                    {/* ✅ CUSTOM OCCUPATION FIELD - SHOW WHEN "OTHER" */}
+                    {form.occupation === "Others" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <Field
+                          label="Please Specify Your Occupation"
+                          required
+                          error={errors.customOccupation}
+                        >
+                          <input
+                            type="text"
+                            name="customOccupation"
+                            value={form.customOccupation}
+                            onChange={set}
+                            placeholder="e.g. Freelance Consultant, Content Creator, etc."
+                            className={inputCls(errors.customOccupation)}
+                          />
+                        </Field>
+                      </motion.div>
+                    )}
+
+                    <Field label="Email Address" required error={errors.email}>
                       <input
                         type="email"
                         name="email"
@@ -1255,11 +1180,7 @@ const AlumniRegistration = () => {
                     </Field>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <Field
-                        label="Password"
-                        required
-                        error={errors.password}
-                      >
+                      <Field label="Password" required error={errors.password}>
                         <div className="relative">
                           <input
                             type={showPassword ? "text" : "password"}
@@ -1300,9 +1221,7 @@ const AlumniRegistration = () => {
                           />
                           <button
                             type="button"
-                            onClick={() =>
-                              setShowConfirmPassword((p) => !p)
-                            }
+                            onClick={() => setShowConfirmPassword((p) => !p)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                           >
                             {showConfirmPassword ? (
@@ -1327,7 +1246,7 @@ const AlumniRegistration = () => {
                     transition={{ duration: 0.25 }}
                     className="space-y-5"
                   >
-                    {/* PROGRAMME TYPE DROPDOWN */}
+                    {/* PROGRAMME TYPE & FUNDING TYPE DROPDOWNS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <Field
                         label="Programme Type"
@@ -1344,8 +1263,8 @@ const AlumniRegistration = () => {
                             <option value="">Select Programme Type</option>
                             <option>UG</option>
                             <option>PG</option>
-                            <option>M.Phil</option>
-                            <option>PhD</option>
+                            <option>MPhil</option>
+                            <option>PHD</option>
                             <option>PUC</option>
                           </select>
                           <ChevronRight
@@ -1355,19 +1274,19 @@ const AlumniRegistration = () => {
                         </div>
                       </Field>
 
-                      {/* PROGRAMME NAME DROPDOWN - AUTO-FILTERED AND AUTO-MAPS TO DEGREE */}
+                      {/* FUNDING TYPE DROPDOWN */}
                       <Field
-                        label="Department Name"
+                        label="Funding Type"
                         required
-                        error={errors.programmeName}
+                        error={errors.fundingType}
                       >
                         <div className="relative">
                           <select
-                            name="programmeName"
-                            value={form.programmeName}
-                            onChange={handleProgrammeNameChange}
+                            name="fundingType"
+                            value={form.fundingType}
+                            onChange={handleFundingTypeChange}
                             disabled={!form.programmeType}
-                            className={`${selectCls(errors.programmeName)} ${
+                            className={`${selectCls(errors.fundingType)} ${
                               !form.programmeType
                                 ? "opacity-50 cursor-not-allowed bg-slate-50"
                                 : ""
@@ -1375,14 +1294,11 @@ const AlumniRegistration = () => {
                           >
                             <option value="">
                               {form.programmeType
-                                ? "Select Department"
+                                ? "Select Funding Type"
                                 : "Select Programme Type First"}
                             </option>
-                            {getFilteredDepartments().map((dept) => (
-                              <option key={dept} value={dept}>
-                                {dept}
-                              </option>
-                            ))}
+                            <option>Aided</option>
+                            <option>SF</option>
                           </select>
                           <ChevronRight
                             size={14}
@@ -1391,6 +1307,50 @@ const AlumniRegistration = () => {
                         </div>
                       </Field>
                     </div>
+
+                    {/* ✅ DYNAMIC PROGRAMME NAME DROPDOWN */}
+                    <Field
+                      label="Department Name"
+                      required
+                      error={errors.programmeName}
+                    >
+                      <div className="relative">
+                        <select
+                          name="programmeName"
+                          value={form.programmeName}
+                          onChange={handleProgrammeNameChange}
+                          disabled={
+                            !form.programmeType ||
+                            !form.fundingType ||
+                            departmentsLoading
+                          }
+                          className={`${selectCls(errors.programmeName)} ${
+                            !form.programmeType ||
+                            !form.fundingType ||
+                            departmentsLoading
+                              ? "opacity-50 cursor-not-allowed bg-slate-50"
+                              : ""
+                          }`}
+                        >
+                          <option value="">
+                            {departmentsLoading
+                              ? "Loading departments..."
+                              : form.programmeType && form.fundingType
+                                ? "Select Department"
+                                : "Select Programme Type & Funding Type First"}
+                          </option>
+                          {getFilteredDepartments().map((dept) => (
+                            <option key={dept.name} value={dept.name}>
+                              {dept.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronRight
+                          size={14}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none"
+                        />
+                      </div>
+                    </Field>
 
                     <Field
                       label="Degree Completed"
@@ -1450,12 +1410,13 @@ const AlumniRegistration = () => {
                       >
                         <YearPicker
                           value={form.studyEndYear}
-                          onChange={(value) =>
-                            setForm((p) => ({ ...p, studyEndYear: value }))
-                          }
+                          onChange={handleStudyEndYearChange}
                           min={1950}
                           max={2030}
                         />
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          ℹ️ Auto-sets Batch Year
+                        </p>
                       </Field>
                     </div>
                   </motion.div>
@@ -1474,6 +1435,7 @@ const AlumniRegistration = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <Field
                         label="Job Title / Designation"
+                        required
                         error={errors.jobTitle}
                       >
                         <input
@@ -1485,7 +1447,11 @@ const AlumniRegistration = () => {
                           className={inputCls(errors.jobTitle)}
                         />
                       </Field>
-                      <Field label="Company Name" error={errors.companyName}>
+                      <Field
+                        label="Company Name"
+                        required
+                        error={errors.companyName}
+                      >
                         <input
                           type="text"
                           name="companyName"
@@ -1715,17 +1681,11 @@ const AlumniRegistration = () => {
                           onChange={(f) =>
                             setFiles((p) => ({ ...p, businessCard: f }))
                           }
+                          maxSize={5}
+                          formats={["JPG", "PNG", "PDF"]}
                         />
                         <FileUpload
-                          label="ID Card"
-                          icon="🪪"
-                          value={files.idCard}
-                          onChange={(f) =>
-                            setFiles((p) => ({ ...p, idCard: f }))
-                          }
-                        />
-                        <FileUpload
-                          label="Entrepreneur Poster"
+                          label="Business Poster"
                           icon="📢"
                           value={files.entrepreneurPoster}
                           onChange={(f) =>
@@ -1734,9 +1694,11 @@ const AlumniRegistration = () => {
                               entrepreneurPoster: f,
                             }))
                           }
+                          maxSize={10}
+                          formats={["JPG", "PNG", "PDF"]}
                         />
                         <FileUpload
-                          label="Student Photo"
+                          label="Photo when you were student"
                           icon="🎓"
                           value={files.studentPhoto}
                           onChange={(f) =>
@@ -1745,6 +1707,8 @@ const AlumniRegistration = () => {
                               studentPhoto: f,
                             }))
                           }
+                          maxSize={5}
+                          formats={["JPG", "PNG", "GIF"]}
                         />
                         <FileUpload
                           label="Current Photo"
@@ -1754,6 +1718,8 @@ const AlumniRegistration = () => {
                           onChange={(f) =>
                             setFiles((p) => ({ ...p, currentPhoto: f }))
                           }
+                          maxSize={5}
+                          formats={["JPG", "PNG", "GIF"]}
                         />
                       </div>
                     </div>

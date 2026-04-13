@@ -14,6 +14,7 @@ import {
   Calendar,
   Camera,
   Bell,
+  BookOpen,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -23,6 +24,7 @@ import { EventsTab } from "../../components/admin/EventsTab";
 import { AlbumsTab } from "../../components/admin/AlbumsTab";
 import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
+import DepartmentTab from "../../components/admin/DepartmentTab";
 import AlumniDetailModal from "../alumni/AlumniDetailModal";
 
 // ✅ Safe import with fallback
@@ -136,7 +138,7 @@ const AdminDashboard = () => {
       setTimeout(() => setError(""), 3000);
     }
   };
-  const TABS = [
+  const TABS = user.role === "admin" ? [
     { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
     {
       key: "donations",
@@ -151,6 +153,22 @@ const AdminDashboard = () => {
       badge: stats.totalEvents,
     },
     { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
+  ]: [
+    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
+    {
+      key: "donations",
+      Icon: FileText,
+      label: "Donations",
+      badge: formatINR(stats.totalDonatedAmount),
+    },
+    {
+      key: "events",
+      Icon: Calendar,
+      label: "Events",
+      badge: stats.totalEvents,
+    },
+    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
+    { key: "departments", Icon: BookOpen, label: "Departments", badge: "✨" },
   ];
 
   const STAT_CARDS =
@@ -372,6 +390,17 @@ const AdminDashboard = () => {
               />
             </motion.div>
           )}
+          {activeTab === "departments" && (
+                <motion.div
+                  key="departments"
+                  variants={iv}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0 }}
+                >
+                  <DepartmentTab onError={setError} onSuccess={setSuccess} />
+                </motion.div>
+              )}
         </AnimatePresence>
 
         {/* Detail Modal for Alumni & Donations */}
