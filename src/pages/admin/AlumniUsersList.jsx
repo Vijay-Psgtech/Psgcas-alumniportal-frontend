@@ -41,7 +41,7 @@ const AlumniUsersList = () => {
     const fetchAlumni = async () => {
       try {
         setLoading(true);
-        const res = await adminAPI.getAllAlumni({ department: department});
+        const res = await adminAPI.getAllAlumni({ department: department });
         setAlumniUsers(res.data.alumni);
       } catch (error) {
         console.error("Alumni error:", error);
@@ -69,8 +69,10 @@ const AlumniUsersList = () => {
         (statusFilter === "approved" && alumni.isApproved) ||
         (statusFilter === "pending" && !alumni.isApproved);
 
-      const matchesDept = !deptFilter || (alumni.department || "") === deptFilter;
-      const matchesBatch = !batchFilter || String(alumni.batchYear) === String(batchFilter);
+      const matchesDept =
+        !deptFilter || (alumni.department || "") === deptFilter;
+      const matchesBatch =
+        !batchFilter || String(alumni.batchYear) === String(batchFilter);
 
       return matchesSearch && matchesStatus && matchesDept && matchesBatch;
     });
@@ -100,14 +102,26 @@ const AlumniUsersList = () => {
     });
 
     return filtered;
-  }, [alumniUsers, search, statusFilter, sortBy, sortOrder, deptFilter, batchFilter]);
+  }, [
+    alumniUsers,
+    search,
+    statusFilter,
+    sortBy,
+    sortOrder,
+    deptFilter,
+    batchFilter,
+  ]);
 
   const departments = useMemo(() => {
-    return Array.from(new Set(alumniUsers.map((a) => a.department).filter(Boolean))).sort();
+    return Array.from(
+      new Set(alumniUsers.map((a) => a.department).filter(Boolean)),
+    ).sort();
   }, [alumniUsers]);
 
   const batches = useMemo(() => {
-    return Array.from(new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean))).sort((a,b)=>String(b).localeCompare(String(a)));
+    return Array.from(
+      new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean)),
+    ).sort((a, b) => String(b).localeCompare(String(a)));
   }, [alumniUsers]);
 
   const handleApprove = async (id) => {
@@ -122,41 +136,6 @@ const AlumniUsersList = () => {
     } catch (error) {
       console.error("Approve error:", error);
     }
-  };
-
-  const handleMakeAdmin = async (id) => {
-    try {
-      await adminAPI.makeAlumniAdmin(id);
-      setSuccess("Admin privileges granted!");
-      setSelectedItem(null);
-      const r = await adminAPI.getAllAlumni();
-      setAlumniUsers(r.data.alumni || []);
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e) {
-      console.log(e.response?.data?.message || "Failed");
-      setTimeout(() => setError(""), 3000);
-    }
-  };
-
-  const handleReject = async (id) => {
-    try {
-      await adminAPI.rejectAlumni(id);
-      setAlumniUsers((prev) =>
-        prev.map((user) =>
-          user._id === id ? { ...user, isApproved: false } : user,
-        ),
-      );
-    } catch (error) {
-      console.error("Reject error:", error);
-    }
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   if (loading) {
@@ -315,7 +294,9 @@ const AlumniUsersList = () => {
               >
                 <option value="">All Departments</option>
                 {departments.map((d) => (
-                  <option key={d} value={d}>{d}</option>
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
                 ))}
               </select>
 
@@ -326,12 +307,22 @@ const AlumniUsersList = () => {
               >
                 <option value="">All Batches</option>
                 {batches.map((b) => (
-                  <option key={b} value={b}>{b}</option>
+                  <option key={b} value={b}>
+                    {b}
+                  </option>
                 ))}
               </select>
 
               {(deptFilter || batchFilter) && (
-                <button onClick={() => { setDeptFilter(""); setBatchFilter(""); }} className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold">Clear</button>
+                <button
+                  onClick={() => {
+                    setDeptFilter("");
+                    setBatchFilter("");
+                  }}
+                  className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold"
+                >
+                  Clear
+                </button>
               )}
             </div>
 
@@ -457,9 +448,7 @@ const AlumniUsersList = () => {
                     </span>
                     <span className="text-gray-400">•</span>
                     <Calendar size={14} className="text-gray-400" />
-                    <span className="text-gray-600">
-                      {alumni.batchYear}
-                    </span>
+                    <span className="text-gray-600">{alumni.batchYear}</span>
                   </div>
 
                   {alumni.currentCompany && (
@@ -753,15 +742,6 @@ const AlumniUsersList = () => {
                           className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
                         >
                           Approve Alumni
-                        </button>
-                      )}
-
-                      {selectedItem.isApproved && !selectedItem.isAdmin && (
-                        <button
-                          onClick={() => handleMakeAdmin(selectedItem._id)}
-                          className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
-                        >
-                          Make Admin
                         </button>
                       )}
 

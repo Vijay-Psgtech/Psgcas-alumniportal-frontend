@@ -14,6 +14,11 @@ import {
   Zap,
   Building2Icon,
   MapPin,
+  Building,
+  Calendar,
+  XCircle,
+  Linkedin,
+  UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -23,8 +28,12 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
 
-  const departments = Array.from(new Set(alumniList.map((a) => a.department).filter(Boolean))).sort();
-  const batches = Array.from(new Set(alumniList.map((a) => a.batchYear).filter(Boolean))).sort((a,b)=>String(b).localeCompare(String(a)));
+  const departments = Array.from(
+    new Set(alumniList.map((a) => a.department).filter(Boolean)),
+  ).sort();
+  const batches = Array.from(
+    new Set(alumniList.map((a) => a.batchYear).filter(Boolean)),
+  ).sort((a, b) => String(b).localeCompare(String(a)));
 
   const filtered = alumniList.filter((a) => {
     const matchesSearch =
@@ -36,7 +45,8 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       (statusFilter === "approved" && a.isApproved) ||
       (statusFilter === "pending" && !a.isApproved);
     const matchesDept = !deptFilter || a.department === deptFilter;
-    const matchesBatch = !batchFilter || String(a.batchYear) === String(batchFilter);
+    const matchesBatch =
+      !batchFilter || String(a.batchYear) === String(batchFilter);
     return matchesSearch && matchesStatus && matchesDept && matchesBatch;
   });
 
@@ -112,7 +122,9 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
             >
               <option value="">All Departments</option>
               {departments.map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           </div>
@@ -125,13 +137,23 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
             >
               <option value="">All Batches</option>
               {batches.map((b) => (
-                <option key={b} value={b}>{b}</option>
+                <option key={b} value={b}>
+                  {b}
+                </option>
               ))}
             </select>
           </div>
 
           {(deptFilter || batchFilter) && (
-            <button onClick={() => { setDeptFilter(""); setBatchFilter(""); }} className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold">Clear</button>
+            <button
+              onClick={() => {
+                setDeptFilter("");
+                setBatchFilter("");
+              }}
+              className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold"
+            >
+              Clear
+            </button>
           )}
         </div>
 
@@ -171,108 +193,110 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
               return (
                 <motion.div
                   key={a._id}
-                  variants={itemVariants}
-                  initial="hidden"
-                  animate="visible"
-                  layout
-                  whileHover={{ y: -6 }}
-                  onClick={() => setSelectedItem(a)}
-                  className="group bg-white border border-slate-200 rounded-2xl p-5 cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#667eea] to-[#764ba2] flex items-center justify-center text-white font-bold text-lg">
-                        {photo ? (
-                          <img
-                            src={`${API_BASE}/uploads/${photo}`}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          `${a.firstName?.charAt(0)}
-                      ${a.lastName?.charAt(0)}`
-                        )}
-                      </div>
+                  {/* Profile Header */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                      {photo ? (
+                        <img
+                          src={`${API_BASE}/uploads/${photo}`}
+                          alt={`${a.firstName} ${a.lastName}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                          {a.firstName[0]}
+                          {a.lastName[0]}
+                        </div>
+                      )}
                     </div>
-
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      {/* Name + Status */}
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-bold text-lg text-slate-800 truncate">
-                          {a.firstName} {a.lastName}
-                        </h3>
-
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                        {a.firstName} {a.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-600 truncate">
+                        {a.email}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
                         <span
-                          className={`px-2 py-1 text-xs font-semibold rounded-lg ${
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                             a.isApproved
-                              ? "bg-emerald-100 text-emerald-600"
-                              : "bg-amber-100 text-amber-600"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
+                          {a.isApproved ? (
+                            <CheckCircle size={12} />
+                          ) : (
+                            <XCircle size={12} />
+                          )}
                           {a.isApproved ? "Approved" : "Pending"}
                         </span>
                       </div>
-
-                      {/* Email */}
-                      <p className="text-sm text-slate-500 truncate mb-3">
-                        {a.email}
-                      </p>
-
-                      {/* Dept + Batch */}
-                      <div className="flex gap-6 text-sm mb-3">
-                        <div className="flex items-center gap-1 text-slate-600">
-                          <Building2 size={14} />
-                          {a.department || "N/A"}
-                        </div>
-
-                        <div className="flex items-center gap-1 text-slate-600">
-                          <GraduationCap size={14} />
-                          {a.batchYear || "N/A"}
-                        </div>
-                      </div>
-
-                      {/* Comapny + title*/}
-                      {a.currentCompany && (
-                        <div className="flex gap-6 text-sm mb-3">
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <Briefcase size={14} />
-                            {a.jobTitle || "N/A"}
-                          </div>
-
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <Building2Icon size={14} />
-                            {a.currentCompany || "N/A"}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Location */}
-                      {a.city && (
-                        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                          <MapPin
-                            size={12}
-                            className="text-slate-400 flex-shrink-0"
-                          />
-                          {a.city}
-                          {a.country && `, ${a.country}`}
-                        </div>
-                      )}
-
-                      {/* Actions */}
-                      <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition mt-2">
-                        <button className="text-blue-600 text-sm font-medium hover:underline">
-                          View
-                        </button>
-
-                        {!a.isApproved && (
-                          <button className="text-green-600 text-sm font-medium hover:underline">
-                            Approve
-                          </button>
-                        )}
-                      </div>
                     </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Building size={14} className="text-gray-400" />
+                      <span className="text-gray-600">
+                        {a.department.toUpperCase()}
+                      </span>
+                      <span className="text-gray-400">•</span>
+                      <Calendar size={14} className="text-gray-400" />
+                      <span className="text-gray-600">{a.batchYear}</span>
+                    </div>
+
+                    {a.currentCompany && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Briefcase size={14} className="text-gray-400" />
+                        <span className="text-gray-600">
+                          {a.jobTitle} at {a.currentCompany}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin size={14} className="text-gray-400" />
+                      <span className="text-gray-600 truncate">
+                        {a.city}, {a.country}
+                      </span>
+                    </div>
+
+                    {a.linkedin && (
+                      <a
+                        href={a.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        <Linkedin size={14} />
+                        LinkedIn Profile
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    {!a.isApproved && (
+                      <button
+                        onClick={() => setSelectedItem(a)}
+                        className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                      >
+                        Approve
+                      </button>
+                    )}
+                    <button
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      onClick={() => setSelectedItem(a)}
+                    >
+                      View Details
+                    </button>
                   </div>
                 </motion.div>
               );
