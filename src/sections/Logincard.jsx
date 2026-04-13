@@ -40,34 +40,41 @@ const LoginCard = ({ onSwitchToSignup }) => {
     setIsLoading(true);
     try {
       const response = await authAPI.login({ email, password });
-      const alumni = response.data.alumni;
-      if (!alumni) {
+
+      console.log("📋 Login response:", response.data);
+
+      // Fallback: check both 'user' and 'alumni' keys for backwards compatibility
+      const user = response.data.user || response.data.alumni;
+
+      if (!user) {
+        console.error("❌ No user data in response:", response.data);
         setError({ general: "Login failed: no user data received" });
+        setIsLoading(false);
         return;
       }
-      await login(alumni);
+
+      console.log("✅ User data received:", user);
+
+      await login(user);
 
       // Role-based redirect
-      if (alumni.isAdmin) {
+      if (user.role === "admin" || user.role === "superadmin") {
         navigate("/admin/dashboard");
-      } else if (alumni.isApproved) {
+      } else if (user.isApproved) {
         navigate("/alumni/dashboard");
       } else {
         // Registered but pending admin approval
         navigate("/alumni/register");
       }
     } catch (error) {
+      console.error("❌ Login catch error:", error);
       const errorMessage =
         error.response?.data?.message || "Invalid email or password";
       // Keep error as a string so it can be rendered safely in JSX
       setError(errorMessage);
       console.error("Login Error:", error);
-    }
-
-    setTimeout(() => {
       setIsLoading(false);
-      console.log("Login attempt:", { email, password });
-    }, 1500);
+    }
   };
 
   return (

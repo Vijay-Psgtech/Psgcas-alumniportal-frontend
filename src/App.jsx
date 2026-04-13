@@ -327,6 +327,15 @@ export default function App() {
 
               {/* ADMIN */}
               <Route
+                path="admin"
+                element={
+                  <AdminPublicOnlyRoute>
+                    <AdminLogin />
+                  </AdminPublicOnlyRoute>
+                }
+              />
+
+              <Route
                 path="admin/login"
                 element={
                   <AdminPublicOnlyRoute>
