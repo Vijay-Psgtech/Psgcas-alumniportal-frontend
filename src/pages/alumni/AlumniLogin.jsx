@@ -50,27 +50,34 @@ const AlumniLogin = () => {
       try {
         const response = await authAPI.login({ email, password });
 
-        // Server sets HttpOnly cookie automatically — no token in response body
-        const alumni = response.data.alumni;
+        console.log("📋 Login response:", response.data);
 
-        if (!alumni) {
+        // Server sets HttpOnly cookie automatically — no token in response body
+        // Fallback: check both 'user' and 'alumni' keys for backwards compatibility
+        const user = response.data.user || response.data.alumni;
+
+        if (!user) {
+          console.error("❌ No user data in response:", response.data);
           setErrors({ general: "Login failed: no user data received" });
           return;
         }
 
+        console.log("✅ User data received:", user);
+
         // Seed AuthContext state; cookie is already set by the server
-        await login(alumni);
+        await login(user);
 
         // Role-based redirect
-        if (alumni.isAdmin) {
+        if (user.role === "admin" || user.role === "superadmin") {
           navigate("/admin/dashboard");
-        } else if (alumni.isApproved) {
+        } else if (user.isApproved) {
           navigate("/alumni/dashboard");
         } else {
           // Registered but pending admin approval
           navigate("/alumni/register");
         }
       } catch (err) {
+        console.error("❌ Login catch error:", err);
         const errorMessage =
           err.response?.data?.message || "Invalid email or password";
         setErrors({ general: errorMessage });
