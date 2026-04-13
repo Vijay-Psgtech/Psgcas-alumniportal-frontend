@@ -167,27 +167,32 @@ const AdminDashboard = () => {
     { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
   ];
 
-  const STAT_CARDS = user.role === "admin"
-    ? [
-        { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
-        { icon: "🏢", val: alumniList.length, label: `${user.department} Alumni` },
-        {
-          icon: "💰",
-          val: formatINR(stats.totalDonatedAmount),
-          label: "Total Donations",
-        },
-        { icon: "✅", val: stats.completedDonations, label: "Completed" },
-      ]
-    : [
-        { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
-        { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
-        {
-          icon: "💰",
-          val: formatINR(stats.totalDonatedAmount),
-          label: "Total Donations",
-        },
-        { icon: "✅", val: stats.completedDonations, label: "Completed" },
-      ];
+  const STAT_CARDS =
+    user.role === "admin"
+      ? [
+          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+          {
+            icon: "🏢",
+            val: alumniList.length,
+            label: `${user.department} Alumni`,
+          },
+          {
+            icon: "💰",
+            val: formatINR(stats.totalDonatedAmount),
+            label: "Total Donations",
+          },
+          { icon: "✅", val: stats.completedDonations, label: "Completed" },
+        ]
+      : [
+          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+          { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
+          {
+            icon: "💰",
+            val: formatINR(stats.totalDonatedAmount),
+            label: "Total Donations",
+          },
+          { icon: "✅", val: stats.completedDonations, label: "Completed" },
+        ];
 
   if (loading)
     return (
@@ -212,16 +217,23 @@ const AdminDashboard = () => {
           initial="hidden"
           animate="visible"
         >
-          <div>
-            <h1 className="font-['Playfair_Display',_serif] text-[clamp(26px,4vw,40px)] font-extrabold text-[#0c0e1a] tracking-tight">
-              {user.role === "admin" ? `Admin Dashboard - ${user.department || ""} ` : `Super Admin`}
+          <div className="flex-1">
+            <h1 className="font-['Playfair_Display',_serif] text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+              {user.role === "admin"
+                ? `Admin Dashboard`
+                : `Super Admin Dashboard`}
             </h1>
-            <p className="text-md text-gray-500 mt-1 font-medium">
-              Manage alumni, donations, events & albums
+            <p className="text-sm sm:text-base text-slate-600 mt-2 font-medium">
+              {user.role === "admin"
+                ? `${user.department || "Department"} • Manage your alumni network`
+                : `System Administration & Oversight`}
             </p>
           </div>
           <div className="inline-flex items-center gap-4">
-            <Link to="/admin/notifications" className="relative w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+            <Link
+              to="/admin/notifications"
+              className="relative w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            >
               <Bell size={18} className="text-gray-900" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
             </Link>
@@ -233,7 +245,7 @@ const AdminDashboard = () => {
             >
               <LogOut size={14} strokeWidth={2.5} /> Logout
             </motion.button>
-            </div>
+          </div>
         </motion.div>
 
         {/* Status Messages */}
@@ -269,7 +281,7 @@ const AdminDashboard = () => {
         </AnimatePresence>
         {/* Stat Cards */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10"
           variants={cv}
           initial="hidden"
           animate="visible"
@@ -278,31 +290,34 @@ const AdminDashboard = () => {
             <motion.div
               key={label}
               variants={iv}
-              className="bg-white border border-slate-200 rounded-2xl shadow-xl p-5 sm:p-6 text-center transition-all hover:-translate-y-1.5 hover:shadow-[0_14px_32px_rgba(0,0,0,.06)] relative overflow-hidden group"
+              className="bg-white border border-slate-200 rounded-lg shadow-md hover:shadow-lg p-5 sm:p-6 text-center transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group hover:border-slate-300"
             >
-              {/* Top gradient border on hover */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2] opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* Top gradient border accent */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-              <div className="text-3xl sm:text-4xl mb-3 drop-shadow-sm">
+              {/* Background gradient on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-indigo-50/0 group-hover:from-blue-50/40 group-hover:to-indigo-50/40 transition-all duration-300 -z-10" />
+
+              <div className="text-4xl sm:text-5xl mb-4 drop-shadow-sm">
                 {icon}
               </div>
-              <div className="text-3xl font-extrabold text-blue-500 mb-1 tracking-tight">
+              <div className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 tracking-tight">
                 {val}
               </div>
-              <div className="text-[12px] text-gray-400 uppercase tracking-widest font-bold font-['Outfit',_sans-serif]">
+              <p className="text-xs sm:text-sm text-slate-600 uppercase tracking-wide font-semibold">
                 {label}
-              </div>
+              </p>
             </motion.div>
           ))}
         </motion.div>
         {/* Tabs Panel */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 mb-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded p-3 sm:p-4 mb-6 shadow-sm">
           <div className="flex gap-2 flex-wrap">
             {TABS.map(({ key, Icon, label, badge }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
+                className={`px-4 sm:px-5 py-2.5 rounded-sm font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
                                     ${activeTab === key ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
                                 `}
               >
