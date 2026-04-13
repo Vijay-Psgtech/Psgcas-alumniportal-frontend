@@ -21,7 +21,7 @@ const getInitials = (first = "", last = "") =>
 
 const canSeeFullDetails = (viewer, subject) => {
   if (!viewer || !subject) return false;
-  if (viewer.isAdmin) return true;
+  if (viewer.role === "admin" || viewer.role === "superadmin") return true;
   return String(viewer.batchYear) === String(subject.batchYear);
 };
 

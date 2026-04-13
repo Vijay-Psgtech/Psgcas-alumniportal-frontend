@@ -102,7 +102,7 @@ const BATCH_PALETTES = [
 ───────────────────────────────────────── */
 const canSeeFullDetails = (viewer, subject) => {
   if (!viewer || !subject) return false;
-  if (viewer.isAdmin) return true;
+  if (viewer.role === "admin" || viewer.role === "superadmin") return true;
   return String(viewer.batchYear) === String(subject.batchYear);
 };
 
@@ -411,7 +411,7 @@ const AlumniCardLimited = ({ alumni, index }) => {
 ═══════════════════════════════════════════ */
 const AlumniDirectory = () => {
   const { user } = useAuth();
-  const isAdmin = user?.isAdmin || false;
+  const isAdmin = (user?.role === "admin" || user?.role === "superadmin") || false;
 
   // ── State ──
   const [view, setView] = useState("batches"); // "batches" | "alumni"
@@ -1025,7 +1025,6 @@ const AlumniDirectory = () => {
                           {limitedCards.map((alumni, i) => (
                             <div
                               key={alumni._id}
-                              onClick={() => setSelectedAlumni(alumni)}
                               className="cursor-pointer"
                             >
                               <AlumniCardLimited alumni={alumni} index={i} />
@@ -1058,7 +1057,6 @@ const AlumniDirectory = () => {
                               {limitedCards.map((alumni, i) => (
                                 <tr
                                   key={alumni._id}
-                                  onClick={() => setSelectedAlumni(alumni)}
                                   className="hover:bg-slate-50 cursor-pointer"
                                 >
                                   <td className="px-4 py-3 align-middle">

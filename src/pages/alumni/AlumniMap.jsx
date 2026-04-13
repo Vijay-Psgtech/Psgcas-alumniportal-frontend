@@ -97,7 +97,7 @@ const ModalRow = ({
 ───────────────────────────────────────── */
 const canSeeFullDetails = (viewer, subject) => {
   if (!viewer || !subject) return false;
-  if (viewer.isAdmin) return true;
+  if (viewer.role === "admin" || viewer.role === "superadmin") return true;
   return String(viewer.batchYear) === String(subject.batchYear);
 };
 
@@ -106,7 +106,7 @@ const canSeeFullDetails = (viewer, subject) => {
 ═══════════════════════════════════════════════ */
 const AlumniMap = () => {
   const { user } = useAuth();
-  const isAdmin = user?.isAdmin || false;
+  const isAdmin = (user?.role === "admin" || user?.role === "superadmin") || false;
 
   const [selectedAlumni, setSelectedAlumni] = useState(null);
   const [loading, setLoading] = useState(true);

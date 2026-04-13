@@ -62,10 +62,10 @@ const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications")
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
   const { user, authLoading } = useAuth();
-  console.log("PublicOnlyRoute - user:", user, "authLoading:", authLoading);
   if (authLoading) return <AppLoader />;
   if (!user) return children;
-  if (user.isAdmin) return <Navigate to="/admin/dashboard" replace />;
+  if (user.role === "admin" || user.role === "superadmin") 
+    return <Navigate to="/admin/dashboard" replace />;
   if (user.isApproved) return <Navigate to="/alumni/dashboard" replace />;
   return children; // pending alumni can still see registration page
 };
@@ -74,7 +74,7 @@ const PublicOnlyRoute = ({ children }) => {
 const AdminPublicOnlyRoute = ({ children }) => {
   const { user, authLoading } = useAuth();
   if (authLoading) return <AppLoader />;
-  if (user?.isAdmin && user?.isApproved)
+  if ((user?.role === "admin" || user?.role === "superadmin") && user?.isApproved)
     return <Navigate to="/admin/dashboard" replace />;
   return children;
 };
@@ -328,6 +328,15 @@ export default function App() {
               {/* ADMIN */}
               <Route
                 path="admin"
+                element={
+                  <AdminPublicOnlyRoute>
+                    <AdminLogin />
+                  </AdminPublicOnlyRoute>
+                }
+              />
+
+              <Route
+                path="admin/login"
                 element={
                   <AdminPublicOnlyRoute>
                     <AdminLogin />

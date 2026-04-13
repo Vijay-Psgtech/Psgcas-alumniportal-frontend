@@ -43,28 +43,28 @@ const AdminLogin = () => {
       const response = await authAPI.login({ email, password });
 
       // Server sets HttpOnly cookie automatically — no token in response body
-      const alumni = response.data.alumni;
+      const user = response.data.user;
 
-      if (!alumni) {
+      if (!user) {
         setError("Login failed: No user data received");
         setLoading(false);
         return;
       }
 
-      if (!alumni.isAdmin) {
+      if (!user.isAdmin) {
         setError("You do not have admin privileges");
         setLoading(false);
         return;
       }
 
-      if (!alumni.isApproved) {
+      if (!user.isApproved) {
         setError("Your account is not approved yet");
         setLoading(false);
         return;
       }
 
       console.log("✅ Admin login successful");
-      await authLogin(alumni); // seed AuthContext state; cookie already set by server
+      await authLogin(user); // seed AuthContext state; cookie already set by server
       navigate("/admin/dashboard");
     } catch (err) {
       console.error("❌ Login error:", err);

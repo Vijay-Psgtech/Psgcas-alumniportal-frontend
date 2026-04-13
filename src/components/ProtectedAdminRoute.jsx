@@ -14,7 +14,7 @@ const ProtectedAdminRoute = ({ children }) => {
     return <Navigate to="/admin" replace />;
   }
 
-  if (user.isAdmin !== true) {
+  if (user.role !== "admin" && user.role !== "superadmin") {
     return <Navigate to="/alumni/profile" replace />;
   }
 

@@ -101,8 +101,7 @@ export const alumniAPI = {
 export const adminAPI = {
   // Dashboard stats
   getStats: () => api.get("/admin/dashboard/stats"),
-  getAllAlumni: () => api.get("/admin/dashboard/alumni/all"),
-
+  getAllAlumni: (params) => api.get("/admin/dashboard/alumni/all", { params }),
   // Alumni approval & management
   getPendingAlumni: () => api.get("/admin/pending"),
   approveAlumni: (id) => api.put(`/admin/approve/${id}`),

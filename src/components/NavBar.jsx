@@ -80,7 +80,7 @@ export default function NavBar() {
       { label: "Contact", path: "/contact" },
     ];
 
-    if (user?.isAdmin) {
+    if (user?.role === "admin" || user?.role === "superadmin") {
       baseItems.push({
         label: "Admin",
         submenu: [
@@ -872,7 +872,9 @@ export default function NavBar() {
                     {user.lastName?.[0]}
                   </div>
                   <div>
-                    <div className="user-name">{user.firstName}</div>
+                    <div className="user-name">
+                      {user.firstName || user.name}
+                    </div>
                   </div>
                   <ChevronDown
                     size={13}
@@ -889,39 +891,44 @@ export default function NavBar() {
                         {user.firstName} {user.lastName}
                       </div>
                       <div className="ud-role">
-                        {user.isAdmin ? "Admin User" : "Alumni Member"}
+                        {user.role === "admin" ? "Admin User" : user.role === "superadmin"
+                          ? "Super Admin"
+                          : "Alumni Member"}
                       </div>
                     </div>
                     <div style={{ padding: "6px 0" }}>
-                      
-                       <NavLink
-                        to="/alumni/dashboard"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="ud-item"
-                      >
-                        <LayoutDashboardIcon size={14} />
-                        Dashboard
-                      </NavLink>
+                      {user.role === "alumni" && (
+                        <>
+                          <NavLink
+                            to="/alumni/dashboard"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="ud-item"
+                          >
+                            <LayoutDashboardIcon size={14} />
+                            Dashboard
+                          </NavLink>
 
-                      <NavLink
-                        to="/alumni/profile"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="ud-item"
-                      >
-                        <User size={14} />
-                        My Profile
-                      </NavLink>
-                     
-                  
-                      <NavLink
-                        to="/alumni/donations"
-                        onClick={() => setUserMenuOpen(false)}
-                        className="ud-item"
-                      >
-                        <Heart size={14} />
-                        My Donations
-                      </NavLink>
-                      {user.isAdmin && (
+                          <NavLink
+                            to="/alumni/profile"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="ud-item"
+                          >
+                            <User size={14} />
+                            My Profile
+                          </NavLink>
+
+                          <NavLink
+                            to="/alumni/donations"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="ud-item"
+                          >
+                            <Heart size={14} />
+                            My Donations
+                          </NavLink>
+                        </>
+                      )}
+                      {(user.role === "admin" ||
+                        user.role === "superadmin") && (
                         <>
                           <div className="ud-divider" />
                           <NavLink
@@ -1049,7 +1056,9 @@ export default function NavBar() {
                     {user.firstName} {user.lastName}
                   </div>
                   <div className="ud-role">
-                    {user.isAdmin ? "Admin User" : "Alumni Member"}
+                    {user.role === "admin" || user.role === "superadmin"
+                      ? "Admin User"
+                      : "Alumni Member"}
                   </div>
                 </div>
                 <NavLink
@@ -1079,7 +1088,7 @@ export default function NavBar() {
                   My Donations
                 </NavLink>
 
-                {user.isAdmin && (
+                {(user.role === "admin" || user.role === "superadmin") && (
                   <>
                     <NavLink
                       to="/admin/dashboard"
