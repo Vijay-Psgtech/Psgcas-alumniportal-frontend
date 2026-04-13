@@ -23,6 +23,7 @@ import { EventsTab } from "../../components/admin/EventsTab";
 import { AlbumsTab } from "../../components/admin/AlbumsTab";
 import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
+import AlumniDetailModal from "../alumni/AlumniDetailModal";
 
 // ✅ Safe import with fallback
 const donationsAPI = {
@@ -127,7 +128,7 @@ const AdminDashboard = () => {
       await adminAPI.approveAlumni(id);
       setSuccess("Alumni approved!");
       setSelectedItem(null);
-      const r = await adminAPI.getAllAlumni();
+      const r = await adminAPI.getAllAlumni({ department: department });
       setAlumniList(r.data.alumni || []);
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {
@@ -135,21 +136,6 @@ const AdminDashboard = () => {
       setTimeout(() => setError(""), 3000);
     }
   };
-
-  const handleMakeAdmin = async (id) => {
-    try {
-      await adminAPI.makeAlumniAdmin(id);
-      setSuccess("Admin privileges granted!");
-      setSelectedItem(null);
-      const r = await adminAPI.getAllAlumni();
-      setAlumniList(r.data.alumni || []);
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (e) {
-      setError(e.response?.data?.message || "Failed");
-      setTimeout(() => setError(""), 3000);
-    }
-  };
-
   const TABS = [
     { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
     {
@@ -395,9 +381,20 @@ const AdminDashboard = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4"
               onClick={() => setSelectedItem(null)}
             >
+              {/* Backdrop */}
+              <div
+                onClick={() => setSelectedItem(null)}
+                style={{
+                  position: "absolute inset-0 z-[2000]",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.45)",
+                  backdropFilter: "blur(4px)",
+                }}
+              />
+              {/* Modal */}
               <motion.div
                 initial={{ scale: 0.92, y: 10 }}
                 animate={{ scale: 1, y: 0 }}
@@ -492,15 +489,6 @@ const AdminDashboard = () => {
                           className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
                         >
                           Approve Alumni
-                        </button>
-                      )}
-
-                      {selectedItem.isApproved && !selectedItem.isAdmin && (
-                        <button
-                          onClick={() => handleMakeAdmin(selectedItem._id)}
-                          className="flex-1 py-3 rounded-xl bg-blue-500 text-white font-semibold hover:bg-blue-600 transition"
-                        >
-                          Make Admin
                         </button>
                       )}
 
