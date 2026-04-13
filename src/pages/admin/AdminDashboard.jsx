@@ -151,7 +151,7 @@ const AdminDashboard = () => {
   };
 
   const TABS = [
-    { key: "alumni", Icon: Users, label: "Alumni", badge: stats.totalAlumni },
+    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
     {
       key: "donations",
       Icon: FileText,
@@ -167,16 +167,27 @@ const AdminDashboard = () => {
     { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
   ];
 
-  const STAT_CARDS = [
-    { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
-    { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
-    {
-      icon: "💰",
-      val: formatINR(stats.totalDonatedAmount),
-      label: "Total Donations",
-    },
-    { icon: "✅", val: stats.completedDonations, label: "Completed" },
-  ];
+  const STAT_CARDS = user.role === "admin"
+    ? [
+        { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+        { icon: "🏢", val: alumniList.length, label: `${user.department} Alumni` },
+        {
+          icon: "💰",
+          val: formatINR(stats.totalDonatedAmount),
+          label: "Total Donations",
+        },
+        { icon: "✅", val: stats.completedDonations, label: "Completed" },
+      ]
+    : [
+        { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+        { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
+        {
+          icon: "💰",
+          val: formatINR(stats.totalDonatedAmount),
+          label: "Total Donations",
+        },
+        { icon: "✅", val: stats.completedDonations, label: "Completed" },
+      ];
 
   if (loading)
     return (
@@ -203,7 +214,7 @@ const AdminDashboard = () => {
         >
           <div>
             <h1 className="font-['Playfair_Display',_serif] text-[clamp(26px,4vw,40px)] font-extrabold text-[#0c0e1a] tracking-tight">
-              Admin Dashboard
+              {user.role === "admin" ? `Admin Dashboard - ${user.department || ""} ` : `Super Admin`}
             </h1>
             <p className="text-md text-gray-500 mt-1 font-medium">
               Manage alumni, donations, events & albums
