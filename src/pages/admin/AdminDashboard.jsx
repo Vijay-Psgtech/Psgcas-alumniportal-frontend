@@ -40,7 +40,8 @@ const formatINR = (amount) =>
   }).format(amount);
 
 const AdminDashboard = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const department = user.department || "";
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("alumni");
   const [loading, setLoading] = useState(true);
@@ -91,7 +92,7 @@ const AdminDashboard = () => {
               },
             };
           }),
-          adminAPI.getAllAlumni().catch((err) => {
+          adminAPI.getAllAlumni({ department: department }).catch((err) => {
             console.error("Alumni error:", err);
             return { data: { alumni: [] } };
           }),
