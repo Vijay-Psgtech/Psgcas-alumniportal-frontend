@@ -161,8 +161,10 @@ const AlumniUsersList = () => {
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
               Alumni Users Management
             </h1>
-            <p className="text-gray-600 text-sm">
-              Manage and oversee alumni registrations
+            <p className="text-sm sm:text-base text-slate-600 mt-2 font-medium">
+              {user.role === "admin"
+                ? `${user.department || "Department"} • Manage your alumni network`
+                : `System Administration & Oversight`}
             </p>
           </div>
           <div className="text-sm text-gray-500">
@@ -203,15 +205,7 @@ const AlumniUsersList = () => {
               iconBg: "bg-amber-100",
               iconColor: "text-amber-600",
             },
-            // {
-            //   label: "Admins",
-            //   value: alumniUsers.filter((u) => u.isAdmin).length,
-            //   icon: UserCheck,
-            //   color: "purple",
-            //   bg: "bg-purple-50",
-            //   iconBg: "bg-purple-100",
-            //   iconColor: "text-purple-600",
-            // },
+          
           ].map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -429,12 +423,6 @@ const AlumniUsersList = () => {
                         )}
                         {alumni.isApproved ? "Approved" : "Pending"}
                       </span>
-                      {alumni.isAdmin && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
-                          <UserCheck size={12} />
-                          Admin
-                        </span>
-                      )}
                     </div>
                   </div>
                 </div>
