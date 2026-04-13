@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
@@ -33,12 +34,14 @@ const AlumniUsersList = () => {
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
+  const { user } = useAuth();
+  const department = user.department || "";
 
   useEffect(() => {
     const fetchAlumni = async () => {
       try {
         setLoading(true);
-        const res = await adminAPI.getAllAlumni();
+        const res = await adminAPI.getAllAlumni({ department: department});
         setAlumniUsers(res.data.alumni);
       } catch (error) {
         console.error("Alumni error:", error);
@@ -191,7 +194,7 @@ const AlumniUsersList = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
           {" "}
           {[
             {
@@ -221,15 +224,15 @@ const AlumniUsersList = () => {
               iconBg: "bg-amber-100",
               iconColor: "text-amber-600",
             },
-            {
-              label: "Admins",
-              value: alumniUsers.filter((u) => u.isAdmin).length,
-              icon: UserCheck,
-              color: "purple",
-              bg: "bg-purple-50",
-              iconBg: "bg-purple-100",
-              iconColor: "text-purple-600",
-            },
+            // {
+            //   label: "Admins",
+            //   value: alumniUsers.filter((u) => u.isAdmin).length,
+            //   icon: UserCheck,
+            //   color: "purple",
+            //   bg: "bg-purple-50",
+            //   iconBg: "bg-purple-100",
+            //   iconColor: "text-purple-600",
+            // },
           ].map((stat, i) => {
             const Icon = stat.icon;
             return (
