@@ -27,6 +27,8 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'pending', 'approved'
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const departments = Array.from(
     new Set(alumniList.map((a) => a.department).filter(Boolean)),
@@ -49,6 +51,16 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       !batchFilter || String(a.batchYear) === String(batchFilter);
     return matchesSearch && matchesStatus && matchesDept && matchesBatch;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAlumni = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, deptFilter, batchFilter]);
 
   // Dynamic gradient generator based on initials for a premium feel
   const getAvatarGradient = (firstName, lastName) => {
@@ -186,9 +198,10 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       </div>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          <AnimatePresence>
-            {filtered.map((a, i) => {
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <AnimatePresence>
+              {paginatedAlumni.map((a, i) => {
               const photo = a.files?.currentPhoto || a.profileImage;
               return (
                 <motion.div
@@ -301,8 +314,50 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                 </motion.div>
               );
             })}
-          </AnimatePresence>
-        </div>
+            </AnimatePresence>
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                ← Prev
+              </button>
+
+              <div className="flex items-center gap-1 flex-wrap justify-center">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                      currentPage === page
+                        ? "bg-slate-900 text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Next →
+              </button>
+
+              <span className="text-xs text-slate-500 font-medium ml-4">
+                Page {currentPage} of {totalPages} • Showing {paginatedAlumni.length} of {filtered.length}
+              </span>
+            </div>
+          )}
+        </>
       ) : (
         <motion.div
           initial={{ opacity: 0 }}
