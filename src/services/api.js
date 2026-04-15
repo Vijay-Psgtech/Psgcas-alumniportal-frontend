@@ -140,7 +140,7 @@ export const alumniAPI = {
       },
     }),
   getStats: () => api.get("/alumni/stats"),
-  getMapData: () => api.get("/alumni/map/data"),
+  getMapData: (params) => api.get("/alumni/map/data", { params }),
   getBatches: () => api.get("/alumni/batches"),
   getByBatch: (params) => api.get("/alumni/batch-wise", { params }),
   // ✅ ALUMNI CHAPTERS API

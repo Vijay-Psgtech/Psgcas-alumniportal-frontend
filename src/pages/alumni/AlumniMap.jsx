@@ -121,9 +121,10 @@ const AlumniMap = () => {
 
   useEffect(() => {
     const loadMapData = async () => {
+      const params = isAdmin ? { department: user.department } : {};
       try {
         setLoading(true);
-        const response = await alumniAPI.getMapData();
+        const response = await alumniAPI.getMapData(params);
         const data = response.data?.data || {};
         setMapData({ alumni: data.alumni || [], stats: data.stats || {} });
       } catch {
