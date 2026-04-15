@@ -87,7 +87,7 @@ export default function NavBar() {
           { label: "Dashboard", path: "/admin/dashboard" },
           { label: "Events", path: "/admin/events" },
           { label: "Newsletters", path: "/admin/newsletters" },
-          { label: "Users", path: "/admin/users" },
+          { label: "Alumni Management", path: "/admin/users" },
           { label: "Reports", path: "/admin/reports" },
         ],
       });
@@ -802,7 +802,7 @@ export default function NavBar() {
             </div>
             <div className="logo-text">
               <div className="logo-main">PSG ARTS Alumni</div>
-              <div className="logo-sub">Foundation</div>
+              <div className="logo-sub">Association</div>
             </div>
           </Link>
 
@@ -953,7 +953,7 @@ export default function NavBar() {
                             className="ud-item"
                           >
                             <Users size={14} />
-                            Users
+                            Alumni Management
                           </NavLink>
                           <NavLink
                             to="/admin/reports"
