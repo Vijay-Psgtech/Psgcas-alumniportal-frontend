@@ -106,7 +106,8 @@ const canSeeFullDetails = (viewer, subject) => {
 ═══════════════════════════════════════════════ */
 const AlumniMap = () => {
   const { user } = useAuth();
-  const isAdmin = (user?.role === "admin" || user?.role === "superadmin") || false;
+  const isAdmin =
+    user?.role === "admin" || user?.role === "superadmin" || false;
 
   const [selectedAlumni, setSelectedAlumni] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -142,7 +143,8 @@ const AlumniMap = () => {
     [mapData.alumni],
   );
 
-  const canViewSelectedAlumni = selectedAlumni && canSeeFullDetails(user, selectedAlumni);
+  const canViewSelectedAlumni =
+    selectedAlumni && canSeeFullDetails(user, selectedAlumni);
 
   const selectedInitials = selectedAlumni
     ? `${selectedAlumni.firstName?.charAt(0) ?? ""}${selectedAlumni.lastName?.charAt(0) ?? ""}`.toUpperCase()
@@ -301,13 +303,15 @@ const AlumniMap = () => {
 
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 flex-shrink-0 select-none">
-                        {selectedAlumni.profileImage ? (
+                        {selectedAlumni.files.currentPhoto ? (
                           <img
-                            src={`${API_BASE}/${selectedAlumni.profileImage}`}
+                            src={`${API_BASE}/uploads/${selectedAlumni.files.currentPhoto}`}
                             alt="Profile"
                             className="w-full h-full object-cover hover:cursor-pointer"
                             onClick={() => {
-                              setSelectedImage(selectedAlumni.profileImage);
+                              setSelectedImage(
+                                selectedAlumni.files.currentPhoto,
+                              );
                               setImageModal(true);
                             }}
                           />
@@ -347,7 +351,8 @@ const AlumniMap = () => {
                   <div className="flex-1 px-5 py-2 overflow-y-auto">
                     {!canViewSelectedAlumni && (
                       <div className="mb-4 rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 text-sm text-amber-700">
-                        Full contact details are restricted. Only admins and alumni from the same batch can view them.
+                        Full contact details are restricted. Only admins and
+                        alumni from the same batch can view them.
                       </div>
                     )}
 

@@ -374,7 +374,7 @@ const AlumniProfile = () => {
       };
       flatten(payload);
       if (selectedFile) formData.append("profileImage", selectedFile);
-      
+
       // Append each document file under its own field key (e.g. "studentPhoto", "idCard", …)
       Object.entries(selectedDocFiles).forEach(([key, file]) => {
         if (file) formData.append(key, file);
@@ -390,7 +390,13 @@ const AlumniProfile = () => {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save profile");
     }
-  }, [profileData?._id, editData, locationQuery, selectedFile, selectedDocFiles]);
+  }, [
+    profileData?._id,
+    editData,
+    locationQuery,
+    selectedFile,
+    selectedDocFiles,
+  ]);
 
   const handleCancel = useCallback(() => {
     setEditData(profileData);
@@ -554,13 +560,13 @@ const AlumniProfile = () => {
               {/* Avatar */}
               <div className="relative flex-shrink-0">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-lg shadow-indigo-200 select-none overflow-hidden">
-                  {profileData.profileImage ? (
+                  {profileData.files?.currentPhoto ? (
                     <img
-                      src={`${API_BASE}/${profileData.profileImage}`}
+                      src={`${API_BASE}/uploads/${profileData.files?.currentPhoto}`}
                       alt="Profile"
                       className="w-full h-full object-cover cursor-pointer"
                       onClick={() => {
-                        setSelectedImage(profileData.profileImage);
+                        setSelectedImage(profileData.files?.currentPhoto);
                         setImageModal(true);
                       }}
                     />
@@ -614,7 +620,7 @@ const AlumniProfile = () => {
                       <Layers size={10} /> {profileData.programmeType}
                     </Badge>
                   )}
-                  
+
                   {profileData.jobTitle && profileData.currentCompany && (
                     <Badge color="amber">
                       <Briefcase size={10} /> {profileData.jobTitle} @{" "}
@@ -771,14 +777,24 @@ const AlumniProfile = () => {
                         <option>Unemployed</option>
                       </select>
                     </FormField>
-                    <FormField label="Profile Photo">
+                    <FormField label="Roll Number">
+                      <input
+                        type="text"
+                        name="rollNumber"
+                        className={inputCls}
+                        value={editData.rollNumber || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. 12CA012"
+                      />
+                    </FormField>
+                    {/* <FormField label="Profile Photo">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => setSelectedFile(e.target.files[0])}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all"
                       />
-                    </FormField>
+                    </FormField> */}
                   </EditSection>
 
                   {/* ── Academic ── */}
@@ -796,6 +812,7 @@ const AlumniProfile = () => {
                         value={editData.department || ""}
                         onChange={handleChange}
                         placeholder="e.g. B.Com"
+                        disabled
                       />
                     </FormField>
                     <FormField label="Programme Type">
@@ -804,6 +821,7 @@ const AlumniProfile = () => {
                         className={selectCls}
                         value={editData.programmeType || ""}
                         onChange={handleChange}
+                        disabled
                       >
                         <option value="">Select type</option>
                         <option value="UG">UG</option>
@@ -820,18 +838,10 @@ const AlumniProfile = () => {
                         value={editData.degree || ""}
                         onChange={handleChange}
                         placeholder="e.g. Bcom CA"
+                        disabled
                       />
                     </FormField>
-                    <FormField label="Roll Number">
-                      <input
-                        type="text"
-                        name="rollNumber"
-                        className={inputCls}
-                        value={editData.rollNumber || ""}
-                        onChange={handleChange}
-                        placeholder="e.g. 12CA012"
-                      />
-                    </FormField>
+
                     <FormField label="Study Start Year">
                       <input
                         type="number"
@@ -842,6 +852,7 @@ const AlumniProfile = () => {
                         placeholder="e.g. 2012"
                         min="1980"
                         max="2099"
+                        disabled
                       />
                     </FormField>
                     <FormField label="Study End Year">
@@ -854,9 +865,10 @@ const AlumniProfile = () => {
                         placeholder="e.g. 2015"
                         min="1980"
                         max="2099"
+                        disabled
                       />
                     </FormField>
-                    <FormField label="Batch Year" required> 
+                    <FormField label="Batch Year" required>
                       <input
                         type="number"
                         name="batchYear"
@@ -864,6 +876,7 @@ const AlumniProfile = () => {
                         value={editData.batchYear || ""}
                         onChange={handleChange}
                         placeholder="e.g. 2015"
+                        disabled
                       />
                     </FormField>
                   </EditSection>

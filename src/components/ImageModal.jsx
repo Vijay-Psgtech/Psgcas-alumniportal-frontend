@@ -32,7 +32,7 @@ export default function ImageModal({ image, isOpen, onClose }) {
 
             {/* Rounded Image */}
             <img
-              src={`${API_BASE}/${image}`}
+              src={`${API_BASE}/uploads/${image}`}
               alt="Preview"
               className="w-72 h-72 sm:w-80 sm:h-80 object-cover rounded-full border-4 border-white shadow-2xl"
             />
@@ -42,4 +42,3 @@ export default function ImageModal({ image, isOpen, onClose }) {
     </AnimatePresence>
   );
 }
-
