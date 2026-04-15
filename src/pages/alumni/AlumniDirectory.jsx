@@ -481,8 +481,8 @@ const AlumniDirectory = () => {
         const data = res.data.data;
         setStats({
           totalAlumni: data.totalAlumni || 0,
-          batchStats: data.batchStats || {},
-          departmentStats: data.departmentStats || {},
+          batchStats: data.batchStats || 0,
+          departmentStats: data.departmentStats || 0,
         });
       } catch (e) {
         // Ignore stats loading errors — not critical
