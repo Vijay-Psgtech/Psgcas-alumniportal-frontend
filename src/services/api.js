@@ -287,4 +287,14 @@ export const notificationAPI = {
   adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
 };
 
+// ──────── ADMIN USERS API ──────────────────────────────────────────────────────
+export const adminUsersAPI = {
+  getAll: () => api.get("/users"),
+  create: (data) =>
+    api.post("/users", data),
+  update: (id, data) =>
+    api.put(`/users/${id}`, data),
+  delete: (id) => api.delete(`/users/${id}`),
+};
+
 export default api;

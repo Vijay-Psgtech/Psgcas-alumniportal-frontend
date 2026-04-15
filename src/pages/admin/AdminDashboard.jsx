@@ -25,7 +25,7 @@ import { AlbumsTab } from "../../components/admin/AlbumsTab";
 import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
 import DepartmentTab from "../../components/admin/DepartmentTab";
-import AlumniDetailModal from "../alumni/AlumniDetailModal";
+import AdminUsersTab from "../../components/admin/AdminUsersTab";
 
 // ✅ Safe import with fallback
 const donationsAPI = {
@@ -138,38 +138,67 @@ const AdminDashboard = () => {
       setTimeout(() => setError(""), 3000);
     }
   };
-  const TABS = user.role === "admin" ? [
-    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
-    {
-      key: "donations",
-      Icon: FileText,
-      label: "Donations",
-      badge: formatINR(stats.totalDonatedAmount),
-    },
-    {
-      key: "events",
-      Icon: Calendar,
-      label: "Events",
-      badge: stats.totalEvents,
-    },
-    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
-  ]: [
-    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
-    {
-      key: "donations",
-      Icon: FileText,
-      label: "Donations",
-      badge: formatINR(stats.totalDonatedAmount),
-    },
-    {
-      key: "events",
-      Icon: Calendar,
-      label: "Events",
-      badge: stats.totalEvents,
-    },
-    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
-    { key: "departments", Icon: BookOpen, label: "Departments", badge: "✨" },
-  ];
+  const TABS =
+    user.role === "admin"
+      ? [
+          {
+            key: "alumni",
+            Icon: Users,
+            label: "Alumni",
+            badge: alumniList.length,
+          },
+          {
+            key: "donations",
+            Icon: FileText,
+            label: "Donations",
+            badge: formatINR(stats.totalDonatedAmount),
+          },
+          {
+            key: "events",
+            Icon: Calendar,
+            label: "Events",
+            badge: stats.totalEvents,
+          },
+          {
+            key: "albums",
+            Icon: Camera,
+            label: "Albums",
+            badge: stats.totalAlbums,
+          },
+        ]
+      : [
+          {
+            key: "alumni",
+            Icon: Users,
+            label: "Alumni",
+            badge: alumniList.length,
+          },
+          {
+            key: "donations",
+            Icon: FileText,
+            label: "Donations",
+            badge: formatINR(stats.totalDonatedAmount),
+          },
+          {
+            key: "events",
+            Icon: Calendar,
+            label: "Events",
+            badge: stats.totalEvents,
+          },
+          {
+            key: "albums",
+            Icon: Camera,
+            label: "Albums",
+            badge: stats.totalAlbums,
+          },
+          {
+            key: "departments",
+            Icon: BookOpen,
+            label: "Departments",
+            badge: "✨",
+          },
+          { key: "users", Icon: Users, label: "Admin Users", badge: "👤" },
+        ];
 
   const STAT_CARDS =
     user.role === "admin"
@@ -391,16 +420,27 @@ const AdminDashboard = () => {
             </motion.div>
           )}
           {activeTab === "departments" && (
-                <motion.div
-                  key="departments"
-                  variants={iv}
-                  initial="hidden"
-                  animate="visible"
-                  exit={{ opacity: 0 }}
-                >
-                  <DepartmentTab onError={setError} onSuccess={setSuccess} />
-                </motion.div>
-              )}
+            <motion.div
+              key="departments"
+              variants={iv}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0 }}
+            >
+              <DepartmentTab onError={setError} onSuccess={setSuccess} />
+            </motion.div>
+          )}
+          {activeTab === "users" && (
+            <motion.div
+              key="users"
+              variants={iv}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0 }}
+            >
+              <AdminUsersTab onError={setError} onSuccess={setSuccess} />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Detail Modal for Alumni & Donations */}
