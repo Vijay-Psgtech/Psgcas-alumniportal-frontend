@@ -433,7 +433,16 @@ const AlumniDirectory = () => {
     departmentStats: 0,
   });
   const [selectedAlumni, setSelectedAlumni] = useState(null);
-  const params = isAdmin ? { department: user.department } : {};
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const itemsPerPage = 12;
+  // ✅ Memoize params to prevent unnecessary object recreation
+  const params = useMemo(() => 
+    isAdmin ? { department: user.department } : {},
+    [isAdmin, user.department]
+  );
 
   // ── Load batches ──
   useEffect(() => {
@@ -491,16 +500,26 @@ const AlumniDirectory = () => {
   }, []);
 
   // ── Load alumni for a batch ──
-  const loadBatch = useCallback(async (year) => {
+  const loadBatch = useCallback(async (year, pageNum = 1, searchStr = "", occFilter = "", deptFilter = "") => {
     try {
       setLoading(true);
       setError("");
-      setSearch("");
-      setFilterOccupation("");
-      setFilterDept("");
-      const res = await alumniAPI.getByBatch({ batchYear: year, ...params }); // GET /api/alumni/batch-wise?batchYear=year
+      
+      const res = await alumniAPI.getByBatch({
+        batchYear: year,
+        page: pageNum,
+        limit: itemsPerPage,
+        search: searchStr || undefined,
+        occupation: occFilter || undefined,
+        department: deptFilter || undefined,
+        ...params,
+      }); // GET /api/alumni/batch-wise?batchYear=year&page=1&limit=12&search=...
+      
       const data = res.data;
-      setAlumniList(data.alumni || data || []);
+      setAlumniList(data.alumni || []);
+      setTotal(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+      setCurrentPage(data.page || 1);
       setSelectedBatch(year);
       setView("alumni");
     } catch (e) {
@@ -508,22 +527,23 @@ const AlumniDirectory = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [itemsPerPage, params]);
 
-  // ── Filtered alumni list ──
+  // ── Handle filter/search changes (debounced) ──
+  useEffect(() => {
+    if (!selectedBatch) return;
+    
+    const timer = setTimeout(() => {
+      loadBatch(selectedBatch, 1, search, filterOccupation, filterDept);
+    }, 300); // 300ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [search, filterOccupation, filterDept, selectedBatch]); // ✅ Removed loadBatch from dependencies to prevent infinite loop
+
+  // ── Filtered alumni list (backend handles filtering now) ──
   const filtered = useMemo(() => {
-    return alumniList.filter((a) => {
-      const fullName = `${a.firstName} ${a.lastName}`.toLowerCase();
-      const matchSearch =
-        !search ||
-        fullName.includes(search.toLowerCase()) ||
-        a.email?.toLowerCase().includes(search.toLowerCase()) ||
-        a.rollNumber?.toLowerCase().includes(search.toLowerCase());
-      const matchOcc = !filterOccupation || a.occupation === filterOccupation;
-      const matchDept = !filterDept || a.department === filterDept;
-      return matchSearch && matchOcc && matchDept;
-    });
-  }, [alumniList, search, filterOccupation, filterDept]);
+    return alumniList; // Backend already filters, pagination handles the rest
+  }, [alumniList]);
 
   // ── Unique filter options ──
   const occupations = useMemo(
@@ -542,9 +562,7 @@ const AlumniDirectory = () => {
     return { fullCards, limitedCards };
   }, [filtered, user]);
 
-  const totalAlumni = alumniList.length;
-
-  /* ── Render ── */
+  /* Display info - use total from pagination for accuracy */
   return (
     <>
     <div className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
@@ -610,7 +628,7 @@ const AlumniDirectory = () => {
 
               {view === "alumni" && !loading && (
                 <p className="text-sm text-slate-400 font-medium mt-1">
-                  {totalAlumni} alumni found
+                  {total} alumni found
                   {!isAdmin && (
                     <span className="ml-2 text-indigo-400">
                       · {fullCards.length} full profile
@@ -1001,6 +1019,47 @@ const AlumniDirectory = () => {
                         </div>
                       )}
                     </section>
+                  )}
+
+                  {/* ── Pagination Controls (between full & limited) ── */}
+                  {totalPages > 1 && fullCards.length > 0 && (
+                    <div className="flex items-center justify-center gap-2 my-8 px-4 flex-wrap">
+                      <button
+                        onClick={() => loadBatch(selectedBatch, Math.max(1, currentPage - 1), search, filterOccupation, filterDept)}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      >
+                        ← Prev
+                      </button>
+
+                      <div className="flex items-center gap-1 flex-wrap justify-center">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => loadBatch(selectedBatch, page, search, filterOccupation, filterDept)}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                              currentPage === page
+                                ? "bg-indigo-600 text-white shadow-md"
+                                : "border border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => loadBatch(selectedBatch, Math.min(totalPages, currentPage + 1), search, filterOccupation, filterDept)}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      >
+                        Next →
+                      </button>
+
+                      <span className="text-xs text-slate-500 font-medium ml-4">
+                        Page {currentPage} of {totalPages} • Total: {total} alumni
+                      </span>
+                    </div>
                   )}
 
                   {/* ── Limited-detail section ── */}

@@ -34,6 +34,8 @@ const AlumniUsersList = () => {
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const { user } = useAuth();
   const department = user.department || "";
 
@@ -111,6 +113,16 @@ const AlumniUsersList = () => {
     deptFilter,
     batchFilter,
   ]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAndSortedAlumni.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAlumni = filteredAndSortedAlumni.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, sortBy, sortOrder, deptFilter, batchFilter]);
 
   const departments = useMemo(() => {
     return Array.from(
@@ -322,8 +334,8 @@ const AlumniUsersList = () => {
 
             <div className="flex items-center gap-3">
               <div className="text-xs text-gray-500">
-                Showing <strong>{filteredAndSortedAlumni.length}</strong> of{" "}
-                <strong>{alumniUsers.length}</strong>
+                Showing <strong>{paginatedAlumni.length}</strong> of{" "}
+                <strong>{filteredAndSortedAlumni.length}</strong> (Page {currentPage} of {totalPages})
               </div>
 
               {/* View Toggle */}
@@ -376,8 +388,9 @@ const AlumniUsersList = () => {
             </p>
           </motion.div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedAlumni.map((alumni, idx) => (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedAlumni.map((alumni, idx) => (
               <motion.div
                 key={alumni._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -487,35 +500,78 @@ const AlumniUsersList = () => {
                 </div>
               </motion.div>
             ))}
-          </div>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  ← Prev
+                </button>
+
+                <div className="flex items-center gap-1 flex-wrap justify-center">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                        currentPage === page
+                          ? "bg-blue-500 text-white"
+                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Next →
+                </button>
+
+                <span className="text-xs text-slate-500 font-medium ml-4">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </div>
+            )}
+          </>
         ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
-                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Alumni
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Contact
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Department & Year
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Company
-                    </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Status
-                    </th>
-                    <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAndSortedAlumni.map((alumni, idx) => (
+          <>
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Alumni
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Contact
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Department & Year
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Company
+                      </th>
+                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginatedAlumni.map((alumni, idx) => (
                     <motion.tr
                       key={alumni._id}
                       initial={{ opacity: 0, y: 10 }}
@@ -625,6 +681,48 @@ const AlumniUsersList = () => {
               </table>
             </div>
           </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  ← Prev
+                </button>
+
+                <div className="flex items-center gap-1 flex-wrap justify-center">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                        currentPage === page
+                          ? "bg-purple-500 text-white"
+                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Next →
+                </button>
+
+                <span className="text-xs text-slate-500 font-medium ml-4">
+                  Page {currentPage} of {totalPages}
+                </span>
+              </div>
+            )}
+          </>
         )}
         {/* Detail Modal for Alumni & Donations */}
         <AnimatePresence>
