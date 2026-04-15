@@ -438,13 +438,14 @@ const ModernFooter = () => {
           {/* Bottom Section */}
           <div className="footer-bottom">
             <div className="footer-copyright">
-              <span>&copy; {currentYear} PSG Arts Alumni Network</span>
+              <span>&copy; {currentYear} Powered by Central IT Services</span>
               <Heart size={14} style={{ color: "#c83e7d" }} />
+              <span>PSG Institutions</span>
             </div>
             <div className="footer-links-bottom">
-              <a href="/privacy" className="footer-link-bottom">Privacy Policy</a>
-              <a href="/terms" className="footer-link-bottom">Terms of Service</a>
-              <a href="/cookies" className="footer-link-bottom">Cookie Settings</a>
+              <a href="#" className="footer-link-bottom">Privacy Policy</a>
+              <a href="#" className="footer-link-bottom">Terms of Service</a>
+              <a href="#" className="footer-link-bottom">Cookie Settings</a>
             </div>
           </div>
         </div>

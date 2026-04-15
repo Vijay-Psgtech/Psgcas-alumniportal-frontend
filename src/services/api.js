@@ -139,9 +139,9 @@ export const alumniAPI = {
         "Content-Type": "multipart/form-data",
       },
     }),
-  getStats: () => api.get("/alumni/stats"),
-  getMapData: () => api.get("/alumni/map/data"),
-  getBatches: () => api.get("/alumni/batches"),
+  getStats: (params) => api.get("/alumni/stats", { params }),
+  getMapData: (params) => api.get("/alumni/map/data", { params }),
+  getBatches: (params) => api.get("/alumni/batches", { params }),
   getByBatch: (params) => api.get("/alumni/batch-wise", { params }),
   // ✅ ALUMNI CHAPTERS API
   getChapters: (params) => api.get("/alumni/chapters", { params }),

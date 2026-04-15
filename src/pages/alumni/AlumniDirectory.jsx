@@ -411,7 +411,7 @@ const AlumniCardLimited = ({ alumni, index }) => {
 ═══════════════════════════════════════════ */
 const AlumniDirectory = () => {
   const { user } = useAuth();
-  const isAdmin = (user?.role === "admin" || user?.role === "superadmin") || false;
+  const isAdmin = (user?.role === "admin") || false;
 
   // ── State ──
   const [view, setView] = useState("batches"); // "batches" | "alumni"
@@ -433,13 +433,14 @@ const AlumniDirectory = () => {
     departmentStats: 0,
   });
   const [selectedAlumni, setSelectedAlumni] = useState(null);
+  const params = isAdmin ? { department: user.department } : {};
 
   // ── Load batches ──
   useEffect(() => {
     (async () => {
       try {
         setBatchLoading(true);
-        const res = await alumniAPI.getBatches(); // GET /api/alumni/batches
+        const res = await alumniAPI.getBatches(params); // GET /api/alumni/batches
         const data = res.data;
         const rawYears = Array.isArray(data.batches)
           ? data.batches
@@ -476,7 +477,7 @@ const AlumniDirectory = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await alumniAPI.getStats(); // GET /api/alumni/stats
+        const res = await alumniAPI.getStats(params); // GET /api/alumni/stats
         const data = res.data.data;
         setStats({
           totalAlumni: data.totalAlumni || 0,
@@ -497,7 +498,7 @@ const AlumniDirectory = () => {
       setSearch("");
       setFilterOccupation("");
       setFilterDept("");
-      const res = await alumniAPI.getByBatch({ batchYear: year }); // GET /api/alumni/batch-wise?batchYear=year
+      const res = await alumniAPI.getByBatch({ batchYear: year, ...params }); // GET /api/alumni/batch-wise?batchYear=year
       const data = res.data;
       setAlumniList(data.alumni || data || []);
       setSelectedBatch(year);
@@ -579,7 +580,7 @@ const AlumniDirectory = () => {
               </p>
               <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
                 {view === "batches"
-                  ? "Alumni Directory"
+                  ? `Alumni Directory - ${isAdmin ? `Department ${user?.department || "N/A"}` : `Batch ${user?.batchYear || "Years"}`}`
                   : `Batch of ${selectedBatch}`}
               </h1>
 

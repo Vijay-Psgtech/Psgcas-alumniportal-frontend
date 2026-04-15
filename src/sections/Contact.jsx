@@ -599,7 +599,6 @@ const ContactPage = () => {
               </div>
               <div className="info-content">
                 <p><a href="mailto:alumni@psgcas.ac.in">alumni@psgcas.ac.in</a></p>
-                <p><a href="mailto:alumni.cascas@psgtech.ac.in">alumni.cascas@psgtech.ac.in</a></p>
               </div>
             </div>
 
