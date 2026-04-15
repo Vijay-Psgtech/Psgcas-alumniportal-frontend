@@ -303,14 +303,14 @@ const AlumniMap = () => {
 
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 flex-shrink-0 select-none">
-                        {selectedAlumni.files.currentPhoto ? (
+                        {selectedAlumni.files?.currentPhoto ? (
                           <img
-                            src={`${API_BASE}/uploads/${selectedAlumni.files.currentPhoto}`}
+                            src={`${API_BASE}/uploads/${selectedAlumni.files?.currentPhoto}`}
                             alt="Profile"
                             className="w-full h-full object-cover hover:cursor-pointer"
                             onClick={() => {
                               setSelectedImage(
-                                selectedAlumni.files.currentPhoto,
+                                selectedAlumni.files?.currentPhoto,
                               );
                               setImageModal(true);
                             }}
