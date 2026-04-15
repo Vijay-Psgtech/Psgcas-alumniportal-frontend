@@ -253,6 +253,7 @@ export const donationAPI = {
 export const adminReportsAPI = {
   fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
   fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
+  fetchAlumniDataByDepartment: () => api.get("/reports/alumni-data-by-department"),
 };
 
 // ── ✅ Notification API ───────────────────────────────────────────────

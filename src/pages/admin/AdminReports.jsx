@@ -6,6 +6,9 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { adminReportsAPI, API_BASE } from "../../services/api";
 
@@ -15,6 +18,7 @@ const AdminReports = () => {
   const [totalAlumniCount, setTotalAlumniCount] = useState(0);
   const [alumniData, setAlumniData] = useState([]);
   const [alumniList, setAlumniList] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -44,6 +48,21 @@ const AdminReports = () => {
     fetchAlumniData();
   }, []);
 
+  useEffect(() => {
+    const fetchAlumniDataByDepartment = async () => {
+      try {
+        const res = await adminReportsAPI.fetchAlumniDataByDepartment();
+        const data = res?.data?.data;
+        if (data) {
+          setDepartmentData(data.countByDepartment || []);
+        }
+      } catch (fetchError) {
+        console.error("Failed to load alumni data by department:", fetchError);
+      }
+    };
+    fetchAlumniDataByDepartment();
+  }, []);
+
   const chartData = useMemo(() => {
     return (alumniData || [])
       .slice()
@@ -61,8 +80,8 @@ const AdminReports = () => {
           Admin Reports
         </h1>
         <p className="mt-1 text-sm text-slate-600 max-w-2xl">
-          Keep an eye on alumni growth and engagement. Use this dashboard to monitor recent
-          sign-ups and year-over-year registration trends.
+          Keep an eye on alumni growth and engagement. Use this dashboard to
+          monitor recent sign-ups and year-over-year registration trends.
         </p>
       </header>
 
@@ -78,7 +97,9 @@ const AdminReports = () => {
         <>
           <section className="grid gap-6 lg:grid-cols-3 mb-8">
             <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
-              <h2 className="text-sm font-semibold text-slate-500">Total Alumni</h2>
+              <h2 className="text-sm font-semibold text-slate-500">
+                Total Alumni
+              </h2>
               <p className="mt-2 text-3xl font-semibold text-slate-800">
                 {formatNumber(totalAlumniCount)}
               </p>
@@ -88,7 +109,9 @@ const AdminReports = () => {
             </div>
 
             <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
-              <h2 className="text-sm font-semibold text-slate-500">Year range</h2>
+              <h2 className="text-sm font-semibold text-slate-500">
+                Year range
+              </h2>
               <p className="mt-2 text-3xl font-semibold text-slate-800">
                 {chartData.length > 0
                   ? `${chartData[0].year} – ${chartData[chartData.length - 1].year}`
@@ -100,7 +123,9 @@ const AdminReports = () => {
             </div>
 
             <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
-              <h2 className="text-sm font-semibold text-slate-500">Latest Signups</h2>
+              <h2 className="text-sm font-semibold text-slate-500">
+                Latest Signups
+              </h2>
               <p className="mt-2 text-3xl font-semibold text-slate-800">
                 {formatNumber(recentAlumni.length)}
               </p>
@@ -113,7 +138,9 @@ const AdminReports = () => {
           <section className="grid gap-6 lg:grid-cols-2 mb-8">
             <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-lg font-semibold text-slate-800">Alumni by Year</h2>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Alumni by Year
+                </h2>
                 <p className="mt-2 sm:mt-0 text-sm text-slate-500">
                   Year-over-year registration counts
                 </p>
@@ -121,7 +148,10 @@ const AdminReports = () => {
 
               <div className="mt-6 h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
                     <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                     <YAxis tickFormatter={(value) => formatNumber(value)} />
                     <Tooltip formatter={(value) => formatNumber(value)} />
@@ -131,7 +161,42 @@ const AdminReports = () => {
               </div>
             </div>
 
+            
+
             <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Alumni by Department
+                </h2>
+                <p className="mt-2 sm:mt-0 text-sm text-slate-500">
+                  Distribution of alumni across departments
+                </p>
+              </div>
+
+              <div className="mt-6 h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={departmentData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="count"
+                      label={({ department, percent }) => `${department} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {departmentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042'][index % 4]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => formatNumber(value)} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </section>
+          <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-lg font-semibold text-slate-800">
                   Recently Registered Alumni
@@ -154,7 +219,10 @@ const AdminReports = () => {
                     </thead>
                     <tbody className="text-gray-700">
                       {recentAlumni.map((alumni) => (
-                        <tr key={alumni._id || alumni.email} className="hover:bg-gray-50">
+                        <tr
+                          key={alumni._id || alumni.email}
+                          className="hover:bg-gray-50"
+                        >
                           <td className="py-3 px-4 border-b flex items-center gap-3 font-medium">
                             <img
                               src={
@@ -167,9 +235,15 @@ const AdminReports = () => {
                             />
                             {alumni.firstName} {alumni.lastName || ""}
                           </td>
-                          <td className="py-3 px-4 border-b">{alumni.batchYear || "—"}</td>
-                          <td className="py-3 px-4 border-b">{alumni.department || "—"}</td>
-                          <td className="py-3 px-4 border-b">{alumni.email || "—"}</td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.batchYear || "—"}
+                          </td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.department || "—"}
+                          </td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.email || "—"}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -183,20 +257,27 @@ const AdminReports = () => {
                       className="rounded-xl border border-slate-200 bg-slate-50 p-4"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            alumni.profileImage
-                              ? `${API_BASE}/${alumni.profileImage}`
-                              : "/default-avatar.png"
-                          }
-                          alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
-                          className="w-10 h-10 rounded-full border object-cover"
-                        />
+                        {alumni.files?.currentPhoto ? (
+                          <img
+                            src={`${API_BASE}/uploads/${alumni.files?.currentPhoto}`}
+                            alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
+                            className="w-10 h-10 rounded-full border object-cover"
+                          />
+                        ) : (
+                          <img
+                            src="/default-avatar.png"
+                            alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
+                            className="w-10 h-10 rounded-full border object-cover"
+                          />
+                        )}
+
                         <div>
                           <p className="text-sm font-semibold text-slate-800">
                             {alumni.firstName} {alumni.lastName || ""}
                           </p>
-                          <p className="text-xs text-slate-500">{alumni.email || "—"}</p>
+                          <p className="text-xs text-slate-500">
+                            {alumni.email || "—"}
+                          </p>
                         </div>
                       </div>
 
@@ -215,7 +296,6 @@ const AdminReports = () => {
                 </div>
               </div>
             </div>
-          </section>
         </>
       )}
     </div>
