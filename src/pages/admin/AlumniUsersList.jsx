@@ -150,6 +150,11 @@ const AlumniUsersList = () => {
     }
   };
 
+  // Scroll to top smoothly
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
@@ -506,7 +511,10 @@ const AlumniUsersList = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => {
+                    scrollToTop();
+                    setCurrentPage(Math.max(1, currentPage - 1));
+                  }}
                   disabled={currentPage === 1}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
@@ -517,7 +525,10 @@ const AlumniUsersList = () => {
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => {
+                        scrollToTop();
+                        setCurrentPage(page);
+                      }}
                       className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                         currentPage === page
                           ? "bg-blue-500 text-white"
@@ -530,7 +541,10 @@ const AlumniUsersList = () => {
                 </div>
 
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => {
+                    scrollToTop();
+                    setCurrentPage(Math.min(totalPages, currentPage + 1));
+                  }}
                   disabled={currentPage === totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
@@ -686,7 +700,10 @@ const AlumniUsersList = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => {
+                    scrollToTop();
+                    setCurrentPage(Math.max(1, currentPage - 1));
+                  }}
                   disabled={currentPage === 1}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
@@ -697,7 +714,10 @@ const AlumniUsersList = () => {
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => {
+                        scrollToTop();
+                        setCurrentPage(page);
+                      }}
                       className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                         currentPage === page
                           ? "bg-purple-500 text-white"
@@ -710,7 +730,10 @@ const AlumniUsersList = () => {
                 </div>
 
                 <button
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  onClick={() => {
+                    scrollToTop();
+                    setCurrentPage(Math.min(totalPages, currentPage + 1));
+                  }}
                   disabled={currentPage === totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Search,
   Clock,
@@ -21,6 +21,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { a } from "framer-motion/client";
 
 export const AlumniTab = ({ alumniList, setSelectedItem }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +30,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
   const [batchFilter, setBatchFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const alumniRef = useRef(null);
 
   const departments = Array.from(
     new Set(alumniList.map((a) => a.department).filter(Boolean)),
@@ -94,6 +96,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
 
   const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
 
+
   return (
     <motion.div
       initial="hidden"
@@ -102,7 +105,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
       className="flex flex-col gap-6"
     >
       {/* Rich Search Input & Filters */}
-      <div className="flex flex-col gap-4">
+      <div ref={alumniRef} className="flex flex-col gap-4">
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-[22px] blur opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
           <div className="relative bg-white border border-slate-200 rounded-2xl p-4 flex gap-3 items-center shadow-sm transition-all duration-300 focus-within:shadow-xl focus-within:border-white/50">
@@ -199,7 +202,7 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
 
       {filtered.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <AnimatePresence>
               {paginatedAlumni.map((a, i) => {
               const photo = a.files?.currentPhoto || a.profileImage;
@@ -321,7 +324,10 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
               <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => {
+                  alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                  setCurrentPage(Math.max(1, currentPage - 1));
+                }}
                 disabled={currentPage === 1}
                 className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
@@ -332,7 +338,10 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => {
+                      alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                      setCurrentPage(page);
+                    }}
                     className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                       currentPage === page
                         ? "bg-slate-900 text-white"
@@ -345,7 +354,10 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
               </div>
 
               <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => {
+                  alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                  setCurrentPage(Math.min(totalPages, currentPage + 1));
+                }}
                 disabled={currentPage === totalPages}
                 className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
