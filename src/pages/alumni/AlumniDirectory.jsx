@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniDirectory.jsx
 // ✅ Batch-first directory — Admin sees all, Alumni sees own batch full / others limited
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -412,6 +412,7 @@ const AlumniCardLimited = ({ alumni, index }) => {
 const AlumniDirectory = () => {
   const { user } = useAuth();
   const isAdmin = (user?.role === "admin") || false;
+  const alumniRef = useRef(null);
 
   // ── State ──
   const [view, setView] = useState("batches"); // "batches" | "alumni"
@@ -776,7 +777,7 @@ const AlumniDirectory = () => {
               exit={{ opacity: 0 }}
             >
               {/* Search + Filters */}
-              <div className="flex flex-col gap-3 mb-5">
+              <div ref={alumniRef} className="flex flex-col gap-3 mb-5">
                 {/* Search bar */}
                 <div className="relative">
                   <Search
@@ -1025,7 +1026,10 @@ const AlumniDirectory = () => {
                   {totalPages > 1 && fullCards.length > 0 && (
                     <div className="flex items-center justify-center gap-2 my-8 px-4 flex-wrap">
                       <button
-                        onClick={() => loadBatch(selectedBatch, Math.max(1, currentPage - 1), search, filterOccupation, filterDept)}
+                        onClick={() => {
+                          alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                          loadBatch(selectedBatch, Math.max(1, currentPage - 1), search, filterOccupation, filterDept);
+                        }}
                         disabled={currentPage === 1}
                         className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
@@ -1036,7 +1040,10 @@ const AlumniDirectory = () => {
                         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                           <button
                             key={page}
-                            onClick={() => loadBatch(selectedBatch, page, search, filterOccupation, filterDept)}
+                            onClick={() => {
+                              alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                              loadBatch(selectedBatch, page, search, filterOccupation, filterDept);
+                            }}
                             className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                               currentPage === page
                                 ? "bg-indigo-600 text-white shadow-md"
@@ -1049,7 +1056,10 @@ const AlumniDirectory = () => {
                       </div>
 
                       <button
-                        onClick={() => loadBatch(selectedBatch, Math.min(totalPages, currentPage + 1), search, filterOccupation, filterDept)}
+                        onClick={() => {
+                          alumniRef.current.scrollIntoView({ behavior: "smooth" });
+                          loadBatch(selectedBatch, Math.min(totalPages, currentPage + 1), search, filterOccupation, filterDept);
+                        }}
                         disabled={currentPage === totalPages}
                         className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
