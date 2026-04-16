@@ -22,6 +22,8 @@ const AdminUsersTab = ({ onError = () => {}, onSuccess = () => {} }) => {
   const [editingId, setEditingId] = useState(null);
   const [search, setSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   const fetchUsers = async () => {
     try {
@@ -71,6 +73,12 @@ const AdminUsersTab = ({ onError = () => {}, onSuccess = () => {} }) => {
         .some((value) => value.toLowerCase().includes(term));
     });
   }, [search, users]);
+
+  // pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   const resetForm = () => {
     setEditingId(null);
@@ -393,7 +401,7 @@ const AdminUsersTab = ({ onError = () => {}, onSuccess = () => {} }) => {
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
+                  currentUsers.map((user) => (
                     <tr
                       key={user._id || user.id}
                       className="border-t border-slate-200"
@@ -444,6 +452,32 @@ const AdminUsersTab = ({ onError = () => {}, onSuccess = () => {} }) => {
               </tbody>
             </table>
           </div>
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-slate-600">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-sm text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        
         </section>
       </div>
     </motion.div>

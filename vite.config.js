@@ -6,7 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: ["localhost", "alumnitestpsgcas.psginstitutions.in"],
+    allowedHosts: ["localhost", "alumnitestpsgcas.psginstitutions.in", "alumni.psgcas.ac.in", "www.alumni.psgcas.ac.in"],
     // ✅ ADDED: Proxy forwards all /api requests to Express on port 5000
     // Without this, /api/auth/forgot-password hits Vite → 404
     proxy: {
