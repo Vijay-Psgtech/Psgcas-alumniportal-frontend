@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Images,
@@ -16,6 +16,7 @@ import {
   Maximize2,
 } from "lucide-react";
 import { albumsAPI, API_BASE } from "../services/api";
+import usePageTitle from "../hooks/usePageTitle";
 
 /* ─── helpers ─── */
 
@@ -123,6 +124,7 @@ const GalleryPage = () => {
   const [filterYear, setFilterYear] = useState("");
   const [gridDense, setGridDense] = useState(false);
   const [imgLoadMap, setImgLoadMap] = useState({}); // track loaded state per img
+  usePageTitle("Gallery");
 
   /* ── fetch ── */
   useEffect(() => {

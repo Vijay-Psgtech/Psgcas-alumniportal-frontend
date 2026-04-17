@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniDashboard.jsx
 // ✅ No sidebar, no nav — clean full-width dashboard
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +28,7 @@ import {
 import SendNotification from "./SendNotification";
 import NotificationInbox from "./NotificationInbox";
 import { notificationAPI, alumniAPI } from "../../services/api";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─── helpers ─── */
 const avatarColors = [
@@ -118,6 +119,8 @@ const AlumniDashboard = () => {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  usePageTitle(` Dashboard - ${user?.firstName ?? "Alumni"}`);
 
   const initials =
     `${user?.firstName?.charAt(0) ?? ""}${user?.lastName?.charAt(0) ?? ""}`.toUpperCase();

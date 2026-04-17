@@ -1,7 +1,7 @@
 // frontend/src/pages/admin/AdminDashboard.jsx - SAFE VERSION
 // ✅ Works even if donationsAPI is missing
 // ✅ Falls back gracefully
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, use } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 // Import Refactored Components
 import { EventsTab } from "../../components/admin/EventsTab";
@@ -61,6 +62,7 @@ const AdminDashboard = () => {
     totalAlbums: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
+  usePageTitle(user.role === "admin" ? `${department} Dashboard` : "Admin Dashboard");
 
   const iv = {
     hidden: { opacity: 0, y: 18 },

@@ -8,10 +8,13 @@ import { useNavigate } from "react-router-dom";
 import { Heart, LogOut, ChevronLeft, Check, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { donationAPI } from "../../services/api";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const AlumniDonations = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  usePageTitle("Make a Donation");
+  
 
   const [donationAmount, setDonationAmount] = useState("");
   const [purpose, setPurpose] = useState("general");

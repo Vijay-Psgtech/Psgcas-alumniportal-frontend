@@ -6,7 +6,7 @@
 // ✅ FIXED: Proper FormData field appending (not wrapped in payload)
 // ✅ FIXED: alumniId mapping from _id
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, use } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { authAPI, departmentAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const STEPS = [
@@ -309,6 +310,8 @@ const AlumniRegistration = () => {
   // ✅ DYNAMIC DEPARTMENTS STATE
   const [departments, setDepartments] = useState([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(false);
+
+  usePageTitle("Sign Up");
 
   // File uploads
   const [files, setFiles] = useState({

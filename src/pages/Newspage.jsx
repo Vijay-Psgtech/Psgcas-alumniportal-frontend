@@ -3,9 +3,12 @@ import { Search, Calendar, Share2, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { newsLetterAPI, API_BASE } from "../services/api";
 import { Link } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
+
 
 const NewsPage = () => {
   const [newsData, setNewsData] = useState([]);
+  usePageTitle("News & Updates");
 
   // Now use the defined newsData in state
   const [searchQuery, setSearchQuery] = useState("");

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, MapPin, Users, Search, ChevronRight, Sparkles, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { eventsAPI } from "../services/api";
+import usePageTitle from "../hooks/usePageTitle";
+
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -235,6 +237,7 @@ const EventCard = ({ event, idx }) => {
 const ReunionsPage = () => {
   const [reunionEvents, setReunionEvents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  usePageTitle("Events");
 
   // Fetch only reunion events (by category)
   useEffect(() => {

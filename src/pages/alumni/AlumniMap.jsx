@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniMap.jsx
 // ✅ Redesigned with Tailwind CSS — no custom <style> block
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { alumniAPI, API_BASE } from "../../services/api";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ImageModal from "../../components/ImageModal";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -118,6 +119,7 @@ const AlumniMap = () => {
   });
   const [imageModal, setImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  usePageTitle("Alumni World Map");
 
   useEffect(() => {
     const loadMapData = async () => {

@@ -5,15 +5,17 @@
 //   3. Role-based redirect: admin → /alumni/dashboard, alumni → /alumni/profile
 //   4. Password input has padding-right so text doesn't hide under eye toggle
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, use } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { LogIn, AlertCircle, Eye, EyeOff, Loader } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const AlumniLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth(); // ✅ FIX 1: get login() from context
+  usePageTitle("Sign In");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

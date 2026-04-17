@@ -10,8 +10,10 @@ import Contact from "../sections/Contact";
 import WhatIsNew from "../sections/Whatisnew";
 import Stats from "../sections/Stats";
 import WelcomeSection from "../sections/Welcomesection";
+import usePageTitle from "../hooks/usePageTitle";
 
 const HomePageInnovative = () => {
+  usePageTitle("Offical Community Portal for PSG Arts Alumni");
   return (
     <>
       <style>{`
