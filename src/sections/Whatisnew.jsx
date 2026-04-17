@@ -13,8 +13,6 @@ const WhatIsNew = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
 
-
-
   const newsletters = [
     {
       id: 1,
@@ -26,7 +24,7 @@ const WhatIsNew = () => {
       thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
       image:
         "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
+      pdfUrl: "/PDF/oct_dec_25.pdf",
       category: "newsletter",
       excerpt:
         "Stay updated with the latest alumni achievements, events, and success stories from our community.",
@@ -43,7 +41,7 @@ const WhatIsNew = () => {
       thumbnail: "linear-gradient(135deg, #0369A1 0%, #06B6D4 100%)",
       image:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
+      pdfUrl: "/PDF/jul_sep_25.pdf",
       category: "newsletter",
       excerpt:
         "Connecting alumni across the globe through inspiring stories and valuable updates.",
@@ -55,13 +53,12 @@ const WhatIsNew = () => {
       title: "In Their Words: Thank You to Our Teachers",
       date: "Sep 09, 2025",
       views: 789,
-      fileName: "Teachers_Appreciation_2025.pdf",
-      fileSize: "12 MB",
+      fileName: "",
+      fileSize: "",
       thumbnail: "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)",
       image:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl:
-        "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
+      pdfUrl: "",
       category: "alumni-stories",
       excerpt:
         "Celebrating the dedication and impact of our beloved faculty members.",
@@ -77,7 +74,7 @@ const WhatIsNew = () => {
 
   const handleOpenPDF = (pdf) => {
     if (pdf.pdfUrl) {
-      window.open(pdf.pdfUrl, '_blank');
+      window.open(pdf.pdfUrl, "_blank");
       console.log("📄 Opening PDF in new tab:", pdf.pdfUrl);
     } else {
       console.error("❌ PDF URL not available");
@@ -953,7 +950,8 @@ const WhatIsNew = () => {
             What's <span>New</span>
           </h2>
           <p className="whats-new-subtitle">
-            Discover the latest alumni newsletters and brochures. Click any card to view the complete PDF with our interactive viewer.
+            Discover the latest alumni newsletters and brochures. Click any card
+            to view the complete PDF with our interactive viewer.
           </p>
           <div className="header-line"></div>
         </div>
@@ -987,9 +985,9 @@ const WhatIsNew = () => {
               key={item.id}
               className="newsletter-card"
               style={{
-                '--card-color': item.color,
-                '--card-bg': item.bgColor,
-                '--thumbnail': item.thumbnail
+                "--card-color": item.color,
+                "--card-bg": item.bgColor,
+                "--thumbnail": item.thumbnail,
               }}
               onClick={() => handleOpenPDF(item)}
               onMouseEnter={() => setHoveredCard(item.id)}
@@ -1039,17 +1037,24 @@ const WhatIsNew = () => {
                   </div>
 
                   <div className="cta-group">
-                    <button className="view-btn" onClick={(e) => {
-                      e.preventDefault();
-                      handleOpenPDF(item);
-                    }}>
+                    <button
+                      className="view-btn"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenPDF(item);
+                      }}
+                    >
                       <FileText size={16} />
                       View PDF
                     </button>
-                    <button className="download-btn" title="Download" onClick={(e) => {
-                      e.preventDefault();
-                      downloadPDF(item);
-                    }}>
+                    <button
+                      className="download-btn"
+                      title="Download"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        downloadPDF(item);
+                      }}
+                    >
                       <Download size={18} />
                     </button>
                   </div>
