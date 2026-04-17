@@ -1,7 +1,7 @@
 // frontend/src/pages/admin/AdminDashboard.jsx - SAFE VERSION
 // ✅ Works even if donationsAPI is missing
 // ✅ Falls back gracefully
-import React, { useState, useEffect, useCallback, use } from "react";
+import React, { useState, useEffect, useCallback, use, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -45,7 +45,6 @@ const formatINR = (amount) =>
 
 const AdminDashboard = () => {
   const { logout, user } = useAuth();
-  const department = user.department || "";
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("alumni");
   const [loading, setLoading] = useState(true);
@@ -53,6 +52,11 @@ const AdminDashboard = () => {
   const [success, setSuccess] = useState("");
   const [alumniList, setAlumniList] = useState([]);
   const [donationList, setDonationList] = useState([]);
+  const [alumniPageData, setAlumniPageData] = useState({
+    totalAlumni: 0,
+    totalPages: 1,
+    currentPage: 1,
+  });
   const [stats, setStats] = useState({
     totalAlumni: 0,
     pendingAlumni: 0,
@@ -62,7 +66,15 @@ const AdminDashboard = () => {
     totalAlbums: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
-  usePageTitle(user.role === "admin" ? `${department} Dashboard` : "Admin Dashboard");
+
+  const department = user.department || "";
+  const isAdmin = user.role === "admin";
+  usePageTitle(isAdmin ? `${department} Dashboard` : "Admin Dashboard");
+  // ✅ Memoize params to prevent unnecessary object recreation
+  const params = useMemo(
+    () => (isAdmin ? { department: user.department } : {}),
+    [isAdmin, user.department],
+  );
 
   const iv = {
     hidden: { opacity: 0, y: 18 },
@@ -97,10 +109,24 @@ const AdminDashboard = () => {
               },
             };
           }),
-          adminAPI.getAllAlumni({ department: department }).catch((err) => {
-            console.error("Alumni error:", err);
-            return { data: { alumni: [] } };
-          }),
+          // ✅ OPTIMIZED: Pass page and limit parameters
+          adminAPI
+            .getAllAlumni({
+              ...params,
+              page: 1,
+              limit: 20,
+            })
+            .catch((err) => {
+              console.error("Alumni error:", err);
+              return {
+                data: {
+                  alumni: [],
+                  totalAlumni: 0,
+                  totalPages: 1,
+                  currentPage: 1,
+                },
+              };
+            }),
           donationsAPI.getAll().catch((err) => {
             console.error("Donations error:", err);
             return { data: { donations: [] } };
@@ -108,7 +134,15 @@ const AdminDashboard = () => {
         ]);
 
         setStats(statsRes.data.stats || {});
+
+        // ✅ OPTIMIZED: Store paginated data
         setAlumniList(alumniRes.data.alumni || []);
+        setAlumniPageData({
+          totalAlumni: alumniRes.data.totalAlumni || 0,
+          totalPages: alumniRes.data.totalPages || 1,
+          currentPage: alumniRes.data.currentPage || 1,
+        });
+
         setDonationList(donationsRes.data.donations || []);
       } catch (err) {
         console.error("Dashboard load error:", err);
@@ -132,8 +166,20 @@ const AdminDashboard = () => {
       await adminAPI.approveAlumni(id);
       setSuccess("Alumni approved!");
       setSelectedItem(null);
-      const r = await adminAPI.getAllAlumni({ department: department });
+      // ✅ OPTIMIZED: Refetch with current page and limit
+      // ✅ For Admin: Always include their department
+      // ✅ For SuperAdmin: Don't force department
+      const r = await adminAPI.getAllAlumni({
+        ...(user.role === "admin" ? { department: user.department } : {}),
+        page: alumniPageData.currentPage,
+        limit: 20,
+      });
       setAlumniList(r.data.alumni || []);
+      setAlumniPageData({
+        totalAlumni: r.data.totalAlumni || 0,
+        totalPages: r.data.totalPages || 1,
+        currentPage: r.data.currentPage || 1,
+      });
       setTimeout(() => setSuccess(""), 3000);
     } catch (e) {
       setError(e.response?.data?.message || "Failed");
@@ -208,7 +254,7 @@ const AdminDashboard = () => {
           { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
           {
             icon: "🏢",
-            val: alumniList.length,
+            val: alumniPageData.totalAlumni || 0,
             label: `${user.department} Alumni`,
           },
           {
@@ -404,6 +450,60 @@ const AdminDashboard = () => {
               <AlumniTab
                 alumniList={alumniList}
                 setSelectedItem={setSelectedItem}
+                pageData={alumniPageData}
+                onPageChange={async (page) => {
+                  try {
+                    // ✅ For Admin: Always include their department
+                    // ✅ For SuperAdmin: Only pass page/limit params
+                    const queryParams = {
+                      page,
+                      limit: 20,
+                    };
+                    
+                    if (user.role === "admin") {
+                      queryParams.department = user.department;
+                    }
+                    
+                    const res = await adminAPI.getAllAlumni(queryParams);
+                    setAlumniList(res.data.alumni || []);
+                    setAlumniPageData({
+                      totalAlumni: res.data.totalAlumni || 0,
+                      totalPages: res.data.totalPages || 1,
+                      currentPage: res.data.currentPage || 1,
+                    });
+                  } catch (err) {
+                    console.error("Failed to fetch page:", err);
+                    setError("Failed to load alumni page");
+                  }
+                }}
+                onFilterChange={async (filters) => {
+                  try {
+                    // ✅ For Admin: Merge their department with other filters (override any dept selection)
+                    // ✅ For SuperAdmin: Use filters as-is
+                    const queryParams = {
+                      ...filters,
+                      page: 1,
+                      limit: 20,
+                    };
+                    
+                    if (user.role === "admin") {
+                      queryParams.department = user.department;
+                    }
+                    
+                    const res = await adminAPI.getAllAlumni(queryParams);
+                    setAlumniList(res.data.alumni || []);
+                    setAlumniPageData({
+                      totalAlumni: res.data.totalAlumni || 0,
+                      totalPages: res.data.totalPages || 1,
+                      currentPage: res.data.currentPage || 1,
+                    });
+                  } catch (err) {
+                    console.error("Failed to apply filters:", err);
+                    setError("Failed to apply filters");
+                  }
+                }}
+                userRole={user.role}
+                
               />
             </motion.div>
           )}
