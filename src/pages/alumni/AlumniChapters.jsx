@@ -2,7 +2,7 @@
 // ✅ ALUMNI CHAPTERS MODULE
 // Blog-style chapters where alumni can create, edit, and manage local/regional chapters
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -33,6 +33,7 @@ import {
 import { alumniAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─────────────────────────────────────────
    HELPERS & CONSTANTS
@@ -659,6 +660,8 @@ const AlumniChapters = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   const [userChapterIds, setUserChapterIds] = useState([]);
+
+  usePageTitle("Alumni Chapters");
 
   // Redirect if not logged in
   useEffect(() => {

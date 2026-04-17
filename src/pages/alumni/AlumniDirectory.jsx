@@ -38,6 +38,7 @@ import {
 import { alumniAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import AlumniDetailModal from "./AlumniDetailModal";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─────────────────────────────────────────
    Helpers
@@ -413,7 +414,7 @@ const AlumniDirectory = () => {
   const { user } = useAuth();
   const isAdmin = (user?.role === "admin") || false;
   const alumniRef = useRef(null);
-
+  usePageTitle("Alumni Directory");
   // ── State ──
   const [view, setView] = useState("batches"); // "batches" | "alumni"
   const [batches, setBatches] = useState([]);
