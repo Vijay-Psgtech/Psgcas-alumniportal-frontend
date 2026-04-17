@@ -1,67 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   Eye,
   Download,
   FileText,
   Sparkles,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Maximize2,
   Lock,
-  AlertCircle,
   FileCheck,
 } from "lucide-react";
 
 const WhatIsNew = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedPDF, setSelectedPDF] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [pdfError, setPdfError] = useState(null);
-  const canvasRef = useRef(null);
-  const pdfDocRef = useRef(null);
 
-  // Load PDF.js library with proper worker configuration
-  useEffect(() => {
-    const loadPdfJs = async () => {
-      try {
-        const script = document.createElement("script");
-        script.src =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-        script.async = true;
 
-        script.onload = () => {
-          if (window.pdfjsLib) {
-            window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-              "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-            console.log("PDF.js loaded successfully");
-          }
-        };
-
-        script.onerror = () => {
-          console.error("Failed to load PDF.js");
-          setPdfError("Failed to load PDF viewer library");
-        };
-
-        document.head.appendChild(script);
-
-        return () => {
-          if (document.head.contains(script)) {
-            document.head.removeChild(script);
-          }
-        };
-      } catch (error) {
-        console.error("Error setting up PDF.js:", error);
-      }
-    };
-
-    loadPdfJs();
-  }, []);
 
   const newsletters = [
     {
@@ -91,8 +43,7 @@ const WhatIsNew = () => {
       thumbnail: "linear-gradient(135deg, #0369A1 0%, #06B6D4 100%)",
       image:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl:
-        "https://arxiv.org/pdf/quant-ph/0410100.pdf",
+      pdfUrl: "/PDF/VisitorPass.pdf",
       category: "newsletter",
       excerpt:
         "Connecting alumni across the globe through inspiring stories and valuable updates.",
@@ -124,113 +75,29 @@ const WhatIsNew = () => {
       ? newsletters
       : newsletters.filter((n) => n.category === activeTab);
 
-  const handleOpenPDF = async (pdf) => {
-    setSelectedPDF(pdf);
-    setCurrentPage(1);
-    setLoading(true);
-    setPdfError(null);
-
-    try {
-      if (!window.pdfjsLib) {
-        setPdfError("PDF viewer is not loaded. Please refresh the page.");
-        setLoading(false);
-        return;
-      }
-
-      const pdfUrl = pdf.pdfUrl;
-      console.log("Loading PDF from:", pdfUrl);
-
-      const loadingTask = window.pdfjsLib.getDocument({
-        url: pdfUrl,
-        withCredentials: false,
-      });
-
-      const pdfDoc = await loadingTask.promise;
-      pdfDocRef.current = pdfDoc;
-      setTotalPages(pdfDoc.numPages);
-      setLoading(false);
-
-      renderPage(1, pdfDoc);
-    } catch (error) {
-      console.error("Error loading PDF:", error);
-      setPdfError(
-        `Failed to load PDF: ${error.message}. Make sure the PDF URL is correct and accessible.`
-      );
-      setLoading(false);
-    }
-  };
-
-  const renderPage = async (pageNum, pdfDoc = null) => {
-    try {
-      if (!canvasRef.current) return;
-
-      setLoading(true);
-      const doc = pdfDoc || pdfDocRef.current;
-
-      if (!doc) {
-        setPdfError("PDF document not loaded");
-        setLoading(false);
-        return;
-      }
-
-      const page = await doc.getPage(pageNum);
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d");
-
-      const scale = 2;
-      const viewport = page.getViewport({ scale });
-
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-
-      const renderContext = {
-        canvasContext: context,
-        viewport: viewport,
-      };
-
-      await page.render(renderContext).promise;
-      setLoading(false);
-    } catch (error) {
-      console.error("Error rendering page:", error);
-      setPdfError(`Error rendering page: ${error.message}`);
-      setLoading(false);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      renderPage(nextPage);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      const prevPage = currentPage - 1;
-      setCurrentPage(prevPage);
-      renderPage(prevPage);
+  const handleOpenPDF = (pdf) => {
+    if (pdf.pdfUrl) {
+      window.open(pdf.pdfUrl, '_blank');
+      console.log("📄 Opening PDF in new tab:", pdf.pdfUrl);
+    } else {
+      console.error("❌ PDF URL not available");
     }
   };
 
   const handleClosePDF = () => {
-    setSelectedPDF(null);
-    setCurrentPage(1);
-    setTotalPages(0);
-    setIsFullscreen(false);
-    setPdfError(null);
-    pdfDocRef.current = null;
+    // No longer needed
   };
 
-  const downloadPDF = () => {
-    if (selectedPDF) {
+  const downloadPDF = (pdf) => {
+    if (pdf && pdf.pdfUrl) {
       const link = document.createElement("a");
-      link.href = selectedPDF.pdfUrl;
-      link.download = selectedPDF.fileName;
-      link.target = "_blank";
+      link.href = pdf.pdfUrl;
+      link.download = pdf.fileName || "document.pdf";
+      link.setAttribute("target", "_blank");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      console.log("📥 Downloaded:", pdf.fileName);
     }
   };
 
@@ -676,264 +543,14 @@ const WhatIsNew = () => {
           transform: scale(1.1);
         }
 
-        /* ==================== PDF MODAL ==================== */
-        .pdf-modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(15, 23, 42, 0.7);
-          backdrop-filter: blur(5px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 20px;
-          animation: fadeInOverlay 0.3s ease;
-          overflow: auto;
-        }
-
-        @keyframes fadeInOverlay {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-
-        .pdf-modal {
-          background: white;
-          border: 2px solid #E2E8F0;
-          border-radius: 32px;
-          overflow: hidden;
-          max-width: 90vw;
-          max-height: 85vh;
-          width: 1000px;
-          display: flex;
-          flex-direction: column;
-          box-shadow: 0 40px 120px rgba(59, 130, 246, 0.2);
-          animation: slideUpModal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes slideUpModal {
-          from {
-            opacity: 0;
-            transform: translateY(60px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        .modal-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-bottom: 2px solid #E2E8F0;
-          background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFB 100%);
-          flex-shrink: 0;
-        }
-
-        .modal-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 24px;
-          font-weight: 800;
-          color: #0F172A;
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .modal-controls {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex-shrink: 0;
-        }
-
-        .modal-btn {
-          width: 44px;
-          height: 44px;
-          border-radius: 12px;
-          background: rgba(59, 130, 246, 0.15);
-          border: 1.5px solid rgba(59, 130, 246, 0.25);
-          color: #3B82F6;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-          flex-shrink: 0;
-        }
-
-        .modal-btn:hover {
-          background: rgba(59, 130, 246, 0.25);
-          transform: scale(1.05);
-        }
-
-        .modal-body {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px;
-          overflow: auto;
-          position: relative;
-          background: linear-gradient(180deg, #F8FAFB 0%, #F0F9FF 100%);
-          min-height: 400px;
-        }
-
-        .pdf-viewer {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 16px;
-          overflow: hidden;
-        }
-
-        .pdf-canvas {
-          max-width: 100%;
-          max-height: 100%;
-          box-shadow: 0 30px 80px rgba(59, 130, 246, 0.15);
-          border-radius: 8px;
-          display: block;
-          border: 1px solid #E2E8F0;
-        }
-
-        .pdf-error {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 16px;
-          color: #0F172A;
-          text-align: center;
-          padding: 40px;
-        }
-
-        .pdf-error-icon {
-          width: 80px;
-          height: 80px;
-          border-radius: 16px;
-          background: rgba(59, 130, 246, 0.15);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #3B82F6;
-        }
-
-        .pdf-error-message {
-          font-family: 'Poppins', sans-serif;
-          font-size: 16px;
-          font-weight: 600;
-          max-width: 400px;
-          line-height: 1.6;
-          color: #475569;
-        }
-
-        .loading {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #0F172A;
-          gap: 12px;
-          flex-direction: column;
-        }
-
-        .spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid rgba(59, 130, 246, 0.2);
-          border-top-color: #3B82F6;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .modal-footer {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 24px 32px;
-          border-top: 2px solid #E2E8F0;
-          background: linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%);
-          flex-wrap: wrap;
-          gap: 16px;
-          flex-shrink: 0;
-        }
-
-        .page-indicator {
-          font-family: 'Poppins', sans-serif;
-          color: #475569;
-          font-size: 14px;
-          font-weight: 600;
-        }
-
-        .nav-buttons {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-        }
-
-        .nav-btn {
-          padding: 10px 20px;
-          background: rgba(59, 130, 246, 0.15);
-          border: 1.5px solid rgba(59, 130, 246, 0.25);
-          color: #3B82F6;
-          border-radius: 10px;
-          cursor: pointer;
-          font-family: 'Poppins', sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          white-space: nowrap;
-        }
-
-        .nav-btn:hover:not(:disabled) {
-          background: rgba(59, 130, 246, 0.25);
-          transform: translateY(-2px);
-        }
-
-        .nav-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .download-pdf-btn {
-          padding: 10px 20px;
-          background: linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%);
-          border: none;
-          color: white;
-          border-radius: 10px;
-          cursor: pointer;
-          font-family: 'Poppins', sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          white-space: nowrap;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
-
-        .download-pdf-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
-        }
-
         /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1400px) {
+          .pdf-modal {
+            width: 90vw;
+            max-height: 90vh;
+          }
+        }
+
         @media (max-width: 1200px) {
           .whats-new-section {
             padding: 100px 30px;
@@ -948,7 +565,38 @@ const WhatIsNew = () => {
           }
 
           .pdf-modal {
-            width: 95vw;
+            width: 92vw;
+            max-height: 90vh;
+          }
+
+          .modal-body {
+            min-height: 400px;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .pdf-modal {
+            width: 94vw;
+            max-height: 88vh;
+          }
+
+          .modal-title {
+            font-size: 22px;
+          }
+
+          .modal-body {
+            padding: 28px;
+            min-height: 380px;
+          }
+
+          .modal-footer {
+            gap: 16px;
+            padding: 18px 24px;
+          }
+
+          .page-indicator {
+            font-size: 12px;
+            padding: 0 10px;
           }
         }
 
@@ -980,13 +628,87 @@ const WhatIsNew = () => {
           }
 
           .pdf-modal {
-            width: 98vw;
-            max-height: 80vh;
-            border-radius: 20px;
+            width: 96vw;
+            max-height: 85vh;
+            border-radius: 24px;
           }
 
           .modal-header {
-            padding: 20px;
+            padding: 20px 24px;
+            gap: 16px;
+          }
+
+          .modal-title {
+            font-size: 20px;
+            -webkit-line-clamp: 2;
+          }
+
+          .modal-controls {
+            gap: 6px;
+          }
+
+          .modal-btn {
+            width: 36px;
+            height: 36px;
+          }
+
+          .modal-body {
+            padding: 24px;
+            min-height: 320px;
+          }
+
+          .pdf-canvas {
+            border-width: 1px;
+          }
+
+          .modal-footer {
+            grid-template-columns: 1fr;
+            padding: 16px 24px;
+            gap: 12px;
+          }
+
+          .page-indicator {
+            justify-self: center;
+            width: 100%;
+            text-align: center;
+          }
+
+          .nav-buttons {
+            width: 100%;
+            gap: 6px;
+          }
+
+          .nav-btn {
+            flex: 1;
+            height: 38px;
+            padding: 0 12px;
+            font-size: 11px;
+          }
+
+          .download-pdf-btn {
+            width: 100%;
+            height: 38px;
+            font-size: 11px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .pdf-modal {
+            width: 97vw;
+            max-height: 82vh;
+          }
+
+          .modal-header {
+            padding: 18px 20px;
+          }
+
+          .modal-title {
+            font-size: 18px;
+          }
+
+          .modal-btn {
+            width: 34px;
+            height: 34px;
           }
 
           .modal-body {
@@ -994,15 +716,52 @@ const WhatIsNew = () => {
             min-height: 300px;
           }
 
-          .modal-footer {
-            padding: 20px;
-            justify-content: center;
-            flex-direction: column;
+          .loading span {
+            font-size: 13px;
           }
 
-          .nav-buttons {
-            width: 100%;
-            justify-content: center;
+          .spinner {
+            width: 40px;
+            height: 40px;
+          }
+
+          .pdf-error {
+            padding: 40px 24px;
+            gap: 16px;
+          }
+
+          .pdf-error-icon {
+            width: 80px;
+            height: 80px;
+          }
+
+          .pdf-error-message {
+            font-size: 15px;
+            max-width: 100%;
+          }
+
+          .modal-footer {
+            padding: 14px 20px;
+            gap: 10px;
+          }
+
+          .page-indicator {
+            height: 36px;
+            font-size: 11px;
+          }
+
+          .nav-btn {
+            height: 36px;
+            padding: 0 10px;
+            font-size: 10px;
+            gap: 4px;
+          }
+
+          .download-pdf-btn {
+            height: 36px;
+            padding: 0 12px;
+            font-size: 10px;
+            gap: 4px;
           }
         }
 
@@ -1031,23 +790,126 @@ const WhatIsNew = () => {
             font-size: 18px;
           }
 
-          .modal-title {
-            font-size: 18px;
+          .pdf-modal {
+            width: 98vw;
+            max-height: 80vh;
+            border-radius: 20px;
           }
 
+          .modal-header {
+            padding: 16px 18px;
+            gap: 12px;
+          }
+
+          .modal-title {
+            font-size: 16px;
+            -webkit-line-clamp: 2;
+          }
+
+          .modal-btn {
+            width: 32px;
+            height: 32px;
+          }
+
+          .modal-body {
+            padding: 18px;
+            min-height: 280px;
+          }
+
+          .loading {
+            gap: 12px;
+          }
+
+          .spinner {
+            width: 36px;
+            height: 36px;
+            border-width: 3px;
+          }
+
+          .pdf-error {
+            padding: 36px 20px;
+            gap: 14px;
+          }
+
+          .pdf-error-icon {
+            width: 72px;
+            height: 72px;
+          }
+
+          .pdf-error-message {
+            font-size: 14px;
+          }
+
+          .modal-footer {
+            grid-template-columns: 1fr;
+            padding: 12px 16px;
+            gap: 10px;
+          }
+
+          .page-indicator {
+            height: 34px;
+            font-size: 10px;
+            padding: 0 8px;
+          }
+
+          .nav-buttons {
+            width: 100%;
+            gap: 6px;
+          }
+
+          .nav-btn {
+            flex: 1;
+            height: 34px;
+            padding: 0 8px;
+            font-size: 9px;
+            gap: 3px;
+            border-radius: 6px;
+          }
+
+          .download-pdf-btn {
+            width: 100%;
+            height: 34px;
+            padding: 0;
+            font-size: 9px;
+            gap: 3px;
+            border-radius: 6px;
+          }
+        }
+
+        @media (max-width: 360px) {
           .pdf-modal {
             width: 99vw;
             max-height: 75vh;
+          }
+
+          .modal-title {
+            font-size: 14px;
+          }
+
+          .modal-btn {
+            width: 30px;
+            height: 30px;
           }
 
           .modal-body {
             min-height: 250px;
           }
 
-          .modal-footer {
-            flex-direction: column;
-            align-items: stretch;
+          .page-indicator {
+            height: 32px;
+            font-size: 9px;
           }
+
+          .nav-btn {
+            height: 32px;
+            font-size: 8px;
+          }
+
+          .download-pdf-btn {
+            height: 32px;
+            font-size: 8px;
+          }
+        }
 
           .nav-buttons {
             width: 100%;
@@ -1177,11 +1039,17 @@ const WhatIsNew = () => {
                   </div>
 
                   <div className="cta-group">
-                    <button className="view-btn">
+                    <button className="view-btn" onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenPDF(item);
+                    }}>
                       <FileText size={16} />
                       View PDF
                     </button>
-                    <button className="download-btn" title="Download">
+                    <button className="download-btn" title="Download" onClick={(e) => {
+                      e.preventDefault();
+                      downloadPDF(item);
+                    }}>
                       <Download size={18} />
                     </button>
                   </div>
@@ -1191,95 +1059,6 @@ const WhatIsNew = () => {
           ))}
         </div>
       </section>
-
-      {/* PDF Modal */}
-      {selectedPDF && (
-        <div className="pdf-modal-overlay" onClick={handleClosePDF}>
-          <div
-            className="pdf-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="modal-header">
-              <h2 className="modal-title">{selectedPDF.title}</h2>
-              <div className="modal-controls">
-                <button
-                  className="modal-btn"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  title="Fullscreen"
-                >
-                  <Maximize2 size={20} />
-                </button>
-                <button
-                  className="modal-btn"
-                  onClick={handleClosePDF}
-                  title="Close"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            {/* Body */}
-            <div className="modal-body">
-              {pdfError ? (
-                <div className="pdf-error">
-                  <div className="pdf-error-icon">
-                    <AlertCircle size={40} />
-                  </div>
-                  <div className="pdf-error-message">
-                    {pdfError}
-                  </div>
-                  <p style={{fontSize: '12px', color: '#64748b'}}>
-                    To use your own PDFs, replace the pdfUrl in the component with your accessible PDF URL
-                  </p>
-                </div>
-              ) : loading ? (
-                <div className="loading">
-                  <div className="spinner"></div>
-                  <span>Loading PDF...</span>
-                </div>
-              ) : (
-                <div className="pdf-viewer">
-                  <canvas
-                    ref={canvasRef}
-                    className="pdf-canvas"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="modal-footer">
-              <span className="page-indicator">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="nav-buttons">
-                <button
-                  className="nav-btn"
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
-                >
-                  <ChevronLeft size={16} />
-                  Previous
-                </button>
-                <button
-                  className="nav-btn"
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                  <ChevronRight size={16} />
-                </button>
-                <button className="download-pdf-btn" onClick={downloadPDF}>
-                  <Download size={16} />
-                  Download
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
