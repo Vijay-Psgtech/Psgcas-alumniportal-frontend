@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Patrons } from "../content/data/PatronsData";
+import usePageTitle from "../hooks/usePageTitle";
 
 const LeadershipPage = () => {
+  usePageTitle("Leadership Team");
   const [hoveredCard, setHoveredCard] = useState(null);
   const [animatedStats, setAnimatedStats] = useState({});
 

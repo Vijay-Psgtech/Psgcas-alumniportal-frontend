@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Send, CheckCircle, Mail, Phone, MapPin, Clock } from "lucide-react";
+import usePageTitle from "../hooks/usePageTitle";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const ContactPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  usePageTitle("Contact Us");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
