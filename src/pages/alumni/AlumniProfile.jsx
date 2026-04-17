@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniProfile.jsx
 // ✅ Complete redesign — all JSON fields covered, tabbed view, full edit mode
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, use } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -46,6 +46,7 @@ import {
 import { alumniAPI, authAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import ImageModal from "../../components/ImageModal";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─── Completion helpers ─── */
 const TRACKED_FIELDS = [
@@ -222,6 +223,8 @@ const AlumniProfile = () => {
   const [selectedDocFiles, setSelectedDocFiles] = useState({});
   const [imageModal, setImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  usePageTitle(`Profile - ${profileData?.firstName ?? "Alumni"}`);
 
   /* ── normalise location ── */
   const normalizeAlumni = (alumni) => {

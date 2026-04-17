@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, use } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
@@ -38,6 +39,7 @@ const AlumniUsersList = () => {
   const itemsPerPage = 20;
   const { user } = useAuth();
   const department = user.department || "";
+  usePageTitle("Alumni Users Management");
 
   useEffect(() => {
     const fetchAlumni = async () => {
