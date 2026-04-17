@@ -808,7 +808,7 @@ const AlumniChapters = () => {
             <div className="flex items-center gap-3">
               <motion.button
                 whileHover={{ x: -2 }}
-                onClick={() => navigate("/alumni/dashboard")}
+                onClick={() => navigate("/")}
                 className="flex items-center gap-1.5 text-slate-600 hover:text-slate-800 transition-colors"
               >
                 <ArrowLeft size={18} />
