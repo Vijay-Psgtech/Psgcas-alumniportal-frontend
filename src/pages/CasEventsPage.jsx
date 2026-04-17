@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { eventsAPI } from "../services/api";
+import usePageTitle from "../hooks/usePageTitle";
 
 
 const formatDate = (dateString) => {
@@ -264,6 +265,8 @@ const CasEventsPage = () => {
   const [casEvents, setEvents] = useState([]);
   const [filter, setFilter] = useState("upcoming");
   const [searchTerm, setSearchTerm] = useState("");
+  usePageTitle("Events");
+
 
   // ✅ Fetch events on mount
   useEffect(() => {
