@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import { adminReportsAPI, API_BASE } from "../../services/api";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const formatNumber = (value) => new Intl.NumberFormat().format(value);
 
@@ -21,6 +22,7 @@ const AdminReports = () => {
   const [departmentData, setDepartmentData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  usePageTitle("Admin Reports");
 
   useEffect(() => {
     const fetchAlumniData = async () => {

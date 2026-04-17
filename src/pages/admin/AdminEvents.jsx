@@ -23,6 +23,9 @@ import {
 import { eventsAPI, API_BASE } from "../../services/api";
 import { DeleteModal } from "../../components/admin/AdminSharedUI";
 import { EventFormModal } from "../../components/admin/EventFormModal";
+import usePageTitle from "../../hooks/usePageTitle";
+import { u } from "framer-motion/client";
+
 
 // Category colors mapping
 const CATEGORY_COLORS = {
@@ -50,6 +53,7 @@ const AdminEvents = () => {
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  usePageTitle("Events Management");
 
   // ✅ Fetch events on mount
   useEffect(() => {

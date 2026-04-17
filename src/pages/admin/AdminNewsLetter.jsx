@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
@@ -20,6 +20,7 @@ import {
   Sel,
   Txt,
 } from "../../components/admin/AdminSharedUI";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const CATEGORY_OPTIONS = [
   "Newsletters",
@@ -302,6 +303,7 @@ const AdminNewsLetter = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notice, setNotice] = useState(null);
+  usePageTitle("Newsletter Management");
 
   const categories = ["all", ...CATEGORY_OPTIONS];
 

@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle, Eye, EyeOff, Lock } from "lucide-react";
 import { authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const AdminLogin = () => {
+  usePageTitle("Admin Login");
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
