@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { donationAPI } from "../services/api";
+import usePageTitle from "../hooks/usePageTitle";
 
 /* ═══════════════════════════════════════════════════════
    GLOBAL STYLES
@@ -550,6 +551,8 @@ const DonatePage = () => {
   const [aadhaar, setAadhaar] = useState("");
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
+
+  usePageTitle("Donate");
 
   /* ── field-level errors ── */
   const [fieldErrors, setFieldErrors] = useState({});
