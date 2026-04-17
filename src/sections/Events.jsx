@@ -87,7 +87,7 @@ const Events = () => {
       src: Gal1,
       alt: "Alumni Group Photo",
       event: "50th Jubilee",
-      caption: "Alumni of the 1975 batch gather for a historic group photograph at the 50th Golden Jubilee celebrations.",
+      caption: "Golden Jubilee Reunion of the 1975–1978 B.Com batch. Alumni gather to celebrate 50 years of memories and achievements at PSG Arts College.",
     },
     {
       id: 2,
@@ -124,34 +124,34 @@ const Events = () => {
       event: "Seminar",
       caption: "Industry leaders and academicians share insights during a thought-provoking panel discussion.",
     },
-    {
-      id: 7,
-      src: Gal7,
-      alt: "Workshop Session",
-      event: "Training",
-      caption: "Participants engage in hands-on activities during the Elevate 2025 career development workshop.",
-    },
-    {
-      id: 8,
-      src: Gal8,
-      alt: "Alumni Gathering",
-      event: "Reunion",
-      caption: "Alumni reconnecting and reminiscing over shared memories at the Silver Jubilee reunion dinner.",
-    },
-    {
-      id: 9,
-      src: Gal9,
-      alt: "Golden Jubilee Banner",
-      event: "Celebration",
-      caption: "The iconic Golden Jubilee banner marks five decades of academic excellence at PSG Arts College.",
-    },
-    {
-      id: 10,
-      src: Gal10,
-      alt: "Interactive Session",
-      event: "Workshop",
-      caption: "Students and alumni participate in an interactive session on mentorship and career guidance.",
-    },
+    // {
+    //   id: 7,
+    //   src: Gal7,
+    //   alt: "Workshop Session",
+    //   event: "Training",
+    //   caption: "Participants engage in hands-on activities during the Elevate 2025 career development workshop.",
+    // },
+    // {
+    //   id: 8,
+    //   src: Gal8,
+    //   alt: "Alumni Gathering",
+    //   event: "Reunion",
+    //   caption: "Alumni reconnecting and reminiscing over shared memories at the Silver Jubilee reunion dinner.",
+    // },
+    // {
+    //   id: 9,
+    //   src: Gal9,
+    //   alt: "Golden Jubilee Banner",
+    //   event: "Celebration",
+    //   caption: "The iconic Golden Jubilee banner marks five decades of academic excellence at PSG Arts College.",
+    // },
+    // {
+    //   id: 10,
+    //   src: Gal10,
+    //   alt: "Interactive Session",
+    //   event: "Workshop",
+    //   caption: "Students and alumni participate in an interactive session on mentorship and career guidance.",
+    // },
   ];
 
   return (
@@ -582,7 +582,7 @@ const Events = () => {
 
         .gallery-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
           gap: 24px;
         }
 
