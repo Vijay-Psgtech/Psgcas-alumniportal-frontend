@@ -43,7 +43,7 @@ const WhatIsNew = () => {
       thumbnail: "linear-gradient(135deg, #0369A1 0%, #06B6D4 100%)",
       image:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/VisitorPass.pdf",
+      pdfUrl: "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
       category: "newsletter",
       excerpt:
         "Connecting alumni across the globe through inspiring stories and valuable updates.",
@@ -61,7 +61,7 @@ const WhatIsNew = () => {
       image:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
       pdfUrl:
-        "https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table.pdf",
+        "/PDF/1280_1770202969_9176bc0da808261ed71c27738f77553d.pdf",
       category: "alumni-stories",
       excerpt:
         "Celebrating the dedication and impact of our beloved faculty members.",
