@@ -23,15 +23,22 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { a } from "framer-motion/client";
 
-export const AlumniTab = ({ alumniList, setSelectedItem }) => {
+export const AlumniTab = ({ 
+  alumniList, 
+  setSelectedItem,
+  pageData = { totalAlumni: 0, totalPages: 1, currentPage: 1 },
+  userRole = "admin",
+  userDepartment = "",
+  onPageChange = () => {},
+  onFilterChange = () => {},
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'pending', 'approved'
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
   const alumniRef = useRef(null);
 
+  // ✅ OPTIMIZED: Derive unique values only from current page data
   const departments = Array.from(
     new Set(alumniList.map((a) => a.department).filter(Boolean)),
   ).sort();
@@ -39,44 +46,13 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
     new Set(alumniList.map((a) => a.batchYear).filter(Boolean)),
   ).sort((a, b) => String(b).localeCompare(String(a)));
 
-  const filtered = alumniList.filter((a) => {
-    const matchesSearch =
-      `${a.firstName} ${a.lastName} ${a.email} ${a.department || ""} ${a.batchYear || ""}`
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "approved" && a.isApproved) ||
-      (statusFilter === "pending" && !a.isApproved);
-    const matchesDept = !deptFilter || a.department === deptFilter;
-    const matchesBatch =
-      !batchFilter || String(a.batchYear) === String(batchFilter);
-    return matchesSearch && matchesStatus && matchesDept && matchesBatch;
-  });
+  // ✅ OPTIMIZED: Remove client-side filtering - all done server-side now
+  // The alumniList already contains only the filtered/paginated results from server
 
-  // Pagination
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedAlumni = filtered.slice(startIndex, startIndex + itemsPerPage);
-
-  // Reset to page 1 when filters change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter, deptFilter, batchFilter]);
-
-  // Dynamic gradient generator based on initials for a premium feel
-  const getAvatarGradient = (firstName, lastName) => {
-    const charCode =
-      (firstName?.charCodeAt(0) || 0) + (lastName?.charCodeAt(0) || 0);
-    const gradients = [
-      "from-blue-500 to-indigo-600",
-      "from-purple-500 to-pink-600",
-      "from-emerald-500 to-teal-600",
-      "from-orange-400 to-red-500",
-      "from-cyan-400 to-blue-500",
-      "from-indigo-500 to-purple-600",
-    ];
-    return gradients[charCode % gradients.length];
+  // Handle filter changes - trigger server fetch
+  const handleFilterChange = (filters) => {
+    alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+    onFilterChange(filters);
   };
 
   const containerVariants = {
@@ -118,36 +94,64 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
             <input
               placeholder="Search by name, email, department, or year…"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                // ✅ Debounce search - trigger server fetch
+                handleFilterChange({
+                  search: e.target.value || undefined,
+                  department: deptFilter || undefined,
+                  status: statusFilter === "all" ? undefined : statusFilter,
+                  batchYear: batchFilter || undefined,
+                });
+              }}
               className="flex-1 border-none py-1 font-['Outfit',_sans-serif] text-[16px] outline-none text-slate-700 bg-transparent placeholder-slate-400"
             />
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-lg text-[11px] font-bold text-slate-400 font-['Outfit',_sans-serif] uppercase tracking-wider">
-              {filtered.length} Results
+              {pageData.totalAlumni} Results
             </div>
           </div>
         </div>
 
         {/* Dept & Batch Filters */}
         <div className="flex items-center gap-3 px-1">
-          <div className="relative">
-            <select
-              value={deptFilter}
-              onChange={(e) => setDeptFilter(e.target.value)}
-              className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
-            >
-              <option value="">All Departments</option>
-              {departments.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* ✅ For SuperAdmin only: Show department filter */}
+          {userRole !== "admin" && (
+            <div className="relative">
+              <select
+                value={deptFilter}
+                onChange={(e) => {
+                  setDeptFilter(e.target.value);
+                  handleFilterChange({
+                    department: e.target.value || undefined,
+                    status: statusFilter === "all" ? undefined : statusFilter,
+                    batchYear: batchFilter || undefined,
+                    search: searchTerm || undefined,
+                  });
+                }}
+                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+              >
+                <option value="">All Departments</option>
+                {departments.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="relative">
             <select
               value={batchFilter}
-              onChange={(e) => setBatchFilter(e.target.value)}
+              onChange={(e) => {
+                setBatchFilter(e.target.value);
+                handleFilterChange({
+                  department: deptFilter || undefined,
+                  status: statusFilter === "all" ? undefined : statusFilter,
+                  batchYear: e.target.value || undefined,
+                  search: searchTerm || undefined,
+                });
+              }}
               className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
             >
               <option value="">All Batches</option>
@@ -164,6 +168,10 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
               onClick={() => {
                 setDeptFilter("");
                 setBatchFilter("");
+                handleFilterChange({
+                  search: searchTerm || undefined,
+                  status: statusFilter === "all" ? undefined : statusFilter,
+                });
               }}
               className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold"
             >
@@ -181,7 +189,15 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
           ].map((btn) => (
             <button
               key={btn.id}
-              onClick={() => setStatusFilter(btn.id)}
+              onClick={() => {
+                setStatusFilter(btn.id);
+                handleFilterChange({
+                  department: deptFilter || undefined,
+                  status: btn.id === "all" ? undefined : btn.id,
+                  batchYear: batchFilter || undefined,
+                  search: searchTerm || undefined,
+                });
+              }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold font-['Outfit',_sans-serif] transition-all duration-300 border ${
                 statusFilter === btn.id
                   ? "bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]"
@@ -200,11 +216,11 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
         </div>
       </div>
 
-      {filtered.length > 0 ? (
+      {alumniList.length > 0 ? (
         <>
           <div  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <AnimatePresence>
-              {paginatedAlumni.map((a, i) => {
+              {alumniList.map((a, i) => {
               const photo = a.files?.currentPhoto || a.profileImage;
               return (
                 <motion.div
@@ -321,29 +337,29 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
+          {pageData.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
               <button
                 onClick={() => {
-                  alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                  setCurrentPage(Math.max(1, currentPage - 1));
+                  alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+                  onPageChange(Math.max(1, pageData.currentPage - 1));
                 }}
-                disabled={currentPage === 1}
+                disabled={pageData.currentPage === 1}
                 className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 ← Prev
               </button>
 
               <div className="flex items-center gap-1 flex-wrap justify-center">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
                     onClick={() => {
-                      alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                      setCurrentPage(page);
+                      alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+                      onPageChange(page);
                     }}
                     className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      currentPage === page
+                      pageData.currentPage === page
                         ? "bg-slate-900 text-white"
                         : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                     }`}
@@ -355,17 +371,17 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
 
               <button
                 onClick={() => {
-                  alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                  setCurrentPage(Math.min(totalPages, currentPage + 1));
+                  alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+                  onPageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
                 }}
-                disabled={currentPage === totalPages}
+                disabled={pageData.currentPage === pageData.totalPages}
                 className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 Next →
               </button>
 
               <span className="text-xs text-slate-500 font-medium ml-4">
-                Page {currentPage} of {totalPages} • Showing {paginatedAlumni.length} of {filtered.length}
+                Page {pageData.currentPage} of {pageData.totalPages} • Total: {pageData.totalAlumni}
               </span>
             </div>
           )}
@@ -386,15 +402,19 @@ export const AlumniTab = ({ alumniList, setSelectedItem }) => {
             No results found
           </h4>
           <p className="text-slate-500 max-w-[280px] text-[15px] font-medium">
-            We couldn't find any alumni matching "
-            <span className="text-blue-500 italic font-bold">{searchTerm}</span>
-            "
+            We couldn't find any alumni matching your filters
           </p>
           <button
-            onClick={() => setSearchTerm("")}
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("all");
+              setDeptFilter("");
+              setBatchFilter("");
+              handleFilterChange({});
+            }}
             className="mt-6 px-6 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-colors"
           >
-            Clear Search
+            Clear All Filters
           </button>
         </motion.div>
       )}

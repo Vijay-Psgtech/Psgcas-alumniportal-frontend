@@ -35,8 +35,13 @@ const AlumniUsersList = () => {
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20;
+  const [pageData, setPageData] = useState({
+    totalAlumni: 0,
+    totalPages: 1,
+    currentPage: 1,
+    totalApproved: 0,
+    totalPending: 0,
+  });
   const { user } = useAuth();
   const department = user.department || "";
   usePageTitle("Alumni Users Management");
@@ -45,8 +50,25 @@ const AlumniUsersList = () => {
     const fetchAlumni = async () => {
       try {
         setLoading(true);
-        const res = await adminAPI.getAllAlumni({ department: department });
-        setAlumniUsers(res.data.alumni);
+        // ✅ OPTIMIZED: Pass page, limit, and role-aware department
+        const queryParams = {
+          page: 1,
+          limit: 20,
+        };
+        
+        if (user.role === "admin") {
+          queryParams.department = department;
+        }
+        
+        const res = await adminAPI.getAllAlumni(queryParams);
+        setAlumniUsers(res.data.alumni || []);
+        setPageData({
+          totalAlumni: res.data.totalAlumni || 0,
+          totalPages: res.data.totalPages || 1,
+          currentPage: res.data.currentPage || 1,
+          totalApproved: res.data.totalApproved || 0,
+          totalPending: res.data.totalPending || 0,
+        });
       } catch (error) {
         console.error("Alumni error:", error);
       } finally {
@@ -56,97 +78,94 @@ const AlumniUsersList = () => {
     fetchAlumni();
   }, []);
 
-  // Filter and sort alumni
-  const filteredAndSortedAlumni = useMemo(() => {
-    let filtered = alumniUsers.filter((alumni) => {
-      const fullName = `${alumni.firstName} ${alumni.lastName}`.toLowerCase();
-      const query = search.toLowerCase();
-      const matchesSearch =
-        fullName.includes(query) ||
-        alumni.email.toLowerCase().includes(query) ||
-        alumni.department.toLowerCase().includes(query) ||
-        (alumni.currentCompany &&
-          alumni.currentCompany.toLowerCase().includes(query));
-
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "approved" && alumni.isApproved) ||
-        (statusFilter === "pending" && !alumni.isApproved);
-
-      const matchesDept =
-        !deptFilter || (alumni.department || "") === deptFilter;
-      const matchesBatch =
-        !batchFilter || String(alumni.batchYear) === String(batchFilter);
-
-      return matchesSearch && matchesStatus && matchesDept && matchesBatch;
-    });
-
-    filtered.sort((a, b) => {
-      let aVal, bVal;
-      switch (sortBy) {
-        case "name":
-          aVal = `${a.firstName} ${a.lastName}`.toLowerCase();
-          bVal = `${b.firstName} ${b.lastName}`.toLowerCase();
-          break;
-        case "batchYear":
-          aVal = a.batchYear;
-          bVal = b.batchYear;
-          break;
-        case "department":
-          aVal = a.department.toLowerCase();
-          bVal = b.department.toLowerCase();
-          break;
-        default:
-          return 0;
+  // ✅ OPTIMIZED: Removed client-side filtering/sorting/pagination - all done server-side
+  // alumniUsers already contains only the filtered/paginated results from server
+  
+  const handleFilterChange = async (filters) => {
+    try {
+      setLoading(true);
+      const queryParams = {
+        ...filters,
+        page: 1,
+        limit: 20,
+      };
+      
+      // ✅ For Admin: Always enforce their department
+      if (user.role === "admin") {
+        queryParams.department = department;
       }
+      
+      const res = await adminAPI.getAllAlumni(queryParams);
+      setAlumniUsers(res.data.alumni || []);
+      setPageData({
+        totalAlumni: res.data.totalAlumni || 0,
+        totalPages: res.data.totalPages || 1,
+        currentPage: res.data.currentPage || 1,
+        totalApproved: res.data.totalApproved || 0,
+        totalPending: res.data.totalPending || 0,
 
-      if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
-      return 0;
-    });
+      });
+    } catch (error) {
+      console.error("Failed to apply filters:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return filtered;
-  }, [
-    alumniUsers,
-    search,
-    statusFilter,
-    sortBy,
-    sortOrder,
-    deptFilter,
-    batchFilter,
-  ]);
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedAlumni.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedAlumni = filteredAndSortedAlumni.slice(startIndex, startIndex + itemsPerPage);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter, sortBy, sortOrder, deptFilter, batchFilter]);
-
-  const departments = useMemo(() => {
-    return Array.from(
-      new Set(alumniUsers.map((a) => a.department).filter(Boolean)),
-    ).sort();
-  }, [alumniUsers]);
-
-  const batches = useMemo(() => {
-    return Array.from(
-      new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean)),
-    ).sort((a, b) => String(b).localeCompare(String(a)));
-  }, [alumniUsers]);
+  const handlePageChange = async (page) => {
+    try {
+      setLoading(true);
+      const queryParams = {
+        page,
+        limit: 20,
+        search: search || undefined,
+        status: statusFilter === "all" ? undefined : statusFilter,
+        batchYear: batchFilter || undefined,
+      };
+      
+      if (user.role === "admin") {
+        queryParams.department = department;
+      }
+      
+      const res = await adminAPI.getAllAlumni(queryParams);
+      setAlumniUsers(res.data.alumni || []);
+      setPageData({
+        totalAlumni: res.data.totalAlumni || 0,
+        totalPages: res.data.totalPages || 1,
+        currentPage: res.data.currentPage || 1,
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Failed to fetch page:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleApprove = async (id) => {
     try {
       await adminAPI.approveAlumni(id);
       setSelectedItem(null);
-      setAlumniUsers((prev) =>
-        prev.map((user) =>
-          user._id === id ? { ...user, isApproved: true } : user,
-        ),
-      );
+      // ✅ Refetch with current page to maintain pagination
+      const queryParams = {
+        page: pageData.currentPage,
+        limit: 20,
+        search: search || undefined,
+        status: statusFilter === "all" ? undefined : statusFilter,
+        batchYear: batchFilter || undefined,
+      };
+      
+      if (user.role === "admin") {
+        queryParams.department = department;
+      }
+      
+      const res = await adminAPI.getAllAlumni(queryParams);
+      setAlumniUsers(res.data.alumni || []);
+      setPageData({
+        totalAlumni: res.data.totalAlumni || 0,
+        totalPages: res.data.totalPages || 1,
+        currentPage: res.data.currentPage || 1,
+      });
     } catch (error) {
       console.error("Approve error:", error);
     }
@@ -188,7 +207,7 @@ const AlumniUsersList = () => {
           </div>
           <div className="text-sm text-gray-500">
             Total:{" "}
-            <strong className="text-gray-900">{alumniUsers.length}</strong>{" "}
+            <strong className="text-gray-900">{pageData.totalAlumni}</strong>{" "}
             users
           </div>
         </div>
@@ -199,7 +218,7 @@ const AlumniUsersList = () => {
           {[
             {
               label: "Total Users",
-              value: alumniUsers.length,
+              value: pageData.totalAlumni,
               icon: Users,
               color: "blue",
               bg: "bg-blue-50",
@@ -208,7 +227,7 @@ const AlumniUsersList = () => {
             },
             {
               label: "Approved",
-              value: alumniUsers.filter((u) => u.isApproved).length,
+              value: pageData.totalApproved,
               icon: CheckCircle,
               color: "green",
               bg: "bg-emerald-50",
@@ -217,7 +236,7 @@ const AlumniUsersList = () => {
             },
             {
               label: "Pending",
-              value: alumniUsers.filter((u) => !u.isApproved).length,
+              value: pageData.totalPending,
               icon: XCircle,
               color: "yellow",
               bg: "bg-amber-50",
@@ -271,7 +290,16 @@ const AlumniUsersList = () => {
             />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                // ✅ Trigger server-side search
+                handleFilterChange({
+                  search: e.target.value || undefined,
+                  status: statusFilter === "all" ? undefined : statusFilter,
+                  department: deptFilter || undefined,
+                  batchYear: batchFilter || undefined,
+                });
+              }}
               placeholder="Search by name, email, department, or company..."
               className="w-full py-3 px-4 pl-10 border border-slate-200 rounded-xl text-sm outline-none bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
@@ -287,7 +315,15 @@ const AlumniUsersList = () => {
               ].map((filter) => (
                 <button
                   key={filter.value}
-                  onClick={() => setStatusFilter(filter.value)}
+                  onClick={() => {
+                    setStatusFilter(filter.value);
+                    handleFilterChange({
+                      search: search || undefined,
+                      status: filter.value === "all" ? undefined : filter.value,
+                      department: deptFilter || undefined,
+                      batchYear: batchFilter || undefined,
+                    });
+                  }}
                   className={`flex-1 sm:flex-none px-4 py-2.5 border-none text-xs sm:text-sm font-bold transition-all capitalize ${
                     statusFilter === filter.value
                       ? "bg-blue-500 text-white"
@@ -300,30 +336,57 @@ const AlumniUsersList = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              <select
-                value={deptFilter}
-                onChange={(e) => setDeptFilter(e.target.value)}
-                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
-              >
-                <option value="">All Departments</option>
-                {departments.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              {/* ✅ For SuperAdmin only: Show department filter */}
+              {user.role !== "admin" && (
+                <select
+                  value={deptFilter}
+                  onChange={(e) => {
+                    setDeptFilter(e.target.value);
+                    handleFilterChange({
+                      search: search || undefined,
+                      status: statusFilter === "all" ? undefined : statusFilter,
+                      department: e.target.value || undefined,
+                      batchYear: batchFilter || undefined,
+                    });
+                  }}
+                  className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+                >
+                  <option value="">All Departments</option>
+                  {Array.from(
+                    new Set(alumniUsers.map((a) => a.department).filter(Boolean)),
+                  )
+                    .sort()
+                    .map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                </select>
+              )}
 
               <select
                 value={batchFilter}
-                onChange={(e) => setBatchFilter(e.target.value)}
+                onChange={(e) => {
+                  setBatchFilter(e.target.value);
+                  handleFilterChange({
+                    search: search || undefined,
+                    status: statusFilter === "all" ? undefined : statusFilter,
+                    department: deptFilter || undefined,
+                    batchYear: e.target.value || undefined,
+                  });
+                }}
                 className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
               >
                 <option value="">All Batches</option>
-                {batches.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
+                {Array.from(
+                  new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean)),
+                )
+                  .sort((a, b) => String(b).localeCompare(String(a)))
+                  .map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
               </select>
 
               {(deptFilter || batchFilter) && (
@@ -331,6 +394,10 @@ const AlumniUsersList = () => {
                   onClick={() => {
                     setDeptFilter("");
                     setBatchFilter("");
+                    handleFilterChange({
+                      search: search || undefined,
+                      status: statusFilter === "all" ? undefined : statusFilter,
+                    });
                   }}
                   className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold"
                 >
@@ -341,8 +408,8 @@ const AlumniUsersList = () => {
 
             <div className="flex items-center gap-3">
               <div className="text-xs text-gray-500">
-                Showing <strong>{paginatedAlumni.length}</strong> of{" "}
-                <strong>{filteredAndSortedAlumni.length}</strong> (Page {currentPage} of {totalPages})
+                Showing <strong>{alumniUsers.length}</strong> of{" "}
+                <strong>{pageData.totalAlumni}</strong> (Page {pageData.currentPage} of {pageData.totalPages})
               </div>
 
               {/* View Toggle */}
@@ -378,7 +445,7 @@ const AlumniUsersList = () => {
 
       {/* Alumni List */}
       <div className="space-y-4">
-        {filteredAndSortedAlumni.length === 0 ? (
+        {alumniUsers.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -397,7 +464,7 @@ const AlumniUsersList = () => {
         ) : viewMode === "grid" ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {paginatedAlumni.map((alumni, idx) => (
+              {alumniUsers.map((alumni, idx) => (
               <motion.div
                 key={alumni._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -510,29 +577,27 @@ const AlumniUsersList = () => {
             </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {pageData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
                 <button
                   onClick={() => {
-                    scrollToTop();
-                    setCurrentPage(Math.max(1, currentPage - 1));
+                    handlePageChange(Math.max(1, pageData.currentPage - 1));
                   }}
-                  disabled={currentPage === 1}
+                  disabled={pageData.currentPage === 1}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   ← Prev
                 </button>
 
                 <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => {
-                        scrollToTop();
-                        setCurrentPage(page);
+                        handlePageChange(page);
                       }}
                       className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                        currentPage === page
+                        pageData.currentPage === page
                           ? "bg-blue-500 text-white"
                           : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
@@ -544,17 +609,16 @@ const AlumniUsersList = () => {
 
                 <button
                   onClick={() => {
-                    scrollToTop();
-                    setCurrentPage(Math.min(totalPages, currentPage + 1));
+                    handlePageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
                   }}
-                  disabled={currentPage === totalPages}
+                  disabled={pageData.currentPage === pageData.totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Next →
                 </button>
 
                 <span className="text-xs text-slate-500 font-medium ml-4">
-                  Page {currentPage} of {totalPages}
+                  Page {pageData.currentPage} of {pageData.totalPages}
                 </span>
               </div>
             )}
@@ -587,7 +651,7 @@ const AlumniUsersList = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedAlumni.map((alumni, idx) => (
+                    {alumniUsers.map((alumni, idx) => (
                     <motion.tr
                       key={alumni._id}
                       initial={{ opacity: 0, y: 10 }}
@@ -699,29 +763,27 @@ const AlumniUsersList = () => {
           </div>
 
             {/* Pagination Controls */}
-            {totalPages > 1 && (
+            {pageData.totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
                 <button
                   onClick={() => {
-                    scrollToTop();
-                    setCurrentPage(Math.max(1, currentPage - 1));
+                    handlePageChange(Math.max(1, pageData.currentPage - 1));
                   }}
-                  disabled={currentPage === 1}
+                  disabled={pageData.currentPage === 1}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   ← Prev
                 </button>
 
                 <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => {
-                        scrollToTop();
-                        setCurrentPage(page);
+                        handlePageChange(page);
                       }}
                       className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                        currentPage === page
+                        pageData.currentPage === page
                           ? "bg-purple-500 text-white"
                           : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                       }`}
@@ -733,17 +795,16 @@ const AlumniUsersList = () => {
 
                 <button
                   onClick={() => {
-                    scrollToTop();
-                    setCurrentPage(Math.min(totalPages, currentPage + 1));
+                    handlePageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
                   }}
-                  disabled={currentPage === totalPages}
+                  disabled={pageData.currentPage === pageData.totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Next →
                 </button>
 
                 <span className="text-xs text-slate-500 font-medium ml-4">
-                  Page {currentPage} of {totalPages}
+                  Page {pageData.currentPage} of {pageData.totalPages}
                 </span>
               </div>
             )}
