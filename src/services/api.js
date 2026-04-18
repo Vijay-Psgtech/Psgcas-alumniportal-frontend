@@ -293,9 +293,9 @@ export const adminUsersAPI = {
   getAll: () => api.get("/users"),
   create: (data) =>
     api.post("/users", data),
-  update: (id, data) =>
+  updateUser: (id, data) =>
     api.put(`/users/${id}`, data),
-  delete: (id) => api.delete(`/users/${id}`),
+  deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
 export default api;
