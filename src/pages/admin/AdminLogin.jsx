@@ -18,7 +18,7 @@ const AdminLogin = () => {
   const resetFields = useCallback(() => {
     setEmail("");
     setPassword("");
-    setError({});
+    setError("");
   }, []);
 
   // ✅ Redirect if already logged in as admin (cookie-based session)
