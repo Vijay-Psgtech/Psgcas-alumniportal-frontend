@@ -66,7 +66,6 @@ export default function NavBar() {
             path: "/alumni/directory",
             requireAuth: true,
           },
-          // { label: "Success Stories", path: "/alumni/stories" },
           { label: "Alumni Map", path: "/alumni/map", requireAuth: true },
           {
             label: "Alumni Chapters",
@@ -891,9 +890,11 @@ export default function NavBar() {
                         {user.firstName} {user.lastName}
                       </div>
                       <div className="ud-role">
-                        {user.role === "admin" ? "Admin User" : user.role === "superadmin"
-                          ? "Super Admin"
-                          : "Alumni Member"}
+                        {user.role === "admin"
+                          ? "Admin User"
+                          : user.role === "superadmin"
+                            ? "Super Admin"
+                            : "Alumni Member"}
                       </div>
                     </div>
                     <div style={{ padding: "6px 0" }}>
@@ -1061,33 +1062,36 @@ export default function NavBar() {
                       : "Alumni Member"}
                   </div>
                 </div>
-                <NavLink
-                  to="/alumni/dashboard"
-                  onClick={() => closeAllMenus()}
-                  className="m-link"
-                >
-                  <LayoutDashboardIcon size={15} />
-                  Dashboard
-                </NavLink>
+                {user.role === "alumni" && (
+                  <>
+                    <NavLink
+                      to="/alumni/dashboard"
+                      onClick={() => closeAllMenus()}
+                      className="m-link"
+                    >
+                      <LayoutDashboardIcon size={15} />
+                      Dashboard
+                    </NavLink>
 
-                <NavLink
-                  to="/alumni/profile"
-                  onClick={() => closeAllMenus()}
-                  className="m-link"
-                >
-                  <User size={15} />
-                  My Profile
-                </NavLink>
+                    <NavLink
+                      to="/alumni/profile"
+                      onClick={() => closeAllMenus()}
+                      className="m-link"
+                    >
+                      <User size={15} />
+                      My Profile
+                    </NavLink>
 
-                <NavLink
-                  to="/alumni/donations"
-                  onClick={() => closeAllMenus()}
-                  className="m-link"
-                >
-                  <Heart size={15} />
-                  My Donations
-                </NavLink>
-
+                    <NavLink
+                      to="/alumni/donations"
+                      onClick={() => closeAllMenus()}
+                      className="m-link"
+                    >
+                      <Heart size={15} />
+                      My Donations
+                    </NavLink>
+                  </>
+                )}
                 {(user.role === "admin" || user.role === "superadmin") && (
                   <>
                     <NavLink
