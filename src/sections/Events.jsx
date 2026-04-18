@@ -12,15 +12,11 @@ import {
 } from "lucide-react";
 
 import Gal1 from "../assets/Gallery/Gal1.jpg";
-import Gal2 from "../assets/Gallery/Gal2.jpg";
-import Gal3 from "../assets/Gallery/Gal3.jpg";
-import Gal4 from "../assets/Gallery/Gal4.jpg";
-import Gal5 from "../assets/Gallery/Gal5.jpg";
-import Gal6 from "../assets/Gallery/Gal6.jpg";
-import Gal7 from "../assets/Gallery/Gal7.jpg";
-import Gal8 from "../assets/Gallery/Gal8.jpg";
-import Gal9 from "../assets/Gallery/Gal9.jpg";
-import Gal10 from "../assets/Gallery/Gal10.jpg";
+import Reunion from "../assets/Gallery/reunion.jpg";
+import silverjubilee from "../assets/Gallery/silverjubilee.jpg";
+import Elevate from "../assets/Gallery/elevate.jpg";
+import BscReunion from "../assets/Gallery/bsc_reunion.jpg";
+import alumniReunion from "../assets/Gallery/alumni_reunion.jpg";
 
 const Events = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -51,7 +47,7 @@ const Events = () => {
       statusColor: "#6b7280",
       location: "GRD Auditorium, PSG CAS, Coimbatore",
       date: "Jul 26, 2025",
-      cardImage: Gal2,
+      cardImage: alumniReunion,
       description:
         "A celebration of 25 years of memories, connections, and friendships formed at PSG Arts College.",
       fullDetails:
@@ -68,7 +64,7 @@ const Events = () => {
       statusColor: "#6b7280",
       location: "GRD Auditorium PSGCAS, Coimbatore",
       date: "Mar 28, 2025",
-      cardImage: Gal7,
+      cardImage: Elevate,
       description:
         "Success stories and career development workshop featuring renowned speakers and industry experts.",
       fullDetails:
@@ -91,67 +87,39 @@ const Events = () => {
     },
     {
       id: 2,
-      src: Gal2,
-      alt: "Award Ceremony",
-      event: "Recognition Event",
-      caption: "Distinguished alumni receiving awards for their outstanding contributions to society and their fields.",
+      src: Reunion,
+      alt: "Reunion Photo",
+      event: "Reunion",
+      caption: "Reunion of the 2013–2016 B.Sc. Mathematics with Computer Applications batch was held on 31.01.2026 at Sangamam Hall.",
     },
     {
       id: 3,
-      src: Gal3,
-      alt: "Felicitation Ceremony",
-      event: "Tribute",
-      caption: "Felicitation of long-serving faculty members who have shaped generations of PSG CAS students.",
+      src: silverjubilee,
+      alt: "Group Discussion",
+      event: "Silver Jubilee",
+      caption: "Preliminary Meeting of PSG CAS ReCALL – Silver Jubilee Reunion of 1998, 1999 - 2001 batch held on 24.01.2026 at Sangamam Hall, PSG CAS.",
     },
     {
       id: 4,
-      src: Gal4,
-      alt: "Guest Lecture",
-      event: "Academic Event",
-      caption: "An eminent guest speaker addressing students and alumni during an academic enrichment session.",
+      src: Elevate,
+      alt: "Academic Session",
+      event: "Guest Lecture",
+      caption: "Elevate 2026 – Guest Lecture at PSG CAS (20 Jan 2026)",
     },
     {
       id: 5,
-      src: Gal5,
-      alt: "Inauguration",
-      event: "Ceremony",
-      caption: "The lamp-lighting inauguration ceremony marking the commencement of the annual alumni meet.",
+      src: BscReunion,
+      alt: "Alumni Reunion",
+      event: "Alumni Reunion",
+      caption: "Alumni reunion of the B.Sc. Computer Science batch (1999–2002 )",
     },
     {
       id: 6,
-      src: Gal6,
-      alt: "Panel Discussion",
-      event: "Seminar",
-      caption: "Industry leaders and academicians share insights during a thought-provoking panel discussion.",
+      src: alumniReunion,
+      alt: "Alumni Reunion",
+      event: "Silver Jubilee",
+      caption: "Silver Jubilee Alumni Reunion 1997 UG / 1998 PG – 2000 Batch",
     },
-    // {
-    //   id: 7,
-    //   src: Gal7,
-    //   alt: "Workshop Session",
-    //   event: "Training",
-    //   caption: "Participants engage in hands-on activities during the Elevate 2025 career development workshop.",
-    // },
-    // {
-    //   id: 8,
-    //   src: Gal8,
-    //   alt: "Alumni Gathering",
-    //   event: "Reunion",
-    //   caption: "Alumni reconnecting and reminiscing over shared memories at the Silver Jubilee reunion dinner.",
-    // },
-    // {
-    //   id: 9,
-    //   src: Gal9,
-    //   alt: "Golden Jubilee Banner",
-    //   event: "Celebration",
-    //   caption: "The iconic Golden Jubilee banner marks five decades of academic excellence at PSG Arts College.",
-    // },
-    // {
-    //   id: 10,
-    //   src: Gal10,
-    //   alt: "Interactive Session",
-    //   event: "Workshop",
-    //   caption: "Students and alumni participate in an interactive session on mentorship and career guidance.",
-    // },
   ];
 
   return (
@@ -874,10 +842,12 @@ const Events = () => {
         <div className="gallery-section">
           <div className="gallery-header">
             <h3 className="gallery-title">Photo Gallery</h3>
-            <button className="gallery-view-all">
-              View All
-              <ChevronRight size={18} />
-            </button>
+            <a href="/gallery" className="gallery-view-all-link">
+              <button className="gallery-view-all">
+                View All
+                <ChevronRight size={18} />
+              </button>
+            </a>
           </div>
 
           <div className="gallery-grid">
