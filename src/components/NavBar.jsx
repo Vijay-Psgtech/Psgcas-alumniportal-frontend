@@ -21,7 +21,6 @@ import {
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from ".././assets/Images/1280.png";
-import { label } from "framer-motion/client";
 
 export default function NavBar() {
   const { user, logout } = useAuth();
@@ -34,10 +33,12 @@ export default function NavBar() {
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [alumniOpen, setAlumniOpen] = useState(false);
+  const [accessOpen, setAccessOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileDiscoverOpen, setMobileDiscoverOpen] = useState(false);
   const [mobileEventsOpen, setMobileEventsOpen] = useState(false);
   const [mobileAlumniOpen, setMobileAlumniOpen] = useState(false);
+  const [mobileAccessOpen, setMobileAccessOpen] = useState(false);
 
   const navRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -47,6 +48,13 @@ export default function NavBar() {
     const baseItems = [
       { label: "Home", path: "/" },
       { label: "Leadership", path: "/leadership" },
+      {
+        label: "Access",
+        submenu: [
+          { label: "PSG College of Arts and Science", path: "https://www.psgcas.ac.in/" },
+          { label: "PSG Cenetary", path: "https://www.psgcenetary.ac.in/" },
+        ],
+      },
       { label: "Newsletter", path: "/newsletter" },
       {
         label: "Events",
@@ -114,6 +122,7 @@ export default function NavBar() {
         setDiscoverOpen(false);
         setEventsOpen(false);
         setAlumniOpen(false);
+        setAccessOpen(false);
       }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
@@ -138,12 +147,15 @@ export default function NavBar() {
     setMobileDiscoverOpen(false);
     setMobileEventsOpen(false);
     setMobileAlumniOpen(false);
+    setAccessOpen(false);
+    setMobileAccessOpen(false);
   }, []);
 
   const isDropdownOpen = (label) => {
     if (label === "Find Alumni") return discoverOpen;
     if (label === "Events") return eventsOpen;
     if (label === "Admin") return alumniOpen;
+    if (label === "Access") return accessOpen;
     return false;
   };
 
@@ -151,18 +163,21 @@ export default function NavBar() {
     if (label === "Find Alumni") setDiscoverOpen((p) => !p);
     if (label === "Events") setEventsOpen((p) => !p);
     if (label === "Admin") setAlumniOpen((p) => !p);
+    if (label === "Access") setAccessOpen((p) => !p);
   };
 
   const toggleMobileDropdown = (label) => {
     if (label === "Find Alumni") setMobileDiscoverOpen((p) => !p);
     if (label === "Events") setMobileEventsOpen((p) => !p);
     if (label === "Admin") setMobileAlumniOpen((p) => !p);
+    if (label === "Access") setMobileAccessOpen((p) => !p); 
   };
 
   const isMobileDropdownOpen = (label) => {
     if (label === "Find Alumni") return mobileDiscoverOpen;
     if (label === "Events") return mobileEventsOpen;
     if (label === "Admin") return mobileAlumniOpen;
+    if (label === "Access") return mobileAccessOpen;
     return false;
   };
 
@@ -220,10 +235,11 @@ export default function NavBar() {
           max-width: 1340px;
           margin: 0 auto;
           padding: 0 32px;
-          height: 80px;
-          display: flex;
+          min-height: 74px;
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
           align-items: center;
-          justify-content: space-between;
+          column-gap: 28px;
           position: relative;
           z-index: 2;
         }
@@ -239,11 +255,11 @@ export default function NavBar() {
         }
 
         .logo-img-wrapper {
-          width: 198px;
-          height: 68px;
-          border-radius: 10px;
+          width: 196px;
+          height: 66px;
+          border-radius: 8px;
           border: 1px solid rgba(59, 130, 246, 0.25);
-          background: rgba(59, 130, 246, 0.08);
+          background: rgba(255, 255, 255, 0.72);
           padding: 3px;
           flex-shrink: 0;
           transition: all 0.3s ease;
@@ -257,12 +273,14 @@ export default function NavBar() {
         .logo-img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           border-radius: 4px;
+          display: block;
         }
 
         .logo-text {
           line-height: 1.15;
+          min-width: 124px;
         }
 
         .logo-main {
@@ -274,6 +292,7 @@ export default function NavBar() {
           -webkit-text-fill-color: transparent;
           background-clip: text;
           letter-spacing: 0.01em;
+          white-space: nowrap;
         }
 
         .logo-sub {
@@ -288,8 +307,12 @@ export default function NavBar() {
         .navbar-menu {
           display: flex;
           align-items: center;
-          gap: 32px;
+          justify-content: center;
+          gap: clamp(16px, 1.8vw, 28px);
           list-style: none;
+          min-width: 0;
+          margin: 0;
+          padding: 0;
         }
 
         .menu-item {
@@ -304,8 +327,8 @@ export default function NavBar() {
           text-transform: uppercase;
           color: var(--text-primary);
           text-decoration: none;
-          padding: 10px 0;
-          padding-bottom: 3px;
+          min-height: 42px;
+          padding: 0;
           background: none;
           border: none;
           cursor: pointer;
@@ -314,12 +337,13 @@ export default function NavBar() {
           gap: 4px;
           transition: color 0.25s ease;
           font-family: 'Outfit', sans-serif;
+          white-space: nowrap;
         }
 
         .menu-link::after {
           content: '';
           position: absolute;
-          bottom: -2px;
+          bottom: 2px;
           left: 0;
           width: 0;
           height: 2px;
@@ -403,6 +427,7 @@ export default function NavBar() {
           display: flex;
           align-items: center;
           gap: 10px;
+          flex-shrink: 0;
         }
 
         .btn-ghost {
@@ -422,6 +447,7 @@ export default function NavBar() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
+          white-space: nowrap;
         }
 
         .btn-ghost:hover {
@@ -448,6 +474,7 @@ export default function NavBar() {
           align-items: center;
           gap: 6px;
           box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+          white-space: nowrap;
         }
 
         .btn-blue:hover {
@@ -751,7 +778,52 @@ export default function NavBar() {
         }
 
         /* RESPONSIVE */
-        @media (max-width: 900px) {
+        @media (max-width: 1280px) {
+          .navbar-container {
+            padding: 0 24px;
+            column-gap: 20px;
+          }
+
+          .logo-img-wrapper {
+            width: 174px;
+            height: 58px;
+          }
+
+          .logo-main {
+            font-size: 14px;
+          }
+
+          .navbar-menu {
+            gap: 16px;
+          }
+
+          .menu-link,
+          .btn-ghost,
+          .btn-blue {
+            font-size: 11.5px;
+            letter-spacing: 0.07em;
+          }
+
+          .btn-ghost {
+            padding: 8px 16px;
+          }
+
+          .btn-blue {
+            padding: 9px 18px;
+          }
+        }
+
+        @media (max-width: 1120px) {
+          .logo-text {
+            display: none;
+          }
+
+          .navbar-container {
+            column-gap: 18px;
+          }
+        }
+
+        @media (max-width: 980px) {
           .navbar-menu,
           .navbar-actions {
             display: none;
@@ -767,13 +839,20 @@ export default function NavBar() {
 
           .navbar-container {
             padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            min-height: 72px;
+          }
+
+          .logo-text {
+            display: block;
           }
         }
 
         @media (max-width: 640px) {
           .logo-img-wrapper {
-            width: 40px;
-            height: 40px;
+            width: 148px;
+            height: 50px;
           }
 
           .logo-main {
@@ -782,6 +861,16 @@ export default function NavBar() {
 
           .logo-sub {
             font-size: 8px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .logo-text {
+            display: none;
+          }
+
+          .navbar-container {
+            min-height: 66px;
           }
         }
       `}</style>
