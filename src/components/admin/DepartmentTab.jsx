@@ -872,7 +872,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
             </table>
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-6">
+              <div className="flex justify-end items-center gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200">
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                   disabled={currentPage === 1}

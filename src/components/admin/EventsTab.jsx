@@ -35,6 +35,8 @@ export const EventsTab = ({ onError, onSuccess }) => {
   const [modal, setModal] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // ✅ Fetch events on mount
   useEffect(() => {
@@ -64,6 +66,20 @@ export const EventsTab = ({ onError, onSuccess }) => {
       (statusFilter === "all" || e.status === statusFilter)
     );
   });
+
+  // ✅ Update pagination when filtered results change
+  useEffect(() => {
+    const itemsPerPage = 5;
+    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+    setCurrentPage(1); // Reset to page 1 when filters change
+  }, [filtered.length]);
+
+  // pagination logic
+  const itemsPerPage = 5;
+  const paginated = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
 
   // ✅ Handle save (create/update)
   const handleSave = async (form) => {
@@ -209,7 +225,7 @@ export const EventsTab = ({ onError, onSuccess }) => {
         )}
 
         <div className="">
-          {filtered.map((ev, i) => {
+          {paginated.map((ev, i) => {
             const cc = CATEGORY_COLORS[ev.category] || "#667eea";
             return (
               <motion.div
@@ -294,6 +310,28 @@ export const EventsTab = ({ onError, onSuccess }) => {
             );
           })}
         </div>
+        {/* Pagination controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-end items-center gap-2 px-4 py-3 bg-slate-50 border-t border-slate-200">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-3 py-1 rounded-md border border-slate-300 bg-white text-sm font-['Outfit',_sans-serif] ${currentPage === 1 ? "cursor-not-allowed opacity-50" : "hover:bg-slate-100"}`}
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-500 font-['Outfit',_sans-serif]">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-1 rounded-md border border-slate-300 bg-white text-sm font-['Outfit',_sans-serif] ${currentPage === totalPages ? "cursor-not-allowed opacity-50" : "hover:bg-slate-100"}`}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
