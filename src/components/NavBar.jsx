@@ -48,13 +48,13 @@ export default function NavBar() {
     const baseItems = [
       { label: "Home", path: "/" },
       { label: "Leadership", path: "/leadership" },
-      {
-        label: "Access",
-        submenu: [
-          { label: "PSG College of Arts and Science", path: "https://www.psgcas.ac.in/" },
-          { label: "PSG Cenetary", path: "https://www.psgcenetary.ac.in/" },
-        ],
-      },
+      // {
+      //   label: "Access",
+      //   submenu: [
+      //     { label: "PSG College of Arts and Science", path: "https://www.psgcas.ac.in/" },
+      //     { label: "PSG Cenetary", path: "https://www.psgcenetary.ac.in/" },
+      //   ],
+      // },
       { label: "Newsletter", path: "/newsletter" },
       {
         label: "Events",
