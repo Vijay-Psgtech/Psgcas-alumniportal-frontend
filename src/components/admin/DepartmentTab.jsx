@@ -29,6 +29,8 @@ const DepartmentTab = ({ onError, onSuccess }) => {
   const [editingId, setEditingId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   // ─── FILTER STATES ───
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,20 +113,35 @@ const DepartmentTab = ({ onError, onSuccess }) => {
         matchesStatus
       );
     });
-  }, [departments, searchQuery, selectedProgrammeTypes, selectedFundingTypes, selectedStatus]);
+  }, [
+    departments,
+    searchQuery,
+    selectedProgrammeTypes,
+    selectedFundingTypes,
+    selectedStatus,
+  ]);
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentDepartments = filteredDepartments.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+  const totalPages = Math.ceil(filteredDepartments.length / itemsPerPage);
 
   // ─────────────────────────────────────────────────────────────────
   // TOGGLE FILTER OPTIONS
   // ─────────────────────────────────────────────────────────────────
   const toggleProgrammeType = (type) => {
     setSelectedProgrammeTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
   const toggleFundingType = (type) => {
     setSelectedFundingTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -132,7 +149,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
     setSelectedStatus((prev) =>
       prev.includes(status)
         ? prev.filter((s) => s !== status)
-        : [...prev, status]
+        : [...prev, status],
     );
   };
 
@@ -224,7 +241,9 @@ const DepartmentTab = ({ onError, onSuccess }) => {
       resetForm();
     } catch (error) {
       const errorMsg =
-        error.response?.data?.message || error.message || "Failed to save department";
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to save department";
       console.error("❌ Save error:", errorMsg);
       onError(errorMsg);
     } finally {
@@ -305,9 +324,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
           ───────────────────────────────────────────────────────────── */}
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-xl font-bold text-[#0c0e1a]">
-            Departments
-          </h3>
+          <h3 className="text-xl font-bold text-[#0c0e1a]">Departments</h3>
           <p className="text-sm text-slate-500 mt-1">
             Total: {departments.length} | Showing: {filteredDepartments.length}
           </p>
@@ -331,7 +348,10 @@ const DepartmentTab = ({ onError, onSuccess }) => {
       <div className="space-y-4">
         {/* Search Input */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-3 text-slate-400" size={18} />
+          <Search
+            className="absolute left-3.5 top-3 text-slate-400"
+            size={18}
+          />
           <input
             type="text"
             placeholder="Search by department name or degree..."
@@ -536,7 +556,9 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                 animate={{ scale: 1, opacity: 1 }}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-xs font-medium"
               >
-                <span>Status: {status === "active" ? "Active" : "Inactive"}</span>
+                <span>
+                  Status: {status === "active" ? "Active" : "Inactive"}
+                </span>
                 <button
                   onClick={() => toggleStatus(status)}
                   className="hover:text-green-900"
@@ -778,7 +800,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                 </tr>
               </thead>
               <tbody>
-                {filteredDepartments.map((dept, idx) => (
+                {currentDepartments.map((dept, idx) => (
                   <motion.tr
                     key={dept._id}
                     initial={{ opacity: 0 }}
@@ -848,13 +870,35 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                 ))}
               </tbody>
             </table>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-medium text-sm hover:bg-slate-50 transition"
+                >
+                  Previous
+                </button>
+                <span className="text-slate-600 font-medium">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(p + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 font-medium text-sm hover:bg-slate-50 transition"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center">
-          <div className="text-5xl mb-3">
-            {hasActiveFilters ? "🔍" : "📚"}
-          </div>
+          <div className="text-5xl mb-3">{hasActiveFilters ? "🔍" : "📚"}</div>
           <p className="text-slate-600 font-medium text-lg">
             {hasActiveFilters
               ? "No departments match your filters"
