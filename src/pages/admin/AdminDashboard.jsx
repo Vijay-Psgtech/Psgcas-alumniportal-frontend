@@ -193,7 +193,7 @@ const AdminDashboard = () => {
             key: "alumni",
             Icon: Users,
             label: "Alumni",
-            badge: alumniList.length,
+            badge: formatINR(alumniList.length),
           },
           {
             key: "donations",
@@ -251,7 +251,7 @@ const AdminDashboard = () => {
   const STAT_CARDS =
     user.role === "admin"
       ? [
-          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+          { icon: "👥", val: formatINR(stats.totalAlumni), label: "Total Alumni" },
           {
             icon: "🏢",
             val: alumniPageData.totalAlumni || 0,
@@ -265,7 +265,7 @@ const AdminDashboard = () => {
           { icon: "✅", val: stats.completedDonations, label: "Completed" },
         ]
       : [
-          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+          { icon: "👥", val: formatINR(stats.totalAlumni), label: "Total Alumni" },
           { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
           {
             icon: "💰",

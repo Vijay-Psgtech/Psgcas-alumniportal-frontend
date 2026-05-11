@@ -55,11 +55,11 @@ const AlumniUsersList = () => {
           page: 1,
           limit: 20,
         };
-        
+
         if (user.role === "admin") {
           queryParams.department = department;
         }
-        
+
         const res = await adminAPI.getAllAlumni(queryParams);
         setAlumniUsers(res.data.alumni || []);
         setPageData({
@@ -80,7 +80,7 @@ const AlumniUsersList = () => {
 
   // ✅ OPTIMIZED: Removed client-side filtering/sorting/pagination - all done server-side
   // alumniUsers already contains only the filtered/paginated results from server
-  
+
   const handleFilterChange = async (filters) => {
     try {
       setLoading(true);
@@ -89,12 +89,12 @@ const AlumniUsersList = () => {
         page: 1,
         limit: 20,
       };
-      
+
       // ✅ For Admin: Always enforce their department
       if (user.role === "admin") {
         queryParams.department = department;
       }
-      
+
       const res = await adminAPI.getAllAlumni(queryParams);
       setAlumniUsers(res.data.alumni || []);
       setPageData({
@@ -103,7 +103,6 @@ const AlumniUsersList = () => {
         currentPage: res.data.currentPage || 1,
         totalApproved: res.data.totalApproved || 0,
         totalPending: res.data.totalPending || 0,
-
       });
     } catch (error) {
       console.error("Failed to apply filters:", error);
@@ -122,11 +121,11 @@ const AlumniUsersList = () => {
         status: statusFilter === "all" ? undefined : statusFilter,
         batchYear: batchFilter || undefined,
       };
-      
+
       if (user.role === "admin") {
         queryParams.department = department;
       }
-      
+
       const res = await adminAPI.getAllAlumni(queryParams);
       setAlumniUsers(res.data.alumni || []);
       setPageData({
@@ -154,11 +153,11 @@ const AlumniUsersList = () => {
         status: statusFilter === "all" ? undefined : statusFilter,
         batchYear: batchFilter || undefined,
       };
-      
+
       if (user.role === "admin") {
         queryParams.department = department;
       }
-      
+
       const res = await adminAPI.getAllAlumni(queryParams);
       setAlumniUsers(res.data.alumni || []);
       setPageData({
@@ -243,7 +242,6 @@ const AlumniUsersList = () => {
               iconBg: "bg-amber-100",
               iconColor: "text-amber-600",
             },
-          
           ].map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -353,7 +351,9 @@ const AlumniUsersList = () => {
                 >
                   <option value="">All Departments</option>
                   {Array.from(
-                    new Set(alumniUsers.map((a) => a.department).filter(Boolean)),
+                    new Set(
+                      alumniUsers.map((a) => a.department).filter(Boolean),
+                    ),
                   )
                     .sort()
                     .map((d) => (
@@ -409,7 +409,8 @@ const AlumniUsersList = () => {
             <div className="flex items-center gap-3">
               <div className="text-xs text-gray-500">
                 Showing <strong>{alumniUsers.length}</strong> of{" "}
-                <strong>{pageData.totalAlumni}</strong> (Page {pageData.currentPage} of {pageData.totalPages})
+                <strong>{pageData.totalAlumni}</strong> (Page{" "}
+                {pageData.currentPage} of {pageData.totalPages})
               </div>
 
               {/* View Toggle */}
@@ -465,115 +466,113 @@ const AlumniUsersList = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {alumniUsers.map((alumni, idx) => (
-              <motion.div
-                key={alumni._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
-              >
-                {/* Profile Header */}
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                    {alumni.profileImage ? (
-                      <img
-                        src={`${API_BASE}/${alumni.profileImage}`}
-                        alt={`${alumni.firstName} ${alumni.lastName}`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                        {alumni.firstName[0]}
-                        {alumni.lastName[0]}
+                <motion.div
+                  key={alumni._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.05 }}
+                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
+                >
+                  {/* Profile Header */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                      {alumni.profileImage ? (
+                        <img
+                          src={`${API_BASE}/${alumni.profileImage}`}
+                          alt={`${alumni.firstName} ${alumni.lastName}`}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                          {alumni.firstName.charAt(0)}
+                          {alumni.lastName && alumni.lastName.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                        {alumni.firstName} {alumni.lastName}
+                      </h3>
+                      <p className="text-sm text-gray-600 truncate">
+                        {alumni.email}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                            alumni.isApproved
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {alumni.isApproved ? (
+                            <CheckCircle size={12} />
+                          ) : (
+                            <XCircle size={12} />
+                          )}
+                          {alumni.isApproved ? "Approved" : "Pending"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Building size={14} className="text-gray-400" />
+                      <span className="text-gray-600">{alumni.department}</span>
+                      <span className="text-gray-400">•</span>
+                      <Calendar size={14} className="text-gray-400" />
+                      <span className="text-gray-600">{alumni.batchYear}</span>
+                    </div>
+
+                    {alumni.currentCompany && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Briefcase size={14} className="text-gray-400" />
+                        <span className="text-gray-600">
+                          {alumni.jobTitle} at {alumni.currentCompany}
+                        </span>
                       </div>
                     )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-gray-900 truncate">
-                      {alumni.firstName} {alumni.lastName}
-                    </h3>
-                    <p className="text-sm text-gray-600 truncate">
-                      {alumni.email}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                          alumni.isApproved
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {alumni.isApproved ? (
-                          <CheckCircle size={12} />
-                        ) : (
-                          <XCircle size={12} />
-                        )}
-                        {alumni.isApproved ? "Approved" : "Pending"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Details */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Building size={14} className="text-gray-400" />
-                    <span className="text-gray-600">
-                      {alumni.department.toUpperCase()}
-                    </span>
-                    <span className="text-gray-400">•</span>
-                    <Calendar size={14} className="text-gray-400" />
-                    <span className="text-gray-600">{alumni.batchYear}</span>
-                  </div>
-
-                  {alumni.currentCompany && (
                     <div className="flex items-center gap-2 text-sm">
-                      <Briefcase size={14} className="text-gray-400" />
-                      <span className="text-gray-600">
-                        {alumni.jobTitle} at {alumni.currentCompany}
+                      <MapPin size={14} className="text-gray-400" />
+                      <span className="text-gray-600 truncate">
+                        {alumni.city}, {alumni.country}
                       </span>
                     </div>
-                  )}
 
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin size={14} className="text-gray-400" />
-                    <span className="text-gray-600 truncate">
-                      {alumni.city}, {alumni.country}
-                    </span>
+                    {alumni.linkedin && (
+                      <a
+                        href={alumni.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        <Linkedin size={14} />
+                        LinkedIn Profile
+                      </a>
+                    )}
                   </div>
 
-                  {alumni.linkedin && (
-                    <a
-                      href={alumni.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      <Linkedin size={14} />
-                      LinkedIn Profile
-                    </a>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2">
-                  {!alumni.isApproved && (
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    {!alumni.isApproved && (
+                      <button
+                        onClick={() => handleApprove(alumni._id)}
+                        className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                      >
+                        Approve
+                      </button>
+                    )}
                     <button
-                      onClick={() => handleApprove(alumni._id)}
-                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      onClick={() => setSelectedItem(alumni)}
                     >
-                      Approve
+                      View Details
                     </button>
-                  )}
-                  <button
-                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                    onClick={() => setSelectedItem(alumni)}
-                  >
-                    View Details
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             {/* Pagination Controls */}
@@ -590,26 +589,62 @@ const AlumniUsersList = () => {
                 </button>
 
                 <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => {
-                        handlePageChange(page);
-                      }}
-                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                        pageData.currentPage === page
-                          ? "bg-blue-500 text-white"
-                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {(() => {
+                    const pages = [];
+                    const { totalPages, currentPage } = pageData;
+                    const range = 2; // pages before/after current
+
+                    // Always add first page
+                    pages.push(1);
+
+                    // Add pages around current
+                    const start = Math.max(2, currentPage - range);
+                    const end = Math.min(totalPages - 1, currentPage + range);
+
+                    // Add ellipsis if needed
+                    if (start > 2) pages.push("...");
+
+                    // Add range
+                    for (let i = start; i <= end; i++) pages.push(i);
+
+                    // Add ellipsis if needed
+                    if (end < totalPages - 1) pages.push("...");
+
+                    // Always add last page (if more than 1 page)
+                    if (totalPages > 1) pages.push(totalPages);
+
+                    return pages.map((page, idx) =>
+                      page === "..." ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="text-slate-400 px-1"
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => {
+                            handlePageChange(page);
+                          }}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                            pageData.currentPage === page
+                              ? "bg-purple-500 text-white"
+                              : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    );
+                  })()}
                 </div>
 
                 <button
                   onClick={() => {
-                    handlePageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
+                    handlePageChange(
+                      Math.min(pageData.totalPages, pageData.currentPage + 1),
+                    );
                   }}
                   disabled={pageData.currentPage === pageData.totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
@@ -652,115 +687,117 @@ const AlumniUsersList = () => {
                   </thead>
                   <tbody>
                     {alumniUsers.map((alumni, idx) => (
-                    <motion.tr
-                      key={alumni._id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                            {alumni.profileImage ? (
-                              <img
-                                src={`${API_BASE}/${alumni.profileImage}`}
-                                alt={`${alumni.firstName} ${alumni.lastName}`}
-                                className="w-full h-full object-cover"
-                              />
+                      <motion.tr
+                        key={alumni._id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                              {alumni.profileImage ? (
+                                <img
+                                  src={`${API_BASE}/${alumni.profileImage}`}
+                                  alt={`${alumni.firstName} ${alumni.lastName}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                                  {alumni.firstName.charAt(0)}
+                                  {alumni.lastName && alumni.lastName.charAt(0)}
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-gray-900">
+                                {alumni.firstName} {alumni.lastName}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {alumni.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            <div className="flex items-center gap-1 mb-1">
+                              <Mail size={12} />
+                              <span>{alumni.email}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Phone size={12} />
+                              <span>{alumni.phone}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            <p className="font-medium">{alumni.department}</p>
+                            <p className="text-xs">
+                              Graduated {alumni.batchYear}
+                            </p>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-600">
+                            {alumni.currentCompany ? (
+                              <>
+                                <p className="font-medium">{alumni.jobTitle}</p>
+                                <p className="text-xs">
+                                  {alumni.currentCompany}
+                                </p>
+                              </>
                             ) : (
-                              <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                                {alumni.firstName[0]}
-                                {alumni.lastName[0]}
-                              </div>
+                              <span className="text-gray-400">
+                                Not specified
+                              </span>
                             )}
                           </div>
-                          <div>
-                            <p className="text-sm font-bold text-gray-900">
-                              {alumni.firstName} {alumni.lastName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {alumni.email}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          <div className="flex items-center gap-1 mb-1">
-                            <Mail size={12} />
-                            <span>{alumni.email}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Phone size={12} />
-                            <span>{alumni.phone}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          <p className="font-medium">
-                            {alumni.department.toUpperCase()}
-                          </p>
-                          <p className="text-xs">
-                            Graduated {alumni.batchYear}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-600">
-                          {alumni.currentCompany ? (
-                            <>
-                              <p className="font-medium">{alumni.jobTitle}</p>
-                              <p className="text-xs">{alumni.currentCompany}</p>
-                            </>
-                          ) : (
-                            <span className="text-gray-400">Not specified</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            alumni.isApproved
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {alumni.isApproved ? (
-                            <CheckCircle size={12} />
-                          ) : (
-                            <XCircle size={12} />
-                          )}
-                          {alumni.isApproved ? "Approved" : "Pending"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          {!alumni.isApproved && (
-                            <button
-                              onClick={() => handleApprove(alumni._id)}
-                              className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                              title="Approve"
-                            >
-                              <CheckCircle size={14} />
-                            </button>
-                          )}
-                          <button
-                            className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                            title="View Details"
-                            onClick={() => setSelectedItem(alumni)}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              alumni.isApproved
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
                           >
-                            <Eye size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
+                            {alumni.isApproved ? (
+                              <CheckCircle size={12} />
+                            ) : (
+                              <XCircle size={12} />
+                            )}
+                            {alumni.isApproved ? "Approved" : "Pending"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            {!alumni.isApproved && (
+                              <button
+                                onClick={() => handleApprove(alumni._id)}
+                                className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                title="Approve"
+                              >
+                                <CheckCircle size={14} />
+                              </button>
+                            )}
+                            <button
+                              className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                              title="View Details"
+                              onClick={() => setSelectedItem(alumni)}
+                            >
+                              <Eye size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
             {/* Pagination Controls */}
             {pageData.totalPages > 1 && (
@@ -776,26 +813,62 @@ const AlumniUsersList = () => {
                 </button>
 
                 <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
-                    <button
-                      key={page}
-                      onClick={() => {
-                        handlePageChange(page);
-                      }}
-                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                        pageData.currentPage === page
-                          ? "bg-purple-500 text-white"
-                          : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
+                  {(() => {
+                    const pages = [];
+                    const { totalPages, currentPage } = pageData;
+                    const range = 2; // pages before/after current
+
+                    // Always add first page
+                    pages.push(1);
+
+                    // Add pages around current
+                    const start = Math.max(2, currentPage - range);
+                    const end = Math.min(totalPages - 1, currentPage + range);
+
+                    // Add ellipsis if needed
+                    if (start > 2) pages.push("...");
+
+                    // Add range
+                    for (let i = start; i <= end; i++) pages.push(i);
+
+                    // Add ellipsis if needed
+                    if (end < totalPages - 1) pages.push("...");
+
+                    // Always add last page (if more than 1 page)
+                    if (totalPages > 1) pages.push(totalPages);
+
+                    return pages.map((page, idx) =>
+                      page === "..." ? (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="text-slate-400 px-1"
+                        >
+                          …
+                        </span>
+                      ) : (
+                        <button
+                          key={page}
+                          onClick={() => {
+                            handlePageChange(page);
+                          }}
+                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                            pageData.currentPage === page
+                              ? "bg-purple-500 text-white"
+                              : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ),
+                    );
+                  })()}
                 </div>
 
                 <button
                   onClick={() => {
-                    handlePageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
+                    handlePageChange(
+                      Math.min(pageData.totalPages, pageData.currentPage + 1),
+                    );
                   }}
                   disabled={pageData.currentPage === pageData.totalPages}
                   className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"

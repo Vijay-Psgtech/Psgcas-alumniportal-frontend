@@ -241,7 +241,8 @@ export const AlumniTab = ({
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                          {a.firstName[0]}
+                          {a.firstName.charAt(0)}
+                          {a.lastName && a.lastName.charAt(0)}
                           
                         </div>
                       )}
