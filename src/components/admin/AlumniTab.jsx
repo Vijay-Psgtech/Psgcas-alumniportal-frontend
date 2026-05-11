@@ -242,7 +242,7 @@ export const AlumniTab = ({
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
                           {a.firstName[0]}
-                          {a.lastName[0]}
+                          
                         </div>
                       )}
                     </div>
@@ -277,7 +277,7 @@ export const AlumniTab = ({
                     <div className="flex items-center gap-2 text-sm">
                       <Building size={14} className="text-gray-400" />
                       <span className="text-gray-600">
-                        {a.department.toUpperCase()}
+                        {a.department}
                       </span>
                       <span className="text-gray-400">•</span>
                       <Calendar size={14} className="text-gray-400" />
@@ -351,22 +351,51 @@ export const AlumniTab = ({
               </button>
 
               <div className="flex items-center gap-1 flex-wrap justify-center">
-                {Array.from({ length: pageData.totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => {
-                      alumniRef.current?.scrollIntoView({ behavior: "smooth" });
-                      onPageChange(page);
-                    }}
-                    className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      pageData.currentPage === page
-                        ? "bg-slate-900 text-white"
-                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {(() => {
+                  const pages = [];
+                  const { totalPages, currentPage } = pageData;
+                  const range = 2; // pages before/after current
+
+                  // Always add first page
+                  pages.push(1);
+
+                  // Add pages around current
+                  const start = Math.max(2, currentPage - range);
+                  const end = Math.min(totalPages - 1, currentPage + range);
+
+                  // Add ellipsis if needed
+                  if (start > 2) pages.push("...");
+
+                  // Add range
+                  for (let i = start; i <= end; i++) pages.push(i);
+
+                  // Add ellipsis if needed
+                  if (end < totalPages - 1) pages.push("...");
+
+                  // Always add last page (if more than 1 page)
+                  if (totalPages > 1) pages.push(totalPages);
+
+                  return pages.map((page, idx) => 
+                    page === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="text-slate-400 px-1">…</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => {
+                          alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+                          onPageChange(page);
+                        }}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                          currentPage === page
+                            ? "bg-slate-900 text-white"
+                            : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  );
+                })()}
               </div>
 
               <button
