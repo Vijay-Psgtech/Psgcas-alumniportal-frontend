@@ -52,7 +52,7 @@ const AdminEvents = () => {
   const [sortBy, setSortBy] = useState("date"); // 'date', 'title', 'attendees', 'status'
   const [sortOrder, setSortOrder] = useState("desc"); // 'asc' or 'desc'
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   usePageTitle("Events Management");
 
   // ✅ Fetch events on mount
