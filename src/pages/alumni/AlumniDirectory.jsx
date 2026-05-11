@@ -582,8 +582,8 @@ const AlumniDirectory = () => {
   /* Display info - use total from pagination for accuracy */
   return (
     <>
-      <div className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
-        <div className="container mx-auto px-6">
+      <div ref={alumniRef} className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
+        <div  className="container mx-auto px-6">
           {/* ── Page Header ── */}
           <motion.div
             className="mb-8"
@@ -776,7 +776,11 @@ const AlumniDirectory = () => {
                           isMine={
                             !isAdmin && String(user?.batchYear) === String(year)
                           }
-                          onClick={() => loadBatch(year)}
+                          onClick={() => {
+                            alumniRef.current.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                            loadBatch(year)}}
                           index={i}
                         />
                       ))}
@@ -795,7 +799,7 @@ const AlumniDirectory = () => {
                 exit={{ opacity: 0 }}
               >
                 {/* Search + Filters */}
-                <div ref={alumniRef} className="flex flex-col gap-3 mb-5">
+                <div className="flex flex-col gap-3 mb-5">
                   {/* Search bar */}
                   <div className="relative">
                     <Search
@@ -928,7 +932,7 @@ const AlumniDirectory = () => {
                           <div
                             className={`grid gap-4 ${
                               gridMode === "grid"
-                                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
+                                ? "grid-cols-1 sm:grid-cols-3 lg:grid-cols-5"
                                 : "grid-cols-1"
                             }`}
                           >
