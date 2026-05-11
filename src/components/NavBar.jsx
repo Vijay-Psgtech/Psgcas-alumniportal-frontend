@@ -1070,7 +1070,7 @@ export default function NavBar() {
                   Sign In
                 </Link>
                 <Link to="/donate" className="btn-blue">
-                  Donate
+                  Contribute
                 </Link>
               </>
             )}
