@@ -1,7 +1,13 @@
 // src/pages/alumni/AlumniDirectory.jsx
 // ✅ Batch-first directory — Admin sees all, Alumni sees own batch full / others limited
 
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
@@ -412,7 +418,7 @@ const AlumniCardLimited = ({ alumni, index }) => {
 ═══════════════════════════════════════════ */
 const AlumniDirectory = () => {
   const { user } = useAuth();
-  const isAdmin = (user?.role === "admin") || false;
+  const isAdmin = user?.role === "admin" || false;
   const alumniRef = useRef(null);
   usePageTitle("Alumni Directory");
   // ── State ──
@@ -439,11 +445,11 @@ const AlumniDirectory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const itemsPerPage = 12;
+  const itemsPerPage = 20;
   // ✅ Memoize params to prevent unnecessary object recreation
-  const params = useMemo(() => 
-    isAdmin ? { department: user.department } : {},
-    [isAdmin, user.department]
+  const params = useMemo(
+    () => (isAdmin ? { department: user.department } : {}),
+    [isAdmin, user.department],
   );
 
   // ── Load batches ──
@@ -502,43 +508,52 @@ const AlumniDirectory = () => {
   }, []);
 
   // ── Load alumni for a batch ──
-  const loadBatch = useCallback(async (year, pageNum = 1, searchStr = "", occFilter = "", deptFilter = "") => {
-    try {
-      setLoading(true);
-      setError("");
-      
-      const res = await alumniAPI.getByBatch({
-        batchYear: year,
-        page: pageNum,
-        limit: itemsPerPage,
-        search: searchStr || undefined,
-        occupation: occFilter || undefined,
-        department: deptFilter || undefined,
-        ...params,
-      }); // GET /api/alumni/batch-wise?batchYear=year&page=1&limit=12&search=...
-      
-      const data = res.data;
-      setAlumniList(data.alumni || []);
-      setTotal(data.total || 0);
-      setTotalPages(data.totalPages || 1);
-      setCurrentPage(data.page || 1);
-      setSelectedBatch(year);
-      setView("alumni");
-    } catch (e) {
-      setError("Failed to load alumni for this batch.");
-    } finally {
-      setLoading(false);
-    }
-  }, [itemsPerPage, params]);
+  const loadBatch = useCallback(
+    async (
+      year,
+      pageNum = 1,
+      searchStr = "",
+      occFilter = "",
+      deptFilter = "",
+    ) => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const res = await alumniAPI.getByBatch({
+          batchYear: year === "Unknown" ? "null" : year,
+          page: pageNum,
+          limit: itemsPerPage,
+          search: searchStr || undefined,
+          occupation: occFilter || undefined,
+          department: deptFilter || undefined,
+          ...params,
+        }); // GET /api/alumni/batch-wise?batchYear=year&page=1&limit=20&search=...
+
+        const data = res.data;
+        setAlumniList(data.alumni || []);
+        setTotal(data.total || 0);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.page || 1);
+        setSelectedBatch(year);
+        setView("alumni");
+      } catch (e) {
+        setError("Failed to load alumni for this batch.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [itemsPerPage, params],
+  );
 
   // ── Handle filter/search changes (debounced) ──
   useEffect(() => {
     if (!selectedBatch) return;
-    
+
     const timer = setTimeout(() => {
       loadBatch(selectedBatch, 1, search, filterOccupation, filterDept);
     }, 300); // 300ms debounce
-    
+
     return () => clearTimeout(timer);
   }, [search, filterOccupation, filterDept, selectedBatch]); // ✅ Removed loadBatch from dependencies to prevent infinite loop
 
@@ -567,625 +582,687 @@ const AlumniDirectory = () => {
   /* Display info - use total from pagination for accuracy */
   return (
     <>
-    <div className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
-        {/* ── Page Header ── */}
-        <motion.div
-          className="mb-8"
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-        >
-          {view === "alumni" && (
-            <button
-              onClick={() => {
-                setView("batches");
-                setSelectedBatch(null);
-                setAlumniList([]);
-              }}
-              className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors group"
-            >
-              <ArrowLeft
-                size={15}
-                className="group-hover:-translate-x-0.5 transition-transform"
-              />
-              All Batches
-            </button>
-          )}
+      <div className="min-h-screen bg-[#f4f5f9] pt-24 pb-16 px-4 sm:px-6">
+        <div className="container mx-auto px-6">
+          {/* ── Page Header ── */}
+          <motion.div
+            className="mb-8"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+          >
+            {view === "alumni" && (
+              <button
+                onClick={() => {
+                  setView("batches");
+                  setSelectedBatch(null);
+                  setAlumniList([]);
+                }}
+                className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors group"
+              >
+                <ArrowLeft
+                  size={15}
+                  className="group-hover:-translate-x-0.5 transition-transform"
+                />
+                All Batches
+              </button>
+            )}
 
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-extrabold text-indigo-400 uppercase tracking-widest mb-1">
-                Alumni Portal
-              </p>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
-                {view === "batches"
-                  ? `Alumni Directory - ${isAdmin ? `Department ${user?.department || "N/A"}` : `Batch ${user?.batchYear || "Years"}`}`
-                  : `Batch of ${selectedBatch}`}
-              </h1>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-extrabold text-indigo-400 uppercase tracking-widest mb-1">
+                  Alumni Portal
+                </p>
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">
+                  {view === "batches"
+                    ? `Alumni Directory - ${isAdmin ? `Department ${user?.department || "N/A"}` : `Batch ${user?.batchYear || "Years"}`}`
+                    : `Batch of ${selectedBatch}`}
+                </h1>
 
-              {/* Stats */}
-              <div className="flex items-center gap-3 mt-2">
-                <div className="flex items-center gap-1.5">
-                  <Users size={13} className="text-slate-400" />
-                  <span className="text-sm text-slate-400 font-medium">
-                    {stats.totalAlumni} total alumni
-                  </span>
+                {/* Stats */}
+                <div className="flex items-center gap-3 mt-2">
+                  <div className="flex items-center gap-1.5">
+                    <Users size={13} className="text-slate-400" />
+                    <span className="text-sm text-slate-400 font-medium">
+                      {stats.totalAlumni} total alumni
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <GraduationCap size={13} className="text-slate-400" />
+                    <span className="text-sm text-slate-400 font-medium">
+                      {stats.batchStats} total batches
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <Building2 size={13} className="text-slate-400" />
+                    <span className="text-sm text-slate-400 font-medium">
+                      {stats.departmentStats} total departments
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <GraduationCap size={13} className="text-slate-400" />
-                  <span className="text-sm text-slate-400 font-medium">
-                    {stats.batchStats} total batches
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <Building2 size={13} className="text-slate-400" />
-                  <span className="text-sm text-slate-400 font-medium">
-                    {stats.departmentStats} total departments
-                  </span>
-                </div>
+                {view === "alumni" && !loading && (
+                  <p className="text-sm text-slate-400 font-medium mt-1">
+                    {total} alumni found
+                    {!isAdmin && (
+                      <span className="ml-2 text-indigo-400">
+                        · {fullCards.length} full profile
+                        {fullCards.length !== 1 ? "s" : ""} visible
+                      </span>
+                    )}
+                  </p>
+                )}
               </div>
 
               {view === "alumni" && !loading && (
-                <p className="text-sm text-slate-400 font-medium mt-1">
-                  {total} alumni found
-                  {!isAdmin && (
-                    <span className="ml-2 text-indigo-400">
-                      · {fullCards.length} full profile
-                      {fullCards.length !== 1 ? "s" : ""} visible
-                    </span>
-                  )}
-                </p>
+                <div className="flex items-center gap-2">
+                  {/* Grid / List toggle */}
+                  <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+                    <button
+                      onClick={() => setGridMode("grid")}
+                      className={`p-1.5 rounded-lg transition-all ${gridMode === "grid" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    >
+                      <LayoutGrid size={14} />
+                    </button>
+                    <button
+                      onClick={() => setGridMode("list")}
+                      className={`p-1.5 rounded-lg transition-all ${gridMode === "list" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
+                    >
+                      <List size={14} />
+                    </button>
+                  </div>
+                  {/* Filter toggle */}
+                  <button
+                    onClick={() => setShowFilters((p) => !p)}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-sm font-bold transition-all shadow-sm ${showFilters ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white border-slate-200 text-slate-600 hover:border-indigo-300"}`}
+                  >
+                    <SlidersHorizontal size={14} />
+                    Filters
+                    {(filterOccupation || filterDept) && (
+                      <span className="w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-black flex items-center justify-center">
+                        {[filterOccupation, filterDept].filter(Boolean).length}
+                      </span>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
+          </motion.div>
 
-            {view === "alumni" && !loading && (
-              <div className="flex items-center gap-2">
-                {/* Grid / List toggle */}
-                <div className="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                  <button
-                    onClick={() => setGridMode("grid")}
-                    className={`p-1.5 rounded-lg transition-all ${gridMode === "grid" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-                  >
-                    <LayoutGrid size={14} />
-                  </button>
-                  <button
-                    onClick={() => setGridMode("list")}
-                    className={`p-1.5 rounded-lg transition-all ${gridMode === "list" ? "bg-indigo-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-600"}`}
-                  >
-                    <List size={14} />
-                  </button>
-                </div>
-                {/* Filter toggle */}
-                <button
-                  onClick={() => setShowFilters((p) => !p)}
-                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-sm font-bold transition-all shadow-sm ${showFilters ? "bg-indigo-600 border-indigo-600 text-white" : "bg-white border-slate-200 text-slate-600 hover:border-indigo-300"}`}
-                >
-                  <SlidersHorizontal size={14} />
-                  Filters
-                  {(filterOccupation || filterDept) && (
-                    <span className="w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-black flex items-center justify-center">
-                      {[filterOccupation, filterDept].filter(Boolean).length}
-                    </span>
-                  )}
+          {/* ── Error Banner ── */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                className="flex items-center gap-3 px-5 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium mb-5"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
+                {error}
+                <button onClick={() => setError("")} className="ml-auto">
+                  <X size={14} />
                 </button>
-              </div>
+              </motion.div>
             )}
-          </div>
-        </motion.div>
+          </AnimatePresence>
 
-        {/* ── Error Banner ── */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium mb-5"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-            >
-              {error}
-              <button onClick={() => setError("")} className="ml-auto">
-                <X size={14} />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ══════════════ BATCH VIEW ══════════════ */}
-        <AnimatePresence mode="wait">
-          {view === "batches" && (
-            <motion.div
-              key="batches"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {batchLoading ? (
-                <div className="flex flex-col items-center justify-center py-24 gap-4">
-                  <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-500 animate-spin" />
-                  <p className="text-slate-400 text-sm font-medium">
-                    Loading batches…
-                  </p>
-                </div>
-              ) : batches.length === 0 ? (
-                <div className="text-center py-24">
-                  <GraduationCap
-                    size={40}
-                    className="text-slate-200 mx-auto mb-4"
-                  />
-                  <p className="text-slate-400 font-medium">
-                    No batches found.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {/* Info banner for alumni */}
-                  {!isAdmin && (
-                    <motion.div
-                      className="flex items-start gap-3 px-5 py-3.5 rounded-2xl bg-indigo-50 border border-indigo-100 mb-6"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <Eye
-                        size={16}
-                        className="text-indigo-400 flex-shrink-0 mt-0.5"
-                      />
-                      <div>
-                        <p className="text-sm font-bold text-indigo-800">
-                          Visibility Notice
-                        </p>
-                        <p className="text-xs text-indigo-500 mt-0.5">
-                          Full details are visible for{" "}
-                          <strong>Batch {user?.batchYear}</strong> members.
-                          Other batches show name, department, and batch year
-                          only.
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {batches.map((year, i) => (
-                      <BatchCard
-                        key={i}
-                        year={year}
-                        count={
-                          batchCounts[String(year)] ?? batchCounts[year] ?? null
-                        }
-                        palette={BATCH_PALETTES[i % BATCH_PALETTES.length]}
-                        isMine={
-                          !isAdmin && String(user?.batchYear) === String(year)
-                        }
-                        onClick={() => loadBatch(year)}
-                        index={i}
-                      />
-                    ))}
+          {/* ══════════════ BATCH VIEW ══════════════ */}
+          <AnimatePresence mode="wait">
+            {view === "batches" && (
+              <motion.div
+                key="batches"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {batchLoading ? (
+                  <div className="flex flex-col items-center justify-center py-24 gap-4">
+                    <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-500 animate-spin" />
+                    <p className="text-slate-400 text-sm font-medium">
+                      Loading batches…
+                    </p>
                   </div>
-                </>
-              )}
-            </motion.div>
-          )}
-
-          {/* ══════════════ ALUMNI VIEW ══════════════ */}
-          {view === "alumni" && (
-            <motion.div
-              key="alumni"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {/* Search + Filters */}
-              <div ref={alumniRef} className="flex flex-col gap-3 mb-5">
-                {/* Search bar */}
-                <div className="relative">
-                  <Search
-                    size={15}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search by name, email or roll number…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 shadow-sm transition-all"
-                  />
-                  {search && (
-                    <button
-                      onClick={() => setSearch("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-                    >
-                      <X size={11} className="text-slate-500" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Filter dropdowns */}
-                <AnimatePresence>
-                  {showFilters && (
-                    <motion.div
-                      className="flex flex-wrap gap-3"
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                    >
-                      {/* Occupation filter */}
-                      <div className="relative">
-                        <select
-                          value={filterOccupation}
-                          onChange={(e) => setFilterOccupation(e.target.value)}
-                          className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
-                        >
-                          <option value="">All Occupations</option>
-                          {occupations.map((o) => (
-                            <option key={o}>{o}</option>
-                          ))}
-                        </select>
-                        <ChevronDown
-                          size={12}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                ) : batches.length === 0 ? (
+                  <div className="text-center py-24">
+                    <GraduationCap
+                      size={40}
+                      className="text-slate-200 mx-auto mb-4"
+                    />
+                    <p className="text-slate-400 font-medium">
+                      No batches found.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Info banner for alumni */}
+                    {!isAdmin && (
+                      <motion.div
+                        className="flex items-start gap-3 px-5 py-3.5 rounded-2xl bg-indigo-50 border border-indigo-100 mb-6"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <Eye
+                          size={16}
+                          className="text-indigo-400 flex-shrink-0 mt-0.5"
                         />
-                      </div>
-                      {/* Department filter */}
-                      <div className="relative">
-                        <select
-                          value={filterDept}
-                          onChange={(e) => setFilterDept(e.target.value)}
-                          className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
-                        >
-                          <option value="">All Departments</option>
-                          {departments.map((d) => (
-                            <option key={d}>{d}</option>
-                          ))}
-                        </select>
-                        <ChevronDown
-                          size={12}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                        <div>
+                          <p className="text-sm font-bold text-indigo-800">
+                            Visibility Notice
+                          </p>
+                          <p className="text-xs text-indigo-500 mt-0.5">
+                            Full details are visible for{" "}
+                            <strong>Batch {user?.batchYear}</strong> members.
+                            Other batches show name, department, and batch year
+                            only.
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {batches.map((year, i) => (
+                        <BatchCard
+                          key={i}
+                          year={year}
+                          count={
+                            batchCounts[String(year)] ??
+                            batchCounts[year] ??
+                            null
+                          }
+                          palette={BATCH_PALETTES[i % BATCH_PALETTES.length]}
+                          isMine={
+                            !isAdmin && String(user?.batchYear) === String(year)
+                          }
+                          onClick={() => loadBatch(year)}
+                          index={i}
                         />
-                      </div>
-                      {/* Clear filters */}
-                      {(filterOccupation || filterDept) && (
-                        <button
-                          onClick={() => {
-                            setFilterOccupation("");
-                            setFilterDept("");
-                          }}
-                          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-bold hover:bg-red-100 transition-colors"
-                        >
-                          <X size={12} /> Clear
-                        </button>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            )}
 
-              {/* Loading */}
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-28 gap-4">
-                  <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-500 animate-spin" />
-                  <p className="text-slate-400 text-sm font-medium">
-                    Loading alumni…
-                  </p>
-                </div>
-              ) : filtered.length === 0 ? (
-                <div className="text-center py-24">
-                  <Users size={40} className="text-slate-200 mx-auto mb-4" />
-                  <p className="text-slate-400 font-medium text-sm">
-                    No alumni match your search.
-                  </p>
-                  {(search || filterOccupation || filterDept) && (
-                    <button
-                      onClick={() => {
-                        setSearch("");
-                        setFilterOccupation("");
-                        setFilterDept("");
-                      }}
-                      className="mt-3 text-indigo-500 text-sm font-bold hover:underline"
-                    >
-                      Clear filters
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <>
-                  {/* ── Full-detail section ── */}
-                  {fullCards.length > 0 && (
-                    <section className="mb-8">
-                      {!isAdmin && (
-                        <div className="flex items-center gap-2 mb-4">
-                          <Eye size={13} className="text-emerald-500" />
-                          <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">
-                            Your Batch — Full Details
-                          </span>
-                          <span className="text-[10px] font-bold text-slate-300">
-                            ({fullCards.length})
-                          </span>
-                        </div>
-                      )}
-                      {gridMode === "grid" ? (
-                        <div
-                          className={`grid gap-4 ${
-                            gridMode === "grid"
-                              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                              : "grid-cols-1"
-                          }`}
-                        >
-                          {fullCards.map((alumni, i) => (
-                            <div
-                              key={alumni._id}
-                              onClick={() => setSelectedAlumni(alumni)}
-                              className="cursor-pointer"
-                            >
-                              <AlumniCardFull
-                                alumni={alumni}
-                                apiBase={API_BASE}
-                                index={i}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="overflow-auto bg-white rounded-2xl border border-slate-100 shadow-sm">
-                          <table className="min-w-full table-fixed">
-                            <thead className="bg-slate-50">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Name
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Department
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Programme
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Batch
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Email
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Phone
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Job
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Status
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-slate-100">
-                              {fullCards.map((alumni, i) => (
-                                <tr
-                                  key={alumni._id}
-                                  onClick={() => setSelectedAlumni(alumni)}
-                                  className="hover:bg-slate-50 cursor-pointer"
-                                >
-                                  <td className="px-4 py-3 align-middle">
-                                    <div className="flex items-center gap-3">
-                                      <div
-                                        className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold`}
-                                      >
-                                        {getInitials(
-                                          alumni.firstName,
-                                          alumni.lastName,
-                                        )}
-                                      </div>
-                                      <div className="min-w-0">
-                                        <div className="text-sm font-bold text-slate-900 truncate">
-                                          {alumni.firstName} {alumni.lastName}
-                                        </div>
-                                        <div className="text-xs text-slate-400 truncate">
-                                          {alumni.email}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.department || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.programmeType || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.batchYear || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
-                                    {alumni.email}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.phone || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
-                                    {alumni.jobTitle
-                                      ? `${alumni.jobTitle}${alumni.currentCompany ? " @ " + alumni.currentCompany : ""}`
-                                      : alumni.occupation || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 align-middle">
-                                    {alumni.isApproved ? (
-                                      <Pill color="emerald">
-                                        <CheckCircle size={12} /> Verified
-                                      </Pill>
-                                    ) : (
-                                      <Pill color="amber">Pending</Pill>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </section>
-                  )}
+            {/* ══════════════ ALUMNI VIEW ══════════════ */}
+            {view === "alumni" && (
+              <motion.div
+                key="alumni"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {/* Search + Filters */}
+                <div ref={alumniRef} className="flex flex-col gap-3 mb-5">
+                  {/* Search bar */}
+                  <div className="relative">
+                    <Search
+                      size={15}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search by name, email or roll number…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white text-sm text-slate-800 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 shadow-sm transition-all"
+                    />
+                    {search && (
+                      <button
+                        onClick={() => setSearch("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+                      >
+                        <X size={11} className="text-slate-500" />
+                      </button>
+                    )}
+                  </div>
 
-                  {/* ── Pagination Controls (between full & limited) ── */}
-                  {totalPages > 1 && fullCards.length > 0 && (
-                    <div className="flex items-center justify-center gap-2 my-8 px-4 flex-wrap">
+                  {/* Filter dropdowns */}
+                  <AnimatePresence>
+                    {showFilters && (
+                      <motion.div
+                        className="flex flex-wrap gap-3"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        {/* Occupation filter */}
+                        <div className="relative">
+                          <select
+                            value={filterOccupation}
+                            onChange={(e) =>
+                              setFilterOccupation(e.target.value)
+                            }
+                            className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
+                          >
+                            <option value="">All Occupations</option>
+                            {occupations.map((o) => (
+                              <option key={o}>{o}</option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={12}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                        {/* Department filter */}
+                        <div className="relative">
+                          <select
+                            value={filterDept}
+                            onChange={(e) => setFilterDept(e.target.value)}
+                            className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
+                          >
+                            <option value="">All Departments</option>
+                            {departments.map((d) => (
+                              <option key={d}>{d}</option>
+                            ))}
+                          </select>
+                          <ChevronDown
+                            size={12}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                          />
+                        </div>
+                        {/* Clear filters */}
+                        {(filterOccupation || filterDept) && (
+                          <button
+                            onClick={() => {
+                              setFilterOccupation("");
+                              setFilterDept("");
+                            }}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm font-bold hover:bg-red-100 transition-colors"
+                          >
+                            <X size={12} /> Clear
+                          </button>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Loading */}
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-28 gap-4">
+                    <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-500 animate-spin" />
+                    <p className="text-slate-400 text-sm font-medium">
+                      Loading alumni…
+                    </p>
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="text-center py-24">
+                    <Users size={40} className="text-slate-200 mx-auto mb-4" />
+                    <p className="text-slate-400 font-medium text-sm">
+                      No alumni match your search.
+                    </p>
+                    {(search || filterOccupation || filterDept) && (
                       <button
                         onClick={() => {
-                          alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                          loadBatch(selectedBatch, Math.max(1, currentPage - 1), search, filterOccupation, filterDept);
+                          setSearch("");
+                          setFilterOccupation("");
+                          setFilterDept("");
                         }}
-                        disabled={currentPage === 1}
-                        className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="mt-3 text-indigo-500 text-sm font-bold hover:underline"
                       >
-                        ← Prev
+                        Clear filters
                       </button>
-
-                      <div className="flex items-center gap-1 flex-wrap justify-center">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <button
-                            key={page}
-                            onClick={() => {
-                              alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                              loadBatch(selectedBatch, page, search, filterOccupation, filterDept);
-                            }}
-                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                              currentPage === page
-                                ? "bg-indigo-600 text-white shadow-md"
-                                : "border border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    {/* ── Full-detail section ── */}
+                    {fullCards.length > 0 && (
+                      <section className="mb-8">
+                        {!isAdmin && (
+                          <div className="flex items-center gap-2 mb-4">
+                            <Eye size={13} className="text-emerald-500" />
+                            <span className="text-xs font-extrabold text-slate-500 uppercase tracking-widest">
+                              Your Batch — Full Details
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-300">
+                              ({fullCards.length})
+                            </span>
+                          </div>
+                        )}
+                        {gridMode === "grid" ? (
+                          <div
+                            className={`grid gap-4 ${
+                              gridMode === "grid"
+                                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5"
+                                : "grid-cols-1"
                             }`}
                           >
-                            {page}
-                          </button>
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          alumniRef.current.scrollIntoView({ behavior: "smooth" });
-                          loadBatch(selectedBatch, Math.min(totalPages, currentPage + 1), search, filterOccupation, filterDept);
-                        }}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                      >
-                        Next →
-                      </button>
-
-                      <span className="text-xs text-slate-500 font-medium ml-4">
-                        Page {currentPage} of {totalPages} • Total: {total} alumni
-                      </span>
-                    </div>
-                  )}
-
-                  {/* ── Limited-detail section ── */}
-                  {limitedCards.length > 0 && (
-                    <section>
-                      <div className="flex items-center gap-2 mb-4">
-                        <Lock size={13} className="text-slate-400" />
-                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
-                          Other Batches — Limited View
-                        </span>
-                        <span className="text-[10px] font-bold text-slate-300">
-                          ({limitedCards.length})
-                        </span>
-                      </div>
-                      {gridMode === "grid" ? (
-                        <div
-                          className={`grid gap-3 ${
-                            gridMode === "grid"
-                              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                              : "grid-cols-1"
-                          }`}
-                        >
-                          {limitedCards.map((alumni, i) => (
-                            <div
-                              key={alumni._id}
-                              className="cursor-pointer"
-                            >
-                              <AlumniCardLimited alumni={alumni} index={i} />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="overflow-auto bg-white rounded-2xl border border-slate-100 shadow-sm">
-                          <table className="min-w-full table-fixed">
-                            <thead className="bg-slate-50">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Name
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Department
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Batch
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  Location
-                                </th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
-                                  View
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-slate-100">
-                              {limitedCards.map((alumni, i) => (
-                                <tr
-                                  key={alumni._id}
-                                  className="hover:bg-slate-50 cursor-pointer"
-                                >
-                                  <td className="px-4 py-3 align-middle">
-                                    <div className="flex items-center gap-3">
-                                      <div
-                                        className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold opacity-60`}
-                                      >
-                                        {getInitials(
-                                          alumni.firstName,
-                                          alumni.lastName,
-                                        )}
-                                      </div>
-                                      <div className="min-w-0">
-                                        <div className="text-sm font-bold text-slate-800 truncate">
-                                          {alumni.firstName} {alumni.lastName}
+                            {fullCards.map((alumni, i) => (
+                              <div
+                                key={alumni._id}
+                                onClick={() => setSelectedAlumni(alumni)}
+                                className="cursor-pointer"
+                              >
+                                <AlumniCardFull
+                                  alumni={alumni}
+                                  apiBase={API_BASE}
+                                  index={i}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="overflow-auto bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <table className="min-w-full table-fixed">
+                              <thead className="bg-slate-50">
+                                <tr>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Name
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Department
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Programme
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Batch
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Email
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Phone
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Job
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Status
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-slate-100">
+                                {fullCards.map((alumni, i) => (
+                                  <tr
+                                    key={alumni._id}
+                                    onClick={() => setSelectedAlumni(alumni)}
+                                    className="hover:bg-slate-50 cursor-pointer"
+                                  >
+                                    <td className="px-4 py-3 align-middle">
+                                      <div className="flex items-center gap-3">
+                                        <div
+                                          className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold`}
+                                        >
+                                          {getInitials(
+                                            alumni.firstName,
+                                            alumni.lastName,
+                                          )}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="text-sm font-bold text-slate-900 truncate">
+                                            {alumni.firstName} {alumni.lastName}
+                                          </div>
+                                          <div className="text-xs text-slate-400 truncate">
+                                            {alumni.email}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.department || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {alumni.batchYear || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-slate-700 align-middle">
-                                    {[alumni.city, alumni.country]
-                                      .filter(Boolean)
-                                      .join(", ") || "—"}
-                                  </td>
-                                  <td className="px-4 py-3 align-middle">
-                                    <div
-                                      className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center"
-                                      title="Limited view"
-                                    >
-                                      <Lock
-                                        size={14}
-                                        className="text-slate-400"
-                                      />
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </section>
-                  )}
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.department || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.programmeType || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.batchYear || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
+                                      {alumni.email}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.phone || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle truncate">
+                                      {alumni.jobTitle
+                                        ? `${alumni.jobTitle}${alumni.currentCompany ? " @ " + alumni.currentCompany : ""}`
+                                        : alumni.occupation || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 align-middle">
+                                      {alumni.isApproved ? (
+                                        <Pill color="emerald">
+                                          <CheckCircle size={12} /> Verified
+                                        </Pill>
+                                      ) : (
+                                        <Pill color="amber">Pending</Pill>
+                                      )}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </section>
+                    )}
 
-          
+                    {/* ── Pagination Controls (between full & limited) ── */}
+                    {totalPages > 1 && fullCards.length > 0 && (
+                      <div className="flex items-center justify-center gap-2 my-8 px-4 flex-wrap">
+                        <button
+                          onClick={() => {
+                            alumniRef.current.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                            loadBatch(
+                              selectedBatch,
+                              Math.max(1, currentPage - 1),
+                              search,
+                              filterOccupation,
+                              filterDept,
+                            );
+                          }}
+                          disabled={currentPage === 1}
+                          className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          ← Prev
+                        </button>
+
+                        <div className="flex items-center gap-1 flex-wrap justify-center">
+                          {(() => {
+                            const pages = [];
+
+                            const range = 2; // pages before/after current
+
+                            // Always add first page
+                            pages.push(1);
+
+                            // Add pages around current
+                            const start = Math.max(2, currentPage - range);
+                            const end = Math.min(
+                              totalPages - 1,
+                              currentPage + range,
+                            );
+
+                            // Add ellipsis if needed
+                            if (start > 2) pages.push("...");
+
+                            // Add range
+                            for (let i = start; i <= end; i++) pages.push(i);
+
+                            // Add ellipsis if needed
+                            if (end < totalPages - 1) pages.push("...");
+
+                            // Always add last page (if more than 1 page)
+                            if (totalPages > 1) pages.push(totalPages);
+
+                            return pages.map((page, idx) =>
+                              page === "..." ? (
+                                <span
+                                  key={`ellipsis-${idx}`}
+                                  className="text-slate-400 px-1"
+                                >
+                                  …
+                                </span>
+                              ) : (
+                                <button
+                                  key={page}
+                                  onClick={() => {
+                                    alumniRef.current.scrollIntoView({
+                                      behavior: "smooth",
+                                    });
+                                    loadBatch(
+                                      selectedBatch,
+                                      page,
+                                      search,
+                                      filterOccupation,
+                                      filterDept,
+                                    );
+                                  }}
+                                  className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                                    currentPage === page
+                                      ? "bg-indigo-600 text-white shadow-md"
+                                      : "border border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              ),
+                            );
+                          })()}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            alumniRef.current.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                            loadBatch(
+                              selectedBatch,
+                              Math.min(totalPages, currentPage + 1),
+                              search,
+                              filterOccupation,
+                              filterDept,
+                            );
+                          }}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          Next →
+                        </button>
+
+                        <span className="text-xs text-slate-500 font-medium ml-4">
+                          Page {currentPage} of {totalPages} • Total: {total}{" "}
+                          alumni
+                        </span>
+                      </div>
+                    )}
+
+                    {/* ── Limited-detail section ── */}
+                    {limitedCards.length > 0 && (
+                      <section>
+                        <div className="flex items-center gap-2 mb-4">
+                          <Lock size={13} className="text-slate-400" />
+                          <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                            Other Batches — Limited View
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-300">
+                            ({limitedCards.length})
+                          </span>
+                        </div>
+                        {gridMode === "grid" ? (
+                          <div
+                            className={`grid gap-3 ${
+                              gridMode === "grid"
+                                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                                : "grid-cols-1"
+                            }`}
+                          >
+                            {limitedCards.map((alumni, i) => (
+                              <div key={alumni._id} className="cursor-pointer">
+                                <AlumniCardLimited alumni={alumni} index={i} />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="overflow-auto bg-white rounded-2xl border border-slate-100 shadow-sm">
+                            <table className="min-w-full table-fixed">
+                              <thead className="bg-slate-50">
+                                <tr>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Name
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Department
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Batch
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    Location
+                                  </th>
+                                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500">
+                                    View
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody className="bg-white divide-y divide-slate-100">
+                                {limitedCards.map((alumni, i) => (
+                                  <tr
+                                    key={alumni._id}
+                                    className="hover:bg-slate-50 cursor-pointer"
+                                  >
+                                    <td className="px-4 py-3 align-middle">
+                                      <div className="flex items-center gap-3">
+                                        <div
+                                          className={`w-9 h-9 rounded-md bg-gradient-to-br ${pickGradient(alumni.firstName)} flex items-center justify-center text-white font-bold opacity-60`}
+                                        >
+                                          {getInitials(
+                                            alumni.firstName,
+                                            alumni.lastName,
+                                          )}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="text-sm font-bold text-slate-800 truncate">
+                                            {alumni.firstName} {alumni.lastName}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.department || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {alumni.batchYear || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-slate-700 align-middle">
+                                      {[alumni.city, alumni.country]
+                                        .filter(Boolean)
+                                        .join(", ") || "—"}
+                                    </td>
+                                    <td className="px-4 py-3 align-middle">
+                                      <div
+                                        className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center"
+                                        title="Limited view"
+                                      >
+                                        <Lock
+                                          size={14}
+                                          className="text-slate-400"
+                                        />
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </section>
+                    )}
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
       {/* ── Alumni Detail Modal ── */}
       <AnimatePresence>
         {selectedAlumni && (
@@ -1198,7 +1275,6 @@ const AlumniDirectory = () => {
           />
         )}
       </AnimatePresence>
-
     </>
   );
 };
