@@ -209,8 +209,8 @@ const BatchCard = ({ year, count, palette, isMine, onClick, index }) => (
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Users size={13} className="text-white/40" />
-          <span className="text-white/60 text-xs font-semibold">
+          <Users size={15} className="text-white/40" />
+          <span className="text-white/60 text-sm font-semibold">
             {count != null ? `${count} alumni` : "—"}
           </span>
         </div>
