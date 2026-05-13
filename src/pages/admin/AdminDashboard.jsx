@@ -15,6 +15,9 @@ import {
   Camera,
   Bell,
   BookOpen,
+  History,
+  Megaphone,
+  ClipboardList,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -27,6 +30,8 @@ import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
 import DepartmentTab from "../../components/admin/DepartmentTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
+
+import DonationHistory from "../../components/admin/DonationHistory";
 
 // ✅ Safe import with fallback
 const donationsAPI = {
@@ -202,6 +207,12 @@ const AdminDashboard = () => {
             badge: formatINR(stats.totalDonatedAmount),
           },
           {
+            key: "donation-history",
+            Icon: History,
+            label: "Donation History",
+            badge: "🧾",
+          },
+          {
             key: "events",
             Icon: Calendar,
             label: "Events",
@@ -226,6 +237,12 @@ const AdminDashboard = () => {
             Icon: FileText,
             label: "Donations",
             badge: formatINR(stats.totalDonatedAmount),
+          },
+          {
+            key: "donation-history",
+            Icon: History,
+            label: "Donation History",
+            badge: "🧾",
           },
           {
             key: "events",
@@ -519,6 +536,15 @@ const AdminDashboard = () => {
                 donationList={donationList}
                 setSelectedItem={setSelectedItem}
               />
+            </motion.div>
+          )}
+          {activeTab === "donation-history" && (
+            <motion.div
+              key="donation-history"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <DonationHistory onError={setError} onSuccess={setSuccess} />
             </motion.div>
           )}
           {activeTab === "departments" && (
