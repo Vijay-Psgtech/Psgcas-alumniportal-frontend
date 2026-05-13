@@ -646,12 +646,12 @@ const AlumniDirectory = () => {
                 {view === "alumni" && !loading && (
                   <p className="text-sm text-slate-400 font-medium mt-1">
                     {total} alumni found
-                    {!isAdmin && (
+                    {/* {!isAdmin && (
                       <span className="ml-2 text-indigo-400">
                         · {fullCards.length} full profile
                         {fullCards.length !== 1 ? "s" : ""} visible
                       </span>
-                    )}
+                    )} */}
                   </p>
                 )}
               </div>
