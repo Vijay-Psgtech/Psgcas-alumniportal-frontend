@@ -148,16 +148,45 @@ const AdminReports = () => {
                 </p>
               </div>
 
-              <div className="mt-6 h-64">
+              <div className="mt-6 h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={chartData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                    margin={{ top: 20, right: 30, left: -10, bottom: 20 }}
                   >
-                    <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                    <YAxis tickFormatter={(value) => formatNumber(value)} />
-                    <Tooltip formatter={(value) => formatNumber(value)} />
-                    <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                    <XAxis 
+                      dataKey="year" 
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickLine={{ stroke: "#e2e8f0" }}
+                      interval={Math.floor(chartData.length / 12) || 0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      tickFormatter={(value) => formatNumber(value)}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickLine={{ stroke: "#e2e8f0" }}
+                      grid={{ stroke: "#f1f5f9", strokeDasharray: "3 3" }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => formatNumber(value)}
+                      labelFormatter={(label) => `Year: ${label}`}
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        border: "none",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        color: "#f1f5f9"
+                      }}
+                      cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+                    />
+                    <Bar 
+                      dataKey="count" 
+                      fill="#3b82f6"
+                      radius={[8, 8, 0, 0]}
+                      animationDuration={800}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -175,26 +204,80 @@ const AdminReports = () => {
                 </p>
               </div>
 
-              <div className="mt-6 h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={departmentData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={true}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="count"
-                      label={({ department, percent }) => `${department} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {departmentData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['#0088FE', '#00C49F', '#FFBB28', '#FF8042'][index % 4]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatNumber(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
+              <div className="mt-6 flex flex-col lg:flex-row gap-6">
+                <div className="h-64 w-full lg:w-1/2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={departmentData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="count"
+                        label={false}
+                      >
+                        {departmentData.map((entry, index) => {
+                          const colors = [
+                            "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+                            "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+                            "#06b6d4", "#6366f1", "#84cc16", "#d946ef"
+                          ];
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={colors[index % colors.length]}
+                            />
+                          );
+                        })}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => [formatNumber(value), "Count"]}
+                        contentStyle={{
+                          backgroundColor: "#1e293b",
+                          border: "none",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          color: "#f1f5f9"
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2">
+                    {departmentData.map((dept, index) => {
+                      const colors = [
+                        "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+                        "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+                        "#06b6d4", "#6366f1", "#84cc16", "#d946ef"
+                      ];
+                      const total = departmentData.reduce((sum, d) => sum + d.count, 0);
+                      const percentage = ((dept.count / total) * 100).toFixed(1);
+                      return (
+                        <div 
+                          key={`legend-${index}`}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div 
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: colors[index % colors.length] }}
+                          ></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-slate-700 truncate">
+                              {dept.department}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {formatNumber(dept.count)} ({percentage}%)
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </section>
