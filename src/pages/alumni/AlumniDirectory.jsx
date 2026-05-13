@@ -1174,7 +1174,7 @@ const AlumniDirectory = () => {
                           <div
                             className={`grid gap-3 ${
                               gridMode === "grid"
-                                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                                ? "grid-cols-1 sm:grid-cols-3 lg:grid-cols-5"
                                 : "grid-cols-1"
                             }`}
                           >
@@ -1259,6 +1259,119 @@ const AlumniDirectory = () => {
                         )}
                       </section>
                     )}
+
+                    {/* ── Pagination Controls (between full & limited) ── */}
+                    {totalPages > 1 && limitedCards.length > 0 && (
+                      <div className="flex items-center justify-center gap-2 my-8 px-4 flex-wrap">
+                        <button
+                          onClick={() => {
+                            alumniRef.current.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                            loadBatch(
+                              selectedBatch,
+                              Math.max(1, currentPage - 1),
+                              search,
+                              filterOccupation,
+                              filterDept,
+                            );
+                          }}
+                          disabled={currentPage === 1}
+                          className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          ← Prev
+                        </button>
+
+                        <div className="flex items-center gap-1 flex-wrap justify-center">
+                          {(() => {
+                            const pages = [];
+
+                            const range = 2; // pages before/after current
+
+                            // Always add first page
+                            pages.push(1);
+
+                            // Add pages around current
+                            const start = Math.max(2, currentPage - range);
+                            const end = Math.min(
+                              totalPages - 1,
+                              currentPage + range,
+                            );
+
+                            // Add ellipsis if needed
+                            if (start > 2) pages.push("...");
+
+                            // Add range
+                            for (let i = start; i <= end; i++) pages.push(i);
+
+                            // Add ellipsis if needed
+                            if (end < totalPages - 1) pages.push("...");
+
+                            // Always add last page (if more than 1 page)
+                            if (totalPages > 1) pages.push(totalPages);
+
+                            return pages.map((page, idx) =>
+                              page === "..." ? (
+                                <span
+                                  key={`ellipsis-${idx}`}
+                                  className="text-slate-400 px-1"
+                                >
+                                  …
+                                </span>
+                              ) : (
+                                <button
+                                  key={page}
+                                  onClick={() => {
+                                    alumniRef.current.scrollIntoView({
+                                      behavior: "smooth",
+                                    });
+                                    loadBatch(
+                                      selectedBatch,
+                                      page,
+                                      search,
+                                      filterOccupation,
+                                      filterDept,
+                                    );
+                                  }}
+                                  className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
+                                    currentPage === page
+                                      ? "bg-indigo-600 text-white shadow-md"
+                                      : "border border-indigo-200 text-indigo-600 hover:bg-indigo-50"
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              ),
+                            );
+                          })()}
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            alumniRef.current.scrollIntoView({
+                              behavior: "smooth",
+                            });
+                            loadBatch(
+                              selectedBatch,
+                              Math.min(totalPages, currentPage + 1),
+                              search,
+                              filterOccupation,
+                              filterDept,
+                            );
+                          }}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-2 rounded-lg border border-indigo-300 text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          Next →
+                        </button>
+
+                        <span className="text-xs text-slate-500 font-medium ml-4">
+                          Page {currentPage} of {totalPages} • Total: {total}{" "}
+                          alumni
+                        </span>
+                      </div>
+                    )}
+       
                   </>
                 )}
               </motion.div>
