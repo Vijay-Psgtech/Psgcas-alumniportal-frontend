@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { newsLetterAPI, API_BASE } from "../services/api";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 
 const NewsDetailPage = () => {
   const { id } = useParams();
@@ -32,7 +40,9 @@ const NewsDetailPage = () => {
   const normalizeImage = (path) => {
     if (!path) return null;
     const normalized = path.replace(/\\/g, "/");
-    return normalized.startsWith("http") ? normalized : `${API_BASE}/${normalized}`;
+    return normalized.startsWith("http")
+      ? normalized
+      : `${API_BASE}/${normalized}`;
   };
 
   const renderDescription = (text) => {
@@ -47,311 +57,170 @@ const NewsDetailPage = () => {
       ));
   };
 
-  const imageSrc = newsletter?.imageUrl ? normalizeImage(newsletter.imageUrl) : null;
+  const imageSrc = newsletter?.imageUrl
+    ? normalizeImage(newsletter.imageUrl)
+    : null;
 
   return (
     <>
-      <style>{`
-        .detail-page {
-          min-height: 100vh;
-          background: #f6f8fb;
-          padding: 60px 40px;
-          font-family: 'Inter', system-ui, sans-serif;
-          color: #111827;
-        }
-
-        .detail-container {
-          max-width: 1180px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 30px;
-        }
-
-        .detail-card {
-          background: #ffffff;
-          border: 1px solid rgba(148, 163, 184, 0.16);
-          border-radius: 28px;
-          overflow: hidden;
-          box-shadow: 0 28px 80px rgba(15, 23, 42, 0.08);
-        }
-
-        .detail-hero {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          min-height: 420px;
-        }
-
-        .detail-hero-image {
-          position: relative;
-          overflow: hidden;
-          background: #e2e8f0;
-        }
-
-        .detail-hero-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .detail-hero-content {
-          padding: 40px 44px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          gap: 18px;
-        }
-
-        .detail-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          background: rgba(59, 130, 246, 0.08);
-          color: #1d4ed8;
-          border-radius: 999px;
-          padding: 10px 16px;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: 0.02em;
-          width: fit-content;
-        }
-
-        .detail-title {
-          margin: 0;
-          font-size: clamp(2rem, 2.5vw, 3rem);
-          line-height: 1.05;
-          color: #0f172a;
-        }
-
-        .detail-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-          font-size: 0.95rem;
-          color: #475569;
-        }
-
-        .detail-meta span {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .detail-meta strong {
-          color: #0f172a;
-        }
-
-        .detail-body {
-          padding: 32px 44px 40px;
-          display: grid;
-          gap: 24px;
-        }
-
-        .detail-paragraph {
-          margin: 0;
-          color: #334155;
-          line-height: 1.85;
-          letter-spacing: -0.01em;
-          font-size: 1rem;
-        }
-
-        .detail-footer {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-between;
-          gap: 16px;
-          align-items: center;
-          padding: 0 44px 34px;
-          border-top: 1px solid rgba(148, 163, 184, 0.18);
-        }
-
-        .detail-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-
-        .detail-tag {
-          background: #eff6ff;
-          color: #1d4ed8;
-          border-radius: 999px;
-          padding: 10px 14px;
-          font-size: 0.85rem;
-          font-weight: 700;
-        }
-
-        .detail-actions {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 12px;
-        }
-
-        .detail-button {
-          border: none;
-          border-radius: 14px;
-          padding: 12px 20px;
-          font-size: 0.95rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .detail-button.primary {
-          background: #2563eb;
-          color: white;
-          box-shadow: 0 14px 26px rgba(37, 99, 235, 0.22);
-        }
-
-        .detail-button.secondary {
-          background: #f8fafc;
-          color: #334155;
-          border: 1px solid rgba(148, 163, 184, 0.35);
-        }
-
-        .detail-button:hover {
-          transform: translateY(-1px);
-        }
-
-        .detail-empty,
-        .detail-loading,
-        .detail-error {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 420px;
-          background: white;
-          border-radius: 28px;
-          box-shadow: 0 28px 80px rgba(15, 23, 42, 0.08);
-          color: #475569;
-          font-size: 1rem;
-          padding: 32px;
-          text-align: center;
-        }
-
-        @media (max-width: 1024px) {
-          .detail-hero {
-            grid-template-columns: 1fr;
-          }
-
-          .detail-hero-content,
-          .detail-body,
-          .detail-footer {
-            padding-left: 28px;
-            padding-right: 28px;
-          }
-        }
-
-        @media (max-width: 720px) {
-          .detail-page {
-            padding: 24px 16px;
-          }
-
-          .detail-hero-content {
-            padding: 28px 24px;
-          }
-
-          .detail-title {
-            font-size: 2rem;
-          }
-
-          .detail-body,
-          .detail-footer {
-            padding-left: 20px;
-            padding-right: 20px;
-          }
-        }
-
-        @media (max-width: 560px) {
-          .detail-hero-content {
-            padding: 24px 18px;
-          }
-
-          .detail-meta {
-            flex-direction: column;
-            gap: 10px;
-          }
-
-          .detail-footer {
-            flex-direction: column;
-            align-items: stretch;
-          }
-
-          .detail-actions {
-            width: 100%;
-          }
-
-          .detail-button {
-            width: 100%;
-          }
-        }
-      `}</style>
-
-      <main className="detail-page">
-        <div className="detail-container">
+      <main className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 md:py-20 px-4 md:px-8 font-inter text-slate-900">
+        <div className="max-w-7xl mx-auto">
           {isLoading ? (
-            <div className="detail-loading">Loading newsletter details...</div>
+            <div className="flex items-center justify-center min-h-96 bg-white rounded-card shadow-card p-8">
+              <div className="text-center">
+                <div className="inline-block animate-spin mb-4">
+                  <div className="w-12 h-12 border-4 border-slate-200 border-t-primary-600 rounded-full"></div>
+                </div>
+                <p className="text-slate-600 text-lg">
+                  Loading newsletter details...
+                </p>
+              </div>
+            </div>
           ) : error ? (
-            <div className="detail-error">{error}</div>
+            <div className="flex items-center justify-center min-h-96 bg-red-50 rounded-card shadow-card p-8 border border-red-200">
+              <div className="text-center">
+                <p className="text-red-600 text-lg font-semibold">{error}</p>
+              </div>
+            </div>
           ) : !newsletter ? (
-            <div className="detail-empty">Newsletter not found.</div>
+            <div className="flex items-center justify-center min-h-96 bg-white rounded-card shadow-card p-8">
+              <p className="text-slate-500 text-lg">Newsletter not found.</p>
+            </div>
           ) : (
-            <article className="detail-card">
-              <div className="detail-hero">
-                <div className="detail-hero-image">
+            <article className="bg-white rounded-card shadow-card overflow-hidden">
+              {/* Hero Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* Image Section */}
+                <div className="relative bg-slate-100 min-h-80 lg:min-h-96 overflow-hidden">
                   {imageSrc ? (
-                    <img src={imageSrc} alt={newsletter.title} />
+                    <img
+                      src={imageSrc}
+                      alt={newsletter.title}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                    />
                   ) : (
-                    <div className="detail-empty" style={{ minHeight: "100%", boxShadow: "none", background: "#e2e8f0" }}>
-                      No image available
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+                      <div className="text-center">
+                        <EyeOff
+                          size={48}
+                          className="text-slate-400 mx-auto mb-2"
+                        />
+                        <p className="text-slate-500 font-medium">
+                          No image available
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                <div className="detail-hero-content">
-                  <div className="detail-badge">{newsletter.category || "Newsletter"}</div>
-                  <h1 className="detail-title">{newsletter.title}</h1>
-                  <div className="detail-meta">
-                    <span>
-                      <strong>Published:</strong> {new Date(newsletter.date).toLocaleDateString()}
+                {/* Content Section */}
+                <div className="p-8 md:p-10 flex flex-col justify-center gap-6">
+                  {/* Badge */}
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-primary-700 rounded-full w-fit">
+                    <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
+                    <span className="text-sm font-bold tracking-wide">
+                      {newsletter.category || "NEWSLETTER"}
                     </span>
-                    <span>
-                      <strong>Author:</strong> {newsletter.author || "Anonymous"}
-                    </span>
-                    <span>
-                      <strong>Created:</strong> {new Date(newsletter.createdAt).toLocaleDateString()}
-                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-slate-900">
+                    {newsletter.title}
+                  </h1>
+
+                  {/* Meta Information */}
+                  <div className="space-y-3 text-sm md:text-base">
+                    <div className="flex items-start gap-3">
+                      <span className="text-slate-500 font-semibold">
+                        Published:
+                      </span>
+                      <span className="text-slate-700">
+                        {new Date(newsletter.date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-slate-500 font-semibold">
+                        Posted by:
+                      </span>
+                      <span className="text-slate-700">
+                        {newsletter.author || "Anonymous"}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="text-slate-500 font-semibold">
+                        Created:
+                      </span>
+                      <span className="text-slate-700">
+                        {new Date(newsletter.createdAt).toLocaleDateString(
+                          "en-US",
+                          { year: "numeric", month: "long", day: "numeric" },
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="detail-body">{renderDescription(newsletter.description)}</div>
+              {/* Body Section */}
+              <div className="px-8 md:px-10 py-8 md:py-10 border-t border-slate-100 bg-slate-50">
+                <div className="prose prose-sm max-w-none prose-p:text-slate-600 prose-p:leading-relaxed">
+                  {renderDescription(newsletter.description)}
+                </div>
+              </div>
 
-              <div className="detail-footer">
-                <div className="detail-tags">
-                  {Array.isArray(newsletter.tags) && newsletter.tags.length > 0 ? (
+              {/* Footer Section */}
+              <div className="px-8 md:px-10 py-8 md:py-10 border-t border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-3">
+                  {Array.isArray(newsletter.tags) &&
+                  newsletter.tags.length > 0 ? (
                     newsletter.tags.map((tag) => (
-                      <span key={tag} className="detail-tag">
+                      <span
+                        key={tag}
+                        className="inline-block px-4 py-2 bg-blue-50 text-primary-700 rounded-full text-sm font-semibold"
+                      >
                         {tag}
                       </span>
                     ))
                   ) : (
-                    <span className="detail-tag">{newsletter.category || "Alumni Stories"}</span>
+                    <span className="inline-block px-4 py-2 bg-blue-50 text-primary-700 rounded-full text-sm font-semibold">
+                      {newsletter.category || "Alumni Stories"}
+                    </span>
                   )}
                 </div>
 
-                <div className="detail-actions">
-                  <button type="button" className="detail-button secondary" onClick={() => navigate(-1)}>
-                    Back to News
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="flex-1 md:flex-none px-6 py-3 bg-slate-100 text-slate-700 rounded-btn hover:bg-slate-200 transition-colors font-semibold border border-slate-300 hover:border-slate-400"
+                  >
+                    ← Back to News
                   </button>
                   {newsletter.pdfUrl && (
-                    <a
-                      href={normalizeImage(newsletter.pdfUrl)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="detail-button primary"
-                    >
-                      Download PDF
-                    </a>
+                    <>
+                      {/* <button
+                        type="button"
+                        onClick={() => setShowPdfModal(true)}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary-100 text-primary-700 rounded-btn hover:bg-primary-200 transition-colors font-semibold border border-primary-300"
+                      >
+                        <Eye size={18} />
+                        Preview PDF
+                      </button> */}
+                      <a
+                        href={normalizeImage(newsletter.pdfUrl)}
+                        download
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-primary-100 text-primary-700 rounded-btn hover:bg-primary-200 transition-colors font-semibold border border-primary-300"
+                      >
+                        <Download size={18} />
+                        Download PDF
+                      </a>
+                    </>
                   )}
                 </div>
               </div>
