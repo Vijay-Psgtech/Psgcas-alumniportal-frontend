@@ -62,6 +62,7 @@ const AdminDashboard = () => {
     totalPages: 1,
     currentPage: 1,
   });
+  const [alumniFilters, setAlumniFilters] = useState({});
   const [stats, setStats] = useState({
     totalAlumni: 0,
     pendingAlumni: 0,
@@ -118,6 +119,7 @@ const AdminDashboard = () => {
           adminAPI
             .getAllAlumni({
               ...params,
+              ...alumniFilters,
               page: 1,
               limit: 20,
             })
@@ -176,6 +178,7 @@ const AdminDashboard = () => {
       // ✅ For SuperAdmin: Don't force department
       const r = await adminAPI.getAllAlumni({
         ...(user.role === "admin" ? { department: user.department } : {}),
+        ...alumniFilters,
         page: alumniPageData.currentPage,
         limit: 20,
       });
@@ -470,9 +473,9 @@ const AdminDashboard = () => {
                 pageData={alumniPageData}
                 onPageChange={async (page) => {
                   try {
-                    // ✅ For Admin: Always include their department
-                    // ✅ For SuperAdmin: Only pass page/limit params
+                    // ✅ Preserve active filters when changing pages
                     const queryParams = {
+                      ...alumniFilters,
                       page,
                       limit: 20,
                     };
@@ -507,6 +510,7 @@ const AdminDashboard = () => {
                       queryParams.department = user.department;
                     }
                     
+                    setAlumniFilters(filters);
                     const res = await adminAPI.getAllAlumni(queryParams);
                     setAlumniList(res.data.alumni || []);
                     setAlumniPageData({

@@ -42,6 +42,7 @@ const AlumniUsersList = () => {
     totalApproved: 0,
     totalPending: 0,
   });
+  const [alumniFilters, setAlumniFilters] = useState({});
   const { user } = useAuth();
   const department = user.department || "";
   usePageTitle("Alumni Users Management");
@@ -95,6 +96,7 @@ const AlumniUsersList = () => {
         queryParams.department = department;
       }
 
+      setAlumniFilters(filters);
       const res = await adminAPI.getAllAlumni(queryParams);
       setAlumniUsers(res.data.alumni || []);
       setPageData({
@@ -115,11 +117,9 @@ const AlumniUsersList = () => {
     try {
       setLoading(true);
       const queryParams = {
+        ...alumniFilters,
         page,
         limit: 20,
-        search: search || undefined,
-        status: statusFilter === "all" ? undefined : statusFilter,
-        batchYear: batchFilter || undefined,
       };
 
       if (user.role === "admin") {
@@ -145,13 +145,11 @@ const AlumniUsersList = () => {
     try {
       await adminAPI.approveAlumni(id);
       setSelectedItem(null);
-      // ✅ Refetch with current page to maintain pagination
+      // ✅ Refetch with current filters and current page to maintain pagination
       const queryParams = {
+        ...alumniFilters,
         page: pageData.currentPage,
         limit: 20,
-        search: search || undefined,
-        status: statusFilter === "all" ? undefined : statusFilter,
-        batchYear: batchFilter || undefined,
       };
 
       if (user.role === "admin") {
