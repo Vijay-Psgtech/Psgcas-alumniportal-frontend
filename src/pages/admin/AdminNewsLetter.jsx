@@ -266,9 +266,9 @@ const NewsLetterFormModal = ({ initial, onSave, onClose, isLoading }) => {
               })
             }
             disabled={!valid || isLoading}
-            className={`flex-1 py-3 rounded-xl border-none font-['Outfit',_sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+            className={`flex-1 py-3 rounded-xl border-none font-['Outfit',sans-serif] text-sm font-bold flex items-center justify-center gap-2 transition-all ${
               valid && !isLoading
-                ? "bg-gradient-to-br from-blue-600 to-blue-900 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40"
+                ? "bg-linear-to-br from-blue-600 to-blue-900 text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             } ${isLoading ? "opacity-70" : ""}`}
           >
@@ -283,7 +283,7 @@ const NewsLetterFormModal = ({ initial, onSave, onClose, isLoading }) => {
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className={`px-6 py-3 rounded-xl border border-slate-200 bg-white text-gray-500 font-['Outfit',_sans-serif] text-sm font-semibold transition-colors ${
+            className={`px-6 py-3 rounded-xl border border-slate-200 bg-white text-gray-500 font-['Outfit',sans-serif] text-sm font-semibold transition-colors ${
               isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-slate-100"
             }`}
           >
@@ -351,19 +351,33 @@ const AdminNewsLetter = () => {
     try {
       setIsSaving(true);
       const fd = new FormData();
+      
+      // ✅ Append form fields
       fd.append("title", form.title);
       fd.append("date", form.date);
       fd.append("category", form.category);
       fd.append("description", form.description);
       fd.append("author", form.author || "");
+      
+      // ✅ FIXED: Send tags as array (backend will parse it)
       if (Array.isArray(form.tags) && form.tags.length) {
-        fd.append("tags", JSON.stringify(form.tags));
+        form.tags.forEach(tag => fd.append("tags", tag));
       }
+      
+      // ✅ FIXED: Use correct field name "imageUrl" to match backend
       if (form.imageUrl instanceof File) {
         fd.append("imageUrl", form.imageUrl);
       }
+      
+      // ✅ FIXED: Use correct field name "pdf" to match backend
       if (form.pdfUrl instanceof File) {
-        fd.append("pdfUrl", form.pdfUrl);
+        fd.append("pdf", form.pdfUrl);
+      }
+
+      // Debug log
+      console.log("📤 Sending FormData:");
+      for (let [key, value] of fd.entries()) {
+        console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
       }
 
       if (modal?.data?._id) {
@@ -384,6 +398,8 @@ const AdminNewsLetter = () => {
       await fetchNewsletters();
     } catch (error) {
       console.error("Save newsletter error", error);
+      console.error("Full error response:", error.response?.data);
+      
       setNotice({
         type: "error",
         message:
@@ -449,7 +465,7 @@ const AdminNewsLetter = () => {
           <p className="text-sm text-slate-500 uppercase tracking-[1px] font-semibold">
             Admin / Newsletter
           </p>
-          <h1 className="text-3xl font-['Playfair_Display',_serif] font-extrabold text-slate-950">
+          <h1 className="text-3xl font-['Playfair_Display',serif] font-extrabold text-slate-950">
             Newsletter Management
           </h1>
           <p className="max-w-2xl mt-2 text-sm text-slate-500">
@@ -461,7 +477,7 @@ const AdminNewsLetter = () => {
         <button
           type="button"
           onClick={() => setModal({ type: "add" })}
-          className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-blue-600 to-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:brightness-105 transition-all"
+          className="inline-flex items-center gap-2 rounded-2xl bg-linear-to-br from-blue-600 to-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 hover:brightness-105 transition-all"
         >
           <Plus size={16} /> New Newsletter
         </button>
