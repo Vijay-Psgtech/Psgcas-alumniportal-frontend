@@ -45,6 +45,7 @@ import { alumniAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import AlumniDetailModal from "./AlumniDetailModal";
 import usePageTitle from "../../hooks/usePageTitle";
+import { formatNumber } from "../../utils/formatters";
 
 /* ─────────────────────────────────────────
    Helpers
@@ -211,7 +212,7 @@ const BatchCard = ({ year, count, palette, isMine, onClick, index }) => (
         <div className="flex items-center gap-2">
           <Users size={15} className="text-white/40" />
           <span className="text-white/60 text-sm font-semibold">
-            {count != null ? `${count} alumni` : "—"}
+            {count != null ? `${formatNumber(count)} alumni` : "—"}
           </span>
         </div>
         <div className="flex items-center gap-1 text-white/40 hover:text-white/70 transition-colors">
@@ -624,28 +625,28 @@ const AlumniDirectory = () => {
                   <div className="flex items-center gap-1.5">
                     <Users size={13} className="text-slate-400" />
                     <span className="text-sm text-slate-400 font-medium">
-                      {stats.totalAlumni} total alumni
+                      {formatNumber(stats.totalAlumni)} total alumni
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5">
                     <GraduationCap size={13} className="text-slate-400" />
                     <span className="text-sm text-slate-400 font-medium">
-                      {stats.batchStats} total batches
+                      {formatNumber(stats.batchStats)} total batches
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1.5">
                     <Building2 size={13} className="text-slate-400" />
                     <span className="text-sm text-slate-400 font-medium">
-                      {stats.departmentStats} total departments
+                      {formatNumber(stats.departmentStats)} total departments
                     </span>
                   </div>
                 </div>
 
                 {view === "alumni" && !loading && (
                   <p className="text-sm text-slate-400 font-medium mt-1">
-                    {total} alumni found
+                    {formatNumber(total)} alumni found
                     {/* {!isAdmin && (
                       <span className="ml-2 text-indigo-400">
                         · {fullCards.length} full profile

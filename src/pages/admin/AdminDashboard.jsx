@@ -20,6 +20,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
+import { formatINR, formatNumber } from "../../utils/formatters";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -39,14 +40,6 @@ const donationsAPI = {
     adminAPI.getAllDonations ||
     (() => Promise.resolve({ data: { donations: [] } })),
 };
-
-// INR Format
-const formatINR = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
 
 const AdminDashboard = () => {
   const { logout, user } = useAuth();
@@ -201,7 +194,7 @@ const AdminDashboard = () => {
             key: "alumni",
             Icon: Users,
             label: "Alumni",
-            badge: alumniList.length,
+            badge: formatNumber(stats.totalAlumni),
           },
           {
             key: "donations",
@@ -219,13 +212,13 @@ const AdminDashboard = () => {
             key: "events",
             Icon: Calendar,
             label: "Events",
-            badge: stats.totalEvents,
+            badge: formatNumber(stats.totalEvents),
           },
           {
             key: "albums",
             Icon: Camera,
             label: "Albums",
-            badge: stats.totalAlbums,
+            badge: formatNumber(stats.totalAlbums),
           },
         ]
       : [
@@ -233,7 +226,7 @@ const AdminDashboard = () => {
             key: "alumni",
             Icon: Users,
             label: "Alumni",
-            badge: alumniList.length,
+            badge: formatNumber(stats.totalAlumni),
           },
           {
             key: "donations",
@@ -251,13 +244,13 @@ const AdminDashboard = () => {
             key: "events",
             Icon: Calendar,
             label: "Events",
-            badge: stats.totalEvents,
+            badge: formatNumber(stats.totalEvents),
           },
           {
             key: "albums",
             Icon: Camera,
             label: "Albums",
-            badge: stats.totalAlbums,
+            badge: formatNumber(stats.totalAlbums),
           },
           {
             key: "departments",
@@ -271,10 +264,10 @@ const AdminDashboard = () => {
   const STAT_CARDS =
     user.role === "admin"
       ? [
-          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
+          { icon: "👥", val: formatNumber(stats.totalAlumni), label: "Total Alumni" },
           {
             icon: "🏢",
-            val: alumniPageData.totalAlumni || 0,
+            val: formatNumber(alumniPageData.totalAlumni || 0),
             label: `${user.department} Alumni`,
           },
           {
@@ -282,17 +275,17 @@ const AdminDashboard = () => {
             val: formatINR(stats.totalDonatedAmount),
             label: "Total Donations",
           },
-          { icon: "✅", val: stats.completedDonations, label: "Completed" },
+          { icon: "✅", val: formatNumber(stats.completedDonations), label: "Completed" },
         ]
       : [
-          { icon: "👥", val: stats.totalAlumni, label: "Total Alumni" },
-          { icon: "⏳", val: stats.pendingAlumni, label: "Pending Approval" },
+          { icon: "👥", val: formatNumber(stats.totalAlumni), label: "Total Alumni" },
+          { icon: "⏳", val: formatNumber(stats.pendingAlumni), label: "Pending Approval" },
           {
             icon: "💰",
             val: formatINR(stats.totalDonatedAmount),
             label: "Total Donations",
           },
-          { icon: "✅", val: stats.completedDonations, label: "Completed" },
+          { icon: "✅", val: formatNumber(stats.completedDonations), label: "Completed" },
         ];
 
   if (loading)
