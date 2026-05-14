@@ -23,6 +23,7 @@ import {
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
+import { formatNumber } from "../../utils/formatters";
 
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
@@ -204,7 +205,7 @@ const AlumniUsersList = () => {
           </div>
           <div className="text-sm text-gray-500">
             Total:{" "}
-            <strong className="text-gray-900">{pageData.totalAlumni}</strong>{" "}
+            <strong className="text-gray-900">{formatNumber(pageData.totalAlumni)}</strong>{" "}
             users
           </div>
         </div>
@@ -215,7 +216,7 @@ const AlumniUsersList = () => {
           {[
             {
               label: "Total Users",
-              value: pageData.totalAlumni,
+              value: formatNumber(pageData.totalAlumni),
               icon: Users,
               color: "blue",
               bg: "bg-blue-50",
@@ -224,7 +225,7 @@ const AlumniUsersList = () => {
             },
             {
               label: "Approved",
-              value: pageData.totalApproved,
+              value: formatNumber(pageData.totalApproved),
               icon: CheckCircle,
               color: "green",
               bg: "bg-emerald-50",
@@ -233,7 +234,7 @@ const AlumniUsersList = () => {
             },
             {
               label: "Pending",
-              value: pageData.totalPending,
+              value: formatNumber(pageData.totalPending),
               icon: XCircle,
               color: "yellow",
               bg: "bg-amber-50",
