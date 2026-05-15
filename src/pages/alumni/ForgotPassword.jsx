@@ -8,11 +8,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authAPI } from "../../services/api";
+import { useLocation } from "react-router-dom";
 
 const STEPS = { EMAIL: 1, OTP: 2, RESET: 3, DONE: 4 };
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [step, setStep] = useState(STEPS.EMAIL);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -23,6 +25,9 @@ export default function ForgotPassword() {
   const [info, setInfo] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  console.log("ForgotPassword rendered with location:", location.pathname);
+  const path = location.pathname;
 
   // ─── Step 1: Send OTP ──────────────────────────────────────────
   const handleSendOtp = async (e) => {
@@ -113,8 +118,8 @@ export default function ForgotPassword() {
             {step === STEPS.EMAIL && (
               <>
                 <div className="w-14 h-14 rounded-full bg-yellow-50/10 border border-yellow-400/20 flex items-center justify-center mx-auto mb-4 text-2xl">🔑</div>
-                <h3 className="text-xl font-semibold text-slate-100 text-center mb-1">Forgot Password?</h3>
-                <p className="text-sm text-slate-400 text-center mb-4">Enter your registered email and we'll send a one-time code to reset your password.</p>
+                <h3 className="text-xl font-semibold text-slate-100 text-center mb-1">{path === "/set-password" ? "Set New Password" : "Forgot Password?"}</h3>
+                <p className="text-sm text-slate-400 text-center mb-4">Enter your registered email and we'll send a one-time code to {path === "/set-password" ? "set" : "reset"} your password.</p>
                 {error && <div className="bg-red-700/10 border border-red-600/20 text-red-200 rounded-md px-3 py-2 mb-3">⚠ {error}</div>}
                 <form onSubmit={handleSendOtp}>
                   <div className="mb-4">
@@ -129,7 +134,7 @@ export default function ForgotPassword() {
                     />
                   </div>
                   <button type="submit" className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-900 font-semibold hover:shadow-md disabled:opacity-60" disabled={loading}>
-                    {loading ? "Sending OTP…" : "Send Reset Code →"}
+                    {loading ? "Sending OTP…" : "Send OTP →"}
                   </button>
                 </form>
                 <Link to="/alumni/login" className="block text-center text-sm text-slate-400 mt-4 hover:text-slate-200">← Back to Login</Link>
@@ -211,7 +216,7 @@ export default function ForgotPassword() {
                     type="submit" className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-900 font-semibold hover:shadow-md disabled:opacity-60"
                     disabled={loading || password.length < 8 || password !== confirm}
                   >
-                    {loading ? "Saving…" : "Reset Password →"}
+                    {loading ? "Saving…" : `${path === "/set-password" ? "Set" : "Reset"} Password →`}
                   </button>
                 </form>
               </>
@@ -221,7 +226,7 @@ export default function ForgotPassword() {
             {step === STEPS.DONE && (
               <div className="text-center py-4">
                 <div className="w-16 h-16 rounded-full bg-green-900/20 border border-green-500/30 mx-auto flex items-center justify-center text-3xl mb-4">✓</div>
-                <h3 className="text-xl font-semibold text-slate-100 mb-2">Password Reset!</h3>
+                <h3 className="text-xl font-semibold text-slate-100 mb-2">Password {path === "/set-password" ? "Set" : "Reset"}!</h3>
                 <p className="text-sm text-slate-400 mb-6">Your password has been updated successfully. You can now sign in with your new password.</p>
                 <button className="w-full py-3 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-400 text-slate-900 font-semibold" onClick={() => navigate("/alumni/login")}>
                   Go to Login →

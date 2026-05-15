@@ -271,6 +271,7 @@ export default function App() {
                 }
               />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/set-password" element={<ForgotPassword />} />
 
               {/* ALUMNI PROTECTED */}
               <Route
