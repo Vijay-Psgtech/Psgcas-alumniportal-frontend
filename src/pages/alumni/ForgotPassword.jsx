@@ -34,15 +34,13 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(""); setInfo(""); setLoading(true);
     try {
-      // ✅ Replace with your actual API endpoint
       const res = await authAPI.forgotPassword(email);
-      const data = res.data;
-      if (!res.statusText) throw new Error(data.message || "Email not found.");
-      setInfo(`OTP sent to ${email}. Check your inbox.`);
+      const data = res.data || {};
+      setInfo(data.message || `OTP sent to ${email}. Check your inbox.`);
       setStep(STEPS.OTP);
     } catch (err) {
-        const errorMessage =
-          err.response?.data?.message || "Invalid email or password";
+      const errorMessage =
+        err.response?.data?.message || err.message || "Invalid email or password";
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -54,13 +52,13 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      // ✅ Replace with your actual API endpoint
       const res = await authAPI.verifyOtp(email, otp);
-      const data = res.data;
-      if (!res.statusText) throw new Error(data.message || "Invalid or expired OTP.");
+      const data = res.data || {};
       setStep(STEPS.RESET);
     } catch (err) {
-      setError(err.message);
+      const errorMessage =
+        err.response?.data?.message || err.message || "Invalid or expired OTP.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -74,13 +72,13 @@ export default function ForgotPassword() {
     if (password !== confirm) { setError("Passwords do not match."); return; }
     setLoading(true);
     try {
-      // ✅ Replace with your actual API endpoint
       const res = await authAPI.resetPassword(email, otp, password);
-      const data = res.data;
-      if (!res.statusText) throw new Error(data.message || "Failed to reset password.");
+      const data = res.data || {};
       setStep(STEPS.DONE);
     } catch (err) {
-      setError(err.message);
+      const errorMessage =
+        err.response?.data?.message || err.message || "Failed to reset password.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
