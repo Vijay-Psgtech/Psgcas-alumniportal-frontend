@@ -8,6 +8,10 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import PremiumNavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 
+const RegistrationMaintenanceCard = lazy(
+  () => import("./pages/RegistrationMaintenanceCard"),
+);
+
 // ═══════════════════════════════════════════════════════════════════════
 // PUBLIC PAGES
 // ═══════════════════════════════════════════════════════════════════════
@@ -258,7 +262,8 @@ export default function App() {
                 path="alumni/register"
                 element={
                   <PublicOnlyRoute>
-                    <AlumniRegistration />
+                    {/* <AlumniRegistration /> */}
+                    <RegistrationMaintenanceCard />
                   </PublicOnlyRoute>
                 }
               />
