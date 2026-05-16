@@ -18,9 +18,18 @@ import {
   History,
   Megaphone,
   ClipboardList,
+  Plus,
+  Clock3,
+  IndianRupee,
+  BadgeCheck,
+  Building,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
-import { formatINR, formatNumber } from "../../utils/formatters";
+import {
+  formatINR,
+  formatNumber,
+  formatCurrency,
+} from "../../utils/formatters";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -33,12 +42,31 @@ import DepartmentTab from "../../components/admin/DepartmentTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 
 import DonationHistory from "../../components/admin/DonationHistory";
+import CampaignCreator from "../../components/admin/CampaignCreator";
+import CampaignResponsesManager from "../../components/admin/CampaignResponsesManager";
 
 // ✅ Safe import with fallback
 const donationsAPI = {
   getAll:
     adminAPI.getAllDonations ||
     (() => Promise.resolve({ data: { donations: [] } })),
+};
+
+// ✅ Helper function to validate MongoDB ObjectId or UUID format
+const isValidCampaignId = (id) => {
+  if (!id || typeof id !== "string") return false;
+
+  // MongoDB ObjectId: 24 hex characters
+  const mongoIdRegex = /^[a-f\d]{24}$/i;
+
+  // UUID v4 format
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  // Allow numeric IDs as well
+  const numericRegex = /^\d+$/;
+
+  return mongoIdRegex.test(id) || uuidRegex.test(id) || numericRegex.test(id);
 };
 
 const AdminDashboard = () => {
@@ -50,6 +78,9 @@ const AdminDashboard = () => {
   const [success, setSuccess] = useState("");
   const [alumniList, setAlumniList] = useState([]);
   const [donationList, setDonationList] = useState([]);
+  const [campaignList, setCampaignList] = useState([]);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(null);
+
   const [alumniPageData, setAlumniPageData] = useState({
     totalAlumni: 0,
     totalPages: 1,
@@ -63,6 +94,7 @@ const AdminDashboard = () => {
     completedDonations: 0,
     totalEvents: 0,
     totalAlbums: 0,
+    totalCampaigns: 0,
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -88,55 +120,30 @@ const AdminDashboard = () => {
     visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
   };
 
+  // ✅ Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [statsRes, alumniRes, donationsRes] = await Promise.all([
-          adminAPI.getStats().catch((err) => {
-            console.error("Stats error:", err);
-            return {
-              data: {
-                stats: {
-                  totalAlumni: 0,
-                  pendingAlumni: 0,
-                  totalDonatedAmount: 0,
-                  completedDonations: 0,
-                  totalEvents: 0,
-                  totalAlbums: 0,
-                },
-              },
-            };
-          }),
-          // ✅ OPTIMIZED: Pass page and limit parameters
-          adminAPI
-            .getAllAlumni({
+
+        const [statsRes, alumniRes, donationsRes, campaignsRes] =
+          await Promise.all([
+            adminAPI.getStats(),
+            adminAPI.getAllAlumni({
               ...params,
-              ...alumniFilters,
               page: 1,
               limit: 20,
-            })
-            .catch((err) => {
-              console.error("Alumni error:", err);
-              return {
-                data: {
-                  alumni: [],
-                  totalAlumni: 0,
-                  totalPages: 1,
-                  currentPage: 1,
-                },
-              };
             }),
-          donationsAPI.getAll().catch((err) => {
-            console.error("Donations error:", err);
-            return { data: { donations: [] } };
-          }),
-        ]);
+            donationsAPI.getAll(),
+            fetch("/api/campaigns").then((res) => res.json()),
+          ]);
 
-        setStats(statsRes.data.stats || {});
-
-        // ✅ OPTIMIZED: Store paginated data
+        setStats({
+          ...(statsRes.data.stats || {}),
+          totalCampaigns: campaignsRes.campaigns?.length || 0,
+        });
         setAlumniList(alumniRes.data.alumni || []);
+
         setAlumniPageData({
           totalAlumni: alumniRes.data.totalAlumni || 0,
           totalPages: alumniRes.data.totalPages || 1,
@@ -144,17 +151,53 @@ const AdminDashboard = () => {
         });
 
         setDonationList(donationsRes.data.donations || []);
+        setCampaignList(campaignsRes.campaigns || []);
+
+        // ✅ Get campaign ID from URL with validation
+        const urlParams = new URLSearchParams(location.search);
+        const urlCampaignId = urlParams.get("campaignId");
+
+        let finalCampaignId = null;
+
+        // ✅ VALIDATE URL campaign ID before using it
+        if (urlCampaignId && isValidCampaignId(urlCampaignId)) {
+          // Check if the campaign actually exists in our list
+          const campaignExists = campaignsRes.campaigns?.some(
+            (c) => c._id === urlCampaignId,
+          );
+          if (campaignExists) {
+            finalCampaignId = urlCampaignId;
+            console.log(`✅ Using campaign from URL: ${urlCampaignId}`);
+          } else {
+            console.warn(
+              `⚠️ Campaign ${urlCampaignId} not found in list, using first campaign`,
+            );
+          }
+        } else if (urlCampaignId) {
+          // Invalid format detected
+          console.warn(
+            `❌ Invalid campaign ID format in URL: "${urlCampaignId}". Expected valid MongoDB ObjectId, UUID, or numeric ID.`,
+          );
+          // Don't use it, fall back to first campaign
+        }
+
+        // ✅ If no valid campaign ID from URL, use first campaign
+        if (!finalCampaignId && campaignsRes.campaigns?.length > 0) {
+          finalCampaignId = campaignsRes.campaigns[0]._id;
+          console.log(`📌 Using first campaign: ${finalCampaignId}`);
+        }
+
+        setSelectedCampaignId(finalCampaignId);
       } catch (err) {
-        console.error("Dashboard load error:", err);
+        console.error(err);
         setError("Failed to load dashboard data");
-        setTimeout(() => setError(""), 3000);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [params, location.search]);
 
   const handleLogout = useCallback(() => {
     logout();
@@ -187,71 +230,69 @@ const AdminDashboard = () => {
       setTimeout(() => setError(""), 3000);
     }
   };
-  const TABS =
-    user.role === "admin"
+
+  // ✅ Handle campaign creation
+  const handleCampaignCreated = (newCampaign) => {
+    setCampaignList((prev) => [newCampaign, ...prev]);
+    setSelectedCampaignId(newCampaign._id);
+    setSuccess(`Campaign "${newCampaign.title}" created successfully!`);
+    setTimeout(() => {
+      setActiveTab("campaign-manager");
+      setSuccess("");
+    }, 2000);
+  };
+
+  // ✅ Handle campaign selection with validation
+  const handleCampaignSelect = (campaignId) => {
+    if (isValidCampaignId(campaignId)) {
+      setSelectedCampaignId(campaignId);
+      // Update URL
+      window.history.replaceState(
+        null,
+        "",
+        `${location.pathname}?campaignId=${campaignId}`,
+      );
+    } else {
+      console.error(`❌ Invalid campaign ID: ${campaignId}`);
+      setError("Invalid campaign ID selected");
+    }
+  };
+
+  const TABS = [
+    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
+    {
+      key: "donations",
+      Icon: FileText,
+      label: "Donations",
+      badge: donationList.length,
+    },
+    {
+      key: "donation-history",
+      Icon: History,
+      label: "Donation History",
+      badge: "🧾",
+    },
+    {
+      key: "campaign-creator",
+      Icon: Plus,
+      label: "Create Campaign",
+      badge: "📋",
+    },
+    {
+      key: "campaign-manager",
+      Icon: Megaphone,
+      label: "Campaign Manager",
+      badge: stats.totalCampaigns,
+    },
+    {
+      key: "events",
+      Icon: Calendar,
+      label: "Events",
+      badge: stats.totalEvents,
+    },
+    { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
+    ...(user?.role !== "admin"
       ? [
-          {
-            key: "alumni",
-            Icon: Users,
-            label: "Alumni",
-            badge: formatNumber(stats.totalAlumni),
-          },
-          {
-            key: "donations",
-            Icon: FileText,
-            label: "Donations",
-            badge: formatINR(stats.totalDonatedAmount),
-          },
-          {
-            key: "donation-history",
-            Icon: History,
-            label: "Donation History",
-            badge: "🧾",
-          },
-          {
-            key: "events",
-            Icon: Calendar,
-            label: "Events",
-            badge: formatNumber(stats.totalEvents),
-          },
-          {
-            key: "albums",
-            Icon: Camera,
-            label: "Albums",
-            badge: formatNumber(stats.totalAlbums),
-          },
-        ]
-      : [
-          {
-            key: "alumni",
-            Icon: Users,
-            label: "Alumni",
-            badge: formatNumber(stats.totalAlumni),
-          },
-          {
-            key: "donations",
-            Icon: FileText,
-            label: "Donations",
-            badge: formatINR(stats.totalDonatedAmount),
-          },
-          {
-            key: "donation-history",
-            Icon: History,
-            label: "Donation History",
-            badge: "🧾",
-          },
-          {
-            key: "events",
-            Icon: Calendar,
-            label: "Events",
-            badge: formatNumber(stats.totalEvents),
-          },
-          {
-            key: "albums",
-            Icon: Camera,
-            label: "Albums",
-            badge: formatNumber(stats.totalAlbums),
-          },
           {
             key: "departments",
             Icon: BookOpen,
@@ -259,33 +300,55 @@ const AdminDashboard = () => {
             badge: "✨",
           },
           { key: "users", Icon: Users, label: "Admin Users", badge: "👤" },
-        ];
+        ]
+      : []),
+  ];
 
   const STAT_CARDS =
     user.role === "admin"
       ? [
-          { icon: "👥", val: formatNumber(stats.totalAlumni), label: "Total Alumni" },
           {
-            icon: "🏢",
+            icon: <Users className="w-6 h-6 text-blue-600" />,
+            val: formatNumber(stats.totalAlumni),
+            label: "Total Alumni",
+          },
+          {
+            icon: <Building className="w-6 h-6 text-green-600" />,
             val: formatNumber(alumniPageData.totalAlumni || 0),
             label: `${user.department} Alumni`,
           },
           {
-            icon: "💰",
-            val: formatINR(stats.totalDonatedAmount),
+            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+            val: formatCurrency(stats.totalDonatedAmount),
             label: "Total Donations",
           },
-          { icon: "✅", val: formatNumber(stats.completedDonations), label: "Completed" },
+          {
+            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
+            val: formatNumber(stats.completedDonations),
+            label: "Completed",
+          },
         ]
       : [
-          { icon: "👥", val: formatNumber(stats.totalAlumni), label: "Total Alumni" },
-          { icon: "⏳", val: formatNumber(stats.pendingAlumni), label: "Pending Approval" },
           {
-            icon: "💰",
-            val: formatINR(stats.totalDonatedAmount),
+            icon: <Users className="w-6 h-6 text-blue-600" />,
+            val: formatNumber(stats.totalAlumni),
+            label: "Total Alumni",
+          },
+          {
+            icon: <Clock3 className="w-6 h-6 text-yellow-600" />,
+            val: formatNumber(stats.pendingAlumni),
+            label: "Pending Approval",
+          },
+          {
+            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+            val: formatCurrency(stats.totalDonatedAmount),
             label: "Total Donations",
           },
-          { icon: "✅", val: formatNumber(stats.completedDonations), label: "Completed" },
+          {
+            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
+            val: formatNumber(stats.completedDonations),
+            label: "Completed",
+          },
         ];
 
   if (loading)
@@ -312,12 +375,12 @@ const AdminDashboard = () => {
           animate="visible"
         >
           <div className="flex-1">
-            <h1 className="font-['Playfair_Display',_serif] text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-4xl font-bold text-slate-900">
               {user.role === "admin"
                 ? `Admin Dashboard`
                 : `Super Admin Dashboard`}
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 mt-2 font-medium">
+            <p className="text-slate-600 mt-2">
               {user.role === "admin"
                 ? `${user.department || "Department"} • Manage your alumni network`
                 : `System Administration & Oversight`}
@@ -384,46 +447,94 @@ const AdminDashboard = () => {
             <motion.div
               key={label}
               variants={iv}
-              className="bg-white border border-slate-200 rounded-lg shadow-md hover:shadow-lg p-5 sm:p-6 text-center transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group hover:border-slate-300"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="
+                relative overflow-hidden
+                min-h-[96px]
+
+                bg-white
+                border border-slate-200/80
+                rounded-2xl
+
+                px-4 py-4
+
+                shadow-sm
+                hover:shadow-md
+
+                transition-all duration-300
+              "
             >
-              {/* Top gradient border accent */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Left Accent */}
+              <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-indigo-500" />
 
-              {/* Background gradient on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-indigo-50/0 group-hover:from-blue-50/40 group-hover:to-indigo-50/40 transition-all duration-300 -z-10" />
+              <div className="flex items-center gap-4 h-full">
+                {/* Icon */}
+                <div
+                  className="
+                    h-12 w-12
+                    rounded-xl
 
-              <div className="text-4xl sm:text-5xl mb-4 drop-shadow-sm">
-                {icon}
+                    bg-slate-50
+                    border border-slate-100
+
+                    flex items-center justify-center
+                    shrink-0
+                  "
+                >
+                  {icon}
+                </div>
+
+                {/* Content */}
+                <div className="min-w-0">
+                  <h3
+                    className="
+                      text-2xl sm:text-[28px]
+                      font-bold
+                      text-slate-800
+
+                      tracking-tight
+                      leading-none
+                    "
+                  >
+                    {val}
+                  </h3>
+
+                  <p
+                    className="
+                      mt-1.5
+                      text-sm
+                      font-medium
+                      text-slate-500
+                    "
+                  >
+                    {label}
+                  </p>
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 tracking-tight">
-                {val}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600 uppercase tracking-wide font-semibold">
-                {label}
-              </p>
             </motion.div>
           ))}
         </motion.div>
         {/* Tabs Panel */}
-        <div className="bg-white border border-slate-200 rounded p-3 sm:p-4 mb-6 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
           <div className="flex gap-2 flex-wrap">
             {TABS.map(({ key, Icon, label, badge }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`px-4 sm:px-5 py-2.5 rounded-sm font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer transition-all flex items-center gap-2 whitespace-nowrap
-                                    ${activeTab === key ? "bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white shadow-md shadow-blue-500/25" : "bg-transparent text-gray-500 hover:bg-slate-50 hover:text-blue-600 border border-transparent hover:border-slate-200"}
-                                `}
+                className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition ${
+                  activeTab === key
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                }`}
               >
-                <Icon size={15} strokeWidth={activeTab === key ? 2.5 : 2} />
-                <span className="font-['Outfit',_sans-serif text-xs sm:text-sm ">
-                  {label}
-                </span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${activeTab === key ? "bg-white/25 text-white" : "bg-slate-100 text-gray-400"}`}
-                >
-                  {badge}
-                </span>
+                <Icon size={15} />
+                {label}
+                {badge && (
+                  <span className="text-xs ml-1 px-2 py-0.5 rounded-full bg-white text-black bg-opacity-20">
+                    {badge}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -472,11 +583,11 @@ const AdminDashboard = () => {
                       page,
                       limit: 20,
                     };
-                    
+
                     if (user.role === "admin") {
                       queryParams.department = user.department;
                     }
-                    
+
                     const res = await adminAPI.getAllAlumni(queryParams);
                     setAlumniList(res.data.alumni || []);
                     setAlumniPageData({
@@ -498,11 +609,11 @@ const AdminDashboard = () => {
                       page: 1,
                       limit: 20,
                     };
-                    
+
                     if (user.role === "admin") {
                       queryParams.department = user.department;
                     }
-                    
+
                     setAlumniFilters(filters);
                     const res = await adminAPI.getAllAlumni(queryParams);
                     setAlumniList(res.data.alumni || []);
@@ -517,7 +628,6 @@ const AdminDashboard = () => {
                   }
                 }}
                 userRole={user.role}
-                
               />
             </motion.div>
           )}
@@ -543,6 +653,44 @@ const AdminDashboard = () => {
             >
               <DonationHistory onError={setError} onSuccess={setSuccess} />
             </motion.div>
+          )}
+          {activeTab === "campaign-creator" && (
+            <CampaignCreator onCampaignCreated={handleCampaignCreated} />
+          )}
+          {activeTab === "campaign-manager" && selectedCampaignId && (
+            <div className="space-y-6">
+              {/* Campaign Selector */}
+              {campaignList.length > 0 && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="font-bold text-slate-900 mb-3">
+                    Select Campaign
+                  </h3>
+                  <select
+                    value={selectedCampaignId || ""}
+                    onChange={(e) => handleCampaignSelect(e.target.value)}
+                    className="w-full max-w-md px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-400"
+                  >
+                    {campaignList.map((campaign) => (
+                      <option key={campaign._id} value={campaign._id}>
+                        {campaign.title} ({campaign.status})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Responses Manager */}
+              <CampaignResponsesManager campaignId={selectedCampaignId} />
+            </div>
+          )}
+          {activeTab === "campaign-manager" && !selectedCampaignId && (
+            <div className="bg-white rounded-2xl p-12 text-center">
+              <AlertCircle size={48} className="mx-auto text-slate-400 mb-4" />
+              <p className="text-slate-600 text-lg">
+                No campaigns created yet. Go to "Create Campaign" to get
+                started.
+              </p>
+            </div>
           )}
           {activeTab === "departments" && (
             <motion.div
