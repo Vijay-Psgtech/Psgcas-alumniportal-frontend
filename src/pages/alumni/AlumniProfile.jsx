@@ -43,7 +43,7 @@ import {
   Tag,
   Landmark,
 } from "lucide-react";
-import { alumniAPI, authAPI, API_BASE } from "../../services/api";
+import { alumniAPI, authAPI, API_BASE, departmentAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import ImageModal from "../../components/ImageModal";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -189,7 +189,7 @@ const EditSection = ({ title, icon: Icon, iconBg, iconColor, children }) => (
 );
 
 const inputCls =
-  "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-slate-800 text-sm " +
+  "w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm " +
   "placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 " +
   "focus:bg-white transition-all duration-200";
 
@@ -219,12 +219,29 @@ const AlumniProfile = () => {
   const [editData, setEditData] = useState({});
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [departmentsLoading, setDepartmentsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedDocFiles, setSelectedDocFiles] = useState({});
   const [imageModal, setImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [lockedFields, setLockedFields] = useState({});
+
+  const isFieldLocked = (value) => value !== undefined && value !== null && value !== "";
 
   usePageTitle(`Profile - ${profileData?.firstName ?? "Alumni"}`);
+
+  useEffect(() => {
+    if (!profileData) return;
+    setLockedFields({
+      department: isFieldLocked(profileData.department),
+      programmeType: isFieldLocked(profileData.programmeType),
+      degree: isFieldLocked(profileData.degree),
+      studyStartYear: isFieldLocked(profileData.studyStartYear),
+      studyEndYear: isFieldLocked(profileData.studyEndYear),
+      batchYear: isFieldLocked(profileData.batchYear),
+    });
+  }, [profileData]);
 
   /* ── normalise location ── */
   const normalizeAlumni = (alumni) => {
@@ -268,6 +285,27 @@ const AlumniProfile = () => {
     }, 300);
     return () => clearTimeout(t);
   }, [locationQuery]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        setDepartmentsLoading(true);
+        const response = await departmentAPI.getAll();
+        if (response.data?.data?.departments) {
+          setDepartments(response.data.data.departments);
+        } else {
+          setDepartments([]);
+        }
+      } catch (err) {
+        console.error("Failed to load departments:", err);
+        setDepartments([]);
+      } finally {
+        setDepartmentsLoading(false);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   const handleSelect = (place) => {
     const lat = parseFloat(place.lat);
@@ -390,6 +428,8 @@ const AlumniProfile = () => {
       setSelectedDocFiles({});
       setSuccess("Profile updated successfully!");
       setTimeout(() => setSuccess(""), 4000);
+      // scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save profile");
     }
@@ -790,41 +830,42 @@ const AlumniProfile = () => {
                         placeholder="e.g. 12CA012"
                       />
                     </FormField>
-                    {/* <FormField label="Profile Photo">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setSelectedFile(e.target.files[0])}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-all"
-                      />
-                    </FormField> */}
                   </EditSection>
 
                   {/* ── Academic ── */}
                   <EditSection
-                    title="Academic Information"
+                    title="Academic Information ( Cannot be changed once set )"
                     icon={GraduationCap}
                     iconBg="bg-violet-100"
                     iconColor="text-violet-600"
                   >
                     <FormField label="Department" required>
-                      <input
-                        type="text"
+                      <select
                         name="department"
-                        className={inputCls}
+                        className={`${lockedFields.department ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100" : `${selectCls}`}`}
                         value={editData.department || ""}
                         onChange={handleChange}
-                        placeholder="e.g. B.Com"
-                        disabled
-                      />
+                        disabled={lockedFields.department || departmentsLoading}
+                      >
+                        <option value="">
+                          {departmentsLoading
+                            ? "Loading departments..."
+                            : "Select Department"}
+                        </option>
+                        {departments.map((dept) => (
+                          <option key={dept._id || dept.id || dept.name} value={dept.name}>
+                            {dept.name}
+                          </option>
+                        ))}
+                      </select>
                     </FormField>
                     <FormField label="Programme Type">
                       <select
                         name="programmeType"
-                        className={selectCls}
+                        className={`${lockedFields.programmeType ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100" : `${selectCls}`}`}
                         value={editData.programmeType || ""}
                         onChange={handleChange}
-                        disabled
+                        disabled={lockedFields.programmeType}
                       >
                         <option value="">Select type</option>
                         <option value="UG">UG</option>
@@ -837,11 +878,11 @@ const AlumniProfile = () => {
                       <input
                         type="text"
                         name="degree"
-                        className={inputCls}
+                        className={`${lockedFields.degree ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100" : `${inputCls}`}`}
                         value={editData.degree || ""}
                         onChange={handleChange}
                         placeholder="e.g. Bcom CA"
-                        disabled
+                        disabled={lockedFields.degree}
                       />
                     </FormField>
 
@@ -849,37 +890,37 @@ const AlumniProfile = () => {
                       <input
                         type="number"
                         name="studyStartYear"
-                        className={inputCls}
+                        className={`${lockedFields.studyStartYear ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100" : `${inputCls}`}`}
                         value={editData.studyStartYear || ""}
                         onChange={handleChange}
                         placeholder="e.g. 2012"
                         min="1980"
                         max="2099"
-                        disabled
+                        disabled={lockedFields.studyStartYear}
                       />
                     </FormField>
                     <FormField label="Study End Year">
                       <input
                         type="number"
                         name="studyEndYear"
-                        className={inputCls}
+                        className={`${lockedFields.studyEndYear ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100 " : `${inputCls}`}`}
                         value={editData.studyEndYear || ""}
                         onChange={handleChange}
                         placeholder="e.g. 2015"
                         min="1980"
                         max="2099"
-                        disabled
+                        disabled={lockedFields.studyEndYear}
                       />
                     </FormField>
                     <FormField label="Batch Year" required>
                       <input
                         type="number"
                         name="batchYear"
-                        className={inputCls}
+                        className={`${lockedFields.batchYear ? "cursor-not-allowed w-full px-3.5 py-2.5 rounded-xl bg-slate-100" : `${inputCls}`}`}
                         value={editData.batchYear || ""}
                         onChange={handleChange}
                         placeholder="e.g. 2015"
-                        disabled
+                        disabled={lockedFields.batchYear}
                       />
                     </FormField>
                   </EditSection>
