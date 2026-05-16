@@ -56,76 +56,289 @@ export const authAPI = {
     api.post("/auth/reset-password", { email, otp, newPassword }),
 };
 
-
 // ────────────────────────────────────────────────────────────────────────────
 // ✅ DEPARTMENTS API - DYNAMIC DEPARTMENTS MANAGEMENT
 // ────────────────────────────────────────────────────────────────────────────
- 
+
 export const departmentAPI = {
   // Get all active departments (PUBLIC)
   getAll: () => {
     console.log("📡 Fetching all active departments...");
     return api.get("/departments");
   },
- 
+
   // Get departments by programme type and funding type (PUBLIC)
   getByType: (programmeType, fundingType) => {
-    console.log(`📡 Fetching departments (${programmeType}, ${fundingType})...`);
+    console.log(
+      `📡 Fetching departments (${programmeType}, ${fundingType})...`,
+    );
     return api.get(`/departments/${programmeType}/${fundingType}`);
   },
- 
+
   // Get all departments including inactive (ADMIN ONLY)
   getAllAdmin: () => {
     console.log("📡 Fetching all departments (admin)...");
     return api.get("/departments/admin/all");
   },
- 
+
   // Create new department (ADMIN ONLY)
   create: (data) => {
     console.log("📤 Creating department:", data);
-    return api.post("/departments", data).then((response) => {
-      console.log("✅ Department created:", response.data);
-      return response;
-    }).catch((error) => {
-      console.error("❌ Department creation failed:", error.response?.data || error.message);
-      throw error;
-    });
+    return api
+      .post("/departments", data)
+      .then((response) => {
+        console.log("✅ Department created:", response.data);
+        return response;
+      })
+      .catch((error) => {
+        console.error(
+          "❌ Department creation failed:",
+          error.response?.data || error.message,
+        );
+        throw error;
+      });
   },
- 
+
   // Update department (ADMIN ONLY)
   update: (id, data) => {
     console.log(`📤 Updating department ${id}:`, data);
-    return api.put(`/departments/${id}`, data).then((response) => {
-      console.log("✅ Department updated:", response.data);
-      return response;
-    }).catch((error) => {
-      console.error("❌ Department update failed:", error.response?.data || error.message);
-      throw error;
-    });
+    return api
+      .put(`/departments/${id}`, data)
+      .then((response) => {
+        console.log("✅ Department updated:", response.data);
+        return response;
+      })
+      .catch((error) => {
+        console.error(
+          "❌ Department update failed:",
+          error.response?.data || error.message,
+        );
+        throw error;
+      });
   },
- 
+
   // Delete department (ADMIN ONLY)
   delete: (id) => {
     console.log(`📤 Deleting department ${id}...`);
-    return api.delete(`/departments/${id}`).then((response) => {
-      console.log("✅ Department deleted:", response.data);
-      return response;
-    }).catch((error) => {
-      console.error("❌ Department deletion failed:", error.response?.data || error.message);
-      throw error;
-    });
+    return api
+      .delete(`/departments/${id}`)
+      .then((response) => {
+        console.log("✅ Department deleted:", response.data);
+        return response;
+      })
+      .catch((error) => {
+        console.error(
+          "❌ Department deletion failed:",
+          error.response?.data || error.message,
+        );
+        throw error;
+      });
   },
- 
+
   // Toggle department active/inactive status (ADMIN ONLY)
   toggleStatus: (id) => {
     console.log(`📤 Toggling status for department ${id}...`);
-    return api.patch(`/departments/${id}/toggle`).then((response) => {
-      console.log("✅ Department status toggled:", response.data);
-      return response;
-    }).catch((error) => {
-      console.error("❌ Status toggle failed:", error.response?.data || error.message);
+    return api
+      .patch(`/departments/${id}/toggle`)
+      .then((response) => {
+        console.log("✅ Department status toggled:", response.data);
+        return response;
+      })
+      .catch((error) => {
+        console.error(
+          "❌ Status toggle failed:",
+          error.response?.data || error.message,
+        );
+        throw error;
+      });
+  },
+};
+
+// ────────────────────────────────────────────────────────────────────────────
+// ✅ CAMPAIGNS API - CAMPAIGN MANAGEMENT & RESPONSES
+// ────────────────────────────────────────────────────────────────────────────
+export const campaignsAPI = {
+  // Get all campaigns
+  getAll: (params) => {
+    console.log("📡 Fetching all campaigns...");
+    return api.get("/campaigns", { params }).catch((error) => {
+      console.error("❌ Failed to fetch campaigns:", error.message);
       throw error;
     });
+  },
+
+  // Get single campaign by ID
+  getById: (id) => {
+    console.log(`📡 Fetching campaign ${id}...`);
+    return api.get(`/campaigns/${id}`).catch((error) => {
+      console.error(`❌ Failed to fetch campaign ${id}:`, error.message);
+      throw error;
+    });
+  },
+
+  // Create new campaign
+  create: (data) => {
+    console.log("📤 Creating campaign...", data.title);
+    return api
+      .post("/campaigns", data)
+      .then((response) => {
+        console.log("✅ Campaign created:", response.data.campaignId);
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Campaign creation failed:", error.message);
+        throw error;
+      });
+  },
+
+  // Update campaign
+  update: (id, data) => {
+    console.log(`📤 Updating campaign ${id}...`);
+    return api
+      .put(`/campaigns/${id}`, data)
+      .then((response) => {
+        console.log("✅ Campaign updated:", id);
+        return response;
+      })
+      .catch((error) => {
+        console.error(`❌ Campaign update failed:`, error.message);
+        throw error;
+      });
+  },
+
+  // Delete campaign
+  delete: (id) => {
+    console.log(`📤 Deleting campaign ${id}...`);
+    return api
+      .delete(`/campaigns/${id}`)
+      .then((response) => {
+        console.log("✅ Campaign deleted:", id);
+        return response;
+      })
+      .catch((error) => {
+        console.error(`❌ Campaign deletion failed:`, error.message);
+        throw error;
+      });
+  },
+
+  // ── CAMPAIGN RESPONSES ──
+
+  // Submit response to campaign
+  submitResponse: (campaignId, data) => {
+    console.log(`📤 Submitting response to campaign ${campaignId}...`);
+    return api
+      .post(`/campaigns/${campaignId}/respond`, data)
+      .then((response) => {
+        console.log("✅ Response submitted successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to submit response:", error.message);
+        throw error;
+      });
+  },
+
+  // Get all responses for a campaign
+  getResponses: (campaignId, params = {}) => {
+    console.log(`📡 Fetching responses for campaign ${campaignId}...`, params);
+    return api
+      .get(`/campaigns/${campaignId}/responses`, { params })
+      .then((response) => {
+        console.log(
+          `✅ Fetched ${response.data.count || 0} responses from campaign`,
+        );
+        return response;
+      })
+      .catch((error) => {
+        console.error(
+          `❌ Failed to fetch responses for campaign ${campaignId}:`,
+          error.message,
+        );
+        throw error;
+      });
+  },
+
+  // Get single response
+  getResponse: (responseId) => {
+    console.log(`📡 Fetching response ${responseId}...`);
+    return api.get(`/campaigns/response/${responseId}`).catch((error) => {
+      console.error(`❌ Failed to fetch response:`, error.message);
+      throw error;
+    });
+  },
+
+  // Update response status
+  updateResponseStatus: (responseId, data) => {
+    console.log(`📤 Updating response ${responseId} status...`);
+    return api
+      .put(`/campaigns/response/${responseId}/status`, data)
+      .then((response) => {
+        console.log("✅ Response status updated");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to update response status:", error.message);
+        throw error;
+      });
+  },
+
+  // Publish response as story
+  publishResponse: (responseId, title) => {
+    console.log(`📤 Publishing response ${responseId} as story...`);
+    return api
+      .post(`/campaigns/response/${responseId}/publish`, { title })
+      .then((response) => {
+        console.log("✅ Response published successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to publish response:", error.message);
+        throw error;
+      });
+  },
+
+  // Delete response
+  deleteResponse: (responseId) => {
+    console.log(`📤 Deleting response ${responseId}...`);
+    return api
+      .delete(`/campaigns/response/${responseId}`)
+      .then((response) => {
+        console.log("✅ Response deleted successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to delete response:", error.message);
+        throw error;
+      });
+  },
+
+  // Export responses as CSV
+  exportResponses: (campaignId, params = {}) => {
+    console.log(`📥 Exporting responses for campaign ${campaignId}...`);
+    return api
+      .get(`/campaigns/${campaignId}/responses/export`, {
+        params,
+        responseType: "blob",
+      })
+      .catch((error) => {
+        console.error("❌ Failed to export responses:", error.message);
+        throw error;
+      });
+  },
+
+  // Get campaign analytics
+  getAnalytics: (campaignId) => {
+    console.log(`📊 Fetching analytics for campaign ${campaignId}...`);
+    return api
+      .get(`/campaigns/${campaignId}/analytics`)
+      .then((response) => {
+        console.log("✅ Analytics fetched successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to fetch analytics:", error.message);
+        throw error;
+      });
   },
 };
 
@@ -249,55 +462,55 @@ export const donationAPI = {
     console.log("📤 Creating donation...");
     return api.post("/donations", data);
   },
- 
+
   // 🔓 PUBLIC - Verify Razorpay payment
   verifyRazorPay: (data) => {
     console.log("📤 Verifying Razorpay payment...");
     return api.post("/donations/verify-razorpay", data);
   },
- 
+
   // 🔓 PUBLIC - Get donation history with filters (anyone can view)
   getHistory: (params) => {
     console.log("📡 Fetching donation history...", params);
     return api.get("/donations/history", { params });
   },
- 
+
   // 🔓 PUBLIC - Get donation stats
   getStats: (params) => {
     console.log("📡 Fetching donation stats...");
     return api.get("/donations/stats", { params });
   },
- 
+
   // 🔐 ADMIN - Get all donations
   getAll: () => {
     console.log("📡 Fetching all donations (admin)...");
     return api.get("/donations");
   },
- 
+
   // 🔐 ADMIN - Get specific donation by ID
   getById: (id) => {
     console.log(`📡 Fetching donation ${id}...`);
     return api.get(`/donations/${id}`);
   },
- 
+
   // 🔐 ADMIN - Update donation (notes, status, flags)
   update: (id, data) => {
     console.log(`📤 Updating donation ${id}...`);
     return api.put(`/donations/${id}`, data);
   },
- 
+
   // 🔐 ADMIN - Update donation status
   updateStatus: (id, status) => {
     console.log(`📤 Updating donation ${id} status to ${status}...`);
     return api.put(`/donations/${id}/status`, { status });
   },
- 
+
   // 🔐 ADMIN - Flag/Unflag donation
   flagDonation: (id, data) => {
     console.log(`📤 Updating flag status for donation ${id}...`);
     return api.put(`/donations/${id}/flag`, data);
   },
- 
+
   // 🔐 ADMIN - Delete donation
   delete: (id) => {
     console.log(`📤 Deleting donation ${id}...`);
@@ -305,12 +518,12 @@ export const donationAPI = {
   },
 };
 
-
 // ── Admin Reports API ────────────────────────────────────────────────────────
 export const adminReportsAPI = {
   fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
   fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
-  fetchAlumniDataByDepartment: () => api.get("/reports/alumni-data-by-department"),
+  fetchAlumniDataByDepartment: () =>
+    api.get("/reports/alumni-data-by-department"),
 };
 
 // ── ✅ Notification API ───────────────────────────────────────────────
@@ -348,10 +561,8 @@ export const notificationAPI = {
 // ──────── ADMIN USERS API ──────────────────────────────────────────────────────
 export const adminUsersAPI = {
   getAll: () => api.get("/users"),
-  create: (data) =>
-    api.post("/users", data),
-  updateUser: (id, data) =>
-    api.put(`/users/${id}`, data),
+  create: (data) => api.post("/users", data),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
