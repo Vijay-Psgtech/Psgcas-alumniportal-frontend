@@ -19,9 +19,17 @@ import {
   Megaphone,
   ClipboardList,
   Plus,
+  Clock3,
+  IndianRupee,
+  BadgeCheck,
+  Building,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
-import { formatINR, formatNumber } from "../../utils/formatters";
+import {
+  formatINR,
+  formatNumber,
+  formatCurrency,
+} from "../../utils/formatters";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 
@@ -300,44 +308,44 @@ const AdminDashboard = () => {
     user.role === "admin"
       ? [
           {
-            icon: "👥",
+            icon: <Users className="w-6 h-6 text-blue-600" />,
             val: formatNumber(stats.totalAlumni),
             label: "Total Alumni",
           },
           {
-            icon: "🏢",
+            icon: <Building className="w-6 h-6 text-green-600" />,
             val: formatNumber(alumniPageData.totalAlumni || 0),
             label: `${user.department} Alumni`,
           },
           {
-            icon: "💰",
-            val: formatINR(stats.totalDonatedAmount),
+            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+            val: formatCurrency(stats.totalDonatedAmount),
             label: "Total Donations",
           },
           {
-            icon: "✅",
+            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
             val: formatNumber(stats.completedDonations),
             label: "Completed",
           },
         ]
       : [
           {
-            icon: "👥",
+            icon: <Users className="w-6 h-6 text-blue-600" />,
             val: formatNumber(stats.totalAlumni),
             label: "Total Alumni",
           },
           {
-            icon: "⏳",
+            icon: <Clock3 className="w-6 h-6 text-yellow-600" />,
             val: formatNumber(stats.pendingAlumni),
             label: "Pending Approval",
           },
           {
-            icon: "💰",
-            val: formatINR(stats.totalDonatedAmount),
+            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+            val: formatCurrency(stats.totalDonatedAmount),
             label: "Total Donations",
           },
           {
-            icon: "✅",
+            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
             val: formatNumber(stats.completedDonations),
             label: "Completed",
           },
@@ -439,23 +447,71 @@ const AdminDashboard = () => {
             <motion.div
               key={label}
               variants={iv}
-              className="bg-white border border-slate-200 rounded-lg shadow-md hover:shadow-lg p-5 sm:p-6 text-center transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group hover:border-slate-300"
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="
+                relative overflow-hidden
+                min-h-[96px]
+
+                bg-white
+                border border-slate-200/80
+                rounded-2xl
+
+                px-4 py-4
+
+                shadow-sm
+                hover:shadow-md
+
+                transition-all duration-300
+              "
             >
-              {/* Top gradient border accent */}
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Left Accent */}
+              <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-indigo-500" />
 
-              {/* Background gradient on hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 to-indigo-50/0 group-hover:from-blue-50/40 group-hover:to-indigo-50/40 transition-all duration-300 -z-10" />
+              <div className="flex items-center gap-4 h-full">
+                {/* Icon */}
+                <div
+                  className="
+                    h-12 w-12
+                    rounded-xl
 
-              <div className="text-4xl sm:text-5xl mb-4 drop-shadow-sm">
-                {icon}
+                    bg-slate-50
+                    border border-slate-100
+
+                    flex items-center justify-center
+                    shrink-0
+                  "
+                >
+                  {icon}
+                </div>
+
+                {/* Content */}
+                <div className="min-w-0">
+                  <h3
+                    className="
+                      text-2xl sm:text-[28px]
+                      font-bold
+                      text-slate-800
+
+                      tracking-tight
+                      leading-none
+                    "
+                  >
+                    {val}
+                  </h3>
+
+                  <p
+                    className="
+                      mt-1.5
+                      text-sm
+                      font-medium
+                      text-slate-500
+                    "
+                  >
+                    {label}
+                  </p>
+                </div>
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2 tracking-tight">
-                {val}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-600 uppercase tracking-wide font-semibold">
-                {label}
-              </p>
             </motion.div>
           ))}
         </motion.div>
