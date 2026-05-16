@@ -84,15 +84,20 @@ const NotableAlumni = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+        * {
+          box-sizing: border-box;
+        }
 
         /* Notable Alumni Section */
         .notable-alumni-section {
-          padding: 100px 40px;
+          padding: 5rem 2rem;
           background: linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 50%, #F0F9FF 100%);
           position: relative;
           overflow: hidden;
           border-top: 1px solid #E2E8F0;
+          min-height: 100vh;
         }
 
         /* Background Decorations */
@@ -142,7 +147,7 @@ const NotableAlumni = () => {
           position: relative;
           z-index: 1;
           text-align: center;
-          margin-bottom: 60px;
+          margin-bottom: 3rem;
           animation: slideUp 0.8s ease-out;
         }
 
@@ -150,12 +155,12 @@ const NotableAlumni = () => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 18px;
+          padding: 0.625rem 1.125rem;
           background: #F0F9FF;
           border: 1px solid #BFDBFE;
           border-radius: 50px;
-          margin-bottom: 16px;
-          font-size: 12px;
+          margin-bottom: 1rem;
+          font-size: clamp(10px, 1.5vw, 12px);
           font-weight: 700;
           color: #3B82F6;
           letter-spacing: 0.8px;
@@ -177,33 +182,35 @@ const NotableAlumni = () => {
 
         .alumni-title {
           font-family: 'Playfair Display', serif;
-          font-size: 48px;
-          font-weight: 700;
+          font-size: clamp(28px, 5vw, 56px);
+          font-weight: 800;
           color: #0F172A;
-          margin-bottom: 16px;
+          margin-bottom: 1rem;
           letter-spacing: -0.5px;
           animation: slideUp 0.8s ease-out 0.2s backwards;
+          line-height: 1.2;
         }
 
         .alumni-subtitle {
-          font-size: 16px;
+          font-size: clamp(14px, 2vw, 16px);
           color: #64748B;
           font-weight: 400;
-          max-width: 600px;
+          max-width: 700px;
           margin: 0 auto;
           font-family: 'Poppins', sans-serif;
-          line-height: 1.6;
+          line-height: 1.7;
           animation: slideUp 0.8s ease-out 0.3s backwards;
+          padding: 0 1rem;
         }
 
         .alumni-header::after {
           content: '';
           display: block;
           width: 60px;
-          height: 3px;
+          height: 4px;
           background: linear-gradient(90deg, #3B82F6, #06B6D4);
           border-radius: 2px;
-          margin: 20px auto 0;
+          margin: 1.5rem auto 0;
           animation: expandWidth 0.8s ease-out 0.4s backwards;
         }
 
@@ -222,12 +229,13 @@ const NotableAlumni = () => {
         .alumni-filters {
           display: flex;
           justify-content: center;
-          gap: 12px;
-          margin-bottom: 60px;
+          gap: 0.75rem;
+          margin-bottom: 3.5rem;
           flex-wrap: wrap;
           position: relative;
           z-index: 1;
           animation: fadeIn 0.8s ease-out 0.5s backwards;
+          padding: 0 1rem;
         }
 
         @keyframes fadeIn {
@@ -236,24 +244,26 @@ const NotableAlumni = () => {
         }
 
         .filter-btn {
-          padding: 11px 22px;
+          padding: 0.7rem 1.25rem;
           background: #FFFFFF;
           border: 2px solid #E2E8F0;
           border-radius: 50px;
           cursor: pointer;
-          font-size: 13px;
+          font-size: clamp(11px, 1.5vw, 13px);
           font-weight: 600;
           color: #64748B;
           transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
           font-family: 'Poppins', sans-serif;
           text-transform: uppercase;
           letter-spacing: 0.5px;
+          white-space: nowrap;
         }
 
         .filter-btn:hover {
           border-color: #3B82F6;
           color: #3B82F6;
           background: #F0F9FF;
+          transform: translateY(-2px);
         }
 
         .filter-btn.active {
@@ -264,18 +274,19 @@ const NotableAlumni = () => {
         }
 
         .filter-btn.active:hover {
-          transform: translateY(-2px);
+          transform: translateY(-3px);
           box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
         }
 
         /* Alumni Grid */
         .alumni-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-          gap: 32px;
-          margin-bottom: 60px;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 2rem;
+          margin-bottom: 3rem;
           position: relative;
           z-index: 1;
+          padding: 0 1rem;
         }
 
         /* Alumni Card */
@@ -289,6 +300,7 @@ const NotableAlumni = () => {
           display: flex;
           flex-direction: column;
           box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.03);
+          height: 100%;
         }
 
         .alumni-card:hover {
@@ -300,10 +312,10 @@ const NotableAlumni = () => {
         /* Image Wrapper */
         .alumni-image-wrapper {
           position: relative;
-          height: 300px;
+          height: clamp(240px, 50vw, 320px);
           overflow: hidden;
           background: var(--bg-color);
-          aspect-ratio: 4 / 5;
+          aspect-ratio: 1;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -312,14 +324,14 @@ const NotableAlumni = () => {
         .alumni-card-image {
           width: 100%;
           height: 100%;
-          object-fit: contain;
+          object-fit: cover;
           object-position: center;
           background: var(--bg-color);
           transition: transform 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .alumni-card:hover .alumni-card-image {
-          transform: scale(1.08);
+          transform: scale(1.05);
         }
 
         /* Image Overlay */
@@ -329,7 +341,7 @@ const NotableAlumni = () => {
           background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
           display: flex;
           align-items: flex-end;
-          padding: 16px;
+          padding: 1.5rem;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
@@ -342,9 +354,9 @@ const NotableAlumni = () => {
         .achievement-badge {
           background: linear-gradient(135deg, var(--accent-color), var(--accent-darker));
           color: white;
-          padding: 10px 16px;
+          padding: 0.65rem 1rem;
           border-radius: 10px;
-          font-size: 11px;
+          font-size: clamp(9px, 1.2vw, 11px);
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.6px;
@@ -356,8 +368,8 @@ const NotableAlumni = () => {
         /* Icon Badge */
         .icon-badge {
           position: absolute;
-          top: 16px;
-          right: 16px;
+          top: 1rem;
+          right: 1rem;
           width: 48px;
           height: 48px;
           background: #FFFFFF;
@@ -378,16 +390,16 @@ const NotableAlumni = () => {
 
         /* Content */
         .alumni-content {
-          padding: 32px;
+          padding: clamp(1.25rem, 3vw, 2rem);
           flex: 1;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 0.875rem;
           background: linear-gradient(135deg, #FFFFFF 0%, rgba(248, 250, 251, 0.4) 100%);
         }
 
         .alumni-meta {
-          font-size: 11px;
+          font-size: clamp(9px, 1.2vw, 11px);
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 1px;
@@ -398,29 +410,30 @@ const NotableAlumni = () => {
 
         .alumni-name {
           font-family: 'Playfair Display', serif;
-          font-size: 24px;
+          font-size: clamp(20px, 3.5vw, 26px);
           font-weight: 700;
           color: #0F172A;
-          margin: 4px 0 2px 0;
-          line-height: 1.25;
+          margin: 0.25rem 0;
+          line-height: 1.3;
           letter-spacing: -0.3px;
         }
 
         .alumni-degree {
-          font-size: 12px;
+          font-size: clamp(11px, 1.5vw, 12px);
           color: var(--accent-color);
           font-weight: 600;
           font-family: 'Poppins', sans-serif;
-          opacity: 0.8;
-          margin-bottom: 4px;
+          opacity: 0.85;
+          margin-bottom: 0.25rem;
+          line-height: 1.4;
         }
 
         .alumni-position {
-          font-size: 13px;
+          font-size: clamp(12px, 1.8vw, 13px);
           color: #475569;
           line-height: 1.6;
           flex: 1;
-          margin: 8px 0 12px 0;
+          margin: 0.5rem 0 0.75rem 0;
           font-family: 'Poppins', sans-serif;
         }
 
@@ -432,19 +445,19 @@ const NotableAlumni = () => {
         /* Button */
         .alumni-btn {
           align-self: flex-start;
-          padding: 12px 20px;
+          padding: clamp(0.65rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.25rem);
           background: linear-gradient(135deg, var(--accent-color), var(--accent-darker));
           color: white;
           border: none;
           border-radius: 10px;
-          font-size: 12px;
+          font-size: clamp(10px, 1.3vw, 12px);
           font-weight: 700;
           text-transform: uppercase;
           cursor: pointer;
           transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 0.5rem;
           letter-spacing: 0.6px;
           margin-top: auto;
           font-family: 'Poppins', sans-serif;
@@ -456,35 +469,44 @@ const NotableAlumni = () => {
           box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
         }
 
+        .alumni-btn:active {
+          transform: translateY(-2px);
+        }
+
         /* Stats */
         .alumni-stats {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 32px;
-          padding: 48px 40px;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 2rem;
+          padding: clamp(2rem, 4vw, 3rem);
           background: linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 100%);
           border: 1.5px solid #E2E8F0;
           border-radius: 16px;
           position: relative;
           z-index: 1;
           box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+          margin: 0 1rem;
         }
 
         .stat-item {
           text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
         }
 
         .stat-number {
           font-family: 'Playfair Display', serif;
-          font-size: 48px;
-          font-weight: 700;
+          font-size: clamp(32px, 6vw, 56px);
+          font-weight: 800;
           color: #3B82F6;
-          margin-bottom: 8px;
+          margin-bottom: 0.5rem;
           line-height: 1;
         }
 
         .stat-label {
-          font-size: 13px;
+          font-size: clamp(11px, 1.5vw, 13px);
           font-weight: 700;
           color: #64748B;
           text-transform: uppercase;
@@ -492,124 +514,51 @@ const NotableAlumni = () => {
           font-family: 'Poppins', sans-serif;
         }
 
-        /* Responsive Design */
-        @media(max-width: 1024px) {
-          .notable-alumni-section {
-            padding: 60px 30px;
-          }
-
-          .alumni-title {
-            font-size: 40px;
-          }
-
-          .alumni-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-          }
-
-          .alumni-image-wrapper {
-            height: 280px;
-          }
-
-          .alumni-content {
-            padding: 28px;
-          }
-
-          .alumni-stats {
-            gap: 24px;
-            padding: 40px;
-          }
+        /* Image Loading Fallback */
+        .image-loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+          background: var(--bg-color);
+          color: var(--accent-color);
+          font-family: 'Poppins', sans-serif;
+          font-size: clamp(12px, 2vw, 14px);
+          text-align: center;
+          padding: 1rem;
         }
 
-        @media(max-width: 768px) {
+        /* Responsive Design - Mobile First Approach */
+        @media (max-width: 640px) {
           .notable-alumni-section {
-            padding: 60px 20px;
+            padding: 2.5rem 1rem;
           }
 
           .alumni-header {
-            margin-bottom: 50px;
-          }
-
-          .alumni-title {
-            font-size: 32px;
-          }
-
-          .alumni-subtitle {
-            font-size: 15px;
+            margin-bottom: 2.5rem;
           }
 
           .alumni-grid {
             grid-template-columns: 1fr;
-            gap: 24px;
-          }
-
-          .alumni-image-wrapper {
-            height: 260px;
-          }
-
-          .alumni-content {
-            padding: 24px;
-          }
-
-          .alumni-name {
-            font-size: 22px;
-          }
-
-          .alumni-stats {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            padding: 32px;
+            gap: 1.5rem;
+            padding: 0;
           }
 
           .alumni-filters {
-            gap: 8px;
-            margin-bottom: 50px;
+            gap: 0.5rem;
+            margin-bottom: 2.5rem;
+            padding: 0;
           }
 
           .filter-btn {
-            padding: 8px 16px;
-            font-size: 12px;
-          }
-        }
-
-        @media(max-width: 640px) {
-          .notable-alumni-section {
-            padding: 40px 16px;
-          }
-
-          .alumni-header {
-            margin-bottom: 40px;
-          }
-
-          .alumni-title {
-            font-size: 28px;
-            margin-bottom: 12px;
-          }
-
-          .alumni-subtitle {
-            font-size: 14px;
-          }
-
-          .alumni-badge {
-            padding: 8px 16px;
+            padding: 0.6rem 1rem;
             font-size: 11px;
           }
 
-          .alumni-grid {
-            gap: 20px;
-            margin-bottom: 40px;
-          }
-
-          .alumni-image-wrapper {
-            height: 240px;
-          }
-
           .alumni-content {
-            padding: 20px;
-          }
-
-          .alumni-name {
-            font-size: 20px;
+            padding: 1.25rem;
+            gap: 0.7rem;
           }
 
           .alumni-position {
@@ -617,7 +566,21 @@ const NotableAlumni = () => {
           }
 
           .alumni-btn {
-            padding: 10px 14px;
+            padding: 0.6rem 1rem;
+          }
+
+          .alumni-stats {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            margin: 0;
+          }
+
+          .stat-number {
+            font-size: 36px;
+          }
+
+          .stat-label {
             font-size: 11px;
           }
 
@@ -626,17 +589,220 @@ const NotableAlumni = () => {
             height: 44px;
           }
 
+          .icon-badge svg {
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+          .notable-alumni-section {
+            padding: 3rem 1.5rem;
+          }
+
+          .alumni-header {
+            margin-bottom: 3rem;
+          }
+
+          .alumni-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.75rem;
+            padding: 0;
+          }
+
+          .alumni-filters {
+            margin-bottom: 3rem;
+            gap: 0.65rem;
+            padding: 0;
+          }
+
+          .filter-btn {
+            padding: 0.65rem 1.15rem;
+            font-size: 12px;
+          }
+
+          .alumni-content {
+            padding: 1.5rem;
+          }
+
           .alumni-stats {
-            gap: 16px;
-            padding: 24px 16px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            padding: 2.5rem;
+            margin: 0 0.5rem;
           }
 
           .stat-number {
-            font-size: 32px;
+            font-size: 42px;
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .notable-alumni-section {
+            padding: 4rem 2rem;
           }
 
-          .stat-label {
-            font-size: 11px;
+          .alumni-header {
+            margin-bottom: 3.5rem;
+          }
+
+          .alumni-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            padding: 0;
+          }
+
+          .alumni-filters {
+            margin-bottom: 3.5rem;
+            gap: 0.75rem;
+          }
+
+          .alumni-content {
+            padding: 1.75rem;
+          }
+
+          .alumni-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 3rem;
+          }
+
+          .stat-number {
+            font-size: 48px;
+          }
+        }
+
+        @media (min-width: 1025px) {
+          .notable-alumni-section {
+            padding: 5rem 2.5rem;
+          }
+
+          .alumni-header {
+            margin-bottom: 4rem;
+          }
+
+          .alumni-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.5rem;
+            padding: 0;
+          }
+
+          .alumni-image-wrapper {
+            height: 350px;
+          }
+
+          .alumni-filters {
+            margin-bottom: 4rem;
+          }
+
+          .alumni-content {
+            padding: 2rem;
+          }
+
+          .alumni-stats {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+            padding: 3.5rem;
+            margin: 0 auto;
+            max-width: 1400px;
+          }
+
+          .stat-number {
+            font-size: 56px;
+          }
+        }
+
+        @media (min-width: 1440px) {
+          .notable-alumni-section {
+            padding: 6rem 3rem;
+            max-width: 1600px;
+            margin: 0 auto;
+          }
+
+          .alumni-grid {
+            gap: 3rem;
+          }
+
+          .alumni-stats {
+            gap: 4rem;
+            max-width: 1400px;
+          }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation: none !important;
+            transition: none !important;
+          }
+        }
+
+        /* High Contrast Mode */
+        @media (prefers-contrast: more) {
+          .alumni-title {
+            font-weight: 900;
+          }
+
+          .alumni-name {
+            font-weight: 800;
+          }
+
+          .filter-btn.active {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+          }
+        }
+
+        /* Dark Mode Support (Optional) */
+        @media (prefers-color-scheme: dark) {
+          .notable-alumni-section {
+            background: linear-gradient(135deg, #1A1F35 0%, #0F1420 50%, #162A4C 100%);
+            border-top-color: #374151;
+          }
+
+          .alumni-header {
+            color: #FFFFFF;
+          }
+
+          .alumni-title {
+            color: #FFFFFF;
+          }
+
+          .alumni-subtitle {
+            color: #CBD5E1;
+          }
+
+          .alumni-card {
+            background: #1F2937;
+            border-color: #374151;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+
+          .alumni-name {
+            color: #FFFFFF;
+          }
+
+          .alumni-position {
+            color: #D1D5DB;
+          }
+
+          .alumni-position strong {
+            color: #FFFFFF;
+          }
+
+          .filter-btn {
+            background: #374151;
+            border-color: #4B5563;
+            color: #E5E7EB;
+          }
+
+          .filter-btn:hover {
+            background: #1E293B;
+            border-color: #3B82F6;
+          }
+
+          .alumni-stats {
+            background: linear-gradient(135deg, #1A1F35 0%, #111827 100%);
+            border-color: #374151;
           }
         }
       `}</style>
@@ -732,7 +898,7 @@ const NotableAlumni = () => {
                     </div>
                   </div>
                   <div className="icon-badge">
-                    <IconComponent size={24} />
+                    <IconComponent size={24} strokeWidth={1.5} />
                   </div>
                 </div>
 
@@ -746,7 +912,7 @@ const NotableAlumni = () => {
                     {person.company}
                   </p>
                   <button className="alumni-btn">
-                    Learn More <ChevronRight size={14} />
+                    Learn More <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
@@ -755,7 +921,7 @@ const NotableAlumni = () => {
         </div>
 
         {/* Stats Section */}
-        {/* <div className="alumni-stats">
+        <div className="alumni-stats">
           <div className="stat-item">
             <div className="stat-number">3K+</div>
             <div className="stat-label">Successful Alumni</div>
@@ -768,7 +934,7 @@ const NotableAlumni = () => {
             <div className="stat-number">100+</div>
             <div className="stat-label">Leading Companies</div>
           </div>
-        </div> */}
+        </div>
       </section>
     </>
   );

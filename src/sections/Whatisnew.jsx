@@ -81,10 +81,6 @@ const WhatIsNew = () => {
     }
   };
 
-  const handleClosePDF = () => {
-    // No longer needed
-  };
-
   const downloadPDF = (pdf) => {
     if (pdf && pdf.pdfUrl) {
       const link = document.createElement("a");
@@ -113,7 +109,7 @@ const WhatIsNew = () => {
         .whats-new-section {
           min-height: 100vh;
           background: linear-gradient(135deg, #F8FAFB 0%, #FFFFFF 50%, #F0F9FF 100%);
-          padding: 140px 40px;
+          padding: clamp(3rem, 8vw, 8.75rem) clamp(1rem, 3vw, 2.5rem);
           position: relative;
           overflow: hidden;
           border-top: 1px solid #E2E8F0;
@@ -139,8 +135,8 @@ const WhatIsNew = () => {
         }
 
         .deco-1 {
-          width: 600px;
-          height: 600px;
+          width: clamp(300px, 40vw, 600px);
+          height: clamp(300px, 40vw, 600px);
           background: linear-gradient(135deg, #3B82F6, #0EA5E9);
           top: -200px;
           right: -100px;
@@ -148,8 +144,8 @@ const WhatIsNew = () => {
         }
 
         .deco-2 {
-          width: 500px;
-          height: 500px;
+          width: clamp(250px, 35vw, 500px);
+          height: clamp(250px, 35vw, 500px);
           background: linear-gradient(135deg, #06B6D4, #8B5CF6);
           bottom: -150px;
           left: -80px;
@@ -169,7 +165,7 @@ const WhatIsNew = () => {
         .whats-new-header {
           position: relative;
           z-index: 10;
-          margin-bottom: 80px;
+          margin-bottom: clamp(2rem, 6vw, 5rem);
           max-width: 900px;
         }
 
@@ -177,18 +173,19 @@ const WhatIsNew = () => {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 12px 24px;
+          padding: clamp(0.6rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
           background: #F0F9FF;
           border: 1.5px solid #BFDBFE;
           border-radius: 50px;
-          margin-bottom: 24px;
-          font-size: 12px;
+          margin-bottom: clamp(1rem, 2vw, 1.5rem);
+          font-size: clamp(10px, 1.5vw, 12px);
           font-weight: 700;
           color: #3B82F6;
           letter-spacing: 1.2px;
           text-transform: uppercase;
           font-family: 'Poppins', sans-serif;
           animation: slideUp 0.8s ease-out 0.1s backwards;
+          white-space: nowrap;
         }
 
         @keyframes slideUp {
@@ -204,10 +201,10 @@ const WhatIsNew = () => {
 
         .whats-new-title {
           font-family: 'Playfair Display', serif;
-          font-size: 72px;
+          font-size: clamp(32px, 7vw, 72px);
           font-weight: 800;
           color: #0F172A;
-          margin-bottom: 16px;
+          margin-bottom: clamp(0.75rem, 1.5vw, 1rem);
           letter-spacing: -1.5px;
           line-height: 1.1;
           animation: slideUp 0.8s ease-out 0.2s backwards;
@@ -222,17 +219,18 @@ const WhatIsNew = () => {
 
         .whats-new-subtitle {
           font-family: 'Poppins', sans-serif;
-          font-size: 16px;
+          font-size: clamp(13px, 2.2vw, 16px);
           color: #64748B;
           line-height: 1.7;
           animation: slideUp 0.8s ease-out 0.3s backwards;
+          max-width: 750px;
         }
 
         .header-line {
-          width: 120px;
+          width: clamp(60px, 10vw, 120px);
           height: 3px;
           background: linear-gradient(90deg, #3B82F6 0%, #06B6D4 100%);
-          margin-top: 32px;
+          margin-top: clamp(1.5rem, 3vw, 2rem);
           border-radius: 2px;
           animation: expandWidth 0.8s ease-out 0.4s backwards;
         }
@@ -242,15 +240,15 @@ const WhatIsNew = () => {
             width: 0;
           }
           to {
-            width: 120px;
+            width: 100%;
           }
         }
 
         /* ==================== TABS ==================== */
         .newsletter-tabs {
           display: flex;
-          gap: 12px;
-          margin-bottom: 80px;
+          gap: clamp(0.5rem, 1.5vw, 0.75rem);
+          margin-bottom: clamp(2rem, 5vw, 5rem);
           position: relative;
           z-index: 10;
           flex-wrap: wrap;
@@ -263,25 +261,27 @@ const WhatIsNew = () => {
         }
 
         .tab-btn {
-          padding: 12px 28px;
+          padding: clamp(0.65rem, 1.5vw, 0.75rem) clamp(1rem, 2vw, 1.75rem);
           background: #FFFFFF;
           border: 2px solid #E2E8F0;
           color: #64748B;
           border-radius: 50px;
           cursor: pointer;
-          font-size: 13px;
+          font-size: clamp(11px, 1.5vw, 13px);
           font-weight: 600;
           font-family: 'Poppins', sans-serif;
           text-transform: uppercase;
           letter-spacing: 0.8px;
           transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
           box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+          white-space: nowrap;
         }
 
         .tab-btn:hover {
           border-color: #3B82F6;
           color: #3B82F6;
           background: #F0F9FF;
+          transform: translateY(-2px);
         }
 
         .tab-btn.active {
@@ -295,8 +295,8 @@ const WhatIsNew = () => {
         /* ==================== GRID ==================== */
         .newsletter-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-          gap: 48px;
+          grid-template-columns: repeat(auto-fill, minmax(clamp(300px, 80vw, 380px), 1fr));
+          gap: clamp(1.5rem, 3vw, 3rem);
           position: relative;
           z-index: 10;
         }
@@ -308,6 +308,7 @@ const WhatIsNew = () => {
           cursor: pointer;
           animation: cardSlide 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
           animation-fill-mode: both;
+          height: 100%;
         }
 
         .newsletter-card:nth-child(1) { animation-delay: 0.6s; }
@@ -333,32 +334,37 @@ const WhatIsNew = () => {
           overflow: hidden;
           transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
           box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
 
         .newsletter-card:hover .card-inner {
           border-color: var(--card-color);
           background: var(--card-bg);
-          transform: translateY(-12px) scale(1.02);
+          transform: translateY(-12px) scale(1.01);
           box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
         }
 
         /* Image Section */
         .newsletter-image-wrapper {
           position: relative;
-          height: 320px;
+          height: clamp(180px, 40vw, 320px);
           overflow: hidden;
           background: linear-gradient(135deg, var(--card-bg), #FFFFFF);
+          aspect-ratio: auto;
         }
 
         .newsletter-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          object-position: center;
           transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .newsletter-card:hover .newsletter-image {
-          transform: scale(1.15) rotate(1deg);
+          transform: scale(1.12) rotate(1deg);
         }
 
         /* Overlay */
@@ -379,8 +385,8 @@ const WhatIsNew = () => {
         }
 
         .overlay-icon {
-          width: 64px;
-          height: 64px;
+          width: clamp(48px, 8vw, 64px);
+          height: clamp(48px, 8vw, 64px);
           border-radius: 16px;
           background: white;
           display: flex;
@@ -401,14 +407,18 @@ const WhatIsNew = () => {
 
         /* Content */
         .newsletter-content {
-          padding: 40px 32px;
+          padding: clamp(1.25rem, 3vw, 2.5rem);
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: clamp(0.75rem, 1.5vw, 1rem);
         }
 
         .newsletter-meta-top {
           display: flex;
           align-items: center;
-          gap: 12px;
-          margin-bottom: 16px;
+          gap: clamp(0.5rem, 1.5vw, 0.75rem);
+          margin-bottom: clamp(0.5rem, 1vw, 1rem);
         }
 
         .meta-badge {
@@ -417,40 +427,43 @@ const WhatIsNew = () => {
           gap: 4px;
           background: rgba(59, 130, 246, 0.15);
           color: #3B82F6;
-          padding: 6px 12px;
+          padding: clamp(0.4rem, 0.8vw, 0.5rem) clamp(0.7rem, 1.2vw, 0.75rem);
           border-radius: 20px;
-          font-size: 11px;
+          font-size: clamp(9px, 1.2vw, 11px);
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.5px;
           font-family: 'Poppins', sans-serif;
+          white-space: nowrap;
         }
 
         .newsletter-title {
           font-family: 'Playfair Display', serif;
-          font-size: 22px;
+          font-size: clamp(18px, 3.5vw, 24px);
           font-weight: 800;
           color: #0F172A;
-          margin-bottom: 12px;
+          margin-bottom: clamp(0.5rem, 1vw, 1rem);
           line-height: 1.3;
           letter-spacing: -0.5px;
         }
 
         .newsletter-excerpt {
           font-family: 'Poppins', sans-serif;
-          font-size: 14px;
+          font-size: clamp(12px, 1.8vw, 14px);
           color: #64748B;
           line-height: 1.6;
-          margin-bottom: 24px;
+          margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
         }
 
         .newsletter-meta {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 20px;
+          padding-top: clamp(1rem, 1.5vw, 1.25rem);
           border-top: 1px solid #E2E8F0;
-          margin-bottom: 24px;
+          margin-bottom: clamp(1rem, 1.5vw, 1.5rem);
+          flex-wrap: wrap;
+          gap: clamp(0.75rem, 1.5vw, 1rem);
         }
 
         .meta-item {
@@ -458,51 +471,55 @@ const WhatIsNew = () => {
           align-items: center;
           gap: 6px;
           font-family: 'Poppins', sans-serif;
-          font-size: 12px;
+          font-size: clamp(11px, 1.5vw, 12px);
           color: #64748B;
         }
 
         .meta-item svg {
           color: #3B82F6;
-          width: 16px;
-          height: 16px;
+          width: clamp(14px, 2vw, 16px);
+          height: clamp(14px, 2vw, 16px);
+          flex-shrink: 0;
         }
 
         .file-info {
           font-family: 'Poppins', sans-serif;
-          font-size: 12px;
+          font-size: clamp(11px, 1.5vw, 12px);
           color: #64748B;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: clamp(0.5rem, 1vw, 0.75rem);
           background: rgba(59, 130, 246, 0.08);
-          padding: 12px 16px;
+          padding: clamp(0.75rem, 1.5vw, 1rem);
           border-radius: 12px;
-          margin-bottom: 20px;
+          margin-bottom: clamp(1rem, 1.5vw, 1.25rem);
           border: 1px solid rgba(59, 130, 246, 0.15);
+          word-break: break-word;
         }
 
         .file-info svg {
           color: #3B82F6;
-          width: 14px;
-          height: 14px;
+          width: clamp(12px, 1.8vw, 14px);
+          height: clamp(12px, 1.8vw, 14px);
+          flex-shrink: 0;
         }
 
         .cta-group {
           display: flex;
-          gap: 12px;
+          gap: clamp(0.5rem, 1vw, 0.75rem);
           align-items: center;
+          margin-top: auto;
         }
 
         .view-btn {
           flex: 1;
-          padding: 12px 20px;
+          padding: clamp(0.65rem, 1.5vw, 0.75rem) clamp(0.75rem, 1.5vw, 1.25rem);
           background: linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%);
           color: white;
           border: none;
           border-radius: 12px;
           font-family: 'Poppins', sans-serif;
-          font-size: 13px;
+          font-size: clamp(11px, 1.5vw, 13px);
           font-weight: 700;
           cursor: pointer;
           text-transform: uppercase;
@@ -511,8 +528,9 @@ const WhatIsNew = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: clamp(0.3rem, 0.8vw, 0.5rem);
           box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+          white-space: nowrap;
         }
 
         .view-btn:hover {
@@ -520,12 +538,16 @@ const WhatIsNew = () => {
           box-shadow: 0 12px 32px rgba(59, 130, 246, 0.4);
         }
 
+        .view-btn:active {
+          transform: translateY(0);
+        }
+
         .download-btn {
-          width: 44px;
-          height: 44px;
+          width: clamp(40px, 8vw, 48px);
+          height: clamp(40px, 8vw, 48px);
           border-radius: 12px;
           background: rgba(59, 130, 246, 0.15);
-          border: 1px solid rgba(59, 130, 246, 0.25);
+          border: 1.5px solid rgba(59, 130, 246, 0.25);
           color: #3B82F6;
           cursor: pointer;
           display: flex;
@@ -538,397 +560,339 @@ const WhatIsNew = () => {
         .download-btn:hover {
           background: rgba(59, 130, 246, 0.25);
           transform: scale(1.1);
+          border-color: #3B82F6;
+        }
+
+        .download-btn svg {
+          width: clamp(16px, 3vw, 20px);
+          height: clamp(16px, 3vw, 20px);
         }
 
         /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 1400px) {
-          .pdf-modal {
-            width: 90vw;
-            max-height: 90vh;
-          }
-        }
-
-        @media (max-width: 1200px) {
+        @media (max-width: 640px) {
           .whats-new-section {
-            padding: 100px 30px;
+            padding: clamp(2rem, 4vw, 3rem) clamp(0.75rem, 2vw, 1rem);
           }
 
-          .whats-new-title {
-            font-size: 56px;
-          }
-
-          .newsletter-grid {
-            gap: 40px;
-          }
-
-          .pdf-modal {
-            width: 92vw;
-            max-height: 90vh;
-          }
-
-          .modal-body {
-            min-height: 400px;
-          }
-        }
-
-        @media (max-width: 1024px) {
-          .pdf-modal {
-            width: 94vw;
-            max-height: 88vh;
-          }
-
-          .modal-title {
-            font-size: 22px;
-          }
-
-          .modal-body {
-            padding: 28px;
-            min-height: 380px;
-          }
-
-          .modal-footer {
-            gap: 16px;
-            padding: 18px 24px;
-          }
-
-          .page-indicator {
-            font-size: 12px;
-            padding: 0 10px;
-          }
-        }
-
-        @media (max-width: 768px) {
-          .whats-new-section {
-            min-height: auto;
-            padding: 80px 20px;
-          }
-
-          .whats-new-title {
-            font-size: 40px;
+          .whats-new-header {
+            margin-bottom: clamp(2rem, 4vw, 3rem);
           }
 
           .newsletter-grid {
             grid-template-columns: 1fr;
-            gap: 32px;
+            gap: clamp(1.25rem, 2.5vw, 2rem);
           }
 
           .newsletter-image-wrapper {
-            height: 240px;
+            height: clamp(160px, 35vw, 220px);
           }
 
           .newsletter-content {
-            padding: 28px;
+            padding: clamp(1rem, 2.5vw, 1.5rem);
           }
 
           .newsletter-title {
-            font-size: 20px;
+            font-size: clamp(16px, 3vw, 20px);
           }
 
-          .pdf-modal {
-            width: 96vw;
-            max-height: 85vh;
-            border-radius: 24px;
+          .newsletter-excerpt {
+            font-size: clamp(11px, 1.6vw, 12px);
+            margin-bottom: clamp(0.75rem, 1.2vw, 1rem);
           }
 
-          .modal-header {
-            padding: 20px 24px;
-            gap: 16px;
+          .view-btn {
+            padding: clamp(0.6rem, 1.2vw, 0.65rem) clamp(0.6rem, 1.2vw, 1rem);
+            font-size: clamp(10px, 1.3vw, 11px);
           }
 
-          .modal-title {
-            font-size: 20px;
-            -webkit-line-clamp: 2;
+          .download-btn {
+            width: clamp(36px, 7vw, 40px);
+            height: clamp(36px, 7vw, 40px);
           }
 
-          .modal-controls {
-            gap: 6px;
+          .tab-btn {
+            padding: clamp(0.6rem, 1.2vw, 0.65rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            font-size: clamp(10px, 1.3vw, 11px);
           }
 
-          .modal-btn {
-            width: 36px;
-            height: 36px;
+          .meta-badge {
+            padding: clamp(0.35rem, 0.7vw, 0.45rem) clamp(0.6rem, 1vw, 0.65rem);
+            font-size: clamp(8px, 1vw, 10px);
           }
 
-          .modal-body {
-            padding: 24px;
-            min-height: 320px;
+          .file-info {
+            font-size: clamp(10px, 1.3vw, 11px);
+            padding: clamp(0.6rem, 1.2vw, 0.8rem);
+            gap: clamp(0.4rem, 0.8vw, 0.5rem);
           }
 
-          .pdf-canvas {
-            border-width: 1px;
+          .newsletter-meta {
+            gap: clamp(0.5rem, 1vw, 0.75rem);
           }
 
-          .modal-footer {
-            grid-template-columns: 1fr;
-            padding: 16px 24px;
-            gap: 12px;
-          }
-
-          .page-indicator {
-            justify-self: center;
-            width: 100%;
-            text-align: center;
-          }
-
-          .nav-buttons {
-            width: 100%;
-            gap: 6px;
-          }
-
-          .nav-btn {
-            flex: 1;
-            height: 38px;
-            padding: 0 12px;
-            font-size: 11px;
-          }
-
-          .download-pdf-btn {
-            width: 100%;
-            height: 38px;
-            font-size: 11px;
-          }
-        }
-
-        @media (max-width: 640px) {
-          .pdf-modal {
-            width: 97vw;
-            max-height: 82vh;
-          }
-
-          .modal-header {
-            padding: 18px 20px;
-          }
-
-          .modal-title {
-            font-size: 18px;
-          }
-
-          .modal-btn {
-            width: 34px;
-            height: 34px;
-          }
-
-          .modal-body {
-            padding: 20px;
-            min-height: 300px;
-          }
-
-          .loading span {
-            font-size: 13px;
-          }
-
-          .spinner {
-            width: 40px;
-            height: 40px;
-          }
-
-          .pdf-error {
-            padding: 40px 24px;
-            gap: 16px;
-          }
-
-          .pdf-error-icon {
-            width: 80px;
-            height: 80px;
-          }
-
-          .pdf-error-message {
-            font-size: 15px;
-            max-width: 100%;
-          }
-
-          .modal-footer {
-            padding: 14px 20px;
-            gap: 10px;
-          }
-
-          .page-indicator {
-            height: 36px;
-            font-size: 11px;
-          }
-
-          .nav-btn {
-            height: 36px;
-            padding: 0 10px;
-            font-size: 10px;
-            gap: 4px;
-          }
-
-          .download-pdf-btn {
-            height: 36px;
-            padding: 0 12px;
-            font-size: 10px;
-            gap: 4px;
+          .meta-item {
+            font-size: clamp(10px, 1.3vw, 11px);
           }
         }
 
         @media (max-width: 480px) {
           .whats-new-section {
-            padding: 60px 16px;
+            padding: clamp(1.5rem, 3vw, 2.5rem) clamp(0.75rem, 1.5vw, 1rem);
+          }
+
+          .whats-new-header {
+            margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
           }
 
           .whats-new-title {
-            font-size: 32px;
+            font-size: clamp(26px, 5vw, 36px);
+          }
+
+          .whats-new-subtitle {
+            font-size: clamp(12px, 1.8vw, 13px);
           }
 
           .newsletter-grid {
-            gap: 24px;
+            gap: clamp(1rem, 2vw, 1.5rem);
           }
 
           .newsletter-image-wrapper {
-            height: 200px;
+            height: clamp(140px, 30vw, 180px);
           }
 
           .newsletter-content {
-            padding: 20px;
+            padding: clamp(0.9rem, 2vw, 1.2rem);
+            gap: clamp(0.5rem, 1vw, 0.75rem);
           }
 
           .newsletter-title {
-            font-size: 18px;
+            font-size: clamp(14px, 2.8vw, 18px);
+            margin-bottom: clamp(0.35rem, 0.8vw, 0.75rem);
           }
 
-          .pdf-modal {
-            width: 98vw;
-            max-height: 80vh;
-            border-radius: 20px;
+          .newsletter-excerpt {
+            font-size: clamp(10px, 1.4vw, 11px);
+            margin-bottom: clamp(0.6rem, 1vw, 0.8rem);
           }
 
-          .modal-header {
-            padding: 16px 18px;
-            gap: 12px;
+          .file-info {
+            font-size: clamp(9px, 1.2vw, 10px);
+            padding: clamp(0.5rem, 1vw, 0.7rem);
           }
 
-          .modal-title {
-            font-size: 16px;
-            -webkit-line-clamp: 2;
+          .cta-group {
+            gap: clamp(0.4rem, 0.8vw, 0.6rem);
           }
 
-          .modal-btn {
-            width: 32px;
-            height: 32px;
+          .view-btn {
+            padding: clamp(0.55rem, 1vw, 0.6rem) clamp(0.5rem, 1vw, 0.8rem);
+            font-size: clamp(9px, 1.2vw, 10px);
           }
 
-          .modal-body {
-            padding: 18px;
-            min-height: 280px;
+          .download-btn {
+            width: clamp(34px, 6vw, 36px);
+            height: clamp(34px, 6vw, 36px);
           }
 
-          .loading {
-            gap: 12px;
+          .tab-btn {
+            padding: clamp(0.55rem, 1vw, 0.6rem) clamp(0.7rem, 1.2vw, 1rem);
+            font-size: clamp(9px, 1.2vw, 10px);
           }
 
-          .spinner {
-            width: 36px;
-            height: 36px;
-            border-width: 3px;
+          .newsletter-meta {
+            padding-top: clamp(0.75rem, 1.2vw, 1rem);
+            margin-bottom: clamp(0.75rem, 1.2vw, 1rem);
           }
 
-          .pdf-error {
-            padding: 36px 20px;
-            gap: 14px;
+          .meta-item {
+            font-size: clamp(9px, 1.2vw, 10px);
           }
 
-          .pdf-error-icon {
-            width: 72px;
-            height: 72px;
-          }
-
-          .pdf-error-message {
-            font-size: 14px;
-          }
-
-          .modal-footer {
-            grid-template-columns: 1fr;
-            padding: 12px 16px;
-            gap: 10px;
-          }
-
-          .page-indicator {
-            height: 34px;
-            font-size: 10px;
-            padding: 0 8px;
-          }
-
-          .nav-buttons {
-            width: 100%;
-            gap: 6px;
-          }
-
-          .nav-btn {
-            flex: 1;
-            height: 34px;
-            padding: 0 8px;
-            font-size: 9px;
-            gap: 3px;
-            border-radius: 6px;
-          }
-
-          .download-pdf-btn {
-            width: 100%;
-            height: 34px;
-            padding: 0;
-            font-size: 9px;
-            gap: 3px;
-            border-radius: 6px;
+          .whats-new-badge {
+            font-size: clamp(9px, 1.2vw, 10px);
           }
         }
 
-        @media (max-width: 360px) {
-          .pdf-modal {
-            width: 99vw;
-            max-height: 75vh;
+        @media (min-width: 641px) and (max-width: 768px) {
+          .whats-new-section {
+            padding: clamp(3rem, 5vw, 4rem) clamp(1rem, 2vw, 1.5rem);
           }
 
-          .modal-title {
-            font-size: 14px;
+          .whats-new-header {
+            margin-bottom: clamp(2.5rem, 4vw, 3.5rem);
           }
 
-          .modal-btn {
-            width: 30px;
-            height: 30px;
+          .whats-new-title {
+            font-size: clamp(36px, 6vw, 52px);
           }
 
-          .modal-body {
-            min-height: 250px;
+          .newsletter-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(1.5rem, 2.5vw, 2.5rem);
           }
 
-          .page-indicator {
-            height: 32px;
-            font-size: 9px;
+          .newsletter-image-wrapper {
+            height: clamp(200px, 35vw, 260px);
           }
 
-          .nav-btn {
-            height: 32px;
-            font-size: 8px;
-          }
-
-          .download-pdf-btn {
-            height: 32px;
-            font-size: 8px;
+          .newsletter-content {
+            padding: clamp(1.2rem, 2.5vw, 1.8rem);
           }
         }
 
-          .nav-buttons {
-            width: 100%;
-            flex-direction: column;
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .whats-new-section {
+            padding: clamp(3.5rem, 6vw, 4.5rem) clamp(1.5rem, 2.5vw, 2rem);
           }
 
-          .nav-btn {
-            flex: 1;
-            justify-content: center;
+          .whats-new-header {
+            margin-bottom: clamp(3rem, 5vw, 4rem);
           }
 
-          .download-pdf-btn {
-            width: 100%;
-            justify-content: center;
+          .whats-new-title {
+            font-size: clamp(44px, 6.5vw, 60px);
+          }
+
+          .newsletter-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(2rem, 3vw, 2.5rem);
+          }
+
+          .newsletter-content {
+            padding: clamp(1.5rem, 3vw, 2rem);
           }
         }
 
+        @media (min-width: 1025px) {
+          .whats-new-section {
+            padding: clamp(4rem, 6vw, 8.75rem) clamp(1.5rem, 3vw, 2.5rem);
+          }
+
+          .whats-new-header {
+            margin-bottom: clamp(3.5rem, 6vw, 5rem);
+          }
+
+          .newsletter-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(2rem, 3.5vw, 3rem);
+          }
+
+          .newsletter-image-wrapper {
+            height: 320px;
+          }
+
+          .newsletter-content {
+            padding: clamp(1.75rem, 3.5vw, 2.5rem);
+          }
+        }
+
+        @media (min-width: 1440px) {
+          .whats-new-section {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 6rem 3rem;
+          }
+
+          .newsletter-grid {
+            gap: 3rem;
+          }
+        }
+
+        /* Accessibility */
         @media (prefers-reduced-motion: reduce) {
           * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
+            animation: none !important;
+            transition: none !important;
+          }
+        }
+
+        /* High Contrast Mode */
+        @media (prefers-contrast: more) {
+          .whats-new-title {
+            font-weight: 900;
+          }
+
+          .newsletter-title {
+            font-weight: 900;
+          }
+
+          .tab-btn.active {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+          }
+
+          .view-btn {
+            font-weight: 800;
+          }
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+          .whats-new-section {
+            background: linear-gradient(135deg, #1A1F35 0%, #0F1420 50%, #162A4C 100%);
+            border-top-color: #374151;
+          }
+
+          .whats-new-title {
+            color: #FFFFFF;
+          }
+
+          .whats-new-subtitle {
+            color: #CBD5E1;
+          }
+
+          .card-inner {
+            background: #1F2937;
+            border-color: #374151;
+          }
+
+          .newsletter-title {
+            color: #FFFFFF;
+          }
+
+          .newsletter-excerpt {
+            color: #D1D5DB;
+          }
+
+          .newsletter-meta {
+            border-top-color: #374151;
+            color: #E5E7EB;
+          }
+
+          .meta-item {
+            color: #D1D5DB;
+          }
+
+          .meta-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: #93C5FD;
+          }
+
+          .file-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.2);
+            color: #D1D5DB;
+          }
+
+          .tab-btn {
+            background: #374151;
+            border-color: #4B5563;
+            color: #E5E7EB;
+          }
+
+          .tab-btn:hover {
+            background: #1E293B;
+            border-color: #3B82F6;
+            color: #93C5FD;
+          }
+
+          .download-btn {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+          }
+
+          .download-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: #3B82F6;
           }
         }
       `}</style>
@@ -961,18 +925,21 @@ const WhatIsNew = () => {
           <button
             className={`tab-btn ${activeTab === "all" ? "active" : ""}`}
             onClick={() => setActiveTab("all")}
+            aria-label="Show all items"
           >
             All
           </button>
           <button
             className={`tab-btn ${activeTab === "newsletter" ? "active" : ""}`}
             onClick={() => setActiveTab("newsletter")}
+            aria-label="Show newsletters"
           >
             Newsletters
           </button>
           <button
             className={`tab-btn ${activeTab === "alumni-stories" ? "active" : ""}`}
             onClick={() => setActiveTab("alumni-stories")}
+            aria-label="Show alumni stories"
           >
             Alumni Stories
           </button>
@@ -992,6 +959,14 @@ const WhatIsNew = () => {
               onClick={() => handleOpenPDF(item)}
               onMouseEnter={() => setHoveredCard(item.id)}
               onMouseLeave={() => setHoveredCard(null)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${item.title}`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  handleOpenPDF(item);
+                }
+              }}
             >
               <div className="card-inner">
                 {/* Image */}
@@ -1000,10 +975,12 @@ const WhatIsNew = () => {
                     src={item.image}
                     alt={item.title}
                     className="newsletter-image"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="image-overlay">
                     <div className="overlay-icon">
-                      <FileText size={32} />
+                      <FileText size={32} strokeWidth={1.5} />
                     </div>
                   </div>
                 </div>
@@ -1020,19 +997,21 @@ const WhatIsNew = () => {
                   <h3 className="newsletter-title">{item.title}</h3>
                   <p className="newsletter-excerpt">{item.excerpt}</p>
 
-                  <div className="file-info">
-                    <FileCheck size={14} />
-                    {item.fileName} • {item.fileSize}
-                  </div>
+                  {item.fileName && (
+                    <div className="file-info">
+                      <FileCheck size={14} />
+                      <span>{item.fileName} • {item.fileSize}</span>
+                    </div>
+                  )}
 
                   <div className="newsletter-meta">
                     <div className="meta-item">
                       <Calendar size={14} />
-                      {item.date}
+                      <span>{item.date}</span>
                     </div>
                     <div className="meta-item">
                       <Eye size={14} />
-                      {item.views}
+                      <span>{item.views}</span>
                     </div>
                   </div>
 
@@ -1040,22 +1019,24 @@ const WhatIsNew = () => {
                     <button
                       className="view-btn"
                       onClick={(e) => {
-                        e.preventDefault();
+                        e.stopPropagation();
                         handleOpenPDF(item);
                       }}
+                      aria-label={`View ${item.title} PDF`}
                     >
-                      <FileText size={16} />
+                      <FileText size={16} strokeWidth={1.5} />
                       View PDF
                     </button>
                     <button
                       className="download-btn"
-                      title="Download"
+                      title="Download PDF"
                       onClick={(e) => {
-                        e.preventDefault();
+                        e.stopPropagation();
                         downloadPDF(item);
                       }}
+                      aria-label={`Download ${item.title}`}
                     >
-                      <Download size={18} />
+                      <Download size={18} strokeWidth={1.5} />
                     </button>
                   </div>
                 </div>
