@@ -93,6 +93,7 @@ const ChapterCard = ({
   onDelete,
   onJoin,
   onClick,
+  isLoadingChapter, // ✅ NEW: Loading state
 }) => {
   const bannerUrl = chapter.bannerImage
     ? `${API_BASE}/uploads/${chapter.bannerImage}`
@@ -107,7 +108,7 @@ const ChapterCard = ({
       onClick={onClick}
     >
       {/* Banner Image */}
-      <div className="relative h-48 bg-gradient-to-br from-slate-200 to-slate-300 overflow-hidden">
+      <div className="relative h-48 bg-linear-to-br from-slate-200 to-slate-300 overflow-hidden">
         <img
           src={bannerUrl}
           alt={chapter.title}
@@ -135,7 +136,7 @@ const ChapterCard = ({
           </h3>
           {chapter.location && (
             <div className="flex items-center gap-1.5 mt-1 text-slate-600">
-              <MapPin size={13} className="flex-shrink-0" />
+              <MapPin size={13} className="shrink-0" />
               <span className="text-sm font-medium">{chapter.location}</span>
             </div>
           )}
@@ -150,11 +151,11 @@ const ChapterCard = ({
         <div className="flex items-center justify-between pt-2 border-t border-slate-100/80">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 text-slate-600">
-              <Users size={14} className="flex-shrink-0" />
+              <Users size={14} className="shrink-0" />
               <span className="text-xs font-semibold">{chapter.memberCount || 0}</span>
             </div>
             <div className="flex items-center gap-1 text-slate-500">
-              <Clock size={14} className="flex-shrink-0" />
+              <Clock size={14} className="shrink-0" />
               <span className="text-xs font-medium">
                 {new Date(chapter.createdAt).toLocaleDateString("en-US", {
                   month: "short",
@@ -200,13 +201,19 @@ const ChapterCard = ({
               e.stopPropagation();
               onJoin();
             }}
-            className={`w-full py-2 rounded-lg font-semibold text-sm transition-all ${
+            disabled={isLoadingChapter} // ✅ NEW: Disable while loading
+            className={`w-full py-2 rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
               isMember
                 ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 : "bg-indigo-600 text-white hover:bg-indigo-700"
             }`}
           >
-            {isMember ? (
+            {isLoadingChapter ? (
+              <div className="flex items-center justify-center gap-1.5">
+                <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                {isMember ? "Leaving..." : "Joining..."}
+              </div>
+            ) : isMember ? (
               <div className="flex items-center justify-center gap-1.5">
                 <UserMinus size={14} />
                 Leave Chapter
@@ -225,7 +232,16 @@ const ChapterCard = ({
 };
 
 // Chapter Detail Modal
-const ChapterDetailModal = ({ chapter, user, isAuthor, isMember, onClose, onEdit, onJoin }) => {
+const ChapterDetailModal = ({ 
+  chapter, 
+  user, 
+  isAuthor, 
+  isMember, 
+  onClose, 
+  onEdit, 
+  onJoin,
+  isLoadingChapter, // ✅ NEW: Loading state
+}) => {
   const bannerUrl = chapter.bannerImage
     ? `${API_BASE}/uploads/${chapter.bannerImage}`
     : "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=400&fit=crop";
@@ -235,7 +251,7 @@ const ChapterDetailModal = ({ chapter, user, isAuthor, isMember, onClose, onEdit
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-2000 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <motion.div
@@ -246,7 +262,7 @@ const ChapterDetailModal = ({ chapter, user, isAuthor, isMember, onClose, onEdit
         className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
       >
         {/* Header with Banner */}
-        <div className="relative h-64 bg-gradient-to-br from-slate-200 to-slate-300 overflow-hidden">
+        <div className="relative h-64 bg-linear-to-br from-slate-200 to-slate-300 overflow-hidden">
           <img
             src={bannerUrl}
             alt={chapter.title}
@@ -370,13 +386,23 @@ const ChapterDetailModal = ({ chapter, user, isAuthor, isMember, onClose, onEdit
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onJoin}
-              className={`w-full py-3 rounded-lg font-bold text-base transition-all ${
+              disabled={isLoadingChapter} // ✅ NEW: Disable while loading
+              className={`w-full py-3 rounded-lg font-bold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 isMember
                   ? "bg-slate-200 text-slate-700 hover:bg-slate-300"
                   : "bg-indigo-600 text-white hover:bg-indigo-700"
               }`}
             >
-              {isMember ? "Leave This Chapter" : "Join This Chapter"}
+              {isLoadingChapter ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  {isMember ? "Leaving..." : "Joining..."}
+                </div>
+              ) : isMember ? (
+                "Leave This Chapter"
+              ) : (
+                "Join This Chapter"
+              )}
             </motion.button>
           </div>
         )}
@@ -660,6 +686,7 @@ const AlumniChapters = () => {
   const [formLoading, setFormLoading] = useState(false);
 
   const [userChapterIds, setUserChapterIds] = useState([]);
+  const [joiningChapterId, setJoiningChapterId] = useState(null); // ✅ NEW: Track which chapter is loading
 
   usePageTitle("Alumni Chapters");
 
@@ -762,21 +789,68 @@ const AlumniChapters = () => {
     }
   }, [fetchChapters]);
 
-  // Join/Leave Chapter
+  // ✅ FIXED: Join/Leave Chapter with proper error handling
   const handleToggleJoin = useCallback(
     async (chapterId) => {
       try {
-        if (userChapterIds.includes(chapterId)) {
-          await alumniAPI.leaveChapter?.(chapterId);
-        } else {
-          await alumniAPI.joinChapter?.(chapterId);
+        // ✅ Prevent double-clicks
+        if (joiningChapterId === chapterId) {
+          console.warn("⚠️ Already processing this chapter");
+          return;
         }
-        fetchChapters();
+
+        setJoiningChapterId(chapterId);
+        setError(""); // Clear previous errors
+
+        // ✅ Check current membership status
+        const isMember = userChapterIds.includes(chapterId);
+
+        if (isMember) {
+          // ✅ User is a member, so leave
+          console.log(`📤 Leaving chapter ${chapterId}`);
+          await alumniAPI.leaveChapter?.(chapterId);
+          setSuccess("Left chapter successfully!");
+        } else {
+          // ✅ User is not a member, so join
+          console.log(`📥 Joining chapter ${chapterId}`);
+          await alumniAPI.joinChapter?.(chapterId);
+          setSuccess("Joined chapter successfully!");
+        }
+
+        // ✅ Refresh chapters list to sync state
+        await fetchChapters();
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(""), 3000);
       } catch (err) {
-        setError(err.response?.data?.message || "Failed to update membership");
+        console.error("❌ Error updating membership:", err);
+
+        const errorMessage = err.response?.data?.message || err.message;
+        const status = err.response?.status;
+
+        // ✅ Handle "Already a member" error gracefully
+        if (status === 400 && errorMessage.includes("Already a member")) {
+          console.log("📌 User is already a member, updating state...");
+          // Just update the state without showing an error
+          setUserChapterIds((prev) => {
+            if (!prev.includes(chapterId)) {
+              return [...prev, chapterId];
+            }
+            return prev;
+          });
+          setSuccess("You're already a member of this chapter!");
+          setTimeout(() => setSuccess(""), 3000);
+        } else {
+          // Show error for other cases
+          setError(
+            errorMessage || "Failed to update membership. Please try again."
+          );
+        }
+      } finally {
+        setJoiningChapterId(null); // ✅ Clear loading state
       }
     },
-    [userChapterIds, fetchChapters]
+    [userChapterIds, fetchChapters, joiningChapterId] // ✅ Added joiningChapterId
   );
 
   // Handlers
@@ -970,6 +1044,7 @@ const AlumniChapters = () => {
                     isAuthor={isAuthor}
                     isMember={isMember}
                     index={index}
+                    isLoadingChapter={joiningChapterId === chapter._id} // ✅ NEW: Pass loading state
                     onEdit={() => openEditForm(chapter)}
                     onDelete={() => handleDeleteChapter(chapter._id)}
                     onJoin={() => handleToggleJoin(chapter._id)}
@@ -1004,6 +1079,7 @@ const AlumniChapters = () => {
             user={user}
             isAuthor={selectedChapter.foundedBy === user?._id}
             isMember={userChapterIds.includes(selectedChapter._id)}
+            isLoadingChapter={joiningChapterId === selectedChapter._id} // ✅ NEW: Pass loading state
             onClose={() => setSelectedChapter(null)}
             onEdit={() => {
               openEditForm(selectedChapter);

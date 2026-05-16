@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniDashboard.jsx
-// ✅ No sidebar, no nav — clean full-width dashboard
+// ✅ Updated with Campaign Response integration
 
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,11 +24,13 @@ import {
   Zap,
   X,
   LogOut,
+  Megaphone,
 } from "lucide-react";
 import SendNotification from "./SendNotification";
 import NotificationInbox from "./NotificationInbox";
 import { notificationAPI, alumniAPI } from "../../services/api";
 import usePageTitle from "../../hooks/usePageTitle";
+import { formatNumber } from "../../utils/formatters";
 
 /* ─── helpers ─── */
 const avatarColors = [
@@ -70,6 +72,17 @@ const QUICK_CARDS = [
     lightBg: "bg-emerald-50",
     iconColor: "text-emerald-600",
     cta: "Explore locations",
+  },
+  {
+    id: "campaigns",
+    icon: Megaphone,
+    title: "Campaigns",
+    desc: "Participate in alumni campaigns and share your stories",
+    path: "/campaigns",
+    accent: "from-violet-500 to-purple-600",
+    lightBg: "bg-violet-50",
+    iconColor: "text-violet-600",
+    cta: "View campaigns",
   },
   {
     id: "donations",
@@ -120,25 +133,24 @@ const AlumniDashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  usePageTitle(` Dashboard - ${user?.firstName ?? "Alumni"}`);
+  usePageTitle(`Dashboard - ${user?.firstName ?? "Alumni"}`);
 
   const initials =
     `${user?.firstName?.charAt(0) ?? ""}${user?.lastName?.charAt(0) ?? ""}`.toUpperCase();
   const avatarGrad = pickColor(user?.firstName ?? "");
 
-
   /* --- Stats ---- */
   const STATS = [
     {
       label: "Alumni Network",
-      value: stats.totalAlumni ? stats.totalAlumni + " +" : 0,
+      value: formatNumber(stats.totalAlumni), 
       icon: GraduationCap,
       color: "text-indigo-600",
       bg: "bg-indigo-50",
     },
     {
       label: "Departments",
-      value: stats.departmentStats,
+      value: formatNumber(stats.departmentStats),
       icon: BookOpen,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -159,7 +171,6 @@ const AlumniDashboard = () => {
     },
   ];
 
-  
   useEffect(() => {
     alumniAPI
       .getStats()
@@ -445,7 +456,7 @@ const AlumniDashboard = () => {
             <Sparkles size={15} className="text-slate-300" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
             {QUICK_CARDS.map((card, i) => (
               <motion.button
                 key={card.id}
@@ -591,6 +602,13 @@ const AlumniDashboard = () => {
                   bg: "bg-emerald-50",
                 },
                 {
+                  label: "View All Campaigns",
+                  icon: Megaphone,
+                  path: "/campaigns",
+                  color: "text-violet-500",
+                  bg: "bg-violet-50",
+                },
+                {
                   label: "Make a Donation",
                   icon: Heart,
                   path: "/alumni/donations",
@@ -601,8 +619,8 @@ const AlumniDashboard = () => {
                   label: "Update My Profile",
                   icon: User,
                   path: "/alumni/profile",
-                  color: "text-violet-500",
-                  bg: "bg-violet-50",
+                  color: "text-purple-500",
+                  bg: "bg-purple-50",
                 },
               ].map(({ label, icon: Icon, path, color, bg }) => (
                 <button
