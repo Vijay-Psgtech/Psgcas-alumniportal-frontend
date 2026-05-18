@@ -315,14 +315,10 @@ const AdminNewsLetter = () => {
   const noticeTimeoutRef = useRef(null);
 
   const scrollToTop = () => {
-    if (noticeTimeoutRef.current?.scrollIntoView) {
-      noticeTimeoutRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    } else {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   usePageTitle("Newsletter Management");
@@ -332,6 +328,11 @@ const AdminNewsLetter = () => {
   useEffect(() => {
     fetchNewsletters();
   }, []);
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    scrollToTop();
+  }, [currentPage]);
 
   const fetchNewsletters = async () => {
     try {
@@ -650,7 +651,6 @@ const AdminNewsLetter = () => {
             <div className="mt-6 flex items-center justify-center gap-3">
               <button
                 onClick={() => {
-                  scrollToTop();
                   setCurrentPage((prev) => Math.max(prev - 1, 1));
                 }}
                 disabled={currentPage === 1}
@@ -663,7 +663,6 @@ const AdminNewsLetter = () => {
               </span>
               <button
                 onClick={() => {
-                  scrollToTop();
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages));
                 }}
                 disabled={currentPage === totalPages}
