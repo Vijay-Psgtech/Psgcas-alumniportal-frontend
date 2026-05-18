@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import { newsLetterAPI, API_BASE } from "../services/api";
@@ -18,10 +19,12 @@ import {
 } from "lucide-react";
 
 // ─── PDF.js worker ────────────────────────────────────────────────────────────
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   "pdfjs-dist/build/pdf.worker.min.mjs",
+//   import.meta.url
+// ).toString();
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 // ─── Font tokens (style prop only — Tailwind can't embed @font-face) ─────────
 const FONT_DISPLAY = "'DM Serif Display', Georgia, serif";
