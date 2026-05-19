@@ -131,8 +131,6 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
       }`
     : alumni.occupation;
 
-  const location = [alumni.city, alumni.country].filter(Boolean).join(", ");
-
   return (
     <AnimatePresence>
       <motion.div
@@ -263,8 +261,6 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
                 label="Roll Number"
                 value={alumni.rollNumber}
               />
-
-              <InfoRow icon={MapPin} label="Location" value={location} />
             </Section>
 
             <Section title="Professional Information">
@@ -275,29 +271,6 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
                 label="Company"
                 value={alumni.currentCompany}
               />
-            </Section>
-
-            {full && (
-              <Section title="Contact Information">
-                <InfoRow icon={Mail} label="Email" value={alumni.email} />
-
-                <InfoRow icon={Phone} label="Phone" value={alumni.phone} />
-              </Section>
-            )}
-
-            <Section title="Social Profiles">
-              <div
-                style={{
-                  display: "flex",
-                  gap: 10,
-                }}
-              >
-                <SocialBtn href={alumni.social?.linkedin} icon={Linkedin} />
-
-                <SocialBtn href={alumni.social?.twitter} icon={Twitter} />
-
-                <SocialBtn href={alumni.social?.instagram} icon={Instagram} />
-              </div>
             </Section>
           </div>
 
@@ -311,8 +284,6 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
               gap: 8,
             }}
           >
-            
-
             <button
               onClick={onClose}
               style={{
