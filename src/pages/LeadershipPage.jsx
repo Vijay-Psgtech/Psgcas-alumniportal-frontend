@@ -25,12 +25,12 @@ const LeadershipPage = () => {
         "Auditor",
         "Co-ordinator",
       ],
-      rank: "Office Bearer"
+      rank: "Office Bearer",
     },
     {
       title: "Executive Committee Members",
       roles: ["EC Member", "Executive Committee Member"],
-      rank: "Executive Committee Members"
+      rank: "Executive Committee Members",
     },
     {
       title: "Past Presidents",
@@ -39,7 +39,7 @@ const LeadershipPage = () => {
         "Past President",
         "Immediate Past President",
       ],
-      rank: "Past Presidents"
+      rank: "Past Presidents",
     },
   ];
 
@@ -47,18 +47,6 @@ const LeadershipPage = () => {
     ...group,
     members: Patrons.filter((p) => group.rank.includes(p.rank)),
   }));
-
-  // const otherMembers = Patrons.filter(
-  //   (p) => !roleGroupsConfig.some((group) => group.rank.includes(p.rank)),
-  // );
-
-  // if (otherMembers.length) {
-  //   groupedPatrons.push({
-  //     title: "Other Leadership",
-  //     roles: [],
-  //     members: otherMembers,
-  //   });
-  // }
 
   // Animation for counting stats
   useEffect(() => {
@@ -357,21 +345,7 @@ const LeadershipPage = () => {
 
         .chief-text {
           flex: 1;
-        }
-
-        .chief-badge {
-          display: inline-block;
-          padding: 10px 20px;
-          background: #F0F9FF;
-          color: #3B82F6;
-          border: 1.5px solid #BFDBFE;
-          border-radius: 50px;
-          font-size: 12px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.6px;
-          margin-bottom: 24px;
-          font-family: 'Poppins', sans-serif;
+          margin-top: 24px;
         }
 
         .chief-name {
@@ -379,7 +353,7 @@ const LeadershipPage = () => {
           font-size: 40px;
           font-weight: 900;
           color: #0F172A;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
           line-height: 1.2;
           letter-spacing: -0.5px;
         }
@@ -524,6 +498,7 @@ const LeadershipPage = () => {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          object-position: center;
           transition: transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -621,115 +596,6 @@ const LeadershipPage = () => {
 
         .card:hover .card-accent {
           transform: scaleX(1);
-        }
-
-        /* CTA Section */
-        .cta-section {
-          padding: 100px 24px;
-          background: linear-gradient(135deg, #3B82F6 0%, #0EA5E9 50%, #06B6D4 100%);
-          color: white;
-          position: relative;
-          overflow: hidden;
-        }
-
-        @media (min-width: 768px) {
-          .cta-section {
-            padding: 140px 24px;
-          }
-        }
-
-        .cta-section::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
-          pointer-events: none;
-        }
-
-        .cta-container {
-          max-width: 896px;
-          margin: 0 auto;
-          text-align: center;
-          position: relative;
-          z-index: 1;
-        }
-
-        .cta-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 40px;
-          font-weight: 900;
-          margin-bottom: 24px;
-          line-height: 1.2;
-          letter-spacing: -0.5px;
-        }
-
-        @media (min-width: 768px) {
-          .cta-title {
-            font-size: 56px;
-          }
-        }
-
-        .cta-text {
-          font-family: 'Poppins', sans-serif;
-          font-size: 16px;
-          line-height: 1.8;
-          color: rgba(255, 255, 255, 0.95);
-          margin-bottom: 40px;
-          max-width: 600px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .cta-buttons {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        @media (min-width: 640px) {
-          .cta-buttons {
-            flex-direction: row;
-          }
-        }
-
-        .btn {
-          padding: 14px 32px;
-          border: none;
-          border-radius: 12px;
-          font-family: 'Poppins', sans-serif;
-          font-size: 13px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.6px;
-          cursor: pointer;
-          transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .btn-primary {
-          background: #FFFFFF;
-          color: #3B82F6;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-        }
-
-        .btn-secondary {
-          background: rgba(255, 255, 255, 0.15);
-          color: white;
-          border: 2px solid rgba(255, 255, 255, 0.4);
-          backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.25);
-          border-color: white;
-          transform: translateY(-4px);
         }
 
         /* Stats Section */
@@ -842,10 +708,6 @@ const LeadershipPage = () => {
                     className="chief-text"
                     variants={containerVariants}
                   >
-                    <motion.div variants={itemVariants} className="chief-badge">
-                      Managing Trustee
-                    </motion.div>
-
                     <motion.h3 variants={itemVariants} className="chief-name">
                       {chiefPatron.name}
                     </motion.h3>
@@ -910,14 +772,6 @@ const LeadershipPage = () => {
                           <div className="card-image">
                             <img src={patron.image} alt={patron.name} />
                             <div className="card-overlay"></div>
-                            <motion.div
-                              className="card-role-tag"
-                              initial={{ opacity: 0, y: -10 }}
-                              whileInView={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.1 }}
-                            >
-                              {patron.role}
-                            </motion.div>
                           </div>
                           <div className="card-content">
                             <h3 className="card-name">{patron.name}</h3>
@@ -925,7 +779,6 @@ const LeadershipPage = () => {
                             <p className="card-bio">
                               {patron.note || patron.bio}
                             </p>
-                            <div className="card-accent"></div>
                           </div>
                         </div>
                       </motion.div>
@@ -934,43 +787,6 @@ const LeadershipPage = () => {
                 </div>
               ))}
             </div>
-          </section>
-
-          {/* CTA Section */}
-          <section className="cta-section">
-            <motion.div
-              className="cta-container"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-            >
-              <motion.h2 variants={itemVariants} className="cta-title">
-                Join Our Community
-              </motion.h2>
-
-              <motion.p variants={itemVariants} className="cta-text">
-                Connect with our leadership team and become part of a thriving
-                community dedicated to excellence.
-              </motion.p>
-
-              <motion.div className="cta-buttons" variants={itemVariants}>
-                <motion.button
-                  className="btn btn-primary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Get In Touch
-                </motion.button>
-                <motion.button
-                  className="btn btn-secondary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Learn More
-                </motion.button>
-              </motion.div>
-            </motion.div>
           </section>
 
           {/* Stats Section */}
@@ -986,7 +802,7 @@ const LeadershipPage = () => {
                 {[
                   { number: "27+", label: "Team Members", key: "members" },
                   { number: "100%", label: "Commitment", key: "commitment" },
-                  { number: "10K+", label: "Alumni Network", key: "alumni" },
+                  { number: "30K+", label: "Alumni Network", key: "alumni" },
                   { number: "#1", label: "Institution", key: "rank" },
                 ].map((stat, index) => (
                   <motion.div
