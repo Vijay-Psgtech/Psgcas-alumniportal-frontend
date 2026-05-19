@@ -48,13 +48,13 @@ const ModernFooter = () => {
     { icon: Linkedin, href: "https://www.linkedin.com/company/psg-institutions/", label: "LinkedIn" },
     { icon: Twitter, href: "https://twitter.com/psginstitutions", label: "Twitter" },
     { icon: Instagram, href: "https://www.instagram.com/psginstitutions/", label: "Instagram" },
-    { icon: Mail, href: "mailto:alumni@psginstitutions.ac.in", label: "Email" },
+    { icon: Mail, href: "mailto:alumni@psgcas.ac.in", label: "Email" },
   ];
 
   const contactInfo = [
     { icon: MapPin, text: "PSG College of Arts & Science, Coimbatore, India" },
     { icon: Phone, text: "+91 (0) 422 4393 800" },
-    { icon: Mail, text: "alumni@psginstitutions.ac.in" },
+    { icon: Mail, text: "alumni@psgcas.ac.in" },
   ];
 
   return (
