@@ -308,6 +308,7 @@ const NewsDetailPage = () => {
                     {/* Download pill */}
                     <a
                       href={pdfUrl}
+                      target="_blank"
                       download
                       className="inline-flex items-center gap-[7px] px-[18px] py-[9px] rounded-full
                         bg-[#c8522a] text-white text-[13px] font-semibold no-underline
