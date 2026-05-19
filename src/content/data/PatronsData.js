@@ -41,14 +41,14 @@ export const Patrons = [
     name: "Dr.T.Kannaian",
     role: "Secretary",
     note: "",
-    bio: "",
+    bio: "PSG College of Arts and Science",
     image: patronImg2,
     rank: "Patron"
   },
   {
     name: "Dr.M.Jayanthi",
     role: "Principal",
-    note: "Ph.D. '68",
+    note: "",
     bio: "PSG College of Arts and Science",
     image: patronImg3,
     rank: "Patron"
@@ -153,7 +153,7 @@ export const Patrons = [
   {
     name: "Ki. Antony Johnson",
     role: "Executive Committee Member",
-    note: "",
+    note: "Class of 1983",
     bio: "",
     image: patronImg16,
     rank: "Executive Committee Members"
@@ -161,7 +161,7 @@ export const Patrons = [
   {
     name: "Ravichandar Venugopal",
     role: "Executive Committee Member",
-    note: "",
+    note: "Class of 1983",
     bio: "",
     image: patronImg17,
     rank: "Executive Committee Members"
@@ -193,7 +193,7 @@ export const Patrons = [
   {
     name: "Ms. R. Poornima",
     role: "Co-ordinator",
-    note: "",
+    note: "Class of 2001",
     bio: "",
     image: patronImg21,
     rank: "Executive Committee Members"
@@ -241,7 +241,7 @@ export const Patrons = [
   {
     name: "Jayakumar Ramdass",
     role: "Immediate Past President",
-    note: "Class of 1983'57",
+    note: "Class of 1983",
     bio: "B.Sc",
     image: patronImg27,
     rank: "Past Presidents"
