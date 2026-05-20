@@ -25,8 +25,8 @@ const PremiumStats = () => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const targetCounts = { alumni: 12000, chapters: 50, countries: 35, events: 200 };
-    const speeds = { alumni: 40, chapters: 16, countries: 12, events: 6 };
+    const targetCounts = { alumni: 30000, chapters: 50, countries: 35, events: 200 };
+    const speeds = { alumni: 100, chapters: 16, countries: 12, events: 6 };
     let interval;
     let currentValues = { alumni: 0, chapters: 0, countries: 0, events: 0 };
 
@@ -57,15 +57,6 @@ const PremiumStats = () => {
       description: "Worldwide community",
       color: "#3B82F6",
       bgColor: "#F0F9FF"
-    },
-    { 
-      number: counts.chapters, 
-      suffix: "+", 
-      label: "Local Chapters", 
-      icon: "🌍",
-      description: "Across the globe",
-      color: "#8B5CF6",
-      bgColor: "#FAF5FF"
     },
     { 
       number: counts.countries, 
