@@ -16,10 +16,25 @@ const WhatIsNew = () => {
   const newsletters = [
     {
       id: 1,
-      title: "PSG Arts Alumni Newsletter - Oct-Dec 2025",
+      title: "PSG CASIANS Newsletter - Jan-Mar 2026",
       date: "Feb 04, 2026",
-      views: 245,
-      fileName: "PSG_Alumni_Newsletter_Oct-Dec_2025.pdf",
+      fileName: "PSG CASIANS Newletter Jan - Mar 2026.pdf",
+      fileSize: "29.4 MB",
+      thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
+      image:
+        "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=250&fit=crop",
+      pdfUrl: "/PDF/jan_mar_26.pdf",
+      category: "newsletter",
+      excerpt:
+        "Stay updated with the latest alumni achievements, events, and success stories from our community.",
+      color: "#3B82F6",
+      bgColor: "#F0F9FF",
+    },
+    {
+      id: 2,
+      title: "PSG CASIANS Newsletter - Oct-Dec 2025",
+      date: "Feb 04, 2026",
+      fileName: "CASIANS Newletter Oct - Dec 2025.pdf",
       fileSize: "18 MB",
       thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
       image:
@@ -32,11 +47,10 @@ const WhatIsNew = () => {
       bgColor: "#F0F9FF",
     },
     {
-      id: 2,
-      title: "PSG Arts Alumni Newsletter - Jul - Sep 2025",
+      id: 3,
+      title: "PSG CASIANS Newsletter - Jul-Sep 2025",
       date: "Nov 03, 2025",
-      views: 512,
-      fileName: "PSG_Alumni_Newsletter_Jul-Sep_2025.pdf",
+      fileName: "CASIANS Newletter - Jul-Sep_2025.pdf",
       fileSize: "16 MB",
       thumbnail: "linear-gradient(135deg, #0369A1 0%, #06B6D4 100%)",
       image:
@@ -47,23 +61,6 @@ const WhatIsNew = () => {
         "Connecting alumni across the globe through inspiring stories and valuable updates.",
       color: "#06B6D4",
       bgColor: "#F0FDFA",
-    },
-    {
-      id: 3,
-      title: "In Their Words: Thank You to Our Teachers",
-      date: "Sep 09, 2025",
-      views: 789,
-      fileName: "",
-      fileSize: "",
-      thumbnail: "linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)",
-      image:
-        "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl: "",
-      category: "alumni-stories",
-      excerpt:
-        "Celebrating the dedication and impact of our beloved faculty members.",
-      color: "#8B5CF6",
-      bgColor: "#FAF5FF",
     },
   ];
 
