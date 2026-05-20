@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Linkedin, Twitter, Instagram, ArrowRight, Heart, Phone, MapPin, Globe } from "lucide-react";
+import { Mail, Linkedin, Twitter, Instagram, ArrowRight, Heart, Phone, MapPin, Globe, Facebook } from "lucide-react";
 import PSGLogo from "../assets/Images/1280.png";
 
 const ModernFooter = () => {
@@ -45,10 +45,10 @@ const ModernFooter = () => {
   ];
 
   const socialLinks = [
-    { icon: Linkedin, href: "https://www.linkedin.com/company/psg-institutions/", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com/psginstitutions", label: "Twitter" },
     { icon: Instagram, href: "https://www.instagram.com/psginstitutions/", label: "Instagram" },
-    { icon: Mail, href: "mailto:alumni@psgcas.ac.in", label: "Email" },
+    { icon: Facebook, href: "https://www.facebook.com/psginstitutions", label: "Facebook" },
+    { icon: Globe, href: "https://www.psgcas.ac.in/", label: "Website" }
+    
   ];
 
   const contactInfo = [
@@ -604,25 +604,6 @@ const ModernFooter = () => {
         <div className="footer-bg-2"></div>
 
         <div className="footer-content">
-          {/* Newsletter Section */}
-          <div className="newsletter-section">
-            <h3 className="newsletter-title">📬 Stay Connected</h3>
-            <p className="newsletter-desc">
-              Get the latest news, events, career opportunities, and updates from PSG Arts Alumni community
-            </p>
-            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                className="newsletter-input"
-                placeholder="Enter your email address..."
-                required
-              />
-              <button className="newsletter-btn" type="submit">
-                <ArrowRight size={16} strokeWidth={2} />
-                <span>Subscribe</span>
-              </button>
-            </form>
-          </div>
 
           {/* Contact Info */}
           <div className="contact-info">
@@ -716,7 +697,7 @@ const ModernFooter = () => {
               <h4 className="section-title">💪 Support</h4>
               <div className="section-links">
                 <a href="/donate" className="footer-link">
-                  Make a Donation
+                  Contribute
                 </a>
                 <a href="/alumni/register" className="footer-link">
                   Join Community
@@ -731,7 +712,7 @@ const ModernFooter = () => {
             </div>
 
             {/* Careers Section */}
-            <div className="footer-section">
+            {/* <div className="footer-section">
               <h4 className="section-title">🚀 Careers</h4>
               <div className="section-links">
                 <a href="/alumni/dashboard" className="footer-link">
@@ -757,7 +738,7 @@ const ModernFooter = () => {
                   For Employers
                 </a>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Divider */}
