@@ -566,4 +566,10 @@ export const adminUsersAPI = {
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
+// ──────────── Contact API ──────────────────────────────────────────────────────
+export const contactAPI = {
+  submitMessage: (data) =>
+    api.post("/contact", data),
+};
+
 export default api;

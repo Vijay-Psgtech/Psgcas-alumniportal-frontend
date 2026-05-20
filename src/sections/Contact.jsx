@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Send, CheckCircle, Mail, Phone, MapPin, Clock } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
+import { contactAPI } from "../services/api";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +37,26 @@ const ContactPage = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+    
+  //   const newErrors = validateForm();
+  //   if (Object.keys(newErrors).length > 0) {
+  //     setErrors(newErrors);
+  //     return;
+  //   }
+    
+
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     setSubmitted(true);
+  //     setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+  //     setTimeout(() => setSubmitted(false), 3000);
+  //   }, 1500);
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const newErrors = validateForm();
@@ -44,14 +64,25 @@ const ContactPage = () => {
       setErrors(newErrors);
       return;
     }
-
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      const payload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        payload.append(key, value);
+      });
+      setIsLoading(true);
+      await contactAPI.submitMessage(payload);
       setSubmitted(true);
       setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
       setTimeout(() => setSubmitted(false), 3000);
-    }, 1500);
+    }
+    catch (error) {
+      console.error("Error submitting contact form:", error);
+      alert("An error occurred while sending your message. Please try again later.");
+    }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -626,8 +657,8 @@ const ContactPage = () => {
                 <h3 className="info-title">Hours</h3>
               </div>
               <div className="info-content">
-                Monday - Friday: 9:00 AM - 5:00 PM<br/>
-                Saturday - Sunday: Closed<br/>
+                Monday - Saturday: 9:30 AM - 5:00 PM<br/>
+                Second Saturday & Sunday: Closed<br/>
                 Public Holidays: Closed
               </div>
             </div>
