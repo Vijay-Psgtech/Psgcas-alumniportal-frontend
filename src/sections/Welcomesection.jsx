@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Award, Heart, Users, Zap, ArrowRight } from "lucide-react";
-import leaderImage1 from "../assets/Images/250.png";
-import leaderImage2 from "../assets/Images/251.png";
+import leaderImage1 from "../assets/Images/trustee2.jpg";
+import leaderImage2 from "../assets/Images/president.png";
 
 const WelcomeSection = () => {
   const [selectedCard, setSelectedCard] = useState(null);
@@ -27,8 +27,8 @@ const WelcomeSection = () => {
   const leaders = [
     {
       id: 1,
-      name: "Shri. L. Gopalakrishnan",
-      title: "PSG Sons & Charities",
+      name: "MR. L. Gopalakrishnan",
+      title: "Managing Trustee - PSG Sons & Charities",
       subtitle: "Visionary Leader & Philanthropist",
       image: leaderImage1,
       icon: Heart,
@@ -39,12 +39,12 @@ const WelcomeSection = () => {
     },
     {
       id: 2,
-      name: "Mr. J Prithiviraj",
+      name: "MR. J Prithiviraj",
       title: "President - PSG Arts Alumni Association",
       subtitle: "Connecting Generations of Excellence",
       image: leaderImage2,
       icon: Zap,
-      stats: { label: "Alumni Connected", value: "10K+" },
+      stats: { label: "Alumni Connected", value: "30K+" },
       bio: "Dedicated to building stronger alumni networks and opportunities",
       color: "#8B5CF6",
       bgColor: "#FAF5FF",
@@ -716,13 +716,6 @@ const WelcomeSection = () => {
                             </div>
                           </div>
                         </div>
-
-                        <button
-                          className="leader-cta"
-                          aria-label={`Connect with ${leader.name}`}
-                        >
-                          Connect <ArrowRight size={14} />
-                        </button>
                       </div>
                     </div>
                   </div>
