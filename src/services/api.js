@@ -2,6 +2,12 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
+// ✅ FIXED: Define API endpoints
+const BANNER_API = `${API_BASE_URL}/banners`;
+// ✅ IMPORTANT: Use /notification-scrolls for banner scrolling notifications
+// NOT /notifications - that's for alumni notifications submission
+const NOTIFICATION_SCROLL_API = `${API_BASE_URL}/notification-scrolls`;
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -10,6 +16,56 @@ const api = axios.create({
   timeout: 10000, // 10 seconds timeout
   withCredentials: true,
 });
+
+const mockNotifications = [
+  {
+    id: "1",
+    type: "success",
+    title: "Welcome to PSG Alumni!",
+    message: "Join 12K+ alumni members connecting across 35+ countries.",
+  },
+  {
+    id: "2",
+    type: "info",
+    title: "Upcoming Event",
+    message: "Join our networking session next month - early bird registration open!",
+  },
+  {
+    id: "3",
+    type: "warning",
+    title: "Limited Spots Available",
+    message: "Only 50 seats left for the Global Summit 2024. Register now!",
+  },
+  {
+    id: "4",
+    type: "trending",
+    title: "Featured Alumni Story",
+    message: "Read how our alumni members are making impact globally",
+  },
+];
+
+const mockBannerData = {
+  id: "default-banner",
+  title: "Connect, Grow & Lead Together",
+  description:
+    "Join an exclusive global community where PSG Arts alumni collaborate, mentor, and create opportunities for lifelong success.",
+  subtitle: "Welcome to Excellence",
+  backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&h=900&fit=crop",
+  features: [
+    { icon: "Users", text: "12K+ Alumni Connected" },
+    { icon: "Globe", text: "35+ Countries" },
+    { icon: "Sparkles", text: "200+ Annual Events" },
+  ],
+  primaryButtonText: "Join Now",
+  secondaryButtonText: "Learn More",
+  isActive: true,
+  updatedAt: new Date().toISOString(),
+};
+
+const CACHE_PREFIX = 'psg_alumni_';
+const DEFAULT_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+
 
 // RESPONSE INTERCEPTOR — handle 401/403 globally
 api.interceptors.response.use(
@@ -54,6 +110,265 @@ export const authAPI = {
   verifyOtp: (email, otp) => api.post("/auth/verify-otp", { email, otp }),
   resetPassword: (email, otp, newPassword) =>
     api.post("/auth/reset-password", { email, otp, newPassword }),
+};
+
+export const cacheService = {
+  /**
+   * Get cached data by key
+   * @param {string} key - Cache key
+   * @returns {any|null} - Cached data or null if expired/not found
+   */
+  get(key) {
+    try {
+      const cacheKey = `${CACHE_PREFIX}${key}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      if (!cached) return null;
+
+      const { data, timestamp, duration } = JSON.parse(cached);
+      const isExpired = Date.now() - timestamp > duration;
+
+      if (isExpired) {
+        localStorage.removeItem(cacheKey);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Cache get error:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Set cache data
+   * @param {string} key - Cache key
+   * @param {any} data - Data to cache
+   * @param {number} duration - Cache duration in milliseconds (default: 5 min)
+   * @returns {boolean} - Success status
+   */
+  set(key, data, duration = DEFAULT_CACHE_DURATION) {
+    try {
+      const cacheKey = `${CACHE_PREFIX}${key}`;
+      const cacheData = {
+        data,
+        timestamp: Date.now(),
+        duration,
+      };
+
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      return true;
+    } catch (error) {
+      console.error('Cache set error:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Clear cache by key
+   * @param {string} key - Cache key
+   * @returns {boolean} - Success status
+   */
+  clear(key) {
+    try {
+      const cacheKey = `${CACHE_PREFIX}${key}`;
+      localStorage.removeItem(cacheKey);
+      return true;
+    } catch (error) {
+      console.error('Cache clear error:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Clear all cached data
+   * @returns {boolean} - Success status
+   */
+  clearAll() {
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach((key) => {
+        if (key.startsWith(CACHE_PREFIX)) {
+          localStorage.removeItem(key);
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error('Cache clear all error:', error);
+      return false;
+    }
+  },
+
+  /**
+   * Check if cache exists and is valid
+   * @param {string} key - Cache key
+   * @returns {boolean} - Cache validity status
+   */
+  has(key) {
+    return this.get(key) !== null;
+  },
+
+  /**
+   * Get all cached data
+   * @returns {Object} - All cached data
+   */
+  getAll() {
+    try {
+      const result = {};
+      const keys = Object.keys(localStorage);
+
+      keys.forEach((key) => {
+        if (key.startsWith(CACHE_PREFIX)) {
+          const cleanKey = key.replace(CACHE_PREFIX, '');
+          const data = this.get(cleanKey);
+          if (data) {
+            result[cleanKey] = data;
+          }
+        }
+      });
+
+      return result;
+    } catch (error) {
+      console.error('Cache get all error:', error);
+      return {};
+    }
+  },
+};
+
+// ✅ BANNER SERVICE
+export const bannerService = {
+  async getActiveBanner() {
+    try {
+      const response = await fetch(`${BANNER_API}/active`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Banner fetched from API:', data);
+        return { success: true, data: data.data || data };
+      } else {
+        console.warn('⚠️ Banner API returned:', response.status);
+        return { success: false, data: mockBannerData };
+      }
+    } catch (error) {
+      console.warn('⚠️ Banner API Error - using mock data:', error.message);
+      return { success: false, data: mockBannerData };
+    }
+  },
+
+  async updateBanner(bannerData) {
+    try {
+      const response = await fetch(`${BANNER_API}/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bannerData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data };
+      }
+      return { success: false, error: 'Failed to update banner' };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+};
+
+// ✅ NOTIFICATION SCROLL SERVICE (for banner scrolling notifications)
+export const notificationService = {
+  async getActiveNotifications() {
+    try {
+      console.log('📡 Fetching notifications from:', NOTIFICATION_SCROLL_API + '/active');
+      
+      const response = await fetch(`${NOTIFICATION_SCROLL_API}/active`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        timeout: 5000,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Notifications fetched from API:', data);
+        // Handle both wrapped and unwrapped response
+        const notificationData = data.data || data;
+        return { success: true, data: Array.isArray(notificationData) ? notificationData : [notificationData] };
+      } else {
+        console.warn('⚠️ Notification API returned:', response.status);
+        return { success: false, data: mockNotifications };
+      }
+    } catch (error) {
+      console.warn('⚠️ Notification API Error - using mock data:', error.message);
+      return { success: false, data: mockNotifications };
+    }
+  },
+
+  async createNotification(notificationData) {
+    try {
+      const response = await fetch(`${NOTIFICATION_SCROLL_API}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data };
+      }
+      return { success: false, error: 'Failed to create notification' };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async updateNotification(id, notificationData) {
+    try {
+      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, data };
+      }
+      return { success: false, error: 'Failed to update notification' };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
+
+  async deleteNotification(id) {
+    try {
+      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        return { success: true };
+      }
+      return { success: false, error: 'Failed to delete notification' };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  },
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -526,7 +841,7 @@ export const adminReportsAPI = {
     api.get("/reports/alumni-data-by-department"),
 };
 
-// ── ✅ Notification API ───────────────────────────────────────────────
+// ── ✅ Notification API (Alumni Notifications) ───────────────────────────────────────────────
 export const notificationAPI = {
   // Alumni: submit a new notification (with optional file attachment)
   submit: (data) =>
