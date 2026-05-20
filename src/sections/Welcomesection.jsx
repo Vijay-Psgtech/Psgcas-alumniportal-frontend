@@ -618,7 +618,7 @@ const WelcomeSection = () => {
         }
       `}</style>
 
-      <section className="welcome-section-innovative">
+      <section id="welcome-section" className="welcome-section-innovative">
         {/* Decorative Background Elements */}
         <div className="welcome-bg-decoration">
           <div className="decoration-blob blob-1"></div>
