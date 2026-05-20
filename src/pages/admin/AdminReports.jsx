@@ -1,0 +1,390 @@
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { adminReportsAPI, API_BASE } from "../../services/api";
+import usePageTitle from "../../hooks/usePageTitle";
+
+const formatNumber = (value) => new Intl.NumberFormat().format(value);
+
+const AdminReports = () => {
+  const [totalAlumniCount, setTotalAlumniCount] = useState(0);
+  const [alumniData, setAlumniData] = useState([]);
+  const [alumniList, setAlumniList] = useState([]);
+  const [departmentData, setDepartmentData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  usePageTitle("Admin Reports");
+
+  useEffect(() => {
+    const fetchAlumniData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await adminReportsAPI.fetchAlumniDataByYear();
+        const data = res?.data?.data;
+
+        if (data) {
+          setTotalAlumniCount(data.totalCount || 0);
+          setAlumniData(data.countByYear || []);
+          setAlumniList(data.allAlumni || []);
+        } else {
+          setError("No data returned from the server.");
+        }
+      } catch (fetchError) {
+        setError(fetchError?.message || "Failed to load report data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAlumniData();
+  }, []);
+
+  useEffect(() => {
+    const fetchAlumniDataByDepartment = async () => {
+      try {
+        const res = await adminReportsAPI.fetchAlumniDataByDepartment();
+        const data = res?.data?.data;
+        if (data) {
+          setDepartmentData(data.countByDepartment || []);
+        }
+      } catch (fetchError) {
+        console.error("Failed to load alumni data by department:", fetchError);
+      }
+    };
+    fetchAlumniDataByDepartment();
+  }, []);
+
+  const chartData = useMemo(() => {
+    return (alumniData || [])
+      .slice()
+      .sort((a, b) => Number(a.year) - Number(b.year));
+  }, [alumniData]);
+
+  const recentAlumni = useMemo(() => {
+    return alumniList.slice(0, 10);
+  }, [alumniList]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
+      <header className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-slate-800">
+          Admin Reports
+        </h1>
+        <p className="mt-1 text-sm text-slate-600 max-w-2xl">
+          Keep an eye on alumni growth and engagement. Use this dashboard to
+          monitor recent sign-ups and year-over-year registration trends.
+        </p>
+      </header>
+
+      {loading ? (
+        <div className="rounded-xl bg-white p-8 shadow-sm border border-dashed border-slate-300">
+          <p className="text-center text-slate-600">Loading report data…</p>
+        </div>
+      ) : error ? (
+        <div className="rounded-xl bg-rose-50 p-6 shadow-sm border border-rose-200">
+          <p className="text-sm text-rose-700">{error}</p>
+        </div>
+      ) : (
+        <>
+          <section className="grid gap-6 lg:grid-cols-3 mb-8">
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <h2 className="text-sm font-semibold text-slate-500">
+                Total Alumni
+              </h2>
+              <p className="mt-2 text-3xl font-semibold text-slate-800">
+                {formatNumber(totalAlumniCount)}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                As of {new Date().toLocaleDateString()}
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <h2 className="text-sm font-semibold text-slate-500">
+                Year range
+              </h2>
+              <p className="mt-2 text-3xl font-semibold text-slate-800">
+                {chartData.length > 0
+                  ? `${chartData[0].year} – ${chartData[chartData.length - 1].year}`
+                  : "—"}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Years represented in enrollment data
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <h2 className="text-sm font-semibold text-slate-500">
+                Latest Signups
+              </h2>
+              <p className="mt-2 text-3xl font-semibold text-slate-800">
+                {formatNumber(recentAlumni.length)}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                Most recent {recentAlumni.length} alumni loaded
+              </p>
+            </div>
+          </section>
+
+          <section className="grid gap-6 lg:grid-cols-2 mb-8">
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Alumni by Year
+                </h2>
+                <p className="mt-2 sm:mt-0 text-sm text-slate-500">
+                  Year-over-year registration counts
+                </p>
+              </div>
+
+              <div className="mt-6 h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 20, right: 30, left: -10, bottom: 20 }}
+                  >
+                    <XAxis 
+                      dataKey="year" 
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickLine={{ stroke: "#e2e8f0" }}
+                      interval={Math.floor(chartData.length / 12) || 0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      tickFormatter={(value) => formatNumber(value)}
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      tickLine={{ stroke: "#e2e8f0" }}
+                      grid={{ stroke: "#f1f5f9", strokeDasharray: "3 3" }}
+                    />
+                    <Tooltip 
+                      formatter={(value) => formatNumber(value)}
+                      labelFormatter={(label) => `Year: ${label}`}
+                      contentStyle={{
+                        backgroundColor: "#1e293b",
+                        border: "none",
+                        borderRadius: "8px",
+                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                        color: "#f1f5f9"
+                      }}
+                      cursor={{ fill: "rgba(59, 130, 246, 0.1)" }}
+                    />
+                    <Bar 
+                      dataKey="count" 
+                      fill="#3b82f6"
+                      radius={[8, 8, 0, 0]}
+                      animationDuration={800}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            
+
+            <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Alumni by Department
+                </h2>
+                <p className="mt-2 sm:mt-0 text-sm text-slate-500">
+                  Distribution of alumni across departments
+                </p>
+              </div>
+
+              <div className="mt-6 flex flex-col lg:flex-row gap-6">
+                <div className="h-64 w-full lg:w-1/2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={departmentData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="count"
+                        label={false}
+                      >
+                        {departmentData.map((entry, index) => {
+                          const colors = [
+                            "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+                            "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+                            "#06b6d4", "#6366f1", "#84cc16", "#d946ef"
+                          ];
+                          return (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={colors[index % colors.length]}
+                            />
+                          );
+                        })}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => [formatNumber(value), "Count"]}
+                        contentStyle={{
+                          backgroundColor: "#1e293b",
+                          border: "none",
+                          borderRadius: "8px",
+                          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                          color: "#f1f5f9"
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2">
+                    {departmentData.map((dept, index) => {
+                      const colors = [
+                        "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
+                        "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+                        "#06b6d4", "#6366f1", "#84cc16", "#d946ef"
+                      ];
+                      const total = departmentData.reduce((sum, d) => sum + d.count, 0);
+                      const percentage = ((dept.count / total) * 100).toFixed(1);
+                      return (
+                        <div 
+                          key={`legend-${index}`}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                        >
+                          <div 
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: colors[index % colors.length] }}
+                          ></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-slate-700 truncate">
+                              {dept.department}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {formatNumber(dept.count)} ({percentage}%)
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Recently Registered Alumni
+                </h2>
+                <p className="mt-2 sm:mt-0 text-sm text-slate-500">
+                  Showing the most recent records
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="min-w-full text-sm text-left border border-gray-200">
+                    <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
+                      <tr>
+                        <th className="py-3 px-4 border-b">Name</th>
+                        <th className="py-3 px-4 border-b">Batch</th>
+                        <th className="py-3 px-4 border-b">Branch</th>
+                        <th className="py-3 px-4 border-b">Email</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-700">
+                      {recentAlumni.map((alumni) => (
+                        <tr
+                          key={alumni._id || alumni.email}
+                          className="hover:bg-gray-50"
+                        >
+                          <td className="py-3 px-4 border-b flex items-center gap-3 font-medium">
+                            <img
+                              src={
+                                alumni.profileImage
+                                  ? `${API_BASE}/${alumni.profileImage}`
+                                  : "/default-avatar.png"
+                              }
+                              alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
+                              className="w-8 h-8 rounded-full border object-cover"
+                            />
+                            {alumni.firstName} {alumni.lastName || ""}
+                          </td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.batchYear || "—"}
+                          </td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.department || "—"}
+                          </td>
+                          <td className="py-3 px-4 border-b">
+                            {alumni.email || "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="space-y-4 md:hidden">
+                  {recentAlumni.map((alumni) => (
+                    <div
+                      key={alumni._id || alumni.email}
+                      className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        {alumni.files?.currentPhoto ? (
+                          <img
+                            src={`${API_BASE}/uploads/${alumni.files?.currentPhoto}`}
+                            alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
+                            className="w-10 h-10 rounded-full border object-cover"
+                          />
+                        ) : (
+                          <img
+                            src="/default-avatar.png"
+                            alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
+                            className="w-10 h-10 rounded-full border object-cover"
+                          />
+                        )}
+
+                        <div>
+                          <p className="text-sm font-semibold text-slate-800">
+                            {alumni.firstName} {alumni.lastName || ""}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {alumni.email || "—"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-600">
+                        <div className="rounded-lg bg-white p-2 shadow-sm">
+                          <p className="font-medium text-slate-700">Batch</p>
+                          <p>{alumni.batchYear || "—"}</p>
+                        </div>
+                        <div className="rounded-lg bg-white p-2 shadow-sm">
+                          <p className="font-medium text-slate-700">Branch</p>
+                          <p>{alumni.department || "—"}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default AdminReports;
