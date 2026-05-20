@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -34,6 +34,7 @@ const FONT_BODY    = "'DM Sans', system-ui, sans-serif";
 const NewsDetailPage = () => {
   const { id }       = useParams();
   const navigate     = useNavigate();
+  const pdfWrapperRef = useRef(null);
 
   const [newsletter,  setNewsletter]  = useState(null);
   const [isLoading,   setIsLoading]   = useState(true);
@@ -287,7 +288,7 @@ const NewsDetailPage = () => {
                   shadow-[0_16px_48px_rgba(15,17,23,.12),0_4px_12px_rgba(15,17,23,.06)]">
 
                   {/* ── PDF header bar ── */}
-                  <div className="flex items-center justify-between flex-wrap gap-4
+                  <div ref={pdfWrapperRef} className="flex items-center justify-between flex-wrap gap-4
                     px-8 py-5 bg-[rgba(255,255,255,.03)] border-b border-[rgba(255,255,255,.08)]">
 
                     <div className="flex items-center gap-3">
@@ -360,7 +361,10 @@ const NewsDetailPage = () => {
                       {/* Centre: prev / input / next */}
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                          onClick={() => {
+                            pdfWrapperRef.current.scrollIntoView({ behavior: "smooth" });
+                            setCurrentPage((p) => Math.max(1, p - 1));
+                          }}
                           disabled={currentPage <= 1}
                           className="w-9 h-9 rounded-lg flex items-center justify-center
                             border border-[rgba(255,255,255,.12)] bg-[rgba(255,255,255,.06)]
@@ -392,7 +396,10 @@ const NewsDetailPage = () => {
                         />
 
                         <button
-                          onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
+                          onClick={() => {
+                            pdfWrapperRef.current.scrollIntoView({ behavior: "smooth" });
+                            setCurrentPage((p) => Math.min(numPages, p + 1));
+                          }}
                           disabled={currentPage >= numPages}
                           className="w-9 h-9 rounded-lg flex items-center justify-center
                             border border-[rgba(255,255,255,.12)] bg-[rgba(255,255,255,.06)]
