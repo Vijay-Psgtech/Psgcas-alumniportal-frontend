@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { ArrowRight, Zap, Users, Globe, Sparkles } from "lucide-react";
 import AuthCard from "../sections/Authcard.jsx";
 import LoginCard from "../sections/Logincard.jsx";
-import BgImage from ".././assets/Banner/B1.webp"
+import BgImage from ".././assets/Banner/B1.webp";
+import { useNavigate } from "react-router-dom";
 
 const EpicBanner = () => {
-  const [authMode, setAuthMode] = useState(null);
   const [offsetY, setOffsetY] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setOffsetY(window.pageYOffset);
@@ -17,14 +18,17 @@ const EpicBanner = () => {
 
   useEffect(() => {
     const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
+      setMousePos({
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+      });
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   const features = [
-    { icon: Users, text: "12K+ Alumni Connected", delay: 0 },
+    { icon: Users, text: "30K+ Alumni Connected", delay: 0 },
     { icon: Globe, text: "35+ Countries", delay: 0.1 },
     { icon: Sparkles, text: "200+ Annual Events", delay: 0.2 },
   ];
@@ -427,16 +431,16 @@ const EpicBanner = () => {
 
       <div className="epic-banner">
         {/* Background Image */}
-        <div 
+        <div
           className="banner-bg"
           style={{
-            backgroundImage: `url(${BgImage})`
+            backgroundImage: `url(${BgImage})`,
           }}
         />
-        
+
         {/* Dark Overlay for better readability */}
         <div className="banner-overlay" />
-        
+
         {/* Animated Elements */}
         <div className="grid-bg" />
         <div className="orb orb-1" />
@@ -452,7 +456,7 @@ const EpicBanner = () => {
               style={{
                 left: Math.random() * 100 + "%",
                 "--tx": (Math.random() - 0.5) * 200 + "px",
-                animationDuration: (3 + Math.random() * 4) + "s",
+                animationDuration: 3 + Math.random() * 4 + "s",
                 animationDelay: Math.random() * 5 + "s",
               }}
             />
@@ -467,12 +471,12 @@ const EpicBanner = () => {
               Welcome to Excellence
             </div>
 
-            <h1 className="banner-title">
-              Connect, Grow & Lead Together
-            </h1>
+            <h1 className="banner-title">Connect, Grow & Lead Together</h1>
 
             <p className="banner-description">
-              Join an exclusive global community where PSG Arts alumni collaborate, mentor, and create opportunities for lifelong success.
+              Join an exclusive global community where PSG Arts alumni
+              collaborate, mentor, and create opportunities for lifelong
+              success.
             </p>
 
             <div className="features-list">
@@ -492,53 +496,26 @@ const EpicBanner = () => {
             <div className="cta-buttons">
               <button
                 className="btn-primary"
-                onClick={() => setAuthMode("signup")}
+                onClick={() => navigate("/alumni/register")}
               >
                 <Zap size={18} />
                 Join Now
               </button>
-              <button className="btn-secondary">
+              {/* need to scroll down to next section */}
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  const nextSection =
+                    document.querySelector("#welcome-section");
+                  if (nextSection) {
+                    nextSection.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
                 Learn More
               </button>
             </div>
           </div>
-
-          {/* <div className="banner-right">
-            <div className="auth-glass">
-              <div className="auth-inner">
-                {authMode === "login" ? (
-                  <LoginCard onSwitchToSignup={() => setAuthMode("signup")} />
-                ) : authMode === "signup" ? (
-                  <AuthCard onSwitchToLogin={() => setAuthMode("login")} />
-                ) : (
-                  <div style={{ textAlign: "center", color: "#fff" }}>
-                    <div style={{ fontSize: "32px", marginBottom: "16px" }}>✨</div>
-                    <h3 style={{ fontSize: "20px", fontWeight: "700", marginBottom: "8px" }}>
-                      Welcome to PSG Arts
-                    </h3>
-                    <p style={{ fontSize: "13px", opacity: "0.7", marginBottom: "24px" }}>
-                      Sign in or create an account to unlock exclusive alumni benefits
-                    </p>
-                    <button
-                      onClick={() => setAuthMode("login")}
-                      style={{
-                        padding: "10px 20px",
-                        background: "linear-gradient(135deg, #c83e7d, #ff6b9d)",
-                        border: "none",
-                        color: "white",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        fontSize: "12px",
-                      }}
-                    >
-                      Get Started
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </>
