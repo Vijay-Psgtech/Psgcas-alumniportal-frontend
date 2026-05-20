@@ -232,7 +232,7 @@ const NewsDetailPage = () => {
                   <div className="flex flex-col gap-3">
                     {[
                       { icon: <Calendar size={14} />, label: "Published", value: formatDate(newsletter.date) },
-                      { icon: <User     size={14} />, label: "Author",    value: newsletter.author || "Anonymous" },
+                      { icon: <User     size={14} />, label: "Posted by",    value: newsletter.author || "Anonymous" },
                       // { icon: <Clock    size={14} />, label: "Created",   value: formatDate(newsletter.createdAt) },
                     ].map(({ icon, label, value }) => (
                       <div key={label} className="flex items-center gap-[10px] text-[13.5px] text-[#4b5261]">
