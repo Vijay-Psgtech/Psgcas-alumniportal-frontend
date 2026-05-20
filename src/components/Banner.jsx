@@ -1,37 +1,172 @@
-import React, { useState, useEffect } from "react";
-import { ArrowRight, Zap, Users, Globe, Sparkles } from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Zap, Users, Globe, Sparkles, RefreshCw } from "lucide-react";
 import AuthCard from "../sections/Authcard.jsx";
 import LoginCard from "../sections/Logincard.jsx";
-import BgImage from ".././assets/Banner/B1.webp";
-import { useNavigate } from "react-router-dom";
+import BgImage from "../assets/Banner/B1.webp";
+import BannerScrollNotification from "../pages/BannerScrollNotification";
+import {
+  cacheService,
+  notificationService,
+  bannerService,
+} from "../services/api.js";
+
+const generateParticles = (count = 20) => {
+  return Array.from({ length: count }).map(() => ({
+    left: Math.random() * 100,
+    tx: (Math.random() - 0.5) * 200,
+    duration: 3 + Math.random() * 4,
+    delay: Math.random() * 5,
+  }));
+};
 
 const EpicBanner = () => {
-  const [offsetY, setOffsetY] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const navigate = useNavigate();
+  const [authMode, setAuthMode] = useState(null);
+  const [bannerData, setBannerData] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [currentNotificationIndex, setCurrentNotificationIndex] = useState(0);
+  const [showNotification, setShowNotification] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setOffsetY(window.pageYOffset);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const notificationTimerRef = React.useRef(null);
+  const refetchIntervalRef = React.useRef(null);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  const particles = useMemo(() => generateParticles(20), []);
+
+  const getDefaultBannerData = () => ({
+    title: "Connect, Grow & Lead Together",
+    description:
+      "Join an exclusive global community where alumni collaborate and grow.",
+    image: BgImage,
+  });
+
+  const getDefaultNotifications = () => [
+    { 
+      id: "default-1",
+      title: "Welcome to PSG Alumni Portal 🎉",
+      message: "Join 12K+ alumni members connecting across 35+ countries",
+      type: "success"
+    },
+    { 
+      id: "default-2",
+      title: "New Events are Live 🚀",
+      message: "Check out our upcoming networking sessions and workshops",
+      type: "info"
+    },
+    { 
+      id: "default-3",
+      title: "Limited Spots Available ⏰",
+      message: "Early bird registration closing soon - Register now!",
+      type: "warning"
+    },
+    { 
+      id: "default-4",
+      title: "Alumni Success Stories 📖",
+      message: "Read how our alumni are making global impact",
+      type: "trending"
+    },
+  ];
 
   const features = [
-    { icon: Users, text: "30K+ Alumni Connected", delay: 0 },
-    { icon: Globe, text: "35+ Countries", delay: 0.1 },
-    { icon: Sparkles, text: "200+ Annual Events", delay: 0.2 },
+    { icon: Users, text: "30K+ Alumni Connected" },
+    { icon: Globe, text: "35+ Countries" },
+    { icon: Sparkles, text: "200+ Annual Events" },
   ];
+
+  const fetchBannerData = useCallback(async () => {
+    try {
+      const cached = cacheService.get("activeBanner");
+      if (cached) return setBannerData(cached);
+
+      const res = await bannerService.getActiveBanner();
+      if (res?.success) {
+        setBannerData(res.data);
+        cacheService.set("activeBanner", res.data);
+      } else {
+        setBannerData(getDefaultBannerData());
+      }
+    } catch {
+      setBannerData(getDefaultBannerData());
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const cached = cacheService.get("activeNotifications");
+      if (cached?.length) {
+        setNotifications(cached);
+        setShowNotification(true);
+        return;
+      }
+
+      const res = await notificationService.getActiveNotifications();
+      
+      const data = (res?.success && res.data?.length > 0) 
+        ? res.data 
+        : getDefaultNotifications();
+
+      console.log("📌 Notifications loaded:", data.length, "items");
+      setNotifications(data);
+      cacheService.set("activeNotifications", data);
+      setShowNotification(true);
+    } catch (error) {
+      console.warn("⚠️ Failed to fetch notifications:", error.message);
+      const fallback = getDefaultNotifications();
+      setNotifications(fallback);
+      setShowNotification(true);
+    }
+  }, []);
+
+  // ✅ Initial load
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      await Promise.all([fetchBannerData(), fetchNotifications()]);
+      setLoading(false);
+    };
+
+    load();
+
+    // ✅ IMPROVED: Set refetch interval (every 5 seconds to refresh data)
+    refetchIntervalRef.current = setInterval(() => {
+      setIsRefreshing(true);
+      cacheService.clear("activeBanner");
+      cacheService.clear("activeNotifications");
+      Promise.all([fetchBannerData(), fetchNotifications()])
+        .then(() => setIsRefreshing(false));
+    }, 5000);
+
+    return () => {
+      if (refetchIntervalRef.current) {
+        clearInterval(refetchIntervalRef.current);
+      }
+    };
+  }, [fetchBannerData, fetchNotifications]);
+
+  // ✅ CRITICAL: Notification cycling timer (synced with animation)
+  // Animation is 12 seconds, but we cycle every 6 seconds for better UX
+  useEffect(() => {
+    if (!showNotification || notifications.length === 0) return;
+
+    notificationTimerRef.current = setTimeout(() => {
+      setCurrentNotificationIndex(
+        (prev) => (prev + 1) % notifications.length
+      );
+    }, 20000);  // ✅ 20 seconds - gives smooth transition before animation completes
+
+    return () => {
+      if (notificationTimerRef.current) {
+        clearTimeout(notificationTimerRef.current);
+      }
+    };
+  }, [showNotification, notifications, currentNotificationIndex]);
+
+  const handleNotificationClose = () => {
+    setShowNotification(false);
+    if (notificationTimerRef.current) {
+      clearTimeout(notificationTimerRef.current);
+    }
+  };
 
   return (
     <>
@@ -517,6 +652,17 @@ const EpicBanner = () => {
             </div>
           </div>
         </div>
+        {/* ✅ NOTIFICATIONS BANNER - Fixed positioning with proper integration */}
+        {showNotification && notifications.length > 0 && (
+          <BannerScrollNotification
+            // ✅ Key forces component to remount on notification change (fresh animation)
+            key={notifications[currentNotificationIndex]?.id}
+            notification={notifications[currentNotificationIndex]}
+            onClose={handleNotificationClose}
+            total={notifications.length}
+            current={currentNotificationIndex + 1}
+          />
+        )}
       </div>
     </>
   );

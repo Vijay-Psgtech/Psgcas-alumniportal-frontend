@@ -1,7 +1,4 @@
-// frontend/src/pages/admin/AdminDashboard.jsx - SAFE VERSION
-// ✅ Works even if donationsAPI is missing
-// ✅ Falls back gracefully
-import React, { useState, useEffect, useCallback, use, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -40,6 +37,7 @@ import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
 import DepartmentTab from "../../components/admin/DepartmentTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
+import NotificationManager from "../../pages/Notificationmanager";
 
 import DonationHistory from "../../components/admin/DonationHistory";
 import CampaignCreator from "../../components/admin/CampaignCreator";
@@ -291,8 +289,15 @@ const AdminDashboard = () => {
       badge: stats.totalEvents,
     },
     { key: "albums", Icon: Camera, label: "Albums", badge: stats.totalAlbums },
+    // ✅ NEW: Notifications tab for Super Admin only
     ...(user?.role !== "admin"
       ? [
+          {
+            key: "notifications",
+            Icon: Bell,
+            label: "Notifications",
+            badge: "🔔",
+          },
           {
             key: "departments",
             Icon: BookOpen,
@@ -353,7 +358,7 @@ const AdminDashboard = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f8f5ee] font-['Outfit',_sans-serif]">
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5ee] font-['Outfit',sans-serif]">
         <div className="text-center">
           <div className="w-10 h-10 border-[3px] border-slate-200 border-t-blue-500 rounded-full mx-auto mb-4 animate-spin" />
           <p className="text-gray-400 font-medium">Loading dashboard…</p>
@@ -362,7 +367,7 @@ const AdminDashboard = () => {
     );
 
   return (
-    <div className="bg-slate-100 min-h-screen pt-26 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',_sans-serif]">
+    <div className="bg-slate-100 min-h-screen pt-26 pb-16 px-4 sm:px-6 relative overflow-x-hidden font-['Outfit',sans-serif]">
       {/* Background glowing orb */}
       <div className="absolute -top-44 -right-44 w-[480px] h-[480px] bg-[radial-gradient(circle,rgba(201,168,76,.07)_0%,transparent_70%)] pointer-events-none rounded-full" />
 
@@ -398,7 +403,7 @@ const AdminDashboard = () => {
               onClick={handleLogout}
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-700 border-none rounded-xl font-['Outfit',_sans-serif] text-[13px] font-bold cursor-pointer uppercase tracking-wider hover:bg-red-100 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-700 border-none rounded-xl font-['Outfit',sans-serif] text-[13px] font-bold cursor-pointer uppercase tracking-wider hover:bg-red-100 transition-colors shadow-sm"
             >
               <LogOut size={14} strokeWidth={2.5} /> Logout
             </motion.button>
@@ -409,7 +414,7 @@ const AdminDashboard = () => {
         <AnimatePresence>
           {error && (
             <motion.div
-              className="px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2.5 font-['Outfit',_sans-serif] font-medium bg-red-50 border border-red-200 text-red-800 shadow-sm"
+              className="px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2.5 font-['Outfit',sans-serif] font-medium bg-red-50 border border-red-200 text-red-800 shadow-sm"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -426,7 +431,7 @@ const AdminDashboard = () => {
           )}
           {success && (
             <motion.div
-              className="px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2.5 font-['Outfit',_sans-serif] font-medium bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-sm"
+              className="px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2.5 font-['Outfit',sans-serif] font-medium bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-sm"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -451,7 +456,7 @@ const AdminDashboard = () => {
               transition={{ duration: 0.2 }}
               className="
                 relative overflow-hidden
-                min-h-[96px]
+                min-h-24
 
                 bg-white
                 border border-slate-200/80
@@ -466,7 +471,7 @@ const AdminDashboard = () => {
               "
             >
               {/* Left Accent */}
-              <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-indigo-500" />
+              <div className="absolute left-0 top-0 h-full w-1 bg-linear-to-b from-blue-500 to-indigo-500" />
 
               <div className="flex items-center gap-4 h-full">
                 {/* Icon */}
@@ -692,6 +697,21 @@ const AdminDashboard = () => {
               </p>
             </div>
           )}
+          {/* ✅ NEW: Notifications Tab */}
+          {activeTab === "notifications" && (
+            <motion.div
+              key="notifications"
+              variants={iv}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0 }}
+            >
+              <NotificationManager
+                onError={setError}
+                onSuccess={setSuccess}
+              />
+            </motion.div>
+          )}
           {activeTab === "departments" && (
             <motion.div
               key="departments"
@@ -723,7 +743,7 @@ const AdminDashboard = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[2000] flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-2000 flex items-center justify-center p-4"
               onClick={() => setSelectedItem(null)}
             >
               {/* Backdrop */}
@@ -757,7 +777,7 @@ const AdminDashboard = () => {
                   <>
                     {/* Header with Profile Image */}
                     <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
                         {selectedItem.profileImage ? (
                           <img
                             src={`${API_BASE}/${selectedItem.profileImage}`}
@@ -804,7 +824,7 @@ const AdminDashboard = () => {
                             {it.l}
                           </p>
 
-                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 break-words">
+                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 wrap-break-word">
                             {it.v}
                           </p>
                         </div>
