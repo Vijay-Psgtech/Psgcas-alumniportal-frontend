@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Search,
   Clock,
@@ -22,9 +22,10 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { a } from "framer-motion/client";
+import { alumniAPI } from "../../services/api";
 
-export const AlumniTab = ({ 
-  alumniList, 
+export const AlumniTab = ({
+  alumniList,
   setSelectedItem,
   pageData = { totalAlumni: 0, totalPages: 1, currentPage: 1 },
   userRole = "admin",
@@ -36,15 +37,25 @@ export const AlumniTab = ({
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'pending', 'approved'
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
+  const [departments, setDepartments] = useState([]);
+  const [batches, setBatches] = useState([]);
   const alumniRef = useRef(null);
 
-  // ✅ OPTIMIZED: Derive unique values only from current page data
-  const departments = Array.from(
-    new Set(alumniList.map((a) => a.department).filter(Boolean)),
-  ).sort();
-  const batches = Array.from(
-    new Set(alumniList.map((a) => a.batchYear).filter(Boolean)),
-  ).sort((a, b) => String(b).localeCompare(String(a)));
+  // fetech departments and batches on mount
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await alumniAPI.getFilters();
+
+        setDepartments(res.data.departments || []);
+        setBatches(res.data.batches || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchFilters();
+  }, []);
 
   // ✅ OPTIMIZED: Remove client-side filtering - all done server-side now
   // The alumniList already contains only the filtered/paginated results from server
@@ -71,7 +82,6 @@ export const AlumniTab = ({
   };
 
   const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
-
 
   return (
     <motion.div
@@ -218,122 +228,119 @@ export const AlumniTab = ({
 
       {alumniList.length > 0 ? (
         <>
-          <div  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <AnimatePresence>
               {alumniList.map((a, i) => {
-              const photo = a.files?.currentPhoto || a.profileImage;
-              return (
-                <motion.div
-                  key={a._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
-                >
-                  {/* Profile Header */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                      {photo ? (
-                        <img
-                          src={`${API_BASE}/uploads/${photo}`}
-                          alt={`${a.firstName} ${a.lastName}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                          {a.firstName.charAt(0)}
-                          {a.lastName && a.lastName.charAt(0)}
-                          
+                const photo = a.files?.currentPhoto || a.profileImage;
+                return (
+                  <motion.div
+                    key={a._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
+                  >
+                    {/* Profile Header */}
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        {photo ? (
+                          <img
+                            src={`${API_BASE}/uploads/${photo}`}
+                            alt={`${a.firstName} ${a.lastName}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                            {a.firstName.charAt(0)}
+                            {a.lastName && a.lastName.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-gray-900 truncate">
+                          {a.firstName} {a.lastName}
+                        </h3>
+                        <p className="text-sm text-gray-600 truncate">
+                          {a.email}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                              a.isApproved
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {a.isApproved ? (
+                              <CheckCircle size={12} />
+                            ) : (
+                              <XCircle size={12} />
+                            )}
+                            {a.isApproved ? "Approved" : "Pending"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Details */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building size={14} className="text-gray-400" />
+                        <span className="text-gray-600">{a.department}</span>
+                        <span className="text-gray-400">•</span>
+                        <Calendar size={14} className="text-gray-400" />
+                        <span className="text-gray-600">{a.batchYear}</span>
+                      </div>
+
+                      {a.currentCompany && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Briefcase size={14} className="text-gray-400" />
+                          <span className="text-gray-600">
+                            {a.jobTitle} at {a.currentCompany}
+                          </span>
                         </div>
                       )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900 truncate">
-                        {a.firstName} {a.lastName}
-                      </h3>
-                      <p className="text-sm text-gray-600 truncate">
-                        {a.email}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                            a.isApproved
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {a.isApproved ? (
-                            <CheckCircle size={12} />
-                          ) : (
-                            <XCircle size={12} />
-                          )}
-                          {a.isApproved ? "Approved" : "Pending"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Details */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Building size={14} className="text-gray-400" />
-                      <span className="text-gray-600">
-                        {a.department}
-                      </span>
-                      <span className="text-gray-400">•</span>
-                      <Calendar size={14} className="text-gray-400" />
-                      <span className="text-gray-600">{a.batchYear}</span>
-                    </div>
-
-                    {a.currentCompany && (
                       <div className="flex items-center gap-2 text-sm">
-                        <Briefcase size={14} className="text-gray-400" />
-                        <span className="text-gray-600">
-                          {a.jobTitle} at {a.currentCompany}
+                        <MapPin size={14} className="text-gray-400" />
+                        <span className="text-gray-600 truncate">
+                          {a.city}, {a.country}
                         </span>
                       </div>
-                    )}
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span className="text-gray-600 truncate">
-                        {a.city}, {a.country}
-                      </span>
+                      {a.linkedin && (
+                        <a
+                          href={a.linkedin}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
+                        >
+                          <Linkedin size={14} />
+                          LinkedIn Profile
+                        </a>
+                      )}
                     </div>
 
-                    {a.linkedin && (
-                      <a
-                        href={a.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        <Linkedin size={14} />
-                        LinkedIn Profile
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    {!a.isApproved && (
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      {!a.isApproved && (
+                        <button
+                          onClick={() => setSelectedItem(a)}
+                          className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                        >
+                          Approve
+                        </button>
+                      )}
                       <button
+                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
                         onClick={() => setSelectedItem(a)}
-                        className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
                       >
-                        Approve
+                        View Details
                       </button>
-                    )}
-                    <button
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                      onClick={() => setSelectedItem(a)}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
 
@@ -376,14 +383,21 @@ export const AlumniTab = ({
                   // Always add last page (if more than 1 page)
                   if (totalPages > 1) pages.push(totalPages);
 
-                  return pages.map((page, idx) => 
+                  return pages.map((page, idx) =>
                     page === "..." ? (
-                      <span key={`ellipsis-${idx}`} className="text-slate-400 px-1">…</span>
+                      <span
+                        key={`ellipsis-${idx}`}
+                        className="text-slate-400 px-1"
+                      >
+                        …
+                      </span>
                     ) : (
                       <button
                         key={page}
                         onClick={() => {
-                          alumniRef.current?.scrollIntoView({ behavior: "smooth" });
+                          alumniRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                          });
                           onPageChange(page);
                         }}
                         className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
@@ -394,7 +408,7 @@ export const AlumniTab = ({
                       >
                         {page}
                       </button>
-                    )
+                    ),
                   );
                 })()}
               </div>
@@ -402,7 +416,9 @@ export const AlumniTab = ({
               <button
                 onClick={() => {
                   alumniRef.current?.scrollIntoView({ behavior: "smooth" });
-                  onPageChange(Math.min(pageData.totalPages, pageData.currentPage + 1));
+                  onPageChange(
+                    Math.min(pageData.totalPages, pageData.currentPage + 1),
+                  );
                 }}
                 disabled={pageData.currentPage === pageData.totalPages}
                 className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
@@ -411,7 +427,8 @@ export const AlumniTab = ({
               </button>
 
               <span className="text-xs text-slate-500 font-medium ml-4">
-                Page {pageData.currentPage} of {pageData.totalPages} • Total: {pageData.totalAlumni}
+                Page {pageData.currentPage} of {pageData.totalPages} • Total:{" "}
+                {pageData.totalAlumni}
               </span>
             </div>
           )}

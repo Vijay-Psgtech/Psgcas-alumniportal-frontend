@@ -671,6 +671,8 @@ export const alumniAPI = {
   getMapData: (params) => api.get("/alumni/map/data", { params }),
   getBatches: (params) => api.get("/alumni/batches", { params }),
   getByBatch: (params) => api.get("/alumni/batch-wise", { params }),
+  getFilters: () => api.get("/alumni/filters"),
+
   // ✅ ALUMNI CHAPTERS API
   getChapters: (params) => api.get("/alumni/chapters", { params }),
   getChapter: (id) => api.get(`/alumni/chapters/${id}`),
