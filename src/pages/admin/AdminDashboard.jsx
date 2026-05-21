@@ -257,7 +257,12 @@ const AdminDashboard = () => {
   };
 
   const TABS = [
-    { key: "alumni", Icon: Users, label: "Alumni", badge: formatNumber(alumniPageData.totalAlumni) },
+    {
+      key: "alumni",
+      Icon: Users,
+      label: "Alumni",
+      badge: formatNumber(alumniPageData.totalAlumni),
+    },
     {
       key: "donations",
       Icon: FileText,
@@ -270,18 +275,7 @@ const AdminDashboard = () => {
       label: "Donation History",
       badge: "🧾",
     },
-    {
-      key: "campaign-creator",
-      Icon: Plus,
-      label: "Create Campaign",
-      badge: "📋",
-    },
-    {
-      key: "campaign-manager",
-      Icon: Megaphone,
-      label: "Campaign Manager",
-      badge: stats.totalCampaigns,
-    },
+
     {
       key: "events",
       Icon: Calendar,
@@ -292,6 +286,18 @@ const AdminDashboard = () => {
     // ✅ NEW: Notifications tab for Super Admin only
     ...(user?.role !== "admin"
       ? [
+          {
+            key: "campaign-creator",
+            Icon: Plus,
+            label: "Create Campaign",
+            badge: "📋",
+          },
+          {
+            key: "campaign-manager",
+            Icon: Megaphone,
+            label: "Campaign Manager",
+            badge: stats.totalCampaigns,
+          },
           {
             key: "notifications",
             Icon: Bell,
@@ -706,10 +712,7 @@ const AdminDashboard = () => {
               animate="visible"
               exit={{ opacity: 0 }}
             >
-              <NotificationManager
-                onError={setError}
-                onSuccess={setSuccess}
-              />
+              <NotificationManager onError={setError} onSuccess={setSuccess} />
             </motion.div>
           )}
           {activeTab === "departments" && (
