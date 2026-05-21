@@ -257,7 +257,7 @@ const AdminDashboard = () => {
   };
 
   const TABS = [
-    { key: "alumni", Icon: Users, label: "Alumni", badge: alumniList.length },
+    { key: "alumni", Icon: Users, label: "Alumni", badge: formatNumber(alumniPageData.totalAlumni) },
     {
       key: "donations",
       Icon: FileText,

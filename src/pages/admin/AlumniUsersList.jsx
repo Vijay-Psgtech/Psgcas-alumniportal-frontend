@@ -20,7 +20,7 @@ import {
   UserX,
   X,
 } from "lucide-react";
-import { adminAPI, API_BASE } from "../../services/api";
+import { adminAPI, API_BASE, alumniAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatNumber } from "../../utils/formatters";
@@ -36,6 +36,7 @@ const AlumniUsersList = () => {
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [filters, setFilters] = useState({ departments: [], batches: [] });
   const [pageData, setPageData] = useState({
     totalAlumni: 0,
     totalPages: 1,
@@ -78,6 +79,22 @@ const AlumniUsersList = () => {
       }
     };
     fetchAlumni();
+  }, []);
+
+  // fetch filters
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await alumniAPI.getFilters();
+        setFilters({
+          departments: res.data.departments || [],
+          batches: res.data.batches || [],
+        });
+      } catch (error) {
+        console.error("Failed to fetch filters:", error);
+      }
+    };
+    fetchFilters();
   }, []);
 
   // ✅ OPTIMIZED: Removed client-side filtering/sorting/pagination - all done server-side
@@ -205,7 +222,9 @@ const AlumniUsersList = () => {
           </div>
           <div className="text-sm text-gray-500">
             Total:{" "}
-            <strong className="text-gray-900">{formatNumber(pageData.totalAlumni)}</strong>{" "}
+            <strong className="text-gray-900">
+              {formatNumber(pageData.totalAlumni)}
+            </strong>{" "}
             users
           </div>
         </div>
@@ -349,17 +368,11 @@ const AlumniUsersList = () => {
                   className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
                 >
                   <option value="">All Departments</option>
-                  {Array.from(
-                    new Set(
-                      alumniUsers.map((a) => a.department).filter(Boolean),
-                    ),
-                  )
-                    .sort()
-                    .map((d) => (
-                      <option key={d} value={d}>
-                        {d}
-                      </option>
-                    ))}
+                  {filters.departments.sort().map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
                 </select>
               )}
 
@@ -377,9 +390,7 @@ const AlumniUsersList = () => {
                 className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
               >
                 <option value="">All Batches</option>
-                {Array.from(
-                  new Set(alumniUsers.map((a) => a.batchYear).filter(Boolean)),
-                )
+                {filters.batches
                   .sort((a, b) => String(b).localeCompare(String(a)))
                   .map((b) => (
                     <option key={b} value={b}>

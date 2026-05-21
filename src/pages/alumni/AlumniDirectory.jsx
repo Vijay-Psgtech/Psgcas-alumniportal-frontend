@@ -445,6 +445,7 @@ const AlumniDirectory = () => {
   const [batchLoading, setBatchLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState({ occupations: [], departments: [] });
   const [filterOccupation, setFilterOccupation] = useState("");
   const [filterDept, setFilterDept] = useState("");
   const [gridMode, setGridMode] = useState("grid"); // "grid" | "list"
@@ -551,6 +552,7 @@ const AlumniDirectory = () => {
         setCurrentPage(data.page || 1);
         setSelectedBatch(year);
         setView("alumni");
+        setFilters({ occupations: data.filters.jobTitles || [], departments: data.filters.departments || [] });
       } catch (e) {
         setError("Failed to load alumni for this batch.");
       } finally {
@@ -576,15 +578,15 @@ const AlumniDirectory = () => {
     return alumniList; // Backend already filters, pagination handles the rest
   }, [alumniList]);
 
-  // ── Unique filter options ──
-  const occupations = useMemo(
-    () => [...new Set(alumniList.map((a) => a.jobTitle).filter(Boolean))],
-    [alumniList],
-  );
-  const departments = useMemo(
-    () => [...new Set(alumniList.map((a) => a.department).filter(Boolean))],
-    [alumniList],
-  );
+  // // ── Unique filter options ──
+  // const occupations = useMemo(
+  //   () => [...new Set(alumniList.map((a) => a.jobTitle).filter(Boolean))],
+  //   [alumniList],
+  // );
+  // const departments = useMemo(
+  //   () => [...new Set(alumniList.map((a) => a.department).filter(Boolean))],
+  //   [alumniList],
+  // );
 
   // ── Alumni list ──
   const displayedAlumni = useMemo(() => filtered, [filtered]);
@@ -824,7 +826,7 @@ const AlumniDirectory = () => {
                             className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
                           >
                             <option value="">All Occupations</option>
-                            {occupations.map((o) => (
+                            {filters.occupations.map((o) => (
                               <option key={o}>{o}</option>
                             ))}
                           </select>
@@ -841,7 +843,7 @@ const AlumniDirectory = () => {
                             className="appearance-none pl-3.5 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 shadow-sm cursor-pointer"
                           >
                             <option value="">All Departments</option>
-                            {departments.map((d) => (
+                            {filters.departments.map((d) => (
                               <option key={d}>{d}</option>
                             ))}
                           </select>
