@@ -40,8 +40,8 @@ import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import NotificationManager from "../../pages/Notificationmanager";
 
 import DonationHistory from "../../components/admin/DonationHistory";
-import CampaignCreator from "../../components/admin/CampaignCreator";
-import CampaignResponsesManager from "../../components/admin/CampaignResponsesManager";
+import CampaignCreator from "../../components/admin/Campaigncreator";
+import CampaignResponsesManager from "../../components/admin/CampaignresponsesManager";
 
 // ✅ Safe import with fallback
 const donationsAPI = {
