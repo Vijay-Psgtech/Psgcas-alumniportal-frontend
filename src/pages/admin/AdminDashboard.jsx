@@ -331,7 +331,7 @@ const AdminDashboard = () => {
           {
             icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
             val: formatCurrency(stats.totalDonatedAmount),
-            label: "Total Donations",
+            label: "Membership Funds",
           },
           {
             icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
@@ -353,7 +353,7 @@ const AdminDashboard = () => {
           {
             icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
             val: formatCurrency(stats.totalDonatedAmount),
-            label: "Total Donations",
+            label: "Membership Funds",
           },
           {
             icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
@@ -778,98 +778,102 @@ const AdminDashboard = () => {
                 {/* Alumni View */}
                 {selectedItem.firstName ? (
                   <>
-                    {/* Header with Profile Image */}
-                    <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-                        {selectedItem.profileImage ? (
-                          <img
-                            src={`${API_BASE}/${selectedItem.profileImage}`}
-                            alt="profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          `${selectedItem.firstName?.[0] || ""}${
-                            selectedItem.lastName?.[0] || ""
-                          }`
-                        )}
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                      {/* Profile Column */}
+                      <div className="md:col-span-1 bg-slate-50 rounded-xl p-5 border border-slate-100">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="w-28 h-28 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl mb-4">
+                            {selectedItem.files?.currentPhoto ? (
+                              <img
+                                src={`${API_BASE}/uploads/${selectedItem.files.currentPhoto}`}
+                                alt={`${selectedItem.firstName} ${selectedItem.lastName}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              `${selectedItem.firstName?.[0] || ""}${selectedItem.lastName?.[0] || ""}`
+                            )}
+                          </div>
 
-                      <div>
-                        <h2 className="text-[22px] font-bold text-[#0c0e1a] font-['Playfair_Display']">
-                          {selectedItem.firstName} {selectedItem.lastName}
-                        </h2>
-
-                        <p className="text-sm text-gray-500 font-medium">
-                          {selectedItem.department || "Department N/A"} •{" "}
-                          {selectedItem.batchYear || "Year N/A"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Info Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { l: "Email", v: selectedItem.email },
-                        { l: "Phone", v: selectedItem.phone || "N/A" },
-                        {
-                          l: "Company",
-                          v: selectedItem.currentCompany || "N/A",
-                        },
-                        { l: "Job Title", v: selectedItem.jobTitle || "N/A" },
-                        { l: "City", v: selectedItem.city || "N/A" },
-                        { l: "Country", v: selectedItem.country || "N/A" },
-                      ].map((it) => (
-                        <div
-                          key={it.l}
-                          className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-sm transition"
-                        >
-                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-                            {it.l}
+                          <h2 className="text-lg md:text-xl font-semibold text-slate-900">
+                            {selectedItem.firstName} {selectedItem.lastName}
+                          </h2>
+                          <p className="text-sm text-slate-500 mt-1">
+                            {selectedItem.department || "Department N/A"}
                           </p>
+                          <p className="text-sm text-slate-500">{selectedItem.batchYear || "Year N/A"}</p>
 
-                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 wrap-break-word">
-                            {it.v}
-                          </p>
+                          <div className="mt-4 w-full space-y-2">
+                            {selectedItem.linkedin && (
+                              <a
+                                href={selectedItem.linkedin}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="block w-full text-center px-4 py-2 rounded-lg bg-white border border-slate-200 text-blue-600 font-medium hover:bg-slate-100"
+                              >
+                                View LinkedIn
+                              </a>
+                            )}
+
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
 
-                    {/* LinkedIn */}
-                    {selectedItem.linkedin && (
-                      <a
-                        href={selectedItem.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                      >
-                        View LinkedIn Profile
-                      </a>
-                    )}
+                      {/* Details Column */}
+                      <div className="md:col-span-2 space-y-4">
+                        
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-3 pt-6 mt-6 border-t border-slate-100">
-                      {!selectedItem.isApproved && (
-                        <button
-                          onClick={() => handleApprove(selectedItem._id)}
-                          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
-                        >
-                          Approve Alumni
-                        </button>
-                      )}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="bg-white rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs uppercase text-gray-400 font-semibold">Contact</p>
+                            <p className="mt-2 text-sm text-slate-800">{selectedItem.email || "-"}</p>
+                            <p className="mt-1 text-sm text-slate-800">{selectedItem.phone || "-"}</p>
+                          </div>
 
-                      <button
-                        onClick={() => setSelectedItem(null)}
-                        className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
-                      >
-                        Close
-                      </button>
+                          <div className="bg-white rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs uppercase text-gray-400 font-semibold">Work</p>
+                            <p className="mt-2 text-sm text-slate-800">{selectedItem.currentCompany || "-"}</p>
+                            <p className="mt-1 text-sm text-slate-800">{selectedItem.jobTitle || "-"}</p>
+                          </div>
+
+                          <div className="bg-white rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs uppercase text-gray-400 font-semibold">Location</p>
+                            <p className="mt-2 text-sm text-slate-800">{selectedItem.city || "-"}</p>
+                            <p className="mt-1 text-sm text-slate-800">{selectedItem.country || "-"}</p>
+                          </div>
+
+                          <div className="bg-white rounded-xl p-4 border border-slate-100">
+                            <p className="text-xs uppercase text-gray-400 font-semibold">Other</p>
+                            <p className="mt-2 text-sm text-slate-800">Batch: {selectedItem.batchYear || "-"}</p>
+                            <p className="mt-1 text-sm text-slate-800">Status: {selectedItem.isApproved ? "Approved" : "Pending"}</p>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                          {!selectedItem.isApproved && (
+                            <button
+                              onClick={() => handleApprove(selectedItem._id)}
+                              className="flex-1 px-4 py-3 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
+                            >
+                              Approve Alumni
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => setSelectedItem(null)}
+                            className="px-4 py-3 rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
                     {/* Donation View */}
-                    <h2 className="text-[22px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
-                      Donation Details
+                    <h2 className="text-[25px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
+                      Membership Funds Details
                     </h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
