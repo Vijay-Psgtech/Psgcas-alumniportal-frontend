@@ -10,6 +10,7 @@ import {
   Save,
   Eye,
 } from "lucide-react";
+import { notificationService } from "../services/api";
 
 const NotificationManager = ({ onError, onSuccess }) => {
   const [notifications, setNotifications] = useState([]);
@@ -18,31 +19,33 @@ const NotificationManager = ({ onError, onSuccess }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [previewNotification, setPreviewNotification] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
     message: "",
     type: "info",
-    isActive: false,  // ✅ ADDED: Active toggle
+    isActive: false,
+    displayOrder: 0,
+    expiresAt: null,
   });
 
-  // Fetch notifications
+  // ✅ FIXED: Use api service instead of direct fetch
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/notification-scrolls");
-      const data = await res.json();
-      setNotifications(data.data || []);
-    } catch (err) {
-      console.error("Failed to fetch notifications:", err);
-      const stored = localStorage.getItem("adminNotifications");
-      if (stored) {
-        setNotifications(JSON.parse(stored));
-      }
-    } finally {
+      const res = await notificationService.getAllNotifications();
+      const data = res?.data || [];
+      console.log("✅ Notifications fetched:", data.length);
+      setNotifications(data);
       setLoading(false);
+    } catch (err) {
+      console.error("❌ Failed to fetch notifications:", err);
+      onError("Failed to fetch notifications");
+      setLoading(false);
+      setNotifications([]);
     }
-  }, []);
+  }, [onError]);
 
   useEffect(() => {
     fetchNotifications();
@@ -50,7 +53,14 @@ const NotificationManager = ({ onError, onSuccess }) => {
 
   // Reset form
   const resetForm = () => {
-    setFormData({ title: "", message: "", type: "info", isActive: false });
+    setFormData({ 
+      title: "", 
+      message: "", 
+      type: "info", 
+      isActive: false,
+      displayOrder: 0,
+      expiresAt: null,
+    });
     setSelectedNotification(null);
     setIsEditMode(false);
     setIsModalOpen(false);
@@ -63,375 +73,415 @@ const NotificationManager = ({ onError, onSuccess }) => {
       title: notification.title || "",
       message: notification.message || "",
       type: notification.type || "info",
-      isActive: notification.isActive || false,  // ✅ LOAD active status
+      isActive: notification.isActive || false,
+      displayOrder: notification.displayOrder || 0,
+      expiresAt: notification.expiresAt || null,
     });
     setIsEditMode(true);
     setIsModalOpen(true);
   };
 
-  // Handle add/update
+  // ✅ FIXED: Use api service for save
   const handleSave = async () => {
     if (!formData.title.trim()) {
       onError("Notification title is required");
       return;
     }
 
+    if (!formData.message.trim()) {
+      onError("Notification message is required");
+      return;
+    }
+
     try {
-      let updatedNotifications;
+      setIsSaving(true);
 
       if (isEditMode && selectedNotification) {
         // Update existing
-        updatedNotifications = notifications.map((n) =>
-          n._id === selectedNotification._id
-            ? { ...n, ...formData, updatedAt: new Date().toISOString() }
-            : n
+        await notificationService.updateNotification(
+          selectedNotification._id,
+          formData
         );
 
-        // API call
-        await fetch(`/api/notification-scrolls/${selectedNotification._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n._id === selectedNotification._id
+              ? { ...n, ...formData, updatedAt: new Date().toISOString() }
+              : n
+          )
+        );
 
         onSuccess("Notification updated successfully!");
       } else {
         // Create new
-        const newNotification = {
-          _id: Date.now().toString(),
-          ...formData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        const newNotification = await notificationService.createNotification(
+          formData
+        );
 
-        updatedNotifications = [newNotification, ...notifications];
-
-        // API call
-        await fetch("/api/notification-scrolls", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
-
+        setNotifications((prev) => [newNotification.data || newNotification, ...prev]);
         onSuccess("Notification created successfully!");
       }
 
-      setNotifications(updatedNotifications);
-      localStorage.setItem("adminNotifications", JSON.stringify(updatedNotifications));
       resetForm();
     } catch (err) {
-      onError(err.message || "Failed to save notification");
+      console.error("❌ Save error:", err);
+      onError(err.response?.data?.message || "Failed to save notification");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // Handle delete
+  // ✅ FIXED: Use api service for delete
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this notification?")) {
       return;
     }
 
     try {
-      await fetch(`/api/notification-scrolls/${id}`, { method: "DELETE" });
-
-      const updated = notifications.filter((n) => n._id !== id);
-      setNotifications(updated);
-      localStorage.setItem("adminNotifications", JSON.stringify(updated));
+      await notificationService.deleteNotification(id);
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
       onSuccess("Notification deleted successfully!");
     } catch (err) {
-      onError(err.message || "Failed to delete notification");
+      console.error("❌ Delete error:", err);
+      onError("Failed to delete notification");
     }
   };
 
-  const getTypeStyles = (type) => {
-    const styles = {
-      success: { color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-200" },
-      warning: { color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200" },
-      info: { color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
-      trending: { color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200" },
-      default: { color: "text-pink-600", bg: "bg-pink-50", border: "border-pink-200" },
-    };
-    return styles[type] || styles.default;
+  // ✅ FIXED: Use api service for toggle
+  const handleToggleActive = async (id, currentStatus) => {
+    try {
+      const updated = await notificationService.toggleNotification(id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === id ? { ...n, isActive: updated.data?.isActive || !currentStatus } : n
+        )
+      );
+      onSuccess(`Notification ${!currentStatus ? "activated" : "deactivated"}!`);
+    } catch (err) {
+      console.error("❌ Toggle error:", err);
+      onError("Failed to toggle notification");
+    }
   };
 
-  const typeOptions = ["success", "warning", "info", "trending", "default"];
+  const handlePreview = (notification) => {
+    setPreviewNotification(notification);
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case "success":
+        return <CheckCircle size={16} className="text-green-500" />;
+      case "warning":
+        return <AlertCircle size={16} className="text-yellow-500" />;
+      case "error":
+        return <AlertCircle size={16} className="text-red-500" />;
+      default:
+        return <AlertCircle size={16} className="text-blue-500" />;
+    }
+  };
+
+  const notificationTypeStyles = {
+    success: "bg-green-50 border-green-200",
+    warning: "bg-yellow-50 border-yellow-200",
+    error: "bg-red-50 border-red-200",
+    info: "bg-blue-50 border-blue-200",
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="w-10 h-10 border-[3px] border-slate-200 border-t-blue-500 rounded-full mx-auto mb-4 animate-spin" />
-          <p className="text-gray-400 font-medium">Loading notifications…</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading notifications...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <motion.div
-        className="flex justify-between items-center"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900">Notifications</h2>
-          <p className="text-slate-600 mt-1">Manage scroll banner notifications</p>
+    <div className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Notification Manager
+            </h1>
+            <p className="text-gray-600">
+              Manage and display scrolling notifications on the banner
+            </p>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              resetForm();
+              setIsModalOpen(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+          >
+            <Plus size={20} />
+            New Notification
+          </motion.button>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setIsModalOpen(true);
-          }}
-          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition"
-        >
-          <Plus size={16} /> Create
-        </button>
-      </motion.div>
 
-      {/* Notifications Grid */}
-      {notifications.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-white rounded-2xl p-12 text-center"
-        >
-          <AlertCircle size={48} className="mx-auto text-slate-400 mb-4" />
-          <p className="text-slate-600 text-lg">No notifications yet.</p>
-          <p className="text-slate-500 text-sm">Create one to get started!</p>
-        </motion.div>
-      ) : (
-        <motion.div
-          className="grid gap-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          {notifications.map((notif, idx) => {
-            const typeStyles = getTypeStyles(notif.type);
-            return (
-              <motion.div
-                key={notif._id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className={`bg-white rounded-xl p-5 border ${typeStyles.border} hover:shadow-md transition`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* Type Badge */}
-                  <div
-                    className={`${typeStyles.bg} ${typeStyles.color} px-3 py-1.5 rounded-lg text-xs font-semibold uppercase`}
-                  >
-                    {notif.type}
+        {/* Notifications Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence>
+            {notifications.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-500 text-lg">No notifications yet</p>
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <motion.div
+                  key={notification._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className={`p-4 rounded-lg border-2 ${
+                    notificationTypeStyles[notification.type] || notificationTypeStyles.info
+                  } backdrop-blur-sm`}
+                >
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2 flex-1">
+                      {getTypeIcon(notification.type)}
+                      <h3 className="font-bold text-gray-900 truncate">
+                        {notification.title || "Untitled"}
+                      </h3>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      notification.isActive
+                        ? "bg-green-200 text-green-800"
+                        : "bg-gray-200 text-gray-800"
+                    }`}>
+                      {notification.isActive ? "Active" : "Inactive"}
+                    </div>
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-slate-900 text-lg">
-                        {notif.title}
-                      </h3>
-                      {/* ✅ ADDED: Show active status */}
-                      {notif.isActive ? (
-                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-semibold">
-                          ACTIVE
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-semibold">
-                          INACTIVE
-                        </span>
-                      )}
-                    </div>
-                    {notif.message && (
-                      <p className="text-slate-600 text-sm mt-1">
-                        {notif.message}
-                      </p>
+                  {/* Message */}
+                  <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                    {notification.message}
+                  </p>
+
+                  {/* Meta */}
+                  <div className="text-xs text-gray-600 mb-4 space-y-1">
+                    <p>Type: <span className="font-semibold capitalize">{notification.type}</span></p>
+                    <p>Order: <span className="font-semibold">{notification.displayOrder}</span></p>
+                    {notification.expiresAt && (
+                      <p>Expires: <span className="font-semibold">{new Date(notification.expiresAt).toLocaleDateString()}</span></p>
                     )}
-                    <p className="text-xs text-slate-400 mt-2">
-                      {notif.updatedAt
-                        ? `Updated ${new Date(notif.updatedAt).toLocaleDateString()}`
-                        : `Created ${new Date(notif.createdAt).toLocaleDateString()}`}
-                    </p>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2 shrink-0">
-                    <button
-                      onClick={() => setPreviewNotification(notif)}
-                      title="Preview"
-                      className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition"
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handlePreview(notification)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition text-sm font-semibold"
                     >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(notif)}
-                      title="Edit"
-                      className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 transition"
+                      <Eye size={14} />
+                      Preview
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleEdit(notification)}
+                      className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition text-sm font-semibold"
                     >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(notif._id)}
-                      title="Delete"
-                      className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition"
+                      <Edit2 size={14} />
+                      Edit
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleToggleActive(notification._id, notification.isActive)}
+                      className={`flex-1 px-3 py-2 rounded transition text-sm font-semibold ${
+                        notification.isActive
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-green-500 text-white hover:bg-green-600"
+                      }`}
+                    >
+                      {notification.isActive ? "Deactivate" : "Activate"}
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDelete(notification._id)}
+                      className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
                     >
                       <Trash2 size={16} />
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-      )}
+                </motion.div>
+              ))
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
-      {/* Create/Edit Modal */}
+      {/* Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-1000 flex items-center justify-center p-4"
-            onClick={() => resetForm()}
+            onClick={resetForm}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           >
             <motion.div
-              initial={{ scale: 0.92, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 20 }}
-              className="bg-white rounded-2xl w-full max-w-lg p-7 shadow-xl"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
             >
-              {/* Header */}
-              <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                <h3 className="text-xl font-bold text-slate-900">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
                   {isEditMode ? "Edit Notification" : "Create Notification"}
-                </h3>
+                </h2>
                 <button
-                  onClick={() => resetForm()}
-                  className="p-1 hover:bg-slate-100 rounded-lg transition"
+                  onClick={resetForm}
+                  className="text-gray-500 hover:text-gray-700"
                 >
-                  <X size={20} />
+                  <X size={24} />
                 </button>
               </div>
 
-              {/* Form */}
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Title <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Title *
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g., Welcome to PSG Alumni Portal"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
                     }
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                    placeholder="e.g., Welcome to PSG Alumni"
+                    maxLength={150}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.title.length}/150
+                  </p>
                 </div>
 
                 {/* Message */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
-                    Message
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Message *
                   </label>
                   <textarea
-                    placeholder="e.g., 🎉 Join our community today"
                     value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
                     }
-                    rows="3"
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200 resize-none"
+                    placeholder="e.g., Join 12K+ alumni members..."
+                    maxLength={300}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.message.length}/300
+                  </p>
                 </div>
 
                 {/* Type */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Type
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {typeOptions.map((type) => {
-                      const typeStyles = getTypeStyles(type);
-                      return (
-                        <button
-                          key={type}
-                          onClick={() =>
-                            setFormData({ ...formData, type })
-                          }
-                          className={`py-2.5 px-3 rounded-lg font-semibold text-sm uppercase transition ${
-                            formData.type === type
-                              ? `${typeStyles.bg} ${typeStyles.color} border-2 border-current`
-                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                          }`}
-                        >
-                          {type}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <select
+                    value={formData.type}
+                    onChange={(e) =>
+                      setFormData({ ...formData, type: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="info">Info</option>
+                    <option value="success">Success</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                  </select>
                 </div>
 
-                {/* ✅ ADDED: Active Toggle */}
+                {/* Display Order */}
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-3">
-                    Status
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Display Order
                   </label>
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setFormData({ ...formData, isActive: true })}
-                      className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition ${
-                        formData.isActive
-                          ? "bg-green-100 text-green-700 border-2 border-green-600"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      ✅ Active
-                    </button>
-                    <button
-                      onClick={() => setFormData({ ...formData, isActive: false })}
-                      className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition ${
-                        !formData.isActive
-                          ? "bg-red-100 text-red-700 border-2 border-red-600"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      ❌ Inactive
-                    </button>
-                  </div>
+                  <input
+                    type="number"
+                    value={formData.displayOrder}
+                    onChange={(e) =>
+                      setFormData({ ...formData, displayOrder: parseInt(e.target.value) })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </div>
 
-                {/* Preview */}
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  <p className="text-xs font-semibold text-slate-600 uppercase mb-2">
-                    Preview
-                  </p>
-                  <div className={`${getTypeStyles(formData.type).bg} ${getTypeStyles(formData.type).color} px-4 py-3 rounded-lg`}>
-                    <p className="font-bold text-sm">{formData.title || "Your title here"}</p>
-                    {formData.message && (
-                      <p className="text-xs mt-1 opacity-90">{formData.message}</p>
-                    )}
-                  </div>
+                {/* Active Toggle */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) =>
+                      setFormData({ ...formData, isActive: e.target.checked })
+                    }
+                    className="w-4 h-4 rounded"
+                  />
+                  <label htmlFor="isActive" className="text-sm font-semibold text-gray-700">
+                    Active
+                  </label>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex gap-3 mt-8 pt-6 border-t border-slate-100">
-                <button
-                  onClick={() => resetForm()}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2"
-                >
-                  <Save size={16} /> {isEditMode ? "Update" : "Create"}
-                </button>
+                {/* Expires At */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Expires At (Optional)
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={formData.expiresAt ? new Date(formData.expiresAt).toISOString().slice(0, 16) : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, expiresAt: e.target.value ? new Date(e.target.value).toISOString() : null })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-4">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition"
+                  >
+                    <Save size={16} />
+                    {isSaving ? "Saving..." : "Save"}
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={resetForm}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -445,59 +495,30 @@ const NotificationManager = ({ onError, onSuccess }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-1001 flex items-center justify-center p-4"
             onClick={() => setPreviewNotification(null)}
+            className="fixed inset-0 bg-black/50 flex items-end justify-center p-4 z-50"
           >
             <motion.div
-              initial={{ scale: 0.92, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.92, y: 20 }}
-              className="w-full max-w-2xl"
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-t-lg shadow-xl w-full max-w-full p-6"
             >
-              <div className="bg-slate-900 rounded-2xl p-6 text-white">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Preview</h3>
-                  <button
-                    onClick={() => setPreviewNotification(null)}
-                    className="p-1 hover:bg-slate-800 rounded-lg transition"
-                  >
-                    <X size={20} />
-                  </button>
+              <h3 className="text-lg font-bold mb-4">Preview</h3>
+              <div className="bg-gray-100 p-6 rounded-lg mb-4">
+                <div className="text-sm text-gray-700">
+                  <p className="font-bold mb-2">{previewNotification.title}</p>
+                  <p>{previewNotification.message}</p>
+                  <p className="mt-2 text-xs text-gray-500">Type: {previewNotification.type}</p>
                 </div>
-
-                <style>{`
-                  .preview-scroll-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px;
-                    padding: 16px 40px;
-                    min-height: 60px;
-                    white-space: nowrap;
-                    width: fit-content;
-                  }
-                `}</style>
-
-                <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
-                  <div className="preview-scroll-item">
-                    <span className="font-bold text-sm">
-                      {previewNotification.title}
-                    </span>
-                    {previewNotification.message && (
-                      <>
-                        <div className="w-px h-6 bg-slate-600" />
-                        <span className="text-xs opacity-80">
-                          {previewNotification.message}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-400 mt-4">
-                  This is how your notification will appear in the scroll banner
-                </p>
               </div>
+              <button
+                onClick={() => setPreviewNotification(null)}
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition"
+              >
+                Close
+              </button>
             </motion.div>
           </motion.div>
         )}

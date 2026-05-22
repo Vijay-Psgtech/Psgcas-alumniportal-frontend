@@ -60,6 +60,7 @@ export function AuthProvider({ children }) {
   }, [fetchProfile]);
 
   // ── Login ──────────────────────────────────────────────────────
+  // Works for both email/password and social login
   const login = useCallback(
     async (userData) => {
       // Normalize user object

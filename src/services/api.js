@@ -17,56 +17,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const mockNotifications = [
-  {
-    id: "1",
-    type: "success",
-    title: "Welcome to PSG Alumni!",
-    message: "Join 12K+ alumni members connecting across 35+ countries.",
-  },
-  {
-    id: "2",
-    type: "info",
-    title: "Upcoming Event",
-    message: "Join our networking session next month - early bird registration open!",
-  },
-  {
-    id: "3",
-    type: "warning",
-    title: "Limited Spots Available",
-    message: "Only 50 seats left for the Global Summit 2024. Register now!",
-  },
-  {
-    id: "4",
-    type: "trending",
-    title: "Featured Alumni Story",
-    message: "Read how our alumni members are making impact globally",
-  },
-];
-
-const mockBannerData = {
-  id: "default-banner",
-  title: "Connect, Grow & Lead Together",
-  description:
-    "Join an exclusive global community where PSG Arts alumni collaborate, mentor, and create opportunities for lifelong success.",
-  subtitle: "Welcome to Excellence",
-  backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&h=900&fit=crop",
-  features: [
-    { icon: "Users", text: "12K+ Alumni Connected" },
-    { icon: "Globe", text: "35+ Countries" },
-    { icon: "Sparkles", text: "200+ Annual Events" },
-  ],
-  primaryButtonText: "Join Now",
-  secondaryButtonText: "Learn More",
-  isActive: true,
-  updatedAt: new Date().toISOString(),
-};
-
-const CACHE_PREFIX = 'psg_alumni_';
-const DEFAULT_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-
-
 // RESPONSE INTERCEPTOR — handle 401/403 globally
 api.interceptors.response.use(
   (response) => response,
@@ -103,6 +53,10 @@ export const authAPI = {
       },
     }),
   login: (data) => api.post("/auth/login", data),
+  
+  // ✅ NEW: Social Login (Google, Facebook)
+  socialLogin: (data) => api.post("/auth/social-login", data),
+  
   getProfile: () => api.get("/auth/profile"),
   changePassword: (currentPassword, newPassword) =>
     api.put("/auth/change-password", { currentPassword, newPassword }),
@@ -112,130 +66,7 @@ export const authAPI = {
     api.post("/auth/reset-password", { email, otp, newPassword }),
 };
 
-export const cacheService = {
-  /**
-   * Get cached data by key
-   * @param {string} key - Cache key
-   * @returns {any|null} - Cached data or null if expired/not found
-   */
-  get(key) {
-    try {
-      const cacheKey = `${CACHE_PREFIX}${key}`;
-      const cached = localStorage.getItem(cacheKey);
-
-      if (!cached) return null;
-
-      const { data, timestamp, duration } = JSON.parse(cached);
-      const isExpired = Date.now() - timestamp > duration;
-
-      if (isExpired) {
-        localStorage.removeItem(cacheKey);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Cache get error:', error);
-      return null;
-    }
-  },
-
-  /**
-   * Set cache data
-   * @param {string} key - Cache key
-   * @param {any} data - Data to cache
-   * @param {number} duration - Cache duration in milliseconds (default: 5 min)
-   * @returns {boolean} - Success status
-   */
-  set(key, data, duration = DEFAULT_CACHE_DURATION) {
-    try {
-      const cacheKey = `${CACHE_PREFIX}${key}`;
-      const cacheData = {
-        data,
-        timestamp: Date.now(),
-        duration,
-      };
-
-      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      return true;
-    } catch (error) {
-      console.error('Cache set error:', error);
-      return false;
-    }
-  },
-
-  /**
-   * Clear cache by key
-   * @param {string} key - Cache key
-   * @returns {boolean} - Success status
-   */
-  clear(key) {
-    try {
-      const cacheKey = `${CACHE_PREFIX}${key}`;
-      localStorage.removeItem(cacheKey);
-      return true;
-    } catch (error) {
-      console.error('Cache clear error:', error);
-      return false;
-    }
-  },
-
-  /**
-   * Clear all cached data
-   * @returns {boolean} - Success status
-   */
-  clearAll() {
-    try {
-      const keys = Object.keys(localStorage);
-      keys.forEach((key) => {
-        if (key.startsWith(CACHE_PREFIX)) {
-          localStorage.removeItem(key);
-        }
-      });
-      return true;
-    } catch (error) {
-      console.error('Cache clear all error:', error);
-      return false;
-    }
-  },
-
-  /**
-   * Check if cache exists and is valid
-   * @param {string} key - Cache key
-   * @returns {boolean} - Cache validity status
-   */
-  has(key) {
-    return this.get(key) !== null;
-  },
-
-  /**
-   * Get all cached data
-   * @returns {Object} - All cached data
-   */
-  getAll() {
-    try {
-      const result = {};
-      const keys = Object.keys(localStorage);
-
-      keys.forEach((key) => {
-        if (key.startsWith(CACHE_PREFIX)) {
-          const cleanKey = key.replace(CACHE_PREFIX, '');
-          const data = this.get(cleanKey);
-          if (data) {
-            result[cleanKey] = data;
-          }
-        }
-      });
-
-      return result;
-    } catch (error) {
-      console.error('Cache get all error:', error);
-      return {};
-    }
-  },
-};
-
-// ✅ BANNER SERVICE
+// ✅ BANNER SERVICE - ONLY REAL DATA
 export const bannerService = {
   async getActiveBanner() {
     try {
@@ -246,48 +77,69 @@ export const bannerService = {
         },
         timeout: 5000,
       });
-
+ 
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Banner fetched from API:', data);
         return { success: true, data: data.data || data };
       } else {
-        console.warn('⚠️ Banner API returned:', response.status);
-        return { success: false, data: mockBannerData };
+        console.warn('⚠️ Banner API returned status:', response.status);
+        // ✅ NO MOCK DATA - return empty on error
+        return { success: false, data: null };
       }
     } catch (error) {
-      console.warn('⚠️ Banner API Error - using mock data:', error.message);
-      return { success: false, data: mockBannerData };
+      console.warn('⚠️ Banner API Error:', error.message);
+      // ✅ NO MOCK DATA - return empty on error
+      return { success: false, data: null };
     }
   },
-
+ 
   async updateBanner(bannerData) {
     try {
-      const response = await fetch(`${BANNER_API}/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bannerData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      }
-      return { success: false, error: 'Failed to update banner' };
+      const response = await api.put(`${BANNER_API}/${bannerData.id}`, bannerData);
+      return response.data;
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('❌ Failed to update banner:', error.message);
+      throw error;
+    }
+  },
+ 
+  async createBanner(bannerData) {
+    try {
+      const response = await api.post(BANNER_API, bannerData);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to create banner:', error.message);
+      throw error;
+    }
+  },
+ 
+  async deleteBanner(bannerId) {
+    try {
+      const response = await api.delete(`${BANNER_API}/${bannerId}`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to delete banner:', error.message);
+      throw error;
+    }
+  },
+ 
+  async setActiveBanner(bannerId) {
+    try {
+      const response = await api.patch(`${BANNER_API}/${bannerId}/set-active`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to set active banner:', error.message);
+      throw error;
     }
   },
 };
 
-// ✅ NOTIFICATION SCROLL SERVICE (for banner scrolling notifications)
+// ✅ NOTIFICATION SCROLL SERVICE - ONLY REAL DATA FROM ADMIN
 export const notificationService = {
+  // ✅ Get active notifications for banner display - ONLY REAL ADMIN DATA
   async getActiveNotifications() {
     try {
-      console.log('📡 Fetching notifications from:', NOTIFICATION_SCROLL_API + '/active');
-      
       const response = await fetch(`${NOTIFICATION_SCROLL_API}/active`, {
         method: 'GET',
         headers: {
@@ -295,324 +147,266 @@ export const notificationService = {
         },
         timeout: 5000,
       });
-
+ 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Notifications fetched from API:', data);
-        // Handle both wrapped and unwrapped response
-        const notificationData = data.data || data;
-        return { success: true, data: Array.isArray(notificationData) ? notificationData : [notificationData] };
+        console.log('✅ Real notifications fetched from API:', data);
+        // ✅ ONLY REAL DATA - no mock fallback
+        return { success: true, data: data.data || data || [] };
       } else {
-        console.warn('⚠️ Notification API returned:', response.status);
-        return { success: false, data: mockNotifications };
+        console.warn('⚠️ Notifications API returned status:', response.status);
+        // ✅ NO MOCK DATA - return empty array
+        return { success: false, data: [] };
       }
     } catch (error) {
-      console.warn('⚠️ Notification API Error - using mock data:', error.message);
-      return { success: false, data: mockNotifications };
+      console.warn('⚠️ Notifications API Error:', error.message);
+      // ✅ NO MOCK DATA - return empty array on error
+      return { success: false, data: [] };
     }
   },
-
-  async createNotification(notificationData) {
+ 
+  // Get all notifications (admin)
+  async getAllNotifications() {
     try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(notificationData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      }
-      return { success: false, error: 'Failed to create notification' };
+      const response = await api.get(NOTIFICATION_SCROLL_API);
+      return response.data;
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('❌ Failed to fetch notifications:', error.message);
+      throw error;
     }
   },
-
-  async updateNotification(id, notificationData) {
+ 
+  // Get single notification
+  async getNotificationById(id) {
     try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(notificationData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      }
-      return { success: false, error: 'Failed to update notification' };
+      const response = await api.get(`${NOTIFICATION_SCROLL_API}/${id}`);
+      return response.data;
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('❌ Failed to fetch notification:', error.message);
+      throw error;
     }
   },
-
+ 
+  // Create notification
+  async createNotification(data) {
+    try {
+      const response = await api.post(NOTIFICATION_SCROLL_API, data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to create notification:', error.message);
+      throw error;
+    }
+  },
+ 
+  // Update notification
+  async updateNotification(id, data) {
+    try {
+      const response = await api.put(`${NOTIFICATION_SCROLL_API}/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to update notification:', error.message);
+      throw error;
+    }
+  },
+ 
+  // Delete notification
   async deleteNotification(id) {
     try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        return { success: true };
-      }
-      return { success: false, error: 'Failed to delete notification' };
+      const response = await api.delete(`${NOTIFICATION_SCROLL_API}/${id}`);
+      return response.data;
     } catch (error) {
-      return { success: false, error: error.message };
+      console.error('❌ Failed to delete notification:', error.message);
+      throw error;
+    }
+  },
+ 
+  // Toggle active status
+  async toggleNotification(id) {
+    try {
+      const response = await api.patch(`${NOTIFICATION_SCROLL_API}/${id}/toggle-active`);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Failed to toggle notification:', error.message);
+      throw error;
+    }
+  },
+ 
+  // Track view
+  async trackView(id) {
+    try {
+      const response = await api.patch(`${NOTIFICATION_SCROLL_API}/${id}/view`);
+      return response.data;
+    } catch (error) {
+      console.error('⚠️ Failed to track view:', error.message);
+    }
+  },
+ 
+  // Track dismiss
+  async trackDismiss(id) {
+    try {
+      const response = await api.patch(`${NOTIFICATION_SCROLL_API}/${id}/dismiss`);
+      return response.data;
+    } catch (error) {
+      console.error('⚠️ Failed to track dismiss:', error.message);
     }
   },
 };
 
-// ────────────────────────────────────────────────────────────────────────────
-// ✅ DEPARTMENTS API - DYNAMIC DEPARTMENTS MANAGEMENT
-// ────────────────────────────────────────────────────────────────────────────
-
-export const departmentAPI = {
-  // Get all active departments (PUBLIC)
-  getAll: () => {
-    console.log("📡 Fetching all active departments...");
-    return api.get("/departments");
-  },
-
-  // Get departments by programme type and funding type (PUBLIC)
-  getByType: (programmeType, fundingType) => {
-    console.log(
-      `📡 Fetching departments (${programmeType}, ${fundingType})...`,
-    );
-    return api.get(`/departments/${programmeType}/${fundingType}`);
-  },
-
-  // Get all departments including inactive (ADMIN ONLY)
-  getAllAdmin: () => {
-    console.log("📡 Fetching all departments (admin)...");
-    return api.get("/departments/admin/all");
-  },
-
-  // Create new department (ADMIN ONLY)
-  create: (data) => {
-    console.log("📤 Creating department:", data);
+// ── CAMPAIGN SERVICE ───────────────────────────────────────────────────
+export const campaignService = {
+  // Fetch all campaigns
+  getAll: (params = {}) => {
+    console.log(`📤 Fetching all campaigns...`, params);
     return api
-      .post("/departments", data)
+      .get("/campaigns", { params })
       .then((response) => {
-        console.log("✅ Department created:", response.data);
+        console.log("✅ Campaigns fetched successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to fetch campaigns:", error.message);
+        throw error;
+      });
+  },
+
+  // Fetch a single campaign
+  getById: (campaignId) => {
+    console.log(`📤 Fetching campaign ${campaignId}...`);
+    return api
+      .get(`/campaigns/${campaignId}`)
+      .then((response) => {
+        console.log(`✅ Campaign ${campaignId} fetched successfully`);
         return response;
       })
       .catch((error) => {
         console.error(
-          "❌ Department creation failed:",
-          error.response?.data || error.message,
+          `❌ Failed to fetch campaign ${campaignId}:`,
+          error.message
         );
         throw error;
       });
   },
 
-  // Update department (ADMIN ONLY)
-  update: (id, data) => {
-    console.log(`📤 Updating department ${id}:`, data);
+  // Create a new campaign
+  create: (campaignData) => {
+    console.log(`📤 Creating new campaign...`);
     return api
-      .put(`/departments/${id}`, data)
+      .post("/campaigns", campaignData)
       .then((response) => {
-        console.log("✅ Department updated:", response.data);
+        console.log("✅ Campaign created successfully");
+        return response;
+      })
+      .catch((error) => {
+        console.error("❌ Failed to create campaign:", error.message);
+        throw error;
+      });
+  },
+
+  // Update a campaign
+  update: (campaignId, campaignData) => {
+    console.log(`📤 Updating campaign ${campaignId}...`);
+    return api
+      .put(`/campaigns/${campaignId}`, campaignData)
+      .then((response) => {
+        console.log(`✅ Campaign ${campaignId} updated successfully`);
         return response;
       })
       .catch((error) => {
         console.error(
-          "❌ Department update failed:",
-          error.response?.data || error.message,
+          `❌ Failed to update campaign ${campaignId}:`,
+          error.message
         );
         throw error;
       });
   },
 
-  // Delete department (ADMIN ONLY)
-  delete: (id) => {
-    console.log(`📤 Deleting department ${id}...`);
+  // Delete a campaign
+  delete: (campaignId) => {
+    console.log(`📤 Deleting campaign ${campaignId}...`);
     return api
-      .delete(`/departments/${id}`)
+      .delete(`/campaigns/${campaignId}`)
       .then((response) => {
-        console.log("✅ Department deleted:", response.data);
+        console.log(`✅ Campaign ${campaignId} deleted successfully`);
         return response;
       })
       .catch((error) => {
         console.error(
-          "❌ Department deletion failed:",
-          error.response?.data || error.message,
+          `❌ Failed to delete campaign ${campaignId}:`,
+          error.message
         );
         throw error;
       });
   },
 
-  // Toggle department active/inactive status (ADMIN ONLY)
-  toggleStatus: (id) => {
-    console.log(`📤 Toggling status for department ${id}...`);
-    return api
-      .patch(`/departments/${id}/toggle`)
-      .then((response) => {
-        console.log("✅ Department status toggled:", response.data);
-        return response;
-      })
-      .catch((error) => {
-        console.error(
-          "❌ Status toggle failed:",
-          error.response?.data || error.message,
-        );
-        throw error;
-      });
-  },
-};
-
-// ────────────────────────────────────────────────────────────────────────────
-// ✅ CAMPAIGNS API - CAMPAIGN MANAGEMENT & RESPONSES
-// ────────────────────────────────────────────────────────────────────────────
-export const campaignsAPI = {
-  // Get all campaigns
-  getAll: (params) => {
-    console.log("📡 Fetching all campaigns...");
-    return api.get("/campaigns", { params }).catch((error) => {
-      console.error("❌ Failed to fetch campaigns:", error.message);
-      throw error;
-    });
-  },
-
-  // Get single campaign by ID
-  getById: (id) => {
-    console.log(`📡 Fetching campaign ${id}...`);
-    return api.get(`/campaigns/${id}`).catch((error) => {
-      console.error(`❌ Failed to fetch campaign ${id}:`, error.message);
-      throw error;
-    });
-  },
-
-  // Create new campaign
-  create: (data) => {
-    console.log("📤 Creating campaign...", data.title);
-    return api
-      .post("/campaigns", data)
-      .then((response) => {
-        console.log("✅ Campaign created:", response.data.campaignId);
-        return response;
-      })
-      .catch((error) => {
-        console.error("❌ Campaign creation failed:", error.message);
-        throw error;
-      });
-  },
-
-  // Update campaign
-  update: (id, data) => {
-    console.log(`📤 Updating campaign ${id}...`);
-    return api
-      .put(`/campaigns/${id}`, data)
-      .then((response) => {
-        console.log("✅ Campaign updated:", id);
-        return response;
-      })
-      .catch((error) => {
-        console.error(`❌ Campaign update failed:`, error.message);
-        throw error;
-      });
-  },
-
-  // Delete campaign
-  delete: (id) => {
-    console.log(`📤 Deleting campaign ${id}...`);
-    return api
-      .delete(`/campaigns/${id}`)
-      .then((response) => {
-        console.log("✅ Campaign deleted:", id);
-        return response;
-      })
-      .catch((error) => {
-        console.error(`❌ Campaign deletion failed:`, error.message);
-        throw error;
-      });
-  },
-
-  // ── CAMPAIGN RESPONSES ──
-
-  // Submit response to campaign
-  submitResponse: (campaignId, data) => {
-    console.log(`📤 Submitting response to campaign ${campaignId}...`);
-    return api
-      .post(`/campaigns/${campaignId}/respond`, data)
-      .then((response) => {
-        console.log("✅ Response submitted successfully");
-        return response;
-      })
-      .catch((error) => {
-        console.error("❌ Failed to submit response:", error.message);
-        throw error;
-      });
-  },
-
-  // Get all responses for a campaign
+  // Get responses for a campaign
   getResponses: (campaignId, params = {}) => {
-    console.log(`📡 Fetching responses for campaign ${campaignId}...`, params);
+    console.log(
+      `📤 Fetching responses for campaign ${campaignId}...`,
+      params
+    );
     return api
       .get(`/campaigns/${campaignId}/responses`, { params })
       .then((response) => {
         console.log(
-          `✅ Fetched ${response.data.count || 0} responses from campaign`,
+          `✅ Responses for campaign ${campaignId} fetched successfully`
         );
         return response;
       })
       .catch((error) => {
         console.error(
           `❌ Failed to fetch responses for campaign ${campaignId}:`,
-          error.message,
+          error.message
         );
         throw error;
       });
   },
 
-  // Get single response
-  getResponse: (responseId) => {
-    console.log(`📡 Fetching response ${responseId}...`);
-    return api.get(`/campaigns/response/${responseId}`).catch((error) => {
-      console.error(`❌ Failed to fetch response:`, error.message);
-      throw error;
-    });
-  },
-
-  // Update response status
-  updateResponseStatus: (responseId, data) => {
-    console.log(`📤 Updating response ${responseId} status...`);
+  // Submit a response
+  submitResponse: (campaignId, responseData) => {
+    console.log(`📤 Submitting response for campaign ${campaignId}...`);
     return api
-      .put(`/campaigns/response/${responseId}/status`, data)
+      .post(`/campaigns/${campaignId}/responses`, responseData)
       .then((response) => {
-        console.log("✅ Response status updated");
+        console.log(
+          `✅ Response for campaign ${campaignId} submitted successfully`
+        );
         return response;
       })
       .catch((error) => {
-        console.error("❌ Failed to update response status:", error.message);
+        console.error(
+          `❌ Failed to submit response for campaign ${campaignId}:`,
+          error.message
+        );
         throw error;
       });
   },
 
-  // Publish response as story
-  publishResponse: (responseId, title) => {
-    console.log(`📤 Publishing response ${responseId} as story...`);
+  // Update a response
+  updateResponse: (campaignId, responseId, responseData) => {
+    console.log(
+      `📤 Updating response ${responseId} for campaign ${campaignId}...`
+    );
     return api
-      .post(`/campaigns/response/${responseId}/publish`, { title })
+      .put(
+        `/campaigns/${campaignId}/responses/${responseId}`,
+        responseData
+      )
       .then((response) => {
-        console.log("✅ Response published successfully");
+        console.log(
+          `✅ Response ${responseId} for campaign ${campaignId} updated successfully`
+        );
         return response;
       })
       .catch((error) => {
-        console.error("❌ Failed to publish response:", error.message);
+        console.error(
+          `❌ Failed to update response ${responseId}:`,
+          error.message
+        );
         throw error;
       });
   },
 
-  // Delete response
+  // Delete a response
   deleteResponse: (responseId) => {
     console.log(`📤 Deleting response ${responseId}...`);
     return api
@@ -696,6 +490,27 @@ export const alumniAPI = {
 
   // Get user's chapters (chapters I've joined)
   getMyChapters: () => api.get("/alumni/chapters/my-chapters"),
+};
+
+// ── DEPARTMENTS API ──────────────────────────────────────────────
+export const departmentAPI = {
+  // Get all departments (admin view)
+  getAllAdmin: (params) => api.get("/departments", { params }),
+  
+  // Get single department
+  getById: (id) => api.get(`/departments/${id}`),
+  
+  // Create new department
+  create: (data) => api.post("/departments", data),
+  
+  // Update department
+  update: (id, data) => api.put(`/departments/${id}`, data),
+  
+  // Delete department
+  delete: (id) => api.delete(`/departments/${id}`),
+  
+  // Toggle department status (active/inactive)
+  updateStatus: (id, active) => api.patch(`/departments/${id}/status`, { active }),
 };
 
 // ── ADMIN ────────────────────────────────────────────────────────
@@ -850,25 +665,25 @@ export const notificationAPI = {
         "Content-Type": "multipart/form-data",
       },
     }),
-
+ 
   // Alumni: get approved notifications visible to me
   getMyNotifications: () => api.get("/notifications"),
-
+ 
   // Alumni: see my own submitted notifications (all statuses)
   getMySubmissions: () => api.get("/notifications/mine"),
-
+ 
   // Admin: get all notifications, optionally filter by status
   adminGetAll: (status) =>
     api.get("/notifications/admin/all", { params: status ? { status } : {} }),
-
+ 
   // Admin: approve
   adminApprove: (id, adminNote = "") =>
     api.put(`/notifications/admin/${id}/approve`, { adminNote }),
-
+ 
   // Admin: reject with reason
   adminReject: (id, reason) =>
     api.put(`/notifications/admin/${id}/reject`, { reason }),
-
+ 
   // Admin: delete
   adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
 };

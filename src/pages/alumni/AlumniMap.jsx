@@ -57,7 +57,7 @@ const FitBounds = ({ alumni }) => {
 const StatPill = ({ icon: Icon, value, label, color }) => (
   <div className="flex items-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-3.5">
     <div
-      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}
+      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${color}`}
     >
       <Icon size={16} className="text-white" />
     </div>
@@ -80,7 +80,7 @@ const ModalRow = ({
 }) => (
   <div className="flex items-start gap-3 py-3 border-b border-slate-100 last:border-0">
     <div
-      className={`mt-0.5 w-7 h-7 rounded-lg ${bgColor} flex items-center justify-center flex-shrink-0`}
+      className={`mt-0.5 w-7 h-7 rounded-lg ${bgColor} flex items-center justify-center shrink-0`}
     >
       <Icon size={13} className={iconColor} />
     </div>
@@ -136,7 +136,7 @@ const AlumniMap = () => {
       }
     };
     loadMapData();
-  }, []);
+  }, [isAdmin, user.department]);
 
   const validAlumni = useMemo(
     () =>
@@ -156,7 +156,7 @@ const AlumniMap = () => {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 flex flex-col items-center justify-center gap-4 pt-20">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/40 flex flex-col items-center justify-center gap-4 pt-20">
         <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-blue-500 animate-spin" />
         <p className="text-slate-400 text-sm font-medium">
           🌍 Loading interactive world map…
@@ -168,7 +168,7 @@ const AlumniMap = () => {
   /* ── Error ── */
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 flex items-center justify-center p-6 pt-20">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/40 flex items-center justify-center p-6 pt-20">
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-8 py-10 max-w-sm w-full text-center">
           <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-4">
             <AlertCircle size={22} className="text-red-500" />
@@ -184,7 +184,7 @@ const AlumniMap = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40 pt-24 pb-16 px-4 sm:px-6">
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-blue-50/40 pt-24 pb-16 px-4 sm:px-6">
         <div className="container mx-auto px-6">
           {/* ── Page Header ── */}
           <motion.div
@@ -237,7 +237,7 @@ const AlumniMap = () => {
           >
             {/* Map Container */}
             <div className="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-              <div className="h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
+              <div className="h-1 bg-linear-to-r from-[#667eea] to-[#764ba2]" />
               <div className="p-1">
                 <MapContainer
                   center={[20, 0]}
@@ -293,10 +293,10 @@ const AlumniMap = () => {
                   className="w-full lg:w-80 xl:w-96 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
                 >
                   {/* Panel header accent */}
-                  <div className="h-1 bg-gradient-to-r from-[#667eea] to-[#764ba2]" />
+                  <div className="h-1 bg-linear-to-r from-[#667eea] to-[#764ba2]" />
 
                   {/* Avatar + name block */}
-                  <div className="relative bg-gradient-to-br from-blue-50 to-blue-50 px-6 pt-6 pb-5">
+                  <div className="relative bg-linear-to-br from-blue-50 to-blue-50 px-6 pt-6 pb-5">
                     <button
                       onClick={() => setSelectedAlumni(null)}
                       className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/80 border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-white transition-all"
@@ -305,7 +305,7 @@ const AlumniMap = () => {
                     </button>
 
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 flex-shrink-0 select-none">
+                      <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-500 flex items-center justify-center text-white text-xl font-extrabold shadow-lg shadow-blue-200 shrink-0 select-none">
                         {selectedAlumni.files?.currentPhoto ? (
                           <img
                             src={`${API_BASE}/uploads/${selectedAlumni.files?.currentPhoto}`}
