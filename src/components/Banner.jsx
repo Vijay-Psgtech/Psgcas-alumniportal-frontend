@@ -843,7 +843,7 @@ const EpicBanner = () => {
       subtitle: "Welcome to Excellence",
       backgroundImage: "https://via.placeholder.com/1600x900",
       features: [
-        { icon: "Users", text: "12K+ Alumni Connected" },
+        { icon: "Users", text: "30K+ Alumni Connected" },
         { icon: "Globe", text: "35+ Countries" },
         { icon: "Sparkles", text: "200+ Annual Events" },
       ],
@@ -1001,7 +1001,7 @@ const EpicBanner = () => {
     );
   }
 
-  const data = bannerData || getDefaultBannerData();
+  const data = getDefaultBannerData() || bannerData;
 
   return (
     <>
@@ -1439,14 +1439,18 @@ const EpicBanner = () => {
             </div>
 
             <div className="cta-buttons">
-              <button className="btn-primary">
-                <Zap size={18} />
-                {data.primaryButtonText}
-              </button>
-
+              <a href="/alumni/login" target="_blank" rel="noopener noreferrer">
+                <button className="btn-primary">
+                  <Zap size={18} />
+                  {data.primaryButtonText}
+                </button>
+              </a>
+              
+              <a href="#welcome-section">
               <button className="btn-secondary">
                 {data.secondaryButtonText}
               </button>
+              </a>
             </div>
           </div>
         </div>
