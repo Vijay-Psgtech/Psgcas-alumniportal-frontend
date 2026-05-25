@@ -27,7 +27,7 @@ const WelcomeSection = () => {
   const leaders = [
     {
       id: 1,
-      name: "MR. L. Gopalakrishnan",
+      name: "Mr. L. Gopalakrishnan",
       title: "Managing Trustee - PSG Sons & Charities",
       subtitle: "Visionary Leader & Philanthropist",
       image: leaderImage1,
@@ -39,7 +39,7 @@ const WelcomeSection = () => {
     },
     {
       id: 2,
-      name: "MR. J Prithiviraj",
+      name: "Mr. J Prithiviraj",
       title: "President - PSG Arts Alumni Association",
       subtitle: "Connecting Generations of Excellence",
       image: leaderImage2,
