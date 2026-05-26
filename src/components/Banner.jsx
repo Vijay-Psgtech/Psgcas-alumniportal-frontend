@@ -845,7 +845,7 @@ const EpicBanner = () => {
       features: [
         { icon: "Users", text: "30K+ Alumni Connected" },
         { icon: "Globe", text: "35+ Countries" },
-        { icon: "Sparkles", text: "200+ Annual Events" },
+        { icon: "Sparkles", text: "50+ Annual Events" },
       ],
       primaryButtonText: "Join Now",
       secondaryButtonText: "Learn More",
