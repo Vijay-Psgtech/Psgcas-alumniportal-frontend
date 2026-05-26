@@ -25,7 +25,7 @@ const PremiumStats = () => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const targetCounts = { alumni: 30000, chapters: 50, countries: 35, events: 200 };
+    const targetCounts = { alumni: 30000, chapters: 50, countries: 35, events: 50 };
     const speeds = { alumni: 100, chapters: 16, countries: 12, events: 6 };
     let interval;
     let currentValues = { alumni: 0, chapters: 0, countries: 0, events: 0 };
