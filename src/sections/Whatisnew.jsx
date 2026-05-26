@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   Eye,
@@ -8,61 +8,23 @@ import {
   Lock,
   FileCheck,
 } from "lucide-react";
+import { API_BASE, newsLetterAPI } from "../services/api";
 
 const WhatIsNew = () => {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
 
-  const newsletters = [
-    {
-      id: 1,
-      title: "PSG CASIANS Newsletter - Jan-Mar 2026",
-      date: "Feb 04, 2026",
-      fileName: "PSG CASIANS Newletter Jan - Mar 2026.pdf",
-      fileSize: "29.4 MB",
-      thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
-      image:
-        "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/jan_mar_26.pdf",
-      category: "newsletter",
-      excerpt:
-        "Stay updated with the latest alumni achievements, events, and success stories from our community.",
-      color: "#3B82F6",
-      bgColor: "#F0F9FF",
-    },
-    {
-      id: 2,
-      title: "PSG CASIANS Newsletter - Oct-Dec 2025",
-      date: "Feb 04, 2026",
-      fileName: "CASIANS Newletter Oct - Dec 2025.pdf",
-      fileSize: "18 MB",
-      thumbnail: "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
-      image:
-        "https://images.unsplash.com/photo-1557821552-17105176677c?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/oct_dec_25.pdf",
-      category: "newsletter",
-      excerpt:
-        "Stay updated with the latest alumni achievements, events, and success stories from our community.",
-      color: "#3B82F6",
-      bgColor: "#F0F9FF",
-    },
-    {
-      id: 3,
-      title: "PSG CASIANS Newsletter - Jul-Sep 2025",
-      date: "Nov 03, 2025",
-      fileName: "CASIANS Newletter - Jul-Sep_2025.pdf",
-      fileSize: "16 MB",
-      thumbnail: "linear-gradient(135deg, #0369A1 0%, #06B6D4 100%)",
-      image:
-        "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&h=250&fit=crop",
-      pdfUrl: "/PDF/jul_sep_25.pdf",
-      category: "newsletter",
-      excerpt:
-        "Connecting alumni across the globe through inspiring stories and valuable updates.",
-      color: "#06B6D4",
-      bgColor: "#F0FDFA",
-    },
-  ];
+  // fetch Recent 3 Newsletters
+  const [newsletters, setNewsletters] = useState([]);  
+  useEffect(() => {
+    newsLetterAPI.getRecent()
+      .then((response) => {
+        setNewsletters(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching newsletters:", error);
+      });
+  }, []);
 
   const filteredNewsletters =
     activeTab === "all"
@@ -71,7 +33,7 @@ const WhatIsNew = () => {
 
   const handleOpenPDF = (pdf) => {
     if (pdf.pdfUrl) {
-      window.open(pdf.pdfUrl, "_blank");
+      window.open(API_BASE + '/' + pdf.pdfUrl, "_blank");
       console.log("📄 Opening PDF in new tab:", pdf.pdfUrl);
     } else {
       console.error("❌ PDF URL not available");
@@ -81,7 +43,7 @@ const WhatIsNew = () => {
   const downloadPDF = (pdf) => {
     if (pdf && pdf.pdfUrl) {
       const link = document.createElement("a");
-      link.href = pdf.pdfUrl;
+      link.href = API_BASE + '/' + pdf.pdfUrl;
       link.download = pdf.fileName || "document.pdf";
       link.setAttribute("target", "_blank");
       document.body.appendChild(link);
@@ -927,15 +889,15 @@ const WhatIsNew = () => {
             All
           </button>
           <button
-            className={`tab-btn ${activeTab === "newsletter" ? "active" : ""}`}
-            onClick={() => setActiveTab("newsletter")}
+            className={`tab-btn ${activeTab === "Newsletters" ? "active" : ""}`}
+            onClick={() => setActiveTab("Newsletters")}
             aria-label="Show newsletters"
           >
             Newsletters
           </button>
           <button
-            className={`tab-btn ${activeTab === "alumni-stories" ? "active" : ""}`}
-            onClick={() => setActiveTab("alumni-stories")}
+            className={`tab-btn ${activeTab === "Alumni Stories" ? "active" : ""}`}
+            onClick={() => setActiveTab("Alumni Stories")}
             aria-label="Show alumni stories"
           >
             Alumni Stories
@@ -946,15 +908,15 @@ const WhatIsNew = () => {
         <div className="newsletter-grid">
           {filteredNewsletters.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="newsletter-card"
               style={{
-                "--card-color": item.color,
-                "--card-bg": item.bgColor,
-                "--thumbnail": item.thumbnail,
+                "--card-color": "#3B82F6",
+                "--card-bg": "#F0F9FF",
+                "--thumbnail": "linear-gradient(135deg, #3B82F6 0%, #0EA5E9 100%)",
               }}
               onClick={() => handleOpenPDF(item)}
-              onMouseEnter={() => setHoveredCard(item.id)}
+              onMouseEnter={() => setHoveredCard(item._id)}
               onMouseLeave={() => setHoveredCard(null)}
               role="button"
               tabIndex={0}
@@ -969,7 +931,7 @@ const WhatIsNew = () => {
                 {/* Image */}
                 <div className="newsletter-image-wrapper">
                   <img
-                    src={item.image}
+                    src={`${API_BASE}/${item.imageUrl}`}
                     alt={item.title}
                     className="newsletter-image"
                     loading="lazy"
@@ -992,24 +954,24 @@ const WhatIsNew = () => {
                   </div>
 
                   <h3 className="newsletter-title">{item.title}</h3>
-                  <p className="newsletter-excerpt">{item.excerpt}</p>
+                  <p className="newsletter-excerpt">{item.description}</p>
 
-                  {item.fileName && (
+                  {item.title && (
                     <div className="file-info">
                       <FileCheck size={14} />
-                      <span>{item.fileName} • {item.fileSize}</span>
+                      <span>{item.title}</span>
                     </div>
                   )}
 
                   <div className="newsletter-meta">
                     <div className="meta-item">
                       <Calendar size={14} />
-                      <span>{item.date}</span>
+                      <span>{new Date(item.date).toLocaleDateString()}</span>
                     </div>
-                    <div className="meta-item">
+                    {/* <div className="meta-item">
                       <Eye size={14} />
                       <span>{item.views}</span>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="cta-group">
