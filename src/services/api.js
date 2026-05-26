@@ -756,6 +756,7 @@ export const albumsAPI = {
 // ── NewsLetter API ────────────────────────────────────────────────────────
 export const newsLetterAPI = {
   getAll: () => api.get("/newsletters"),
+  getRecent: () => api.get("/newsletters/recent"),
   getById: (id) => api.get(`/newsletters/${id}`),
   create: (data) =>
     api.post("/newsletters", data, {
