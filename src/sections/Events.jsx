@@ -26,8 +26,8 @@ const Events = () => {
     {
       id: 1,
       title: "50th Golden Jubilee Celebration - 1975 Batch Young Oldies Meet",
-      status: "Upcoming",
-      statusColor: "#1e40af",
+      status: "Past Event",
+      statusColor: "#6b7280",
       location: "GRD Auditorium, PSG Arts College, Coimbatore",
       date: "Mar 15, 2026",
       cardImage: Gal1,
