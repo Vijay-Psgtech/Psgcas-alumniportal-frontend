@@ -53,7 +53,7 @@ const ModernFooter = () => {
 
   const contactInfo = [
     { icon: MapPin, text: "PSG College of Arts & Science, Coimbatore, India" },
-    { icon: Phone, text: "+91 (0) 422 4393 800" },
+    { icon: Phone, text: "+91 (422) 430-3300" },
     { icon: Mail, text: "alumni@psgcas.ac.in" },
   ];
 
