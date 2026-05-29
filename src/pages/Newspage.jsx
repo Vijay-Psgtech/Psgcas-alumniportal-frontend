@@ -5,7 +5,6 @@ import { newsLetterAPI, API_BASE } from "../services/api";
 import { Link } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
 
-
 const NewsPage = () => {
   const [newsData, setNewsData] = useState([]);
   usePageTitle("News & Updates");
@@ -13,7 +12,21 @@ const NewsPage = () => {
   // Now use the defined newsData in state
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Posts");
+  const [selectedYear, setSelectedYear] = useState("All Years");
+  const [years, setYears] = useState([]);
   const [filteredNews, setFilteredNews] = useState(newsData);
+
+  // Extract unique years from news data for filtering
+  useEffect(() => {
+    const uniqueYears = [
+      ...new Set(
+        newsData
+          .map((news) => new Date(news.date).getFullYear())
+          .filter(Boolean),
+      ),
+    ].sort((a, b) => b - a);
+    setYears(uniqueYears);
+  }, [newsData]);
 
   // Categories sidebar
   const categories = [
@@ -43,22 +56,36 @@ const NewsPage = () => {
   // Handle search
   const handleSearch = (query) => {
     setSearchQuery(query);
-    filterNews(query, selectedCategory);
+    filterNews(query, selectedCategory, selectedYear);
   };
 
   // Handle category filter
   const handleCategoryFilter = (category) => {
     setSelectedCategory(category);
-    filterNews(searchQuery, category);
+    filterNews(searchQuery, category, selectedYear);
   };
 
-  // Filter news based on search and category
-  const filterNews = (query, category) => {
+  // Handle year filter
+  const handleYearFilter = (year) => {
+    setSelectedYear(year);
+    filterNews(searchQuery, selectedCategory, year);
+  };
+
+  // Filter news based on search, category, and year
+  const filterNews = (query, category, year) => {
     let filtered = newsData;
 
     if (category !== "All Posts") {
       filtered = filtered.filter(
-        (news) => news.category === category || news.tags.includes(category),
+        (news) =>
+          news.category === category ||
+          (news.tags && news.tags.includes(category)),
+      );
+    }
+
+    if (year !== "All Years") {
+      filtered = filtered.filter(
+        (news) => new Date(news.date).getFullYear().toString() === year,
       );
     }
 
@@ -212,6 +239,24 @@ const NewsPage = () => {
           width: 100%;
           text-align: left;
           font-family: inherit;
+        }
+
+        .years-section {
+          margin-top: 24px;
+          background: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 12px rgba(31, 41, 55, 0.1);
+        }
+
+        .years-title {
+          padding: 20px 18px;
+          font-size: 14px;
+          font-weight: 700;
+          color: #1f2937;
+          border-bottom: 2px solid #e5e7eb;
+          text-transform: uppercase;
+          letter-spacing: 0.8px;
         }
 
         .category-link:hover {
@@ -465,6 +510,38 @@ const NewsPage = () => {
               >
                 <Search size={20} />
               </button>
+            </div>
+
+            <div className="years-section">
+              <div className="years-title">Filter by Year</div>
+              <ul className="category-list">
+                <li className="category-item">
+                  <button
+                    className={`category-link ${
+                      selectedYear === "All Years" ? "active" : ""
+                    }`}
+                    onClick={() => handleYearFilter("All Years")}
+                  >
+                    <span>📅</span>
+                    <span>All Years</span>
+                  </button>
+                </li>
+                {years.map((year) => (
+                  <li key={year} className="category-item">
+                    <button
+                      className={`category-link ${
+                        selectedYear.toString() === year.toString()
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() => handleYearFilter(year.toString())}
+                    >
+                      <span>📅</span>
+                      <span>{year}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Categories */}
