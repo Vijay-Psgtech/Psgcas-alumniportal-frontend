@@ -10,6 +10,7 @@ import {
   Copy,
 } from "lucide-react";
 import CAMPAIGN_TEMPLATES from "../../content/data/campaignTemplates";
+import { campaignsAPI } from "../../services/api";
 
 const CampaignCreator = ({ onCampaignCreated = () => {} }) => {
   const [step, setStep] = useState(1); // 1: Template, 2: Details, 3: Form Fields
@@ -213,18 +214,10 @@ const CampaignCreator = ({ onCampaignCreated = () => {} }) => {
 
       console.log("📤 Creating campaign with payload:", payload);
 
-      const response = await fetch("/api/campaigns", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-        credentials: "include",
-      });
+      const response = await campaignsAPI.create(payload);
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || "Failed to create campaign");
       }
 
