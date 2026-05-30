@@ -93,7 +93,7 @@ const CampaignsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-24 pb-16">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-5 sm:px-8">
         {/* Header */}
         <motion.div
@@ -236,8 +236,8 @@ const CampaignsPage = () => {
                       <div
                         className={`h-3 w-full ${
                           isActive
-                            ? "bg-gradient-to-r from-indigo-600 to-violet-600"
-                            : "bg-gradient-to-r from-slate-400 to-slate-500"
+                            ? "bg-linear-to-r from-indigo-600 to-violet-600"
+                            : "bg-linear-to-r from-slate-400 to-slate-500"
                         }`}
                       />
 
@@ -267,7 +267,7 @@ const CampaignsPage = () => {
                           <p className="text-sm text-slate-600 line-clamp-2">
                             {campaign.description}
                           </p>
-                        </div>
+                        </div>  
 
                         {/* Category & Target */}
                         <div className="flex flex-wrap gap-2">
