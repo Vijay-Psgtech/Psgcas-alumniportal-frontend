@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { a } from "framer-motion/client";
+import { API_BASE } from "../../services/api";
 
 export const AlumniTab = ({ 
   alumniList, 
@@ -69,9 +70,6 @@ export const AlumniTab = ({
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
-
-  const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
-
 
   return (
     <motion.div

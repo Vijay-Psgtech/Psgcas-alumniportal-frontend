@@ -11,6 +11,7 @@ import {
   FileText,
   AlertCircle,
 } from "lucide-react";
+import { campaignsAPI } from "../../services/api";
 
 const CampaignResponsesManager = ({ campaignId }) => {
   const [responses, setResponses] = useState([]);
@@ -32,19 +33,10 @@ const CampaignResponsesManager = ({ campaignId }) => {
       setIsLoading(true);
       setError(null);
 
-      // Build URL with status filter
-      let url = `/api/campaigns/${campaignId}/responses`;
-      if (statusFilter && statusFilter !== "all") {
-        url += `?status=${statusFilter}`;
-      }
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch responses (HTTP ${response.status})`);
-      }
-
-      const data = await response.json();
+      const response = await campaignsAPI.getResponses(campaignId, {
+        ...(statusFilter && statusFilter !== "all" ? { status: statusFilter } : {}),
+      });
+      const data = response.data;
 
       if (!data.success) {
         throw new Error(data.message || "Failed to fetch responses");
@@ -66,18 +58,10 @@ const CampaignResponsesManager = ({ campaignId }) => {
     if (!title) return;
 
     try {
-      const response = await fetch(
-        `/api/campaigns/response/${responseId}/publish`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title }),
-        },
-      );
+      const response = await campaignsAPI.publishResponse(responseId, title);
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || "Failed to publish story");
       }
 
@@ -100,13 +84,10 @@ const CampaignResponsesManager = ({ campaignId }) => {
     }
 
     try {
-      const response = await fetch(`/api/campaigns/response/${responseId}`, {
-        method: "DELETE",
-      });
+      const response = await campaignsAPI.deleteResponse(responseId);
+      const data = response.data;
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         throw new Error(data.message || "Failed to delete response");
       }
 
@@ -124,18 +105,10 @@ const CampaignResponsesManager = ({ campaignId }) => {
   // Download responses as CSV
   const downloadResponses = async () => {
     try {
-      const url =
-        statusFilter && statusFilter !== "all"
-          ? `/api/campaigns/${campaignId}/responses/export?status=${statusFilter}`
-          : `/api/campaigns/${campaignId}/responses/export`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Download failed (HTTP ${response.status})`);
-      }
-
-      const blob = await response.blob();
+      const response = await campaignsAPI.exportResponses(campaignId, {
+        ...(statusFilter && statusFilter !== "all" ? { status: statusFilter } : {}),
+      });
+      const blob = response.data;
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;

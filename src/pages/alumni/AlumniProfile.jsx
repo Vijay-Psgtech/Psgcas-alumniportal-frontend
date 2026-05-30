@@ -100,7 +100,7 @@ const Badge = ({ children, color = "indigo" }) => {
 
 const InfoRow = ({ icon: Icon, label, value, href, mono = false }) => (
   <div className="flex items-start gap-3 py-3 border-b border-slate-100/80 last:border-0 group">
-    <div className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
+    <div className="mt-0.5 shrink-0 w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-indigo-50 flex items-center justify-center transition-colors">
       <Icon
         size={13}
         className="text-slate-400 group-hover:text-indigo-500 transition-colors"
@@ -121,7 +121,7 @@ const InfoRow = ({ icon: Icon, label, value, href, mono = false }) => (
         </a>
       ) : (
         <p
-          className={`text-sm leading-relaxed break-words ${
+          className={`text-sm leading-relaxed wrap-break-word ${
             value
               ? `text-slate-800 font-medium ${mono ? "font-mono" : ""}`
               : "text-slate-300 italic font-normal"
@@ -143,10 +143,10 @@ const SectionCard = ({
   action,
 }) => (
   <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-    <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/80 to-white">
+    <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-linear-to-r from-slate-50/80 to-white">
       <div className="flex items-center gap-2.5">
         <div
-          className={`w-6 h-6 rounded-md ${iconBg} flex items-center justify-center flex-shrink-0`}
+          className={`w-6 h-6 rounded-md ${iconBg} flex items-center justify-center shrink-0`}
         >
           <Icon size={13} className={iconColor} />
         </div>
@@ -458,7 +458,7 @@ const AlumniProfile = () => {
   /* ═══ LOADING ═══ */
   if (loading)
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-linear-to-br from-slate-50 via-white to-indigo-50">
         <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-500 animate-spin" />
         <p className="text-slate-400 text-sm font-medium tracking-wide">
           Loading your profile…
@@ -469,7 +469,7 @@ const AlumniProfile = () => {
   /* ═══ ERROR ═══ */
   if (!profileData)
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-slate-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center p-6 bg-linear-to-br from-slate-50 via-white to-indigo-50">
         <div className="bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-xl border border-slate-100">
           <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-5">
             <AlertCircle size={26} className="text-red-500" />
@@ -567,7 +567,7 @@ const AlumniProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
               >
-                <AlertCircle size={16} className="flex-shrink-0" /> {error}
+                <AlertCircle size={16} className="shrink-0" /> {error}
                 <button
                   onClick={() => setError("")}
                   className="ml-auto text-red-400 hover:text-red-600"
@@ -584,7 +584,7 @@ const AlumniProfile = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
               >
-                <CheckCircle size={16} className="flex-shrink-0" /> {success}
+                <CheckCircle size={16} className="shrink-0" /> {success}
               </motion.div>
             )}
           </AnimatePresence>
@@ -597,12 +597,12 @@ const AlumniProfile = () => {
             transition={{ duration: 0.45, delay: 0.05 }}
           >
             {/* Accent bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-indigo-500 via-violet-500 to-purple-600" />
+            <div className="h-1 w-full bg-linear-to-r from-indigo-500 via-violet-500 to-purple-600" />
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 px-6 sm:px-8 pt-6 pb-7">
               {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-lg shadow-indigo-200 select-none overflow-hidden">
+              <div className="relative shrink-0">
+                <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-lg shadow-indigo-200 select-none overflow-hidden">
                   {profileData.files?.currentPhoto ? (
                     <img
                       src={`${API_BASE}/uploads/${profileData.files?.currentPhoto}`}
@@ -685,7 +685,7 @@ const AlumniProfile = () => {
               </div>
 
               {/* Completion Meter */}
-              <div className="flex-shrink-0 text-center hidden md:flex flex-col items-center gap-1">
+              <div className="shrink-0 text-center hidden md:flex flex-col items-center gap-1">
                 <div className="relative w-14 h-14">
                   <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
                     <circle
@@ -1344,7 +1344,7 @@ const AlumniProfile = () => {
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`flex-shrink-0 px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all ${
+                      className={`shrink-0 px-4 py-2 rounded-xl text-xs font-extrabold tracking-wide transition-all ${
                         activeTab === tab
                           ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
                           : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
@@ -1681,7 +1681,7 @@ const AlumniProfile = () => {
                               key={key}
                               className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                             >
-                              <div className="h-32 bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center relative">
+                              <div className="h-32 bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center relative">
                                 {fileName ? (
                                   <img
                                     src={`${API_BASE}/uploads/${fileName}`}

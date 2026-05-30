@@ -111,7 +111,7 @@ const NewsDetailPage = () => {
           <div>
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-[18px] py-[10px] rounded-full
+              className="inline-flex items-center gap-2 px-[18px] py-2.5 rounded-full
                 bg-white border border-[#e8e6e1] text-[#4b5261] text-[13.5px] font-medium
                 cursor-pointer transition-all duration-200
                 shadow-[0_1px_3px_rgba(15,17,23,.06),0_1px_2px_rgba(15,17,23,.04)]
@@ -144,7 +144,7 @@ const NewsDetailPage = () => {
                 <EyeOff size={40} className="text-[#c8522a]" />
                 <p className="text-[22px] text-[#0f1117]" style={{ fontFamily: FONT_DISPLAY }}>
                   Something went wrong
-                </p>
+                </p>  
                 <p className="text-sm text-[#8891a4]">{error}</p>
               </div>
             </div>
@@ -183,11 +183,11 @@ const NewsDetailPage = () => {
                         src={imageSrc}
                         alt={newsletter.title}
                         className="w-full h-full object-cover
-                          transition-transform duration-[600ms] ease-[cubic-bezier(.4,0,.2,1)]
+                          transition-transform duration-600 ease-in-out
                           group-hover:scale-[1.04]"
                       />
                       {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-[rgba(15,17,23,.18)] to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-br from-[rgba(15,17,23,.18)] to-transparent pointer-events-none" />
                     </>
                   ) : (
                     /* Hatched no-image placeholder — repeating-linear-gradient needs style prop */
@@ -209,7 +209,7 @@ const NewsDetailPage = () => {
 
                   {/* Category badge */}
                   <span className="inline-flex items-center gap-[7px] w-fit
-                    px-[14px] py-[5px] rounded-full uppercase tracking-[.06em]
+                    px-3.5 py-[5px] rounded-full uppercase tracking-[.06em]
                     text-[11.5px] font-semibold text-[#c8522a]
                     bg-[rgba(200,82,42,.08)] border border-[rgba(200,82,42,.2)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#c8522a] shrink-0" />
@@ -221,21 +221,21 @@ const NewsDetailPage = () => {
                     className="leading-[1.18] tracking-[-0.01em] text-[#0f1117]"
                     style={{ fontFamily: FONT_DISPLAY, fontSize: "clamp(26px, 3.5vw, 44px)" }}
                   >
-                    {newsletter.title}
+                    {newsletter.title}   
                   </h1>
 
                   {/* Gold rule */}
                   <div className="w-10 h-[3px] bg-[#d4a849] rounded-sm" />
 
                   {/* Meta rows */}
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3">  
                     {[
                       { icon: <Calendar size={14} />, label: "Published", value: formatDate(newsletter.date) },
                       { icon: <User     size={14} />, label: "Author",    value: newsletter.author || "Anonymous" },
                       // { icon: <Clock    size={14} />, label: "Created",   value: formatDate(newsletter.createdAt) },
                     ].map(({ icon, label, value }) => (
-                      <div key={label} className="flex items-center gap-[10px] text-[13.5px] text-[#4b5261]">
-                        <span className="text-[#1a3d6e] shrink-0">{icon}</span>
+                      <div key={label} className="flex items-center gap-2.5 text-[13.5px] text-[#4b5261]">
+                        <span className="text-[#1a3d6e] shrink-0">{  }</span>
                         <span className="font-semibold text-[#8891a4] min-w-[70px]">{label}</span>
                         <span className="text-[#0f1117]">{value}</span>
                       </div>
@@ -255,7 +255,7 @@ const NewsDetailPage = () => {
                   {/* Decorative large opening quote — replaces ::before pseudo-element */}
                   <span
                     aria-hidden="true"
-                    className="absolute top-[-24px] left-6 text-[180px] leading-none text-[#f2f1ee] pointer-events-none select-none"
+                    className="absolute -top-6 left-6 text-[180px] leading-none text-[#f2f1ee] pointer-events-none select-none"
                     style={{ fontFamily: FONT_DISPLAY }}
                   >
                     &ldquo;
@@ -299,7 +299,7 @@ const NewsDetailPage = () => {
                         <p className="text-[17px] text-white" style={{ fontFamily: FONT_DISPLAY }}>
                           Attached Document
                         </p>
-                        <p className="text-[12px] text-[rgba(255,255,255,.45)] mt-[1px]">
+                        <p className="text-[12px] text-[rgba(255,255,255,.45)] mt-px">
                           {numPages ? `${numPages} page${numPages > 1 ? "s" : ""}` : "PDF Preview"}
                         </p>
                       </div>
@@ -328,7 +328,7 @@ const NewsDetailPage = () => {
                         file={pdfUrl}
                         onLoadSuccess={handlePdfLoad}
                         loading={
-                          <div className="flex items-center gap-[10px] py-[60px] px-6
+                          <div className="flex items-center gap-2.5 py-[60px] px-6
                             text-[rgba(255,255,255,.5)] text-[14px]">
                             <div className="w-5 h-5 rounded-full border-2 border-[rgba(255,255,255,.15)] border-t-[#c8522a] animate-spin" />
                             Loading document…
@@ -428,7 +428,7 @@ const NewsDetailPage = () => {
                       <span
                         key={tag}
                         className="inline-flex items-center gap-[5px]
-                          px-[14px] py-[6px] rounded-full
+                          px-3.5 py-1.5 rounded-full
                           bg-[#f2f1ee] border border-[#e8e6e1]
                           text-[12.5px] font-medium text-[#4b5261]
                           transition-all duration-200
@@ -442,7 +442,7 @@ const NewsDetailPage = () => {
                     ))
                   ) : (
                     <span className="inline-flex items-center gap-[5px]
-                      px-[14px] py-[6px] rounded-full
+                      px-3.5 py-1.5 rounded-full
                       bg-[#f2f1ee] border border-[#e8e6e1]
                       text-[12.5px] font-medium text-[#4b5261]">
                       <Tag size={11} />
@@ -454,7 +454,7 @@ const NewsDetailPage = () => {
                 {/* Back button */}
                 <button
                   onClick={() => navigate(-1)}
-                  className="inline-flex items-center gap-[7px] px-[18px] py-[10px] rounded-full
+                  className="inline-flex items-center gap-[7px] px-[18px] py-2.5 rounded-full
                     bg-white border border-[#e8e6e1] text-[#4b5261] text-[13.5px] font-medium
                     cursor-pointer transition-all duration-200
                     shadow-[0_1px_3px_rgba(15,17,23,.06)]

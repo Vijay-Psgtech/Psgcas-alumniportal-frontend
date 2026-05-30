@@ -21,7 +21,7 @@ import {
   BadgeCheck,
   Building,
 } from "lucide-react";
-import { adminAPI, API_BASE } from "../../services/api";
+import { adminAPI, API_BASE, campaignsAPI } from "../../services/api";
 import {
   formatINR,
   formatNumber,
@@ -133,12 +133,13 @@ const AdminDashboard = () => {
               limit: 20,
             }),
             donationsAPI.getAll(),
-            fetch("/api/campaigns").then((res) => res.json()),
+            campaignsAPI.getAll(),
           ]);
+        const campaignsData = campaignsRes.data || {};
 
         setStats({
           ...(statsRes.data.stats || {}),
-          totalCampaigns: campaignsRes.campaigns?.length || 0,
+          totalCampaigns: campaignsData.campaigns?.length || 0,
         });
         setAlumniList(alumniRes.data.alumni || []);
 
@@ -149,7 +150,7 @@ const AdminDashboard = () => {
         });
 
         setDonationList(donationsRes.data.donations || []);
-        setCampaignList(campaignsRes.campaigns || []);
+        setCampaignList(campaignsData.campaigns || []);
 
         // ✅ Get campaign ID from URL with validation
         const urlParams = new URLSearchParams(location.search);
@@ -160,7 +161,7 @@ const AdminDashboard = () => {
         // ✅ VALIDATE URL campaign ID before using it
         if (urlCampaignId && isValidCampaignId(urlCampaignId)) {
           // Check if the campaign actually exists in our list
-          const campaignExists = campaignsRes.campaigns?.some(
+          const campaignExists = campaignsData.campaigns?.some(
             (c) => c._id === urlCampaignId,
           );
           if (campaignExists) {
@@ -180,8 +181,8 @@ const AdminDashboard = () => {
         }
 
         // ✅ If no valid campaign ID from URL, use first campaign
-        if (!finalCampaignId && campaignsRes.campaigns?.length > 0) {
-          finalCampaignId = campaignsRes.campaigns[0]._id;
+        if (!finalCampaignId && campaignsData.campaigns?.length > 0) {
+          finalCampaignId = campaignsData.campaigns[0]._id;
           console.log(`📌 Using first campaign: ${finalCampaignId}`);
         }
 
