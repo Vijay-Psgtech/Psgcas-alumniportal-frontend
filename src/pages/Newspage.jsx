@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Search, Calendar, Share2, ChevronRight } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  Search,
+  Calendar,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { newsLetterAPI, API_BASE } from "../services/api";
 import { Link } from "react-router-dom";
@@ -15,6 +21,8 @@ const NewsPage = () => {
   const [selectedYear, setSelectedYear] = useState("All Years");
   const [years, setYears] = useState([]);
   const [filteredNews, setFilteredNews] = useState(newsData);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // Extract unique years from news data for filtering
   useEffect(() => {
@@ -98,6 +106,40 @@ const NewsPage = () => {
     }
 
     setFilteredNews(filtered);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
+  const paginatedNews = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredNews.slice(startIndex, startIndex + itemsPerPage);
+  }, [currentPage, filteredNews]);
+
+  const paginationPages = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    const pages = [1];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    if (start > 2) pages.push("...");
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    if (end < totalPages - 1) pages.push("...");
+
+    pages.push(totalPages);
+    return pages;
+  }, [currentPage, totalPages]);
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const containerVariants = {
@@ -410,6 +452,73 @@ const NewsPage = () => {
           color: #4b5563;
         }
 
+        /* Pagination */
+        .news-pagination {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 18px 20px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 8px rgba(31, 41, 55, 0.08);
+        }
+
+        .pagination-summary {
+          color: #6b7280;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .pagination-controls {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+          width: 38px;
+          height: 38px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #d1d5db;
+          background: white;
+          color: #374151;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 200ms ease;
+          font-family: inherit;
+        }
+
+        .pagination-btn:hover:not(:disabled):not(.active) {
+          border-color: #0052cc;
+          color: #0052cc;
+          background: #eff6ff;
+        }
+
+        .pagination-btn.active {
+          border-color: #dc2626;
+          background: #dc2626;
+          color: white;
+          cursor: default;
+        }
+
+        .pagination-btn:disabled {
+          cursor: not-allowed;
+          opacity: 0.45;
+        }
+
+        .pagination-ellipsis {
+          width: 28px;
+          text-align: center;
+          color: #9ca3af;
+          font-weight: 700;
+        }
+
         /* Responsive */
         @media(max-width: 1024px) {
           .news-container {
@@ -483,6 +592,19 @@ const NewsPage = () => {
 
           .search-box {
             margin-bottom: 16px;
+          }
+
+          .news-pagination {
+            align-items: stretch;
+            flex-direction: column;
+          }
+
+          .pagination-controls {
+            justify-content: center;
+          }
+
+          .pagination-summary {
+            text-align: center;
           }
         }
       `}</style>
@@ -568,7 +690,7 @@ const NewsPage = () => {
           {/* Main Content */}
           <motion.main className="news-content" variants={containerVariants}>
             {filteredNews.length > 0 ? (
-              filteredNews.map((news, idx) => {
+              paginatedNews.map((news, idx) => {
                 const imageSrc = news.imageUrl
                   ? `${API_BASE}/${news.imageUrl}`
                   : news.image;
@@ -628,6 +750,61 @@ const NewsPage = () => {
                   No posts found. Try adjusting your filters or search query.
                 </p>
               </div>
+            )}
+
+            {filteredNews.length > 0 && totalPages > 1 && (
+              <nav className="news-pagination" aria-label="News pagination">
+                <div className="pagination-summary">
+                  Showing {(currentPage - 1) * itemsPerPage + 1}-
+                  {Math.min(currentPage * itemsPerPage, filteredNews.length)} of{" "}
+                  {filteredNews.length} posts
+                </div>
+
+                <div className="pagination-controls">
+                  <button
+                    type="button"
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+
+                  {paginationPages.map((page, index) =>
+                    page === "..." ? (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="pagination-ellipsis"
+                      >
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`pagination-btn ${
+                          currentPage === page ? "active" : ""
+                        }`}
+                        onClick={() => handlePageChange(page)}
+                        aria-current={currentPage === page ? "page" : undefined}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+
+                  <button
+                    type="button"
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    aria-label="Next page"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </nav>
             )}
           </motion.main>
         </motion.div>
