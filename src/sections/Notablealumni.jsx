@@ -1,8 +1,21 @@
 import React, { useState } from "react";
 import { Award, Briefcase, Zap, ChevronRight, Star, Users } from "lucide-react";
-import alumniImage1 from "../assets/Images/Alum1.png";
-import alumniImage2 from "../assets/Images/Alum2.png";
-import alumniImage3 from "../assets/Images/Alum3.png";
+import alumniImage1 from "../assets/Images/Alumnis/Alum1.jpg";
+import alumniImage2 from "../assets/Images/Alumnis/Alum2.JPG";
+import alumniImage9 from "../assets/Images/Alumnis/Alum9.jpg";
+import alumniImage10 from "../assets/Images/Alumnis/Alum10.jpg";
+import alumniImage13 from "../assets/Images/Alumnis/Alum13.jpg";
+import alumniImage16 from "../assets/Images/Alumnis/Alum16.jpg";
+import alumniImage17 from "../assets/Images/Alumnis/Alum17.jpg";
+import alumniImage21 from "../assets/Images/Alumnis/Alum21.jpg";
+import alumniImage23 from "../assets/Images/Alumnis/Alum23.jpg";
+import alumniImage24 from "../assets/Images/Alumnis/Alum24.jpg";
+import alumniImage25 from "../assets/Images/Alumnis/Alum25.png";
+import alumniImage26 from "../assets/Images/Alumnis/Alum26.jpg";
+import alumniImage27 from "../assets/Images/Alumnis/Alum27.jpg";
+import alumniImage28 from "../assets/Images/Alumnis/Alum28.jpg";
+import alumniImage29 from "../assets/Images/Alumnis/Alum29.jpg";
+import alumniImage30 from "../assets/Images/Alumnis/Alum30.jpg";
 
 const NotableAlumni = () => {
   const [imageErrors, setImageErrors] = useState({});
@@ -41,7 +54,7 @@ const NotableAlumni = () => {
       color: "#3B82F6",
       bgColor: "#F0F9FF",
       borderColor: "#BFDBFE",
-      image: "",
+      image: alumniImage1,
     },
     {
       id: 2,
@@ -56,7 +69,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage2,
     },
     {
       id: 3,
@@ -161,7 +174,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage9,
     },
     {
       id: 10,
@@ -176,7 +189,7 @@ const NotableAlumni = () => {
       color: "#3B82F6",
       bgColor: "#F0F9FF",
       borderColor: "#BFDBFE",
-      image: "",
+      image: alumniImage10,
     },
     {
       id: 11,
@@ -221,7 +234,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage13,
     },
     {
       id: 14,
@@ -266,7 +279,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage16,
     },
     {
       id: 17,
@@ -281,7 +294,7 @@ const NotableAlumni = () => {
       color: "#F59E0B",
       bgColor: "#FFFBEB",
       borderColor: "#FEE2A5",
-      image: "",
+      image: alumniImage17,
     },
     {
       id: 18,
@@ -341,7 +354,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage21,
     },
     {
       id: 22,
@@ -371,7 +384,7 @@ const NotableAlumni = () => {
       color: "#10B981",
       bgColor: "#F0FDF4",
       borderColor: "#A7F3D0",
-      image: "",
+      image: alumniImage23,
     },
     {
       id: 24,
@@ -386,7 +399,7 @@ const NotableAlumni = () => {
       color: "#EC4899",
       bgColor: "#FDF2F8",
       borderColor: "#FBCFE8",
-      image: "",
+      image: alumniImage24,
     },
     {
       id: 25,
@@ -401,7 +414,7 @@ const NotableAlumni = () => {
       color: "#EC4899",
       bgColor: "#FDF2F8",
       borderColor: "#FBCFE8",
-      image: "",
+      image: alumniImage25,
     },
     {
       id: 26,
@@ -416,7 +429,7 @@ const NotableAlumni = () => {
       color: "#3B82F6",
       bgColor: "#F0F9FF",
       borderColor: "#BFDBFE",
-      image: "",
+      image: alumniImage26,
     },
     {
       id: 27,
@@ -431,7 +444,7 @@ const NotableAlumni = () => {
       color: "#EC4899",
       bgColor: "#FDF2F8",
       borderColor: "#FBCFE8",
-      image: "",
+      image: alumniImage27,
     },
     {
       id: 28,
@@ -446,7 +459,7 @@ const NotableAlumni = () => {
       color: "#F59E0B",
       bgColor: "#FFFBEB",
       borderColor: "#FEE2A5",
-      image: "",
+      image: alumniImage28,
     },
     {
       id: 29,
@@ -461,7 +474,7 @@ const NotableAlumni = () => {
       color: "#8B5CF6",
       bgColor: "#F5F3FF",
       borderColor: "#DDD6FE",
-      image: "",
+      image: alumniImage29,
     },
     {
       id: 30,
@@ -476,7 +489,7 @@ const NotableAlumni = () => {
       color: "#EC4899",
       bgColor: "#FDF2F8",
       borderColor: "#FBCFE8",
-      image: "",
+      image: alumniImage30,
     },
     {
       id: 31,
