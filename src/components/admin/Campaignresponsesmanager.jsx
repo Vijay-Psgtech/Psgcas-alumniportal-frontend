@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   Download,
-  MessageSquare,
   Star,
   Zap,
-  Flag,
   Trash2,
   FileText,
   AlertCircle,
@@ -21,12 +19,8 @@ const CampaignResponsesManager = ({ campaignId }) => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  useEffect(() => {
-    fetchResponses();
-  }, [campaignId, statusFilter]);
-
   // Fetch responses from API
-  const fetchResponses = async () => {
+  const fetchResponses = useCallback(async () => {
     if (!campaignId) return;
 
     try {
@@ -50,7 +44,11 @@ const CampaignResponsesManager = ({ campaignId }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [campaignId, statusFilter]);
+
+  useEffect(() => {
+    fetchResponses();
+  }, [fetchResponses]);
 
   // Publish response as story
   const handlePublishStory = async (responseId) => {

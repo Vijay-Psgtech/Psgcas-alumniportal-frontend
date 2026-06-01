@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Upload,
   Send,
   Clock,
   Users,
@@ -98,7 +97,7 @@ const useCampaignForm = (initialCampaignId = null) => {
   }, [initialCampaignId]);
 
   // Fetch campaign data
-  const fetchCampaign = async () => {
+  const fetchCampaign = useCallback(async () => {
     if (!apiUrl || !campaignId) {
       console.log("⏳ Waiting for API URL and campaign ID...");
       return;
@@ -209,14 +208,14 @@ const useCampaignForm = (initialCampaignId = null) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiUrl, campaignId]);
 
   // Fetch campaign when IDs are ready
   useEffect(() => {
     if (campaignId && apiUrl) {
       fetchCampaign();
     }
-  }, [campaignId, apiUrl]);
+  }, [campaignId, apiUrl, fetchCampaign]);
 
   return {
     campaign,

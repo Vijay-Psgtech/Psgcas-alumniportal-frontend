@@ -20,7 +20,7 @@ import {
   Tag,
   RotateCcw,
 } from "lucide-react";
-import { departmentAPI } from "../../services/api";
+import { departmentAPI } from "../../services/api";    
 
 const DepartmentTab = ({ onError, onSuccess }) => {
   const [departments, setDepartments] = useState([]);
@@ -146,7 +146,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
   };
 
   const toggleStatus = (status) => {
-    setSelectedStatus((prev) =>
+    setSelectedStatus((prev) =>  
       prev.includes(status)
         ? prev.filter((s) => s !== status)
         : [...prev, status],
@@ -222,7 +222,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
     }
 
     try {
-      setSubmitting(true);
+      setSubmitting(true); 
 
       if (editingId) {
         // Update existing
