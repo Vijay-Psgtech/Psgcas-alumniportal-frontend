@@ -21,7 +21,7 @@ import {
   BadgeCheck,
   Building,
 } from "lucide-react";
-import { adminAPI, API_BASE } from "../../services/api";
+import { adminAPI, API_BASE, campaignsAPI } from "../../services/api";
 import {
   formatINR,
   formatNumber,
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
               limit: 20,
             }),
             donationsAPI.getAll(),
-            fetch("/api/campaigns").then((res) => res.json()),
+            campaignsAPI.getAll(),
           ]);
 
         setStats({
