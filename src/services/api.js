@@ -28,7 +28,8 @@ const mockNotifications = [
     id: "2",
     type: "info",
     title: "Upcoming Event",
-    message: "Join our networking session next month - early bird registration open!",
+    message:
+      "Join our networking session next month - early bird registration open!",
   },
   {
     id: "3",
@@ -50,7 +51,8 @@ const mockBannerData = {
   description:
     "Join an exclusive global community where PSG Arts alumni collaborate, mentor, and create opportunities for lifelong success.",
   subtitle: "Welcome to Excellence",
-  backgroundImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&h=900&fit=crop",
+  backgroundImage:
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1600&h=900&fit=crop",
   features: [
     { icon: "Users", text: "12K+ Alumni Connected" },
     { icon: "Globe", text: "35+ Countries" },
@@ -62,10 +64,8 @@ const mockBannerData = {
   updatedAt: new Date().toISOString(),
 };
 
-const CACHE_PREFIX = 'psg_alumni_';
+const CACHE_PREFIX = "psg_alumni_";
 const DEFAULT_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-
-
 
 // RESPONSE INTERCEPTOR — handle 401/403 globally
 api.interceptors.response.use(
@@ -135,7 +135,7 @@ export const cacheService = {
 
       return data;
     } catch (error) {
-      console.error('Cache get error:', error);
+      console.error("Cache get error:", error);
       return null;
     }
   },
@@ -159,7 +159,7 @@ export const cacheService = {
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
       return true;
     } catch (error) {
-      console.error('Cache set error:', error);
+      console.error("Cache set error:", error);
       return false;
     }
   },
@@ -175,7 +175,7 @@ export const cacheService = {
       localStorage.removeItem(cacheKey);
       return true;
     } catch (error) {
-      console.error('Cache clear error:', error);
+      console.error("Cache clear error:", error);
       return false;
     }
   },
@@ -194,7 +194,7 @@ export const cacheService = {
       });
       return true;
     } catch (error) {
-      console.error('Cache clear all error:', error);
+      console.error("Cache clear all error:", error);
       return false;
     }
   },
@@ -219,7 +219,7 @@ export const cacheService = {
 
       keys.forEach((key) => {
         if (key.startsWith(CACHE_PREFIX)) {
-          const cleanKey = key.replace(CACHE_PREFIX, '');
+          const cleanKey = key.replace(CACHE_PREFIX, "");
           const data = this.get(cleanKey);
           if (data) {
             result[cleanKey] = data;
@@ -229,7 +229,7 @@ export const cacheService = {
 
       return result;
     } catch (error) {
-      console.error('Cache get all error:', error);
+      console.error("Cache get all error:", error);
       return {};
     }
   },
@@ -240,23 +240,23 @@ export const bannerService = {
   async getActiveBanner() {
     try {
       const response = await fetch(`${BANNER_API}/active`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         timeout: 5000,
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Banner fetched from API:', data);
+        console.log("✅ Banner fetched from API:", data);
         return { success: true, data: data.data || data };
       } else {
-        console.warn('⚠️ Banner API returned:', response.status);
+        console.warn("⚠️ Banner API returned:", response.status);
         return { success: false, data: mockBannerData };
       }
     } catch (error) {
-      console.warn('⚠️ Banner API Error - using mock data:', error.message);
+      console.warn("⚠️ Banner API Error - using mock data:", error.message);
       return { success: false, data: mockBannerData };
     }
   },
@@ -264,9 +264,9 @@ export const bannerService = {
   async updateBanner(bannerData) {
     try {
       const response = await fetch(`${BANNER_API}/update`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(bannerData),
       });
@@ -275,7 +275,7 @@ export const bannerService = {
         const data = await response.json();
         return { success: true, data };
       }
-      return { success: false, error: 'Failed to update banner' };
+      return { success: false, error: "Failed to update banner" };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -283,90 +283,173 @@ export const bannerService = {
 };
 
 // ✅ NOTIFICATION SCROLL SERVICE (for banner scrolling notifications)
+// export const notificationService = {
+//   async getActiveNotifications() {
+//     try {
+//       console.log(
+//         "📡 Fetching notifications from:",
+//         NOTIFICATION_SCROLL_API + "/active",
+//       );
+
+//       const response = await fetch(`${NOTIFICATION_SCROLL_API}/active`, {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         timeout: 5000,
+//       });
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         console.log("✅ Notifications fetched from API:", data);
+//         // Handle both wrapped and unwrapped response
+//         const notificationData = data.data || data;
+//         return {
+//           success: true,
+//           data: Array.isArray(notificationData)
+//             ? notificationData
+//             : [notificationData],
+//         };
+//       } else {
+//         console.warn("⚠️ Notification API returned:", response.status);
+//         return { success: false, data: mockNotifications };
+//       }
+//     } catch (error) {
+//       console.warn(
+//         "⚠️ Notification API Error - using mock data:",
+//         error.message,
+//       );
+//       return { success: false, data: mockNotifications };
+//     }
+//   },
+
+//   async createNotification(notificationData) {
+//     try {
+//       const response = await fetch(`${NOTIFICATION_SCROLL_API}`, {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(notificationData),
+//       });
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         return { success: true, data };
+//       }
+//       return { success: false, error: "Failed to create notification" };
+//     } catch (error) {
+//       return { success: false, error: error.message };
+//     }
+//   },
+
+//   async updateNotification(id, notificationData) {
+//     try {
+//       const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
+//         method: "PUT",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(notificationData),
+//       });
+
+//       if (response.ok) {
+//         const data = await response.json();
+//         return { success: true, data };
+//       }
+//       return { success: false, error: "Failed to update notification" };
+//     } catch (error) {
+//       return { success: false, error: error.message };
+//     }
+//   },
+
+//   async deleteNotification(id) {
+//     try {
+//       const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
+//         method: "DELETE",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       if (response.ok) {
+//         return { success: true };
+//       }
+//       return { success: false, error: "Failed to delete notification" };
+//     } catch (error) {
+//       return { success: false, error: error.message };
+//     }
+//   },
+// };
+
 export const notificationService = {
   async getActiveNotifications() {
     try {
-      console.log('📡 Fetching notifications from:', NOTIFICATION_SCROLL_API + '/active');
+      const response = await api.get("/notification-scrolls/active");
       
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}/active`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 5000,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Notifications fetched from API:', data);
-        // Handle both wrapped and unwrapped response
-        const notificationData = data.data || data;
-        return { success: true, data: Array.isArray(notificationData) ? notificationData : [notificationData] };
-      } else {
-        console.warn('⚠️ Notification API returned:', response.status);
-        return { success: false, data: mockNotifications };
+      // Guard against HTML error pages
+      if (typeof response.data === "string") {
+        console.error("Server returned HTML instead of JSON — check backend route registration for /notification-scrolls");
+        return { success: false, data: [] };
       }
+      
+      return { success: true, data: response.data?.data || [] };
     } catch (error) {
-      console.warn('⚠️ Notification API Error - using mock data:', error.message);
-      return { success: false, data: mockNotifications };
+      console.warn("Notifications API Error:", error.message);
+      return { success: false, data: [] };
     }
   },
 
-  async createNotification(notificationData) {
-    try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(notificationData),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      }
-      return { success: false, error: 'Failed to create notification' };
-    } catch (error) {
-      return { success: false, error: error.message };
+  async getAllNotifications() {
+    const response = await api.get("/notification-scrolls");
+    if (typeof response.data === "string") {
+      throw new Error("Route /notification-scrolls not found on backend — got HTML response");
     }
+    return response.data;
   },
 
-  async updateNotification(id, notificationData) {
-    try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(notificationData),
-      });
+  async getNotificationById(id) {
+    const response = await api.get(`/notification-scrolls/${id}`);
+    return response.data;
+  },
 
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data };
-      }
-      return { success: false, error: 'Failed to update notification' };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
+  async createNotification(data) {
+    const response = await api.post("/notification-scrolls", data);
+    return response.data;
+  },
+
+  async updateNotification(id, data) {
+    const response = await api.put(`/notification-scrolls/${id}`, data);
+    return response.data;
   },
 
   async deleteNotification(id) {
-    try {
-      const response = await fetch(`${NOTIFICATION_SCROLL_API}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const response = await api.delete(`/notification-scrolls/${id}`);
+    return response.data;
+  },
 
-      if (response.ok) {
-        return { success: true };
-      }
-      return { success: false, error: 'Failed to delete notification' };
+  async toggleNotification(id) {
+    const response = await api.patch(`/notification-scrolls/${id}/toggle-active`);
+    return response.data;
+  },
+
+  async trackView(id) {
+    try {
+      const response = await api.patch(`/notification-scrolls/${id}/view`);
+      return response.data;
     } catch (error) {
-      return { success: false, error: error.message };
+      console.warn("Failed to track notification view:", error.message);
+      return null;
+    }
+  },
+
+  async trackDismiss(id) {
+    try {
+      const response = await api.patch(`/notification-scrolls/${id}/dismiss`);
+      return response.data;
+    } catch (error) {
+      console.warn("Failed to track notification dismiss:", error.message);
+      return null;
     }
   },
 };
@@ -773,6 +856,66 @@ export const newsLetterAPI = {
   delete: (id) => api.delete(`/newsletters/${id}`),
 };
 
+// ── Admin Reports API ────────────────────────────────────────────────────────
+export const adminReportsAPI = {
+  fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
+  fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
+  fetchAlumniDataByDepartment: () =>
+    api.get("/reports/alumni-data-by-department"),
+};
+
+// ── ✅ Notification API (Alumni Notifications) ───────────────────────────────────────────────
+export const notificationAPI = {
+  // Alumni: submit a new notification (with optional file attachment)
+  submit: (data) =>
+    api.post("/notifications", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+
+  // Alumni: get approved notifications visible to me
+  getMyNotifications: () => api.get("/notifications"),
+
+  // Alumni: see my own submitted notifications (all statuses)
+  getMySubmissions: () => api.get("/notifications/mine"),
+
+  // Admin: get all notifications, optionally filter by status
+  adminGetAll: (status) =>
+    api.get("/notifications/admin/all", { params: status ? { status } : {} }),
+
+  // Admin: approve
+  adminApprove: (id, adminNote = "") =>
+    api.put(`/notifications/admin/${id}/approve`, { adminNote }),
+
+  // Admin: reject with reason
+  adminReject: (id, reason) =>
+    api.put(`/notifications/admin/${id}/reject`, { reason }),
+
+  // Admin: delete
+  adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
+};
+
+// ──────── ADMIN USERS API ──────────────────────────────────────────────────────
+export const adminUsersAPI = {
+  getAll: () => api.get("/users"),
+  create: (data) => api.post("/users", data),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/users/${id}`),
+};
+
+// ──────────── Contact API ──────────────────────────────────────────────────────
+export const contactAPI = {
+  submitMessage: (data) => api.post("/contact", data),
+};
+
+// ──────────── Membership API ──────────────────────────────────────────────────────
+export const membershipAPI = {
+  fetchMembershipTiers: () => api.get("/membership/tiers"),
+  initiateMembershipPayment: (data) =>
+    api.post("/membership/initiate", data),
+};
+
 // ── Donation API ────────────────────────────────────────────────────────
 export const donationAPI = {
   // 🔓 PUBLIC - Create new donation
@@ -834,60 +977,6 @@ export const donationAPI = {
     console.log(`📤 Deleting donation ${id}...`);
     return api.delete(`/donations/${id}`);
   },
-};
-
-// ── Admin Reports API ────────────────────────────────────────────────────────
-export const adminReportsAPI = {
-  fetchAlumniDataByYear: () => api.get("/reports/alumni-data-by-year"),
-  fetchEventsDataByMonth: () => api.get("/reports/events-data-by-month"),
-  fetchAlumniDataByDepartment: () =>
-    api.get("/reports/alumni-data-by-department"),
-};
-
-// ── ✅ Notification API (Alumni Notifications) ───────────────────────────────────────────────
-export const notificationAPI = {
-  // Alumni: submit a new notification (with optional file attachment)
-  submit: (data) =>
-    api.post("/notifications", data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }),
-
-  // Alumni: get approved notifications visible to me
-  getMyNotifications: () => api.get("/notifications"),
-
-  // Alumni: see my own submitted notifications (all statuses)
-  getMySubmissions: () => api.get("/notifications/mine"),
-
-  // Admin: get all notifications, optionally filter by status
-  adminGetAll: (status) =>
-    api.get("/notifications/admin/all", { params: status ? { status } : {} }),
-
-  // Admin: approve
-  adminApprove: (id, adminNote = "") =>
-    api.put(`/notifications/admin/${id}/approve`, { adminNote }),
-
-  // Admin: reject with reason
-  adminReject: (id, reason) =>
-    api.put(`/notifications/admin/${id}/reject`, { reason }),
-
-  // Admin: delete
-  adminDelete: (id) => api.delete(`/notifications/admin/${id}`),
-};
-
-// ──────── ADMIN USERS API ──────────────────────────────────────────────────────
-export const adminUsersAPI = {
-  getAll: () => api.get("/users"),
-  create: (data) => api.post("/users", data),
-  updateUser: (id, data) => api.put(`/users/${id}`, data),
-  deleteUser: (id) => api.delete(`/users/${id}`),
-};
-
-// ──────────── Contact API ──────────────────────────────────────────────────────
-export const contactAPI = {
-  submitMessage: (data) =>
-    api.post("/contact", data),
 };
 
 export default api;
