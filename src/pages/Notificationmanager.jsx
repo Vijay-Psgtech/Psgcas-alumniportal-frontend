@@ -10,6 +10,7 @@ import {
   Save,
   Eye,
 } from "lucide-react";
+import { notificationService } from "../services/api";
 
 const NotificationManager = ({ onError, onSuccess }) => {
   const [notifications, setNotifications] = useState([]);
@@ -30,9 +31,8 @@ const NotificationManager = ({ onError, onSuccess }) => {
   const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/notification-scrolls");
-      const data = await res.json();
-      setNotifications(data.data || []);
+      const res = await notificationService.getActiveNotifications();
+      setNotifications(res.data || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
       const stored = localStorage.getItem("adminNotifications");
@@ -88,11 +88,7 @@ const NotificationManager = ({ onError, onSuccess }) => {
         );
 
         // API call
-        await fetch(`/api/notification-scrolls/${selectedNotification._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
+        await notificationService.updateNotification(selectedNotification._id, formData);
 
         onSuccess("Notification updated successfully!");
       } else {
@@ -107,11 +103,7 @@ const NotificationManager = ({ onError, onSuccess }) => {
         updatedNotifications = [newNotification, ...notifications];
 
         // API call
-        await fetch("/api/notification-scrolls", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        });
+        await notificationService.createNotification(formData);
 
         onSuccess("Notification created successfully!");
       }
@@ -131,7 +123,7 @@ const NotificationManager = ({ onError, onSuccess }) => {
     }
 
     try {
-      await fetch(`/api/notification-scrolls/${id}`, { method: "DELETE" });
+      await notificationService.deleteNotification(id);
 
       const updated = notifications.filter((n) => n._id !== id);
       setNotifications(updated);
