@@ -93,6 +93,9 @@ const AdminDashboard = () => {
     totalEvents: 0,
     totalAlbums: 0,
     totalCampaigns: 0,
+    totalMembershipFees: 0,
+    completedMembership: 0,
+
   });
   const [selectedItem, setSelectedItem] = useState(null);
 
@@ -330,12 +333,12 @@ const AdminDashboard = () => {
           },
           {
             icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
-            val: formatCurrency(stats.totalDonatedAmount),
+            val: formatCurrency(stats.totalMembershipFees),
             label: "Membership Funds",
           },
           {
             icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
-            val: formatNumber(stats.completedDonations),
+            val: formatNumber(stats.completedMembership),
             label: "Completed",
           },
         ]
@@ -352,12 +355,12 @@ const AdminDashboard = () => {
           },
           {
             icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
-            val: formatCurrency(stats.totalDonatedAmount),
+            val: formatCurrency(stats.totalMembershipFees),
             label: "Membership Funds",
           },
           {
             icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
-            val: formatNumber(stats.completedDonations),
+            val: formatNumber(stats.completedMembership),
             label: "Completed",
           },
         ];
