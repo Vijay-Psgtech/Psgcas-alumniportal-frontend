@@ -232,6 +232,7 @@ export const AlumniTab = ({
             <AnimatePresence>
               {alumniList.map((a, i) => {
                 const photo = a.files?.currentPhoto || a.profileImage;
+                const paidMember = a.membershipStatus === "ACTIVE";
                 return (
                   <motion.div
                     key={a._id}
@@ -278,7 +279,17 @@ export const AlumniTab = ({
                             )}
                             {a.isApproved ? "Approved" : "Pending"}
                           </span>
+                          
                         </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {paidMember && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                              <Crown size={12} />
+                              Membership Active
+                            </span>
+                          )}
+                        </div>
+                          
                       </div>
                     </div>
 
