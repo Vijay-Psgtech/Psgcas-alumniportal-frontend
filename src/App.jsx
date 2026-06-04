@@ -48,6 +48,9 @@ const CampaignFormPage = lazy(() => import("./pages/alumni/CampaignFormPage"));
 const AlumniRegistration = lazy(
   () => import("./pages/alumni/AlumniRegistration"),
 );
+const MembershipRegistrationPage = lazy(
+  () => import("./pages/alumni/MembershipRegistrationPage"),
+);
 const AlumniDashboard = lazy(() => import("./pages/alumni/AlumniDashboard"));
 const AlumniLogin = lazy(() => import("./pages/alumni/AlumniLogin"));
 const ForgotPassword = lazy(() => import("./pages/alumni/ForgotPassword"));
@@ -69,12 +72,24 @@ const AdminNewsLetter = lazy(() => import("./pages/admin/AdminNewsLetter"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminNotifications = lazy(() => import("./pages/admin/AdminNotifications"));
 
+// Payment Components
+const PaymentSuccess = lazy(() =>
+  import("./components/payment/PaymentStatus").then((module) => ({
+    default: module.PaymentSuccess,
+  })),
+);
+const PaymentFailure = lazy(() =>
+  import("./components/payment/PaymentStatus").then((module) => ({
+    default: module.PaymentFailure,
+  })),
+);
+
 // ── Redirects logged-in ALUMNI away from login/register ──────────
 const PublicOnlyRoute = ({ children }) => {
   const { user, authLoading } = useAuth();
   if (authLoading) return <AppLoader />;
   if (!user) return children;
-  if (user.role === "admin" || user.role === "superadmin") 
+  if (user.role === "admin" || user.role === "superadmin")
     return <Navigate to="/admin/dashboard" replace />;
   if (user.isApproved) return <Navigate to="/alumni/dashboard" replace />;
   return children; // pending alumni can still see registration page
@@ -256,13 +271,13 @@ export default function App() {
               {/* ═══════════════════════════════════════════════════════════════ */}
               {/* ✅ CAMPAIGN ROUTES - PUBLIC (No authentication needed) */}
               {/* ═══════════════════════════════════════════════════════════════ */}
-              <Route 
-                path="/campaigns" 
-                element={<CampaignsPage />} 
+              <Route
+                path="/campaigns"
+                element={<CampaignsPage />}
               />
-              <Route 
-                path="/campaign/:id" 
-                element={<CampaignFormPage />} 
+              <Route
+                path="/campaign/:id"
+                element={<CampaignFormPage />}
               />
 
               {/* ALUMNI AUTH */}
@@ -280,9 +295,17 @@ export default function App() {
                 path="alumni/register"
                 element={
                   <PublicOnlyRoute>
-                    {/* <AlumniRegistration /> */}
-                    <RegistrationMaintenanceCard />
+                    <AlumniRegistration />
+                    {/* <RegistrationMaintenanceCard /> */}
                   </PublicOnlyRoute>
+                }
+              />
+              <Route
+                path="/register/membership"
+                element={
+                  <ProtectedRoute>
+                    <MembershipRegistrationPage />
+                  </ProtectedRoute>
                 }
               />
               <Route
@@ -331,7 +354,7 @@ export default function App() {
                 }
               />
 
-               <Route
+              <Route
                 path="alumni/chapters"
                 element={
                   <ProtectedRoute>
@@ -341,13 +364,13 @@ export default function App() {
               />
 
               <Route
-                  path="/alumni/notifications"
-                  element={
-                    <ProtectedRoute>
-                      <NotificationInbox />
-                    </ProtectedRoute>
-                  }
-                />
+                path="/alumni/notifications"
+                element={
+                  <ProtectedRoute>
+                    <NotificationInbox />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* ADMIN */}
               <Route
@@ -418,6 +441,21 @@ export default function App() {
                   <ProtectedAdminRoute>
                     <AdminNotifications />
                   </ProtectedAdminRoute>
+                }
+              />
+
+
+              {/* Easebuzz redirects here after payment */}
+              <Route
+                path="/payment/success"
+                element={
+                  <PaymentSuccess />
+                }
+              />
+              <Route
+                path="/payment/failure"
+                element={
+                  <PaymentFailure />
                 }
               />
 
