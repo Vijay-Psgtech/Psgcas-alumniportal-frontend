@@ -139,11 +139,45 @@ const AlumniDashboard = () => {
     `${user?.firstName?.charAt(0) ?? ""}${user?.lastName?.charAt(0) ?? ""}`.toUpperCase();
   const avatarGrad = pickColor(user?.firstName ?? "");
 
+  {
+    /* is Paid Memeber */
+  }
+  const membershipStatus = user?.membershipStatus ?? "NOT_APPLIED";
+  const isPaidMember = ["paid", "ACTIVE", "approved"].includes(
+    membershipStatus,
+  );
+  const isPendingMember = ["PENDING_PAYMENT", "VERIFICATION_PENDING", "UNDER_REVIEW"].includes(
+    membershipStatus,
+  );
+  const isGuestMember = membershipStatus === "NOT_APPLIED";
+  const membershipLabel = isPaidMember
+    ? "Paid Member"
+    : isPendingMember
+      ? "Membership pending"
+      : "Membership not registered";
+  const membershipDescription = isPaidMember
+    ? "You are already a paid member. Your alumni benefits are active."
+    : isPendingMember
+      ? "Your membership application is under review. We will notify you once it is confirmed."
+      : "Register now to unlock alumni events, networking privileges, and membership benefits.";
+
+  const membershipPrefill = {
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    graduationYear: user?.graduationYear || user?.batchYear || "",
+    department: user?.department || "",
+    city: user?.city || "",
+    state: user?.state || "",
+    pincode: user?.pincode || "",
+  };
+
   /* --- Stats ---- */
   const STATS = [
     {
       label: "Alumni Network",
-      value: formatNumber(stats.totalAlumni), 
+      value: formatNumber(stats.totalAlumni),
       icon: GraduationCap,
       color: "text-indigo-600",
       bg: "bg-indigo-50",
@@ -407,6 +441,44 @@ const AlumniDashboard = () => {
             </motion.div>
           ))}
         </div>
+
+        {/* ── Membership Status ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08, duration: 0.38 }}
+          className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"
+        >
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                Alumni Membership
+              </p>
+              <h2 className="mt-3 text-lg font-black text-slate-900">
+                {membershipLabel}
+              </h2>
+              <p className="mt-2 text-sm text-slate-500 max-w-2xl">
+                {membershipDescription}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {isPaidMember ? (
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+                  Paid Member
+                </span>
+              ) : (
+                <a
+                  href="/register/membership"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-indigo-200/40 hover:bg-indigo-700 transition"
+                >
+                  Register Membership
+                </a>
+              )}
+            </div>
+          </div>
+        </motion.div>
 
         {/* ── Compose Banner ── */}
         <motion.div
