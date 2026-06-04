@@ -979,4 +979,12 @@ export const donationAPI = {
   },
 };
 
+// Payment Status API 
+export const paymentStatusAPI = {
+  // 🔓 PUBLIC - Get payment status by transaction ID
+  getStatus: (txnid) => {
+      return api.get(`/payment/status/${txnid}`);
+  }
+};
+
 export default api;
