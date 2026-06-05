@@ -35,6 +35,8 @@ import { EventsTab } from "../../components/admin/EventsTab";
 import { AlbumsTab } from "../../components/admin/AlbumsTab";
 import { AlumniTab } from "../../components/admin/AlumniTab";
 import { DonationsTab } from "../../components/admin/DonationsTab";
+import MembershipTab from "../../components/admin/MembershipTab";
+
 import DepartmentTab from "../../components/admin/DepartmentTab";
 import AdminUsersTab from "../../components/admin/AdminUsersTab";
 import NotificationManager from "../../pages/Notificationmanager";
@@ -267,10 +269,10 @@ const AdminDashboard = () => {
       badge: formatNumber(alumniPageData.totalAlumni),
     },
     {
-      key: "donations",
+      key: "memberships",
       Icon: FileText,
-      label: "Donations",
-      badge: donationList.length,
+      label: "Memberships",
+      badge: "📋",
     },
     {
       key: "donation-history",
@@ -645,17 +647,17 @@ const AdminDashboard = () => {
               />
             </motion.div>
           )}
-          {activeTab === "donations" && (
+          {activeTab === "memberships" && (
             <motion.div
-              key="donations"
+              key="memberships"
               variants={iv}
               initial="hidden"
               animate="visible"
               exit={{ opacity: 0 }}
             >
-              <DonationsTab
-                donationList={donationList}
-                setSelectedItem={setSelectedItem}
+              <MembershipTab
+                onError={setError}
+                onSuccess={setSuccess}
               />
             </motion.div>
           )}
