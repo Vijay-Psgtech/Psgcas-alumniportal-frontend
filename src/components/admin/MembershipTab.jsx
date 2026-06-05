@@ -33,6 +33,15 @@ export const MembershipTab = ({ onError, onSuccess }) => {
         fetchMemberships();
     }, [onError, onSuccess]);
 
+    // Optimized departments from current page data
+    const departments = Array.from(
+        new Set(memberships.map((m) => m.department).filter(Boolean)),
+    ).sort();
+
+    const paymentMode = Array.from(
+        new Set(memberships.map((m) => m.paymentId?.gatewayResponse?.mode).filter(Boolean)),
+    ).sort();
+
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
         return memberships.filter((m) => {
@@ -98,10 +107,11 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                         <label className="text-sm text-slate-600 w-20">Department</label>
                         <select className="flex-1 border rounded-md px-3 py-2" value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
                             <option value="">All</option>
-                            <option value="CSE">CSE</option>
-                            <option value="ECE">ECE</option>
-                            <option value="MECH">MECH</option>
-                            <option value="Other">Other</option>
+                            {departments.map((d) => (
+                                <option key={d} value={d}>
+                                    {d}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -109,9 +119,14 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                         <label className="text-sm text-slate-600 w-20">Payment</label>
                         <select className="flex-1 border rounded-md px-3 py-2" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
                             <option value="">All</option>
-                            <option value="UPI">UPI</option>
+                            {/* <option value="UPI">UPI</option>
                             <option value="CARD">CARD</option>
-                            <option value="NETBANKING">NETBANKING</option>
+                            <option value="NETBANKING">NETBANKING</option> */}
+                            {paymentMode.map((p) => (
+                                <option key={p} value={p}>
+                                    {p}
+                                </option>
+                            ))}
                         </select>
                     </div>
                 </div>
@@ -155,7 +170,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                             <div className="text-xs text-slate-500">{m.email}</div>
                                         </div>
                                         <div className="text-right">
-                                            <div className={`text-xs font-semibold ${ (m.membershipStatus||'').toLowerCase() === 'active' ? 'text-emerald-600' : 'text-slate-600' }`}>{m.membershipStatus}</div>
+                                            <div className={`text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active' ? 'text-emerald-600' : 'text-slate-600'}`}>{m.membershipStatus}</div>
                                             <div className="text-sm font-bold">{'₹'}{m.amount}</div>
                                         </div>
                                     </div>
@@ -209,7 +224,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.department}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.tier}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${ (m.membershipStatus||'').toLowerCase() === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700' }`}>{m.membershipStatus}</span>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{m.membershipStatus}</span>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</td>
@@ -227,13 +242,13 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                 <div className="text-sm text-slate-600">Showing <span className="font-medium text-slate-800">{startIdx + 1}</span> to <span className="font-medium text-slate-800">{Math.min(startIdx + currentSlice.length, totalItems)}</span> of <span className="font-medium text-slate-800">{totalItems}</span></div>
 
                 <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.max(1, p-1))} disabled={currentPage === 1}>Prev</button>
+                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Prev</button>
                     <div className="hidden sm:flex items-center gap-1">
                         {Array.from({ length: totalPages }).map((_, i) => (
-                            <button key={i} onClick={() => setPage(i+1)} className={`px-3 py-1 rounded-md ${currentPage === i+1 ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{i+1}</button>
+                            <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{i + 1}</button>
                         ))}
                     </div>
-                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.min(totalPages, p+1))} disabled={currentPage === totalPages}>Next</button>
+                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</button>
                 </div>
             </div>
         </div>
