@@ -788,11 +788,15 @@ export const adminAPI = {
   // Dashboard stats
   getStats: () => api.get("/admin/dashboard/stats"),
   getAllAlumni: (params) => api.get("/admin/dashboard/alumni/all", { params }),
+
   // Alumni approval & management
   getPendingAlumni: () => api.get("/admin/pending"),
   approveAlumni: (id) => api.put(`/admin/approve/${id}`),
   rejectAlumni: (id) => api.put(`/admin/reject/${id}`),
   makeAlumniAdmin: (id) => api.put(`/admin/make-admin/${id}`),
+
+  // Membership management
+  fetchAllMemberships: () => api.get("/admin/dashboard/memberships/all"),
 
   // Donations
   getAllDonations: () => api.get("/admin/dashboard/donations/all"),
@@ -912,8 +916,7 @@ export const contactAPI = {
 // ──────────── Membership API ──────────────────────────────────────────────────────
 export const membershipAPI = {
   fetchMembershipTiers: () => api.get("/membership/tiers"),
-  initiateMembershipPayment: (data) =>
-    api.post("/membership/initiate", data),
+  initiateMembershipPayment: (data) => api.post("/membership/initiate", data),
 };
 
 // ── Donation API ────────────────────────────────────────────────────────
