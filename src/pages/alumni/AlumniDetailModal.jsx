@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Hash,
   ExternalLink,
+  Crown,
 } from "lucide-react";
 
 const getInitials = (first = "", last = "") =>
@@ -126,10 +127,11 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
   const photoUrl = photo ? `${apiBase}/uploads/${photo}` : null;
 
   const jobLine = alumni.jobTitle
-    ? `${alumni.jobTitle}${
-        alumni.currentCompany ? " · " + alumni.currentCompany : ""
-      }`
+    ? `${alumni.jobTitle}${alumni.currentCompany ? " · " + alumni.currentCompany : ""
+    }`
     : alumni.occupation;
+
+  const paidMembership = alumni.membershipStatus === "ACTIVE";
 
   return (
     <AnimatePresence>
@@ -211,7 +213,27 @@ const AlumniDetailModal = ({ alumni, isOpen, onClose, apiBase, viewer }) => {
                 }}
               >
                 {alumni.firstName} {alumni.lastName}
+                {paidMembership && (
+                  <span
+                    style={{
+                      marginLeft: 8,
+                      background: "#d1fae5",
+                      color: "#10b981",
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: "2px 6px",
+                      borderRadius: 6,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <Crown size={12} className="text-emerald-500" />
+                    Membership Active
+                  </span>
+                )}
               </h2>
+
 
               <div
                 style={{

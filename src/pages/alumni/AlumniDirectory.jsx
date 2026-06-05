@@ -35,6 +35,7 @@ import {
   ChevronDown,
   Layers,
   ArrowRight,
+  Crown,
 } from "lucide-react";
 import { alumniAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -257,6 +258,8 @@ const AlumniCard = ({ alumni, apiBase, index, onSelect }) => {
 
   const companyLabel = alumni.currentCompany || alumni.industry || null;
 
+  const paidMembership = alumni.membershipStatus === "ACTIVE";
+
   return (
     <motion.button
       type="button"
@@ -336,6 +339,14 @@ const AlumniCard = ({ alumni, apiBase, index, onSelect }) => {
               <h3 className="text-[15px] font-semibold text-slate-900 dark:text-slate-100 leading-tight truncate">
                 {alumni.firstName} {alumni.lastName}
               </h3>
+              <span>
+                {paidMembership && (
+                  <Pill color="emerald">
+                    <Crown size={10} className="text-emerald-500" />
+                    Membership Active
+                  </Pill>
+                )}
+              </span>
             </div>
 
             {/* Role + Company */}
@@ -578,15 +589,6 @@ const AlumniDirectory = () => {
     return alumniList; // Backend already filters, pagination handles the rest
   }, [alumniList]);
 
-  // // ── Unique filter options ──
-  // const occupations = useMemo(
-  //   () => [...new Set(alumniList.map((a) => a.jobTitle).filter(Boolean))],
-  //   [alumniList],
-  // );
-  // const departments = useMemo(
-  //   () => [...new Set(alumniList.map((a) => a.department).filter(Boolean))],
-  //   [alumniList],
-  // );
 
   // ── Alumni list ──
   const displayedAlumni = useMemo(() => filtered, [filtered]);
