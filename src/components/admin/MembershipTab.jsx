@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { adminAPI } from "../../services/api";
 
+// Icons (can be replaced with icon library like lucide-react or react-icons)
+const SearchIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
+const FilterIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
+const ResetIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
+
 export const MembershipTab = ({ onError, onSuccess }) => {
     const [memberships, setMemberships] = useState([]);
     const [summary, setSummary] = useState({ totalMemberships: 0, activeMemberships: 0, totalAmount: 0 });
@@ -13,6 +18,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
     const [query, setQuery] = useState('');
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
+    const [showFilters, setShowFilters] = useState(false);
 
     useEffect(() => {
         const fetchMemberships = async () => {
@@ -63,192 +69,378 @@ export const MembershipTab = ({ onError, onSuccess }) => {
 
     useEffect(() => setPage(1), [statusFilter, departmentFilter, paymentFilter, query, perPage]);
 
-    if (loading) return <div className="p-6 text-center">Loading memberships…</div>;
+    const hasActiveFilters = statusFilter || departmentFilter || paymentFilter || query;
+
+    if (loading) return (
+        <div className="flex items-center justify-center h-96">
+            <div className="text-center">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-blue-600 mb-4"></div>
+                <p className="text-slate-600 font-medium">Loading memberships…</p>
+            </div>
+        </div>
+    );
+
+    const ChevronLeftIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
+    const ChevronRightIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
 
     return (
-        <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="px-6 py-5 border-b">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h2 className="text-2xl font-semibold text-slate-900">Membership Management</h2>
-                        <p className="text-sm text-slate-500 mt-1">Overview, search and manage membership records</p>
+        <div className="w-full space-y-6">
+            {/* Header Section with Stats */}
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 rounded-2xl px-6 lg:px-8 py-4 lg:py-6 shadow-lg">
+                <div className="mb-8">
+                    <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">Membership Management</h1>
+                    <p className="text-blue-100">Overview, search and manage membership records</p>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
+                    {/* Stat Card 1 - Total Members */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-blue-100 text-sm font-medium mb-2">Total Members</p>
+                                <p className="text-3xl lg:text-4xl font-bold text-white">{summary.totalMemberships || memberships.length}</p>
+                            </div>
+                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-blue-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">👥</div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <div className="text-right">
-                            <div className="text-xs text-slate-400">Total Members</div>
-                            <div className="text-lg font-bold text-slate-800">{summary.totalMemberships || memberships.length}</div>
+                    {/* Stat Card 2 - Active Members */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-blue-100 text-sm font-medium mb-2">Active Members</p>
+                                <p className="text-3xl lg:text-4xl font-bold text-emerald-300">{summary.activeMemberships || memberships.filter(m => (m.membershipStatus || '').toLowerCase() === 'active').length}</p>
+                            </div>
+                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-emerald-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">✓</div>
                         </div>
-                        <div className="text-right hidden sm:block pl-4 border-l">
-                            <div className="text-xs text-slate-400">Active</div>
-                            <div className="text-lg font-bold text-emerald-600">{summary.activeMemberships || memberships.filter(m => (m.membershipStatus || '').toLowerCase() === 'active').length}</div>
-                        </div>
-                        <div className="text-right hidden sm:block pl-4 border-l">
-                            <div className="text-xs text-slate-400">Total Amount</div>
-                            <div className="text-lg font-bold text-slate-800">{(summary.totalAmount || memberships.reduce((s, m) => s + (m.amount || 0), 0)).toLocaleString()}</div>
+                    </div>
+
+                    {/* Stat Card 3 - Total Revenue */}
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-blue-100 text-sm font-medium mb-2">Total Revenue</p>
+                                <p className="text-3xl lg:text-4xl font-bold text-amber-300">₹{(summary.totalAmount || memberships.reduce((s, m) => s + (m.amount || 0), 0)).toLocaleString()}</p>
+                            </div>
+                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-amber-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">₹</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="px-6 py-4 border-b">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm text-slate-600 w-20">Status</label>
-                        <select className="flex-1 border rounded-md px-3 py-2" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            <option value="">All</option>
-                            <option value="ACTIVE">Active</option>
-                            <option value="EXPIRED">Expired</option>
-                            <option value="PENDING">Pending</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm text-slate-600 w-20">Department</label>
-                        <select className="flex-1 border rounded-md px-3 py-2" value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)}>
-                            <option value="">All</option>
-                            {departments.map((d) => (
-                                <option key={d} value={d}>
-                                    {d}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm text-slate-600 w-20">Payment</label>
-                        <select className="flex-1 border rounded-md px-3 py-2" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
-                            <option value="">All</option>
-                            {/* <option value="UPI">UPI</option>
-                            <option value="CARD">CARD</option>
-                            <option value="NETBANKING">NETBANKING</option> */}
-                            {paymentMode.map((p) => (
-                                <option key={p} value={p}>
-                                    {p}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Search and Filters Section */}
+            <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+                <div className="px-6 lg:px-8 py-6 lg:py-8 space-y-6 border-b border-slate-200">
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
+                            <SearchIcon />
+                        </div>
                         <input
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search name, email or phone"
-                            className="w-full sm:w-80 border rounded-md px-3 py-2"
+                            placeholder="Search by name, email, or phone number…"
+                            className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all text-slate-700 placeholder-slate-400"
                         />
-                        <button onClick={() => { setQuery(''); setStatusFilter(''); setDepartmentFilter(''); setPaymentFilter(''); }} className="px-3 py-2 bg-slate-100 rounded-md text-sm">Reset</button>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <label className="text-sm text-slate-500">Rows</label>
-                        <select className="border rounded-md px-2 py-1" value={perPage} onChange={(e) => setPerPage(Number(e.target.value))}>
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={25}>25</option>
-                        </select>
+                    {/* Filter Toggle Button (Mobile) */}
+                    <div className="lg:hidden flex gap-3">
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
+                        >
+                            <FilterIcon />
+                            Filters
+                        </button>
+                        {hasActiveFilters && (
+                            <button
+                                onClick={() => { setQuery(''); setStatusFilter(''); setDepartmentFilter(''); setPaymentFilter(''); }}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
+                            >
+                                <ResetIcon />
+                                Reset
+                            </button>
+                        )}
                     </div>
-                </div>
-            </div>
 
-            <div className="px-4 py-6">
-                {/* Responsive: cards on small screens, table on md+ */}
-                <div className="block md:hidden space-y-3">
-                    {currentSlice.length === 0 && <div className="text-center text-slate-500 py-6">No memberships found.</div>}
-                    {currentSlice.map((m) => (
-                        <div key={m._id} className="border rounded-lg p-4 bg-white shadow-sm">
-                            <div className="flex items-start gap-3">
-                                <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-lg">
-                                    {(m.firstName?.[0] || '') + (m.lastName?.[0] || '')}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <div className="text-sm font-semibold text-slate-900">{m.firstName} {m.lastName}</div>
-                                            <div className="text-xs text-slate-500">{m.email}</div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className={`text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active' ? 'text-emerald-600' : 'text-slate-600'}`}>{m.membershipStatus}</div>
-                                            <div className="text-sm font-bold">{'₹'}{m.amount}</div>
-                                        </div>
-                                    </div>
+                    {/* Filters Section */}
+                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 ${!showFilters && 'hidden lg:grid'}`}>
+                        {/* Status Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 block">Status</label>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
+                            >
+                                <option value="">All Status</option>
+                                <option value="ACTIVE">Active</option>
+                                <option value="EXPIRED">Expired</option>
+                                <option value="PENDING">Pending</option>
+                            </select>
+                        </div>
 
-                                    <div className="mt-2 text-xs text-slate-500 grid grid-cols-2 gap-2">
-                                        <div>Dept: {m.department || '-'}</div>
-                                        <div>Batch: {m.batchYear || '-'}</div>
-                                        <div>Start: {m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</div>
-                                        <div>Expiry: {m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</div>
-                                        <div>Mode: {m.paymentId?.gatewayResponse?.mode || '-'}</div>
-                                        <div>Txn: {m.txnid || '-'}</div>
-                                    </div>
-                                </div>
+                        {/* Department Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 block">Department</label>
+                            <select
+                                value={departmentFilter}
+                                onChange={(e) => setDepartmentFilter(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
+                            >
+                                <option value="">All Departments</option>
+                                {departments.map((d) => (
+                                    <option key={d} value={d}>
+                                        {d}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Payment Filter */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 block">Payment Mode</label>
+                            <select
+                                value={paymentFilter}
+                                onChange={(e) => setPaymentFilter(e.target.value)}
+                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
+                            >
+                                <option value="">All Methods</option>
+                                {paymentMode.map((p) => (
+                                    <option key={p} value={p}>
+                                        {p}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Desktop Reset Button & Results Info */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <p className="text-sm text-slate-600">
+                            Found <span className="font-semibold text-slate-900">{totalItems}</span> {totalItems === 1 ? 'member' : 'members'}
+                            {hasActiveFilters && <span className="text-slate-500"> (filtered)</span>}
+                        </p>
+                        <div className="flex items-center gap-4">
+                            <div className="hidden lg:flex">
+                                {hasActiveFilters && (
+                                    <button
+                                        onClick={() => { setQuery(''); setStatusFilter(''); setDepartmentFilter(''); setPaymentFilter(''); }}
+                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
+                                    >
+                                        <ResetIcon />
+                                        Reset Filters
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <label className="text-sm font-medium text-slate-600 whitespace-nowrap">Show rows:</label>
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => setPerPage(Number(e.target.value))}
+                                    className="px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                </select>
                             </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
 
-                <div className="hidden md:block">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200">
-                            <thead className="bg-slate-50">
+                {/* Content Section */}
+                <div className="overflow-hidden">
+                    {/* Mobile Card View */}
+                    <div className="block md:hidden space-y-3 px-6 py-6 lg:px-8 lg:py-8">
+                        {currentSlice.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-slate-500 text-lg">No memberships found</p>
+                                <p className="text-slate-400 text-sm mt-2">Try adjusting your search or filters</p>
+                            </div>
+                        ) : (
+                            currentSlice.map((m) => (
+                                <div key={m._id} className="bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-slate-300 hover:shadow-md transition-all">
+                                    <div className="flex items-start gap-4">
+                                        {/* Avatar */}
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">
+                                            {(m.firstName?.[0] || '').toUpperCase()}{(m.lastName?.[0] || '').toUpperCase()}
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            {/* Name and Email */}
+                                            <div className="flex justify-between items-start gap-2 mb-2">
+                                                <div className="min-w-0">
+                                                    <h3 className="font-semibold text-slate-900 truncate">{m.firstName} {m.lastName}</h3>
+                                                    <p className="text-xs text-slate-500 truncate">{m.email}</p>
+                                                </div>
+                                                <div className="text-right flex-shrink-0">
+                                                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                                                        (m.membershipStatus || '').toLowerCase() === 'active'
+                                                            ? 'bg-emerald-100 text-emerald-700'
+                                                            : 'bg-slate-100 text-slate-700'
+                                                    }`}>
+                                                        {m.membershipStatus}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Details Grid */}
+                                            <div className="grid grid-cols-2 gap-3 text-xs">
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Department</p>
+                                                    <p className="font-medium text-slate-900">{m.department || '-'}</p>
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Batch</p>
+                                                    <p className="font-medium text-slate-900">{m.batchYear || '-'}</p>
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Start Date</p>
+                                                    <p className="font-medium text-slate-900">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</p>
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Expiry</p>
+                                                    <p className="font-medium text-slate-900">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</p>
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Payment</p>
+                                                    <p className="font-medium text-slate-900">{m.paymentId?.gatewayResponse?.mode || '-'}</p>
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Amount</p>
+                                                    <p className="font-bold text-indigo-600">₹{m.amount}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full divide-y divide-slate-200">
+                            <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Name</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Email</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Phone</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Department</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Tier</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Start</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Expiry</th>
-                                    <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Amount</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Payment Mode</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Member</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Email</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Phone</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Department</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Payment</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Amount</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Start</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Expiry</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-slate-100">
-                                {currentSlice.length === 0 && (
+                            <tbody className="bg-white divide-y divide-slate-200">
+                                {currentSlice.length === 0 ? (
                                     <tr>
-                                        <td colSpan={10} className="px-6 py-8 text-center text-slate-500">No memberships found.</td>
+                                        <td colSpan={9} className="px-6 py-12 text-center">
+                                            <p className="text-slate-500 text-lg">No memberships found</p>
+                                            <p className="text-slate-400 text-sm mt-1">Try adjusting your search or filters</p>
+                                        </td>
                                     </tr>
+                                ) : (
+                                    currentSlice.map((m) => (
+                                        <tr key={m._id} className="hover:bg-blue-50/50 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                                        {(m.firstName?.[0] || '').toUpperCase()}{(m.lastName?.[0] || '').toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-semibold text-slate-900">{m.firstName} {m.lastName}</p>
+                                                        <p className="text-xs text-slate-500">Batch {m.batchYear || '-'}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.email}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.phone}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.department}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                                    (m.membershipStatus || '').toLowerCase() === 'active'
+                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                        : (m.membershipStatus || '').toLowerCase() === 'expired'
+                                                        ? 'bg-red-100 text-red-700'
+                                                        : 'bg-amber-100 text-amber-700'
+                                                }`}>
+                                                    {m.membershipStatus}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.paymentId?.gatewayResponse?.mode || '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                <p className="font-bold text-indigo-600">₹{m.amount}</p>
+                                            </td>
+                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</td>
+                                        </tr>
+                                    ))
                                 )}
-
-                                {currentSlice.map((m) => (
-                                    <tr key={m._id} className="hover:bg-slate-50">
-                                        <td className="px-4 py-3 whitespace-nowrap">
-                                            <div className="font-medium text-slate-900">{m.firstName} {m.lastName}</div>
-                                            <div className="text-xs text-slate-500">Batch {m.batchYear || '-'}</div>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.email}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.phone}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.department}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.tier}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{m.membershipStatus}</span>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-right font-semibold">{'₹'}{m.amount}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-600">{m.paymentId?.gatewayResponse?.mode || '-'}</td>
-                                    </tr>
-                                ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
 
-            <div className="px-6 py-4 border-t flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="text-sm text-slate-600">Showing <span className="font-medium text-slate-800">{startIdx + 1}</span> to <span className="font-medium text-slate-800">{Math.min(startIdx + currentSlice.length, totalItems)}</span> of <span className="font-medium text-slate-800">{totalItems}</span></div>
-
-                <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>Prev</button>
-                    <div className="hidden sm:flex items-center gap-1">
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                            <button key={i} onClick={() => setPage(i + 1)} className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-white border'}`}>{i + 1}</button>
-                        ))}
+                {/* Pagination Section */}
+                <div className="px-6 lg:px-8 py-6 lg:py-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-sm text-slate-600">
+                        Showing <span className="font-semibold text-slate-900">{startIdx + 1}</span> to <span className="font-semibold text-slate-900">{Math.min(startIdx + currentSlice.length, totalItems)}</span> of <span className="font-semibold text-slate-900">{totalItems}</span> members
                     </div>
-                    <button className="px-3 py-1 rounded-md border" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Next</button>
+
+                    {/* Pagination Controls */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-white transition-all font-medium text-slate-700"
+                        >
+                            <ChevronLeftIcon />
+                            <span className="hidden sm:inline">Prev</span>
+                        </button>
+
+                        {/* Page Numbers */}
+                        <div className="hidden sm:flex items-center gap-1">
+                            {Array.from({ length: totalPages }).map((_, i) => {
+                                const pageNum = i + 1;
+                                const isCurrentPage = currentPage === pageNum;
+                                const isNearCurrent = Math.abs(pageNum - currentPage) <= 2;
+                                const isFirst = pageNum === 1;
+                                const isLast = pageNum === totalPages;
+
+                                if (!isCurrentPage && !isNearCurrent && !isFirst && !isLast) return null;
+
+                                return (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => setPage(pageNum)}
+                                        className={`px-3 py-2 rounded-lg font-medium transition-all ${
+                                            isCurrentPage
+                                                ? 'bg-blue-600 text-white shadow-lg'
+                                                : 'border-2 border-slate-200 text-slate-700 hover:border-blue-500 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-white transition-all font-medium text-slate-700"
+                        >
+                            <span className="hidden sm:inline">Next</span>
+                            <ChevronRightIcon />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
