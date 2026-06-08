@@ -45,13 +45,6 @@ import DonationHistory from "../../components/admin/DonationHistory";
 import CampaignCreator from "../../components/admin/Campaigncreator";
 import CampaignResponsesManager from "../../components/admin/Campaignresponsesmanager";
 
-// ✅ Safe import with fallback
-const donationsAPI = {
-  getAll:
-    adminAPI.getAllDonations ||
-    (() => Promise.resolve({ data: { donations: [] } })),
-};
-
 // ✅ Helper function to validate MongoDB ObjectId or UUID format
 const isValidCampaignId = (id) => {
   if (!id || typeof id !== "string") return false;
@@ -77,7 +70,6 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [alumniList, setAlumniList] = useState([]);
-  const [donationList, setDonationList] = useState([]);
   const [campaignList, setCampaignList] = useState([]);
   const [selectedCampaignId, setSelectedCampaignId] = useState(null);
 
@@ -129,7 +121,7 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
 
-        const [statsRes, alumniRes, donationsRes, campaignsRes] =
+        const [statsRes, alumniRes, campaignsRes] =
           await Promise.all([
             adminAPI.getStats(),
             adminAPI.getAllAlumni({
@@ -137,7 +129,7 @@ const AdminDashboard = () => {
               page: 1,
               limit: 20,
             }),
-            donationsAPI.getAll(),
+
             campaignsAPI.getAll(),
           ]);
 
@@ -153,7 +145,7 @@ const AdminDashboard = () => {
           currentPage: alumniRes.data.currentPage || 1,
         });
 
-        setDonationList(donationsRes.data.donations || []);
+
         setCampaignList(campaignsRes.campaigns || []);
 
         // ✅ Get campaign ID from URL with validation
@@ -291,81 +283,81 @@ const AdminDashboard = () => {
     // ✅ NEW: Notifications tab for Super Admin only
     ...(user?.role !== "admin"
       ? [
-          {
-            key: "campaign-creator",
-            Icon: Plus,
-            label: "Create Campaign",
-            badge: "📋",
-          },
-          {
-            key: "campaign-manager",
-            Icon: Megaphone,
-            label: "Campaign Manager",
-            badge: stats.totalCampaigns,
-          },
-          {
-            key: "notifications",
-            Icon: Bell,
-            label: "Notifications",
-            badge: "🔔",
-          },
-          {
-            key: "departments",
-            Icon: BookOpen,
-            label: "Departments",
-            badge: "✨",
-          },
-          { key: "users", Icon: Users, label: "Admin Users", badge: "👤" },
-        ]
+        {
+          key: "campaign-creator",
+          Icon: Plus,
+          label: "Create Campaign",
+          badge: "📋",
+        },
+        {
+          key: "campaign-manager",
+          Icon: Megaphone,
+          label: "Campaign Manager",
+          badge: stats.totalCampaigns,
+        },
+        {
+          key: "notifications",
+          Icon: Bell,
+          label: "Notifications",
+          badge: "🔔",
+        },
+        {
+          key: "departments",
+          Icon: BookOpen,
+          label: "Departments",
+          badge: "✨",
+        },
+        { key: "users", Icon: Users, label: "Admin Users", badge: "👤" },
+      ]
       : []),
   ];
 
   const STAT_CARDS =
     user.role === "admin"
       ? [
-          {
-            icon: <Users className="w-6 h-6 text-blue-600" />,
-            val: formatNumber(stats.totalAlumni),
-            label: "Total Alumni",
-          },
-          {
-            icon: <Building className="w-6 h-6 text-green-600" />,
-            val: formatNumber(alumniPageData.totalAlumni || 0),
-            label: `${user.department} Alumni`,
-          },
-          {
-            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
-            val: formatCurrency(stats.totalMembershipFees),
-            label: "Membership Funds",
-          },
-          {
-            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
-            val: formatNumber(stats.completedMembership),
-            label: "Completed",
-          },
-        ]
+        {
+          icon: <Users className="w-6 h-6 text-blue-600" />,
+          val: formatNumber(stats.totalAlumni),
+          label: "Total Alumni",
+        },
+        {
+          icon: <Building className="w-6 h-6 text-green-600" />,
+          val: formatNumber(alumniPageData.totalAlumni || 0),
+          label: `${user.department} Alumni`,
+        },
+        {
+          icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+          val: formatCurrency(stats.totalMembershipFees),
+          label: "Membership Funds",
+        },
+        {
+          icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
+          val: formatNumber(stats.completedMembership),
+          label: "Completed",
+        },
+      ]
       : [
-          {
-            icon: <Users className="w-6 h-6 text-blue-600" />,
-            val: formatNumber(stats.totalAlumni),
-            label: "Total Alumni",
-          },
-          {
-            icon: <Clock3 className="w-6 h-6 text-yellow-600" />,
-            val: formatNumber(stats.pendingAlumni),
-            label: "Pending Approval",
-          },
-          {
-            icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
-            val: formatCurrency(stats.totalMembershipFees),
-            label: "Membership Funds",
-          },
-          {
-            icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
-            val: formatNumber(stats.completedMembership),
-            label: "Completed",
-          },
-        ];
+        {
+          icon: <Users className="w-6 h-6 text-blue-600" />,
+          val: formatNumber(stats.totalAlumni),
+          label: "Total Alumni",
+        },
+        {
+          icon: <Clock3 className="w-6 h-6 text-yellow-600" />,
+          val: formatNumber(stats.pendingAlumni),
+          label: "Pending Approval",
+        },
+        {
+          icon: <IndianRupee className="w-6 h-6 text-purple-600" />,
+          val: formatCurrency(stats.totalMembershipFees),
+          label: "Membership Funds",
+        },
+        {
+          icon: <BadgeCheck className="w-6 h-6 text-teal-600" />,
+          val: formatNumber(stats.completedMembership),
+          label: "Completed",
+        },
+      ];
 
   if (loading)
     return (
@@ -538,11 +530,10 @@ const AdminDashboard = () => {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition ${
-                  activeTab === key
+                className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition ${activeTab === key
                     ? "bg-blue-600 text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
+                  }`}
               >
                 <Icon size={15} />
                 {label}
@@ -825,7 +816,7 @@ const AdminDashboard = () => {
 
                       {/* Details Column */}
                       <div className="md:col-span-2 space-y-4">
-                        
+
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="bg-white rounded-xl p-4 border border-slate-100">
@@ -885,9 +876,8 @@ const AdminDashboard = () => {
                       {[
                         {
                           l: "Amount",
-                          v: `${
-                            selectedItem.currency === "INR" ? "₹" : "$"
-                          }${selectedItem.amount}`,
+                          v: `${selectedItem.currency === "INR" ? "₹" : "$"
+                            }${selectedItem.amount}`,
                         },
                         { l: "Status", v: selectedItem.status },
                         {
