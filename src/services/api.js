@@ -797,9 +797,6 @@ export const adminAPI = {
 
   // Membership management
   fetchAllMemberships: () => api.get("/admin/dashboard/memberships/all"),
-
-  // Donations
-  getAllDonations: () => api.get("/admin/dashboard/donations/all"),
 };
 
 // ── Events API ────────────────────────────────────────────────────────
@@ -924,6 +921,7 @@ export const donationAPI = {
   initiateDonationPayment: (data) => api.post("/donation/initiate", data),
   fetchDonationStats: () => api.get("/donation/stats"),
   fetchRecentDonations: (limit) => api.get(`/donation/recent?limit=${limit}`), 
+  getHistory: (params) => api.get("/donation/history", { params }),
 };
 
 // Payment Status API 
