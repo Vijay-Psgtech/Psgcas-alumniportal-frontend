@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import React, { useState, useEffect } from "react";
-import { membershipAPI } from "../../services/api";
+import { membershipAPI, departmentAPI } from "../../services/api";
 
 // Simple inline styles for portability (swap with Tailwind / MUI as needed)
 const styles = {
@@ -148,6 +148,7 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState(1); // 1: tier selection, 2: personal info
+  const [departments, setDepartments] = useState([]);
 
   const [form, setForm] = useState({
     firstName: prefillData.firstName || "",
@@ -167,8 +168,8 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
         const tierList = Array.isArray(data.data)
           ? data.data
           : Array.isArray(data?.data?.tiers)
-          ? data.data.tiers
-          : [];
+            ? data.data.tiers
+            : [];
         setTiers(tierList);
         if (tierList.length > 0 && tierList[0]?.key) setSelectedTier(tierList[0].key);
       })
@@ -189,6 +190,21 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
       pincode: prefillData.pincode || "",
     }));
   }, [prefillData]);
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await departmentAPI.getAll();
+        if (res.data?.data?.departments) {
+          setDepartments(res.data.data.departments);
+        }
+      } catch (error) {
+        console.log("Error fetching departments", error);
+        setDepartments([]);
+      }
+    }
+    fetchDepartments();
+  }, [])
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -362,8 +378,10 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
                   value={form.department} onChange={handleChange} required
                 >
                   <option value="">Select Department</option>
-                  {DEPARTMENTS.map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                  {departments.map((dept) => (
+                    <option key={dept._id || dept.id || dept.name} value={dept.name}>
+                      {dept.name}
+                    </option>
                   ))}
                 </select>
               </div>
