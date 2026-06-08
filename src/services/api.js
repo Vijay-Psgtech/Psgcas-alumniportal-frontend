@@ -921,65 +921,9 @@ export const membershipAPI = {
 
 // ── Donation API ────────────────────────────────────────────────────────
 export const donationAPI = {
-  // 🔓 PUBLIC - Create new donation
-  create: (data) => {
-    console.log("📤 Creating donation...");
-    return api.post("/donations", data);
-  },
-
-  // 🔓 PUBLIC - Verify Razorpay payment
-  verifyRazorPay: (data) => {
-    console.log("📤 Verifying Razorpay payment...");
-    return api.post("/donations/verify-razorpay", data);
-  },
-
-  // 🔓 PUBLIC - Get donation history with filters (anyone can view)
-  getHistory: (params) => {
-    console.log("📡 Fetching donation history...", params);
-    return api.get("/donations/history", { params });
-  },
-
-  // 🔓 PUBLIC - Get donation stats
-  getStats: (params) => {
-    console.log("📡 Fetching donation stats...");
-    return api.get("/donations/stats", { params });
-  },
-
-  // 🔐 ADMIN - Get all donations
-  getAll: () => {
-    console.log("📡 Fetching all donations (admin)...");
-    return api.get("/donations");
-  },
-
-  // 🔐 ADMIN - Get specific donation by ID
-  getById: (id) => {
-    console.log(`📡 Fetching donation ${id}...`);
-    return api.get(`/donations/${id}`);
-  },
-
-  // 🔐 ADMIN - Update donation (notes, status, flags)
-  update: (id, data) => {
-    console.log(`📤 Updating donation ${id}...`);
-    return api.put(`/donations/${id}`, data);
-  },
-
-  // 🔐 ADMIN - Update donation status
-  updateStatus: (id, status) => {
-    console.log(`📤 Updating donation ${id} status to ${status}...`);
-    return api.put(`/donations/${id}/status`, { status });
-  },
-
-  // 🔐 ADMIN - Flag/Unflag donation
-  flagDonation: (id, data) => {
-    console.log(`📤 Updating flag status for donation ${id}...`);
-    return api.put(`/donations/${id}/flag`, data);
-  },
-
-  // 🔐 ADMIN - Delete donation
-  delete: (id) => {
-    console.log(`📤 Deleting donation ${id}...`);
-    return api.delete(`/donations/${id}`);
-  },
+  initiateDonationPayment: (data) => api.post("/donation/initiate", data),
+  fetchDonationStats: () => api.get("/donation/stats"),
+  fetchRecentDonations: (limit) => api.get(`/donation/recent?limit=${limit}`), 
 };
 
 // Payment Status API 

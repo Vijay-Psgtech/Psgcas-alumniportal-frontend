@@ -440,32 +440,32 @@ const G = `
 /* ═══════════════════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════════════════ */
-const MIN_INR = 5000;
+const MIN_INR = 100;
 const MAX_INR = 25000;
 
-const PAN_REGEX     = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 const AADHAAR_REGEX = /^[0-9]{12}$/;
 
 const CAUSES = [
   {
-    id: "scholarship", icon: GraduationCap,
+    id: "Scholarship Fund", icon: GraduationCap,
     title: "Student Scholarships",
     desc: "Fund merit & need-based aid for deserving students.",
     badge: "High need",
     impact: {
-      5000:  "Cover one student's exam fees for a semester",
+      5000: "Cover one student's exam fees for a semester",
       10000: "Fund a semester's books & study materials",
       15000: "Sponsor one month of tuition for a student",
       25000: "Full semester scholarship for one student",
     },
   },
   {
-    id: "research", icon: FlaskConical,
+    id: "Research Initiatives", icon: FlaskConical,
     title: "Research Initiatives",
     desc: "Fuel cutting-edge projects across disciplines.",
     badge: null,
     impact: {
-      5000:  "Purchase lab consumables for a research project",
+      5000: "Purchase lab consumables for a research project",
       10000: "Sponsor a student researcher for a month",
       15000: "Equip part of a research workstation",
       25000: "Fund an end-to-end research project cycle",
@@ -477,7 +477,7 @@ const CAUSES = [
     desc: "Renovate labs, halls, libraries & sports facilities.",
     badge: null,
     impact: {
-      5000:  "Fund a library book collection",
+      5000: "Fund a library book collection",
       10000: "Sponsor classroom technology upgrade",
       15000: "Renovate a seminar room partition",
       25000: "Equip an entire computer lab station",
@@ -489,7 +489,7 @@ const CAUSES = [
     desc: "Support mental health, clubs & campus life.",
     badge: "New",
     impact: {
-      5000:  "Fund a mental health session for 5 students",
+      5000: "Fund a mental health session for 5 students",
       10000: "Sponsor a full student club activity",
       15000: "Run a wellness workshop series",
       25000: "Run a full-semester wellness programme",
@@ -501,7 +501,7 @@ const CAUSES = [
     desc: "Build bridges between graduates and the institute.",
     badge: null,
     impact: {
-      5000:  "Sponsor a virtual mentorship session",
+      5000: "Sponsor a virtual mentorship session",
       10000: "Support an alumni networking event",
       15000: "Fund a mentorship programme for 10 students",
       25000: "Establish a full alumni mentoring series",
@@ -511,7 +511,8 @@ const CAUSES = [
 
 // ✅ Updated presets: ₹5K – ₹25K only
 const INR_PRESETS = [
-  { amount: 5000,  label: "₹5,000"  },
+  { amount: 100, label: "₹100" },
+  { amount: 5000, label: "₹5,000" },
   { amount: 10000, label: "₹10,000" },
   { amount: 15000, label: "₹15,000" },
   { amount: 25000, label: "₹25,000" },
@@ -523,14 +524,14 @@ const STEPS = ["Choose Cause", "Donation Details", "Confirm & Pay"];
    ANIMATION VARIANTS
 ═══════════════════════════════════════════════════════ */
 const fadeUp = (delay = 0) => ({
-  hidden:  { opacity: 0, y: 22 },
+  hidden: { opacity: 0, y: 22 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", delay } },
 });
 
 const slideDownForm = {
-  hidden:  { opacity: 0, y: -40 },
+  hidden: { opacity: 0, y: -40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
-  exit:    { opacity: 0, y: -40, transition: { duration: 0.3 } },
+  exit: { opacity: 0, y: -40, transition: { duration: 0.3 } },
 };
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -541,13 +542,13 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } }
 const DonatePage = () => {
 
   /* ── form state ── */
-  const [step, setStep]       = useState(1);
-  const [cause, setCause]     = useState("scholarship");
-  const [amount, setAmount]   = useState("");
-  const [name, setName]       = useState("");
-  const [email, setEmail]     = useState("");
-  const [phone, setPhone]     = useState("");
-  const [pan, setPan]         = useState("");
+  const [step, setStep] = useState(1);
+  const [cause, setCause] = useState("scholarship");
+  const [amount, setAmount] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [pan, setPan] = useState("");
   const [aadhaar, setAadhaar] = useState("");
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
@@ -558,14 +559,14 @@ const DonatePage = () => {
   const [fieldErrors, setFieldErrors] = useState({});
 
   /* ── async state ── */
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
-  const [success, setSuccess]     = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [statsLoading, setStatsLoading] = useState(true);
   const [liveStats, setLiveStats] = useState(null);
 
   /* ── derived ── */
-  const feeAmt   = amount ? +(parseFloat(amount) * 0.02).toFixed(2) : 0;
+  const feeAmt = amount ? +(parseFloat(amount) * 0.02).toFixed(2) : 0;
   const totalAmt = amount ? +(parseFloat(amount) * 1.02).toFixed(2) : 0;
   const activeCause = CAUSES.find(c => c.id === cause);
 
@@ -573,7 +574,7 @@ const DonatePage = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await donationAPI.getDonationStats();
+        const res = await donationAPI.fetchDonationStats();
         setLiveStats(res.data);
       } catch {
         setLiveStats(null);
@@ -617,7 +618,7 @@ const DonatePage = () => {
 
     // Donor info
     if (!anonymous) {
-      if (!name.trim())  errs.name  = "Full name is required.";
+      if (!name.trim()) errs.name = "Full name is required.";
       if (!email.trim()) {
         errs.email = "Email address is required.";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -644,86 +645,47 @@ const DonatePage = () => {
       setError("Please fix the errors highlighted below.");
       return false;
     }
-    setError("");
-    return true;
+    return null;
   }, [amount, anonymous, name, email, pan, aadhaar]);
 
-  /* ── Razorpay handler ── */
-  const handleRazorpay = useCallback(async () => {
-    setLoading(true); setError("");
-    try {
-      const payload = {
-        amount:        parseFloat(amount),
-        currency:      "INR",
-        paymentMethod: "razorpay",
-        cause,
-        isAnonymous:   anonymous,
-        message:       message || "",
-        donorName:     anonymous ? "Anonymous" : name,
-        donorEmail:    anonymous ? "anonymous@psgcas.ac.in" : email,
-        donorPhone:    phone || "",
-        pan:           pan.toUpperCase(),
-        aadhaar:       aadhaar,
-      };
 
-      const res = await donationAPI.create(payload);
-      const { razorpayOrderId, amount: amt, currency: cur, donationId } = res.data;
-
-      if (!razorpayOrderId) {
-        setError("Failed to create payment order. Please try again.");
-        setLoading(false); return;
-      }
-
-      const opts = {
-        key:         import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount:      amt,
-        currency:    cur,
-        order_id:    razorpayOrderId,
-        name:        "PSG Arts Alumni Foundation",
-        description: `Joy of Giving — ${activeCause?.title}`,
-        handler: async (pr) => {
-          try {
-            const vr = await donationAPI.verifyRazorpayPayment({
-              razorpay_order_id:   pr.razorpay_order_id,
-              razorpay_payment_id: pr.razorpay_payment_id,
-              razorpay_signature:  pr.razorpay_signature,
-              donationId,
-            });
-            if (vr.data.success) {
-              setSuccess(true);
-              setAmount(""); setName(""); setEmail(""); setPhone("");
-              setPan(""); setAadhaar(""); setMessage(""); setStep(1);
-              setTimeout(() => setSuccess(false), 7000);
-            } else { setError("Payment verification failed. Please contact support."); }
-          } catch { setError("Verification error. Please try again."); }
-          finally  { setLoading(false); }
-        },
-        prefill: { name: anonymous ? "" : name, email: anonymous ? "" : email, contact: phone || "" },
-        notes:   { cause, message, isAnonymous: anonymous },
-        theme:   { color: "#0c1f3f" },
-        modal:   { ondismiss: () => setLoading(false) },
-      };
-
-      const open = () => { const r = new window.Razorpay(opts); r.open(); };
-      if (typeof window.Razorpay === "undefined") {
-        const s = document.createElement("script");
-        s.src     = "https://checkout.razorpay.com/v1/checkout.js";
-        s.onload  = open;
-        s.onerror = () => { setError("Failed to load payment gateway."); setLoading(false); };
-        document.head.appendChild(s);
-      } else { open(); }
-    } catch (e) {
-      setError(e.response?.data?.message || "Payment initiation failed.");
-      setLoading(false);
-    }
-  }, [amount, cause, anonymous, message, name, email, phone, pan, aadhaar, activeCause]);
 
   /* ── submit ── */
-  const handleSubmit = useCallback((e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    if (!validate()) return;
-    handleRazorpay();
-  }, [validate, handleRazorpay]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const validationError = validate();
+    if (validationError) return setError(validationError);
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const payload = {
+        amount: parseFloat(amount),
+        currency: "INR",
+        paymentMethod: "easebuzz",
+        category: cause,
+        isAnonymous: anonymous,
+        message: message || "",
+        donorName: anonymous ? "Anonymous" : name,
+        donorEmail: anonymous ? "anonymous@psgcas.ac.in" : email,
+        donorPhone: phone || "",
+        pan: pan.toUpperCase(),
+        aadhaar: aadhaar,
+      };
+
+
+      const result = await donationAPI.initiateDonationPayment(payload);
+
+      if (result.data.success && result.data.paymentUrl) {
+        window.location.href = result.data.paymentUrl;
+      }
+    } catch (err) {
+      setError(err.message || "Payment initiation failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /* ── impact message ── */
   const getImpact = () => {
@@ -738,16 +700,16 @@ const DonatePage = () => {
   /* ── hero stats ── */
   const heroStats = [
     {
-      num:   statsLoading ? null : liveStats?.totalAmountINR
-               ? `₹${(liveStats.totalAmountINR / 1e5).toFixed(1)}L+` : "₹4.2Cr+",
+      num: statsLoading ? null : liveStats?.totalAmountINR
+        ? `₹${(liveStats.totalAmountINR / 1e5).toFixed(1)}L+` : "₹4.2Cr+",
       label: "Raised this year",
     },
     {
-      num:   statsLoading ? null : liveStats?.totalDonations
-               ? `${liveStats.totalDonations}+` : "340+",
+      num: statsLoading ? null : liveStats?.totalDonations
+        ? `${liveStats.totalDonations}+` : "340+",
       label: "Donations made",
     },
-    { num: "80G",  label: "Tax exemption" },
+    { num: "80G", label: "Tax exemption" },
     { num: "100%", label: "Goes to the cause" },
   ];
 
@@ -797,7 +759,7 @@ const DonatePage = () => {
             >
               {STEPS.map((label, i) => {
                 const n = i + 1;
-                const isDone   = step > n;
+                const isDone = step > n;
                 const isActive = step === n;
                 return (
                   <React.Fragment key={label}>
@@ -877,13 +839,13 @@ const DonatePage = () => {
                     <AnimatePresence>
                       {error && (
                         <motion.div className="alert error"
-                          initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
+                          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                           <AlertCircle size={15} /> {error}
                         </motion.div>
                       )}
                       {success && (
                         <motion.div className="alert success"
-                          initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}>
+                          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                           <CheckCircle2 size={15} />
                           <span>
                             <strong>Thank you for your generosity!</strong><br />
@@ -944,32 +906,32 @@ const DonatePage = () => {
                     <AnimatePresence>
                       {!anonymous && (
                         <motion.div
-                          initial={{ opacity:0, height:0 }}
-                          animate={{ opacity:1, height:"auto" }}
-                          exit={{ opacity:0, height:0 }}
-                          style={{ overflow:"hidden" }}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          style={{ overflow: "hidden" }}
                         >
-                          <div style={{ display:"flex", flexDirection:"column", gap:"14px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                             <div className="form-row">
                               <div className="jog-field">
                                 <label className="jog-label" htmlFor="d-name">
                                   Full Name <span>*</span>
                                 </label>
                                 <input id="d-name" type="text" value={name}
-                                  onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name:"" })); }}
+                                  onChange={e => { setName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: "" })); }}
                                   placeholder="Your full name"
                                   className={`jog-input ${fieldErrors.name ? "err" : ""}`} />
-                                {fieldErrors.name && <span className="field-err"><AlertCircle size={11}/>{fieldErrors.name}</span>}
+                                {fieldErrors.name && <span className="field-err"><AlertCircle size={11} />{fieldErrors.name}</span>}
                               </div>
                               <div className="jog-field">
                                 <label className="jog-label" htmlFor="d-email">
                                   Email Address <span>*</span>
                                 </label>
                                 <input id="d-email" type="email" value={email}
-                                  onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email:"" })); }}
+                                  onChange={e => { setEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: "" })); }}
                                   placeholder="you@example.com"
                                   className={`jog-input ${fieldErrors.email ? "err" : ""}`} />
-                                {fieldErrors.email && <span className="field-err"><AlertCircle size={11}/>{fieldErrors.email}</span>}
+                                {fieldErrors.email && <span className="field-err"><AlertCircle size={11} />{fieldErrors.email}</span>}
                               </div>
                             </div>
                             <div className="jog-field">
@@ -998,7 +960,7 @@ const DonatePage = () => {
                     <div className="form-divider">KYC for 80G Tax Certificate</div>
 
                     <div className="kyc-note">
-                      <ShieldCheck size={13} style={{ flexShrink:0, marginTop:2, color:"var(--gold)" }} />
+                      <ShieldCheck size={13} style={{ flexShrink: 0, marginTop: 2, color: "var(--gold)" }} />
                       <span>
                         PAN and Aadhaar are required for all donations as per Indian tax regulations (Section 80G).
                         Your details are encrypted and never shared with third parties.
@@ -1018,13 +980,13 @@ const DonatePage = () => {
                           placeholder="ABCDE1234F"
                           maxLength={10}
                           className={`jog-input ${fieldErrors.pan ? "err" : ""}`}
-                          style={{ textTransform:"uppercase", letterSpacing:"0.1em" }}
+                          style={{ textTransform: "uppercase", letterSpacing: "0.1em" }}
                         />
                         {fieldErrors.pan
-                          ? <span className="field-err"><AlertCircle size={11}/>{fieldErrors.pan}</span>
+                          ? <span className="field-err"><AlertCircle size={11} />{fieldErrors.pan}</span>
                           : pan.length > 0 && PAN_REGEX.test(pan)
-                            ? <span style={{ fontSize:"10.5px", color:"var(--success)" }}>✓ Valid PAN</span>
-                            : <span style={{ fontSize:"10.5px", color:"var(--muted)" }}>Format: AAAAA9999A</span>
+                            ? <span style={{ fontSize: "10.5px", color: "var(--success)" }}>✓ Valid PAN</span>
+                            : <span style={{ fontSize: "10.5px", color: "var(--muted)" }}>Format: AAAAA9999A</span>
                         }
                       </div>
 
@@ -1041,13 +1003,13 @@ const DonatePage = () => {
                           placeholder="12-digit Aadhaar"
                           maxLength={12}
                           className={`jog-input ${fieldErrors.aadhaar ? "err" : ""}`}
-                          style={{ letterSpacing:"0.12em" }}
+                          style={{ letterSpacing: "0.12em" }}
                         />
                         {fieldErrors.aadhaar
-                          ? <span className="field-err"><AlertCircle size={11}/>{fieldErrors.aadhaar}</span>
-                          : <span style={{ fontSize:"10.5px", color: aadhaar.length === 12 ? "var(--success)" : "var(--muted)" }}>
-                              {aadhaar.length === 12 ? "✓ 12 digits entered" : `${aadhaar.length}/12 digits`}
-                            </span>
+                          ? <span className="field-err"><AlertCircle size={11} />{fieldErrors.aadhaar}</span>
+                          : <span style={{ fontSize: "10.5px", color: aadhaar.length === 12 ? "var(--success)" : "var(--muted)" }}>
+                            {aadhaar.length === 12 ? "✓ 12 digits entered" : `${aadhaar.length}/12 digits`}
+                          </span>
                         }
                       </div>
                     </div>
@@ -1067,7 +1029,7 @@ const DonatePage = () => {
                     <div className="summary-body">
                       <div className="sum-row">
                         <span>Cause</span>
-                        <span className="v" style={{ textAlign:"right", maxWidth:"160px", fontSize:"11.5px" }}>
+                        <span className="v" style={{ textAlign: "right", maxWidth: "160px", fontSize: "11.5px" }}>
                           {activeCause?.title}
                         </span>
                       </div>
@@ -1081,14 +1043,14 @@ const DonatePage = () => {
                       </div>
                       <div className="sum-row">
                         <span>PAN</span>
-                        <span className="v" style={{ fontSize:"11.5px" }}>
-                          {PAN_REGEX.test(pan) ? <span style={{ color:"#86efac" }}>✓ Verified</span> : "—"}
+                        <span className="v" style={{ fontSize: "11.5px" }}>
+                          {PAN_REGEX.test(pan) ? <span style={{ color: "#86efac" }}>✓ Verified</span> : "—"}
                         </span>
                       </div>
                       <div className="sum-row">
                         <span>Aadhaar</span>
-                        <span className="v" style={{ fontSize:"11.5px" }}>
-                          {AADHAAR_REGEX.test(aadhaar) ? <span style={{ color:"#86efac" }}>✓ Entered</span> : "—"}
+                        <span className="v" style={{ fontSize: "11.5px" }}>
+                          {AADHAAR_REGEX.test(aadhaar) ? <span style={{ color: "#86efac" }}>✓ Entered</span> : "—"}
                         </span>
                       </div>
                       <div className="sum-total">
@@ -1107,7 +1069,7 @@ const DonatePage = () => {
                         }
                       </button>
                       <p className="secure-note">
-                        <ShieldCheck size={11} /> Secured by Razorpay · INR only
+                        <ShieldCheck size={11} /> 🔐 Secured by Easebuzz · INR only
                       </p>
                     </div>
                   </div>
@@ -1131,7 +1093,7 @@ const DonatePage = () => {
                         </div>
                         <div className="impact-row">
                           <ChevronRight size={13} />
-                          Directed to <strong style={{ marginLeft:3 }}>{activeCause?.title}</strong> fund.
+                          Directed to <strong style={{ marginLeft: 3 }}>{activeCause?.title}</strong> fund.
                         </div>
                       </>
                     ) : (
