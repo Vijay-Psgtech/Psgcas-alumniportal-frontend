@@ -32,6 +32,7 @@ import {
   Copy,
   ArrowUpRight,
   ArrowDownLeft,
+  IndianRupee,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { donationAPI } from "../../services/api";
@@ -396,7 +397,7 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
       d.donorName,
       d.donorEmail || "N/A",
       d.amount,
-      d.currency,
+      d.paymentId?.currency,
       d.status,
       new Date(d.createdAt).toLocaleDateString(),
     ]);
@@ -494,28 +495,28 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
             {/* Donation Details */}
             <div className="bg-linear-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
               <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <DollarSign size={18} className="text-emerald-600" />
+                <IndianRupee size={18} className="text-emerald-600" />
                 Donation Details
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 font-semibold">Amount</p>
                   <p className="font-bold text-2xl text-emerald-600">
-                    {donation.currency === "INR" ? "₹" : "$"}
+                    {donation.paymentId?.currency === "INR" ? "₹" : "$"}
                     {donation.amount?.toLocaleString()}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-semibold">Currency</p>
-                  <p className="font-semibold text-gray-900">{donation.currency}</p>
+                  <p className="font-semibold text-gray-900">{donation.paymentId?.currency}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-semibold">Payment Method</p>
-                  <p className="font-semibold text-gray-900">{donation.paymentMethod}</p>
+                  <p className="font-semibold text-gray-900">{donation.paymentId?.gatewayResponse?.mode}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-semibold">Payment Gateway</p>
-                  <p className="font-semibold text-gray-900">{donation.paymentGateway || "N/A"}</p>
+                  <p className="font-semibold text-gray-900">{donation.paymentId?.gatewayResponse?.payment_source || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -542,7 +543,7 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                 <div>
                   <p className="text-xs text-gray-500 font-semibold">Transaction ID</p>
                   <p className="font-semibold text-gray-900 text-sm break-all">
-                    {donation.transactionId || "N/A"}
+                    {donation.txnid || "N/A"}
                   </p>
                 </div>
               </div>
@@ -896,13 +897,13 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                       <div>
                         <p className="text-xs text-gray-500 font-semibold">Amount</p>
                         <p className="font-bold text-emerald-600">
-                          {donation.currency === "INR" ? "₹" : "$"}
+                          {donation.paymentId?.currency === "INR" ? "₹" : "$"}
                           {donation.amount?.toLocaleString()}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 font-semibold">Method</p>
-                        <p className="font-semibold text-gray-700">{donation.paymentMethod}</p>
+                        <p className="font-semibold text-gray-700">{donation.paymentId?.gatewayResponse?.mode}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 font-semibold">Status</p>
