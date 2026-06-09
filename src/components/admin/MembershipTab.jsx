@@ -27,7 +27,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                 const data = response?.data || {};
                 setMemberships(data.memberships || []);
                 setSummary(data.summary || { totalMemberships: (data.memberships || []).length, activeMemberships: 0, totalAmount: 0 });
-                if (onSuccess) onSuccess(data.message || 'Memberships loaded');
+                // if (onSuccess) onSuccess(data.message || 'Memberships loaded');
             } catch (error) {
                 console.error('Error fetching memberships:', error);
                 if (onError) onError('Failed to load memberships');
