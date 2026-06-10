@@ -95,7 +95,9 @@ export default function NavBar() {
           { label: "Events", path: "/admin/events" },
           { label: "Newsletters", path: "/admin/newsletters" },
           { label: "Alumni Management", path: "/admin/users" },
-          { label: "Reports", path: "/admin/reports" },
+          ...(user?.role === 'superadmin'
+            ? [{ label: "Reports", path: "/admin/reports" },]
+            : []),
         ],
       });
     }
@@ -170,7 +172,7 @@ export default function NavBar() {
     if (label === "Find Alumni") setMobileDiscoverOpen((p) => !p);
     if (label === "Events") setMobileEventsOpen((p) => !p);
     if (label === "Admin") setMobileAlumniOpen((p) => !p);
-    if (label === "Access") setMobileAccessOpen((p) => !p); 
+    if (label === "Access") setMobileAccessOpen((p) => !p);
   };
 
   const isMobileDropdownOpen = (label) => {
@@ -213,9 +215,8 @@ export default function NavBar() {
         .navbar-bg {
           position: absolute;
           inset: 0;
-          background: ${
-            scrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.4)"
-          };
+          background: ${scrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0.4)"
+        };
           backdrop-filter: blur(20px) saturate(180%);
           border-bottom: 1px solid rgba(59, 130, 246, 0.12);
           transition: all 0.4s ease;
@@ -1019,42 +1020,44 @@ export default function NavBar() {
                       )}
                       {(user.role === "admin" ||
                         user.role === "superadmin") && (
-                        <>
-                          <div className="ud-divider" />
-                          <NavLink
-                            to="/admin/dashboard"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="ud-item"
-                          >
-                            <LayoutDashboard size={14} />
-                            Admin Dashboard
-                          </NavLink>
-                          <NavLink
-                            to="/admin/events"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="ud-item"
-                          >
-                            <Calendar size={14} />
-                            Manage Events
-                          </NavLink>
-                          <NavLink
-                            to="/admin/users"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="ud-item"
-                          >
-                            <Users size={14} />
-                            Alumni Management
-                          </NavLink>
-                          <NavLink
-                            to="/admin/reports"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="ud-item"
-                          >
-                            <FileText size={14} />
-                            Reports
-                          </NavLink>
-                        </>
-                      )}
+                          <>
+                            <div className="ud-divider" />
+                            <NavLink
+                              to="/admin/dashboard"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="ud-item"
+                            >
+                              <LayoutDashboard size={14} />
+                              Admin Dashboard
+                            </NavLink>
+                            <NavLink
+                              to="/admin/events"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="ud-item"
+                            >
+                              <Calendar size={14} />
+                              Manage Events
+                            </NavLink>
+                            <NavLink
+                              to="/admin/users"
+                              onClick={() => setUserMenuOpen(false)}
+                              className="ud-item"
+                            >
+                              <Users size={14} />
+                              Alumni Management
+                            </NavLink>
+                            {...(user?.role === 'superadmin' ? [
+                              <NavLink
+                                to="/admin/reports"
+                                onClick={() => setUserMenuOpen(false)}
+                                className="ud-item"
+                              >
+                                <FileText size={14} />
+                                Reports
+                              </NavLink>
+                            ] : [])}
+                          </>
+                        )}
                       <div className="ud-divider" />
                       <button onClick={handleLogout} className="ud-item danger">
                         <LogOut size={14} />
