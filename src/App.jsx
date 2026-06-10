@@ -4,6 +4,7 @@ import { useAuth } from "./context/AuthContext";
 import ScrolltoTop from "./components/ScrolltoTop";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import ProtectedSuperAdminRoute from "./components/ProtectedSuperAdminRoute";
 
 import PremiumNavBar from "./components/NavBar";
 import Footer from "./components/Footer";
@@ -429,9 +430,9 @@ export default function App() {
               <Route
                 path="admin/reports"
                 element={
-                  <ProtectedAdminRoute>
+                  <ProtectedSuperAdminRoute>
                     <AdminReports />
-                  </ProtectedAdminRoute>
+                  </ProtectedSuperAdminRoute>
                 }
               />
 
