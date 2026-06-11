@@ -304,9 +304,7 @@ export default function App() {
               <Route
                 path="/register/membership"
                 element={
-                  <ProtectedRoute>
-                    <MembershipRegistrationPage />
-                  </ProtectedRoute>
+                  <MembershipRegistrationPage />
                 }
               />
               <Route
