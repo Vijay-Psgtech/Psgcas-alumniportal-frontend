@@ -5,196 +5,6 @@
 import React, { useState, useEffect } from "react";
 import { membershipAPI, departmentAPI } from "../../services/api";
 
-// Simple inline styles for portability (swap with Tailwind / MUI as needed)
-const styles = {
-  container: {
-    minHeight: "calc(100vh - 120px)",
-    padding: "clamp(16px, 3vw, 48px)",
-    background:
-      "radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%), radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 30%), linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%)",
-    fontFamily: "'Segoe UI', sans-serif",
-  },
-  card: {
-    maxWidth: 1040,
-    margin: "0 auto",
-    background: "rgba(255,255,255,0.92)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(148, 163, 184, 0.16)",
-    borderRadius: 24,
-    boxShadow: "0 24px 70px rgba(15, 23, 42, 0.10)",
-    overflow: "hidden",
-  },
-  header: {
-    background:
-      "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(37, 99, 235, 0.98) 48%, rgba(56, 189, 248, 0.95) 100%)",
-    color: "#fff",
-    padding: "clamp(24px, 4vw, 40px)",
-  },
-  headerGrid: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1.4fr) minmax(260px, 0.9fr)",
-    gap: 20,
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: 30,
-    fontWeight: 800,
-    lineHeight: 1.2,
-    margin: 0,
-    letterSpacing: "-0.03em",
-  },
-  headerSub: { fontSize: 15, opacity: 0.92, margin: "12px 0 0", lineHeight: 1.7, maxWidth: 580 },
-  body: { padding: "clamp(20px, 4vw, 40px)" },
-  section: {
-    display: "grid",
-    gap: 18,
-  },
-  tierGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-    gap: 14,
-  },
-  tierCard: (selected) => ({
-    minHeight: 132,
-    border: selected ? "1.5px solid #2563eb" : "1px solid #dbe4f0",
-    borderRadius: 18,
-    padding: "18px 16px",
-    cursor: "pointer",
-    background: selected
-      ? "linear-gradient(180deg, rgba(239,246,255,1) 0%, rgba(219,234,254,0.55) 100%)"
-      : "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
-    boxShadow: selected ? "0 16px 35px rgba(37, 99, 235, 0.12)" : "0 10px 24px rgba(15, 23, 42, 0.05)",
-    transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
-    textAlign: "left",
-    display: "grid",
-    alignContent: "space-between",
-    gap: 10,
-  }),
-  tierMeta: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  tierLabel: { fontWeight: 700, fontSize: 14, color: "#0f172a", lineHeight: 1.35 },
-  tierTag: {
-    display: "inline-flex",
-    alignItems: "center",
-    padding: "5px 9px",
-    borderRadius: 999,
-    background: "rgba(37, 99, 235, 0.10)",
-    color: "#1d4ed8",
-    fontSize: 11,
-    fontWeight: 700,
-    whiteSpace: "nowrap",
-  },
-  tierAmount: { fontSize: 28, fontWeight: 900, color: "#1d4ed8", margin: 0, letterSpacing: "-0.03em" },
-  tierDuration: { fontSize: 12, color: "#64748b", margin: 0 },
-  fieldGroup: { display: "grid", gap: 8 },
-  row: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 },
-  label: {
-    display: "block",
-    fontSize: 13,
-    fontWeight: 700,
-    color: "#334155",
-  },
-  input: {
-    width: "100%",
-    minHeight: 50,
-    padding: "12px 14px",
-    borderRadius: 14,
-    border: "1px solid #d8e1ee",
-    fontSize: 14,
-    outline: "none",
-    boxSizing: "border-box",
-    background: "#fff",
-    transition: "border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease",
-  },
-  select: {
-    width: "100%",
-    minHeight: 50,
-    padding: "12px 14px",
-    borderRadius: 14,
-    border: "1px solid #d8e1ee",
-    fontSize: 14,
-    background: "#fff",
-    boxSizing: "border-box",
-    outline: "none",
-  },
-  divider: { borderTop: "1px solid #e2e8f0", margin: "4px 0" },
-  sectionTitle: { fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" },
-  sectionDescription: { margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.6 },
-  summary: {
-    background: "linear-gradient(180deg, #eff6ff 0%, #eaf2ff 100%)",
-    border: "1px solid #cfe0ff",
-    borderRadius: 18,
-    padding: "18px 20px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 16,
-    flexWrap: "wrap",
-  },
-  summaryLabel: { fontSize: 14, color: "#1e40af", fontWeight: 800 },
-  summaryAmount: { fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 900, color: "#1e40af", letterSpacing: "-0.03em" },
-  submitBtn: {
-    width: "100%",
-    minHeight: 54,
-    padding: "14px 18px",
-    background: "linear-gradient(135deg, #1e3a5f, #2563eb)",
-    color: "#fff",
-    border: "none",
-    borderRadius: 14,
-    fontSize: 16,
-    fontWeight: 700,
-    cursor: "pointer",
-    letterSpacing: 0.5,
-    marginTop: 4,
-    boxShadow: "0 16px 30px rgba(37, 99, 235, 0.20)",
-    transition: "transform 0.15s ease, opacity 0.18s ease, box-shadow 0.18s ease",
-  },
-  error: {
-    background: "linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%)",
-    border: "1px solid #fda4af",
-    borderRadius: 14,
-    padding: "14px 16px",
-    color: "#be123c",
-    fontSize: 14,
-    marginBottom: 18,
-  },
-  badge: {
-    display: "inline-flex",
-    alignItems: "center",
-    background: "rgba(37, 99, 235, 0.10)",
-    color: "#1d4ed8",
-    borderRadius: 999,
-    padding: "5px 10px",
-    fontSize: 11,
-    fontWeight: 800,
-    marginLeft: 10,
-  },
-  secureNote: {
-    textAlign: "center",
-    fontSize: 12,
-    color: "#64748b",
-    marginTop: 16,
-    lineHeight: 1.6,
-  },
-  formShell: {
-    display: "grid",
-    gap: 22,
-  },
-  formCard: {
-    display: "grid",
-    gap: 18,
-    padding: "20px",
-    borderRadius: 20,
-    border: "1px solid #e2e8f0",
-    background: "#fff",
-    boxShadow: "0 12px 24px rgba(15, 23, 42, 0.04)",
-  },
-};
-
 const YEARS = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i);
 
 const MembershipPayment = ({ userId = null, prefillData = {} }) => {
@@ -203,6 +13,217 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [departments, setDepartments] = useState([]);
+
+  // Simple inline styles for portability 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const styles = {
+    container: {
+      minHeight: "calc(100vh - 120px)",
+      padding: "clamp(16px, 3vw, 48px)",
+      background:
+        "radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%), radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 30%), linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%)",
+      fontFamily: "'Segoe UI', sans-serif",
+    },
+    card: {
+      maxWidth: 1040,
+      margin: "0 auto",
+      background: "rgba(255,255,255,0.92)",
+      backdropFilter: "blur(10px)",
+      border: "1px solid rgba(148, 163, 184, 0.16)",
+      borderRadius: 24,
+      boxShadow: "0 24px 70px rgba(15, 23, 42, 0.10)",
+      overflow: "hidden",
+    },
+    header: {
+      background:
+        "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(37, 99, 235, 0.98) 48%, rgba(56, 189, 248, 0.95) 100%)",
+      color: "#fff",
+      padding: isMobile ? "24px 20px" : "40px",
+    },
+    headerGrid: {
+      display: "grid",
+      gridTemplateColumns: isMobile
+        ? "1fr"
+        : "minmax(0, 1.4fr) minmax(260px, 0.9fr)",
+      gap: isMobile ? "16px" : "24px",
+      alignItems: "center",
+    },
+    headerTitle: {
+      fontSize: 30,
+      fontWeight: 800,
+      lineHeight: 1.2,
+      margin: 0,
+      letterSpacing: "-0.03em",
+    },
+    headerSub: {
+      fontSize: 15,
+      opacity: 0.92,
+      margin: "12px 0 0",
+      lineHeight: 1.7,
+      maxWidth: isMobile ? "100%" : "580px",
+    },
+    body: { padding: "clamp(20px, 4vw, 40px)" },
+    section: {
+      display: "grid",
+      gap: 18,
+    },
+    tierGrid: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+      gap: 14,
+    },
+    tierCard: (selected) => ({
+      minHeight: 132,
+      border: selected ? "1.5px solid #2563eb" : "1px solid #dbe4f0",
+      borderRadius: 18,
+      padding: "18px 16px",
+      cursor: "pointer",
+      background: selected
+        ? "linear-gradient(180deg, rgba(239,246,255,1) 0%, rgba(219,234,254,0.55) 100%)"
+        : "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+      boxShadow: selected ? "0 16px 35px rgba(37, 99, 235, 0.12)" : "0 10px 24px rgba(15, 23, 42, 0.05)",
+      transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+      textAlign: "left",
+      display: "grid",
+      alignContent: "space-between",
+      gap: 10,
+    }),
+    tierMeta: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      gap: 12,
+    },
+    tierLabel: { fontWeight: 700, fontSize: 14, color: "#0f172a", lineHeight: 1.35 },
+    tierTag: {
+      display: "inline-flex",
+      alignItems: "center",
+      padding: "5px 9px",
+      borderRadius: 999,
+      background: "rgba(37, 99, 235, 0.10)",
+      color: "#1d4ed8",
+      fontSize: 11,
+      fontWeight: 700,
+      whiteSpace: "nowrap",
+    },
+    tierAmount: { fontSize: 28, fontWeight: 900, color: "#1d4ed8", margin: 0, letterSpacing: "-0.03em" },
+    tierDuration: { fontSize: 12, color: "#64748b", margin: 0 },
+    fieldGroup: { display: "grid", gap: 8 },
+    row: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 },
+    label: {
+      display: "block",
+      fontSize: 13,
+      fontWeight: 700,
+      color: "#334155",
+    },
+    input: {
+      width: "100%",
+      minHeight: 50,
+      padding: "12px 14px",
+      borderRadius: 14,
+      border: "1px solid #d8e1ee",
+      fontSize: 14,
+      outline: "none",
+      boxSizing: "border-box",
+      background: "#fff",
+      transition: "border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease",
+    },
+    select: {
+      width: "100%",
+      minHeight: 50,
+      padding: "12px 14px",
+      borderRadius: 14,
+      border: "1px solid #d8e1ee",
+      fontSize: 14,
+      background: "#fff",
+      boxSizing: "border-box",
+      outline: "none",
+    },
+    divider: { borderTop: "1px solid #e2e8f0", margin: "4px 0" },
+    sectionTitle: { fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" },
+    sectionDescription: { margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.6 },
+    summary: {
+      background: "linear-gradient(180deg, #eff6ff 0%, #eaf2ff 100%)",
+      border: "1px solid #cfe0ff",
+      borderRadius: 18,
+      padding: "18px 20px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 16,
+      flexWrap: "wrap",
+    },
+    summaryLabel: { fontSize: 14, color: "#1e40af", fontWeight: 800 },
+    summaryAmount: { fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 900, color: "#1e40af", letterSpacing: "-0.03em" },
+    submitBtn: {
+      width: "100%",
+      minHeight: 54,
+      padding: "14px 18px",
+      background: "linear-gradient(135deg, #1e3a5f, #2563eb)",
+      color: "#fff",
+      border: "none",
+      borderRadius: 14,
+      fontSize: 16,
+      fontWeight: 700,
+      cursor: "pointer",
+      letterSpacing: 0.5,
+      marginTop: 4,
+      boxShadow: "0 16px 30px rgba(37, 99, 235, 0.20)",
+      transition: "transform 0.15s ease, opacity 0.18s ease, box-shadow 0.18s ease",
+    },
+    error: {
+      background: "linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%)",
+      border: "1px solid #fda4af",
+      borderRadius: 14,
+      padding: "14px 16px",
+      color: "#be123c",
+      fontSize: 14,
+      marginBottom: 18,
+    },
+    badge: {
+      display: "inline-flex",
+      alignItems: "center",
+      background: "rgba(37, 99, 235, 0.10)",
+      color: "#1d4ed8",
+      borderRadius: 999,
+      padding: "5px 10px",
+      fontSize: 11,
+      fontWeight: 800,
+      marginLeft: 10,
+    },
+    secureNote: {
+      textAlign: "center",
+      fontSize: 12,
+      color: "#64748b",
+      marginTop: 16,
+      lineHeight: 1.6,
+    },
+    formShell: {
+      display: "grid",
+      gap: 22,
+    },
+    formCard: {
+      display: "grid",
+      gap: 18,
+      padding: "20px",
+      borderRadius: 20,
+      border: "1px solid #e2e8f0",
+      background: "#fff",
+      boxShadow: "0 12px 24px rgba(15, 23, 42, 0.04)",
+    },
+  };
+  // Simple inline styles for portability 
 
   const [form, setForm] = useState({
     firstName: prefillData.firstName || "",
