@@ -121,6 +121,8 @@ const PROFILE_CHECKS = [
   },
 ];
 
+const MEMBERSHIP_POPUP_KEY = "psgcas_membership_prompt_seen";
+
 /* ════════════════════════════════════════
    MAIN COMPONENT
 ════════════════════════════════════════ */
@@ -131,6 +133,7 @@ const AlumniDashboard = () => {
   const [stats, setStats] = useState([]);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMembershipPrompt, setShowMembershipPrompt] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   usePageTitle(`Dashboard - ${user?.firstName ?? "Alumni"}`);
@@ -151,12 +154,12 @@ const AlumniDashboard = () => {
   );
   const isGuestMember = membershipStatus === "NOT_APPLIED";
   const membershipLabel = isPaidMember
-    ? "Paid Member"
+    ? "Membership registered"
     : isPendingMember
       ? "Membership pending"
       : "Membership not registered";
   const membershipDescription = isPaidMember
-    ? "You are already a paid member. Your alumni benefits are active."
+    ? "You are already a registered member. Your alumni benefits are active."
     : isPendingMember
       ? "Your membership application is under review. We will notify you once it is confirmed."
       : "Register now to unlock alumni events, networking privileges, and membership benefits.";
@@ -223,6 +226,20 @@ const AlumniDashboard = () => {
     refreshCount();
   }, []);
 
+  useEffect(() => {
+    if (!user || !isGuestMember) return;
+
+    const promptSeen = window.sessionStorage.getItem(MEMBERSHIP_POPUP_KEY);
+    if (promptSeen === "1") return;
+
+    const timer = window.setTimeout(() => {
+      setShowMembershipPrompt(true);
+      window.sessionStorage.setItem(MEMBERSHIP_POPUP_KEY, "1");
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [user, isGuestMember]);
+
   const handleCardClick = (card) => {
     if (card.id === "notifications") setShowNotifications(true);
     else if (card.path) navigate(card.path);
@@ -232,6 +249,11 @@ const AlumniDashboard = () => {
   const completionPct = Math.round(
     (completedCount / PROFILE_CHECKS.length) * 100,
   );
+
+  const openMembershipRegistration = () => {
+    setShowMembershipPrompt(false);
+    navigate("/register/membership");
+  };
 
   /* ─── render ─── */
   return (
@@ -447,31 +469,31 @@ const AlumniDashboard = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08, duration: 0.38 }}
-          className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6"
+          className="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 sm:p-6"
         >
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
                 Alumni Membership
               </p>
-              <h2 className="mt-3 text-lg font-black text-slate-900">
+              <h2 className="mt-2.5 text-base sm:text-lg font-black text-slate-900">
                 {membershipLabel}
               </h2>
-              <p className="mt-2 text-sm text-slate-500 max-w-2xl">
+              <p className="mt-2 text-xs sm:text-sm leading-6 text-slate-500 max-w-2xl">
                 {membershipDescription}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {isPaidMember ? (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-                  Paid Member
+                <span className="inline-flex items-center rounded-full bg-emerald-50 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-emerald-700">
+                  Membership Active
                 </span>
               ) : (
                 <a
                   href="/register/membership"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-indigo-200/40 hover:bg-indigo-700 transition"
+                  className="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-lg shadow-indigo-200/40 hover:bg-indigo-700 transition"
                 >
                   Register Membership
                 </a>
@@ -779,6 +801,88 @@ const AlumniDashboard = () => {
 
               <div className="flex-1 overflow-y-auto">
                 <NotificationInbox />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ═══════ MEMBERSHIP PROMPT MODAL ═══════ */}
+      <AnimatePresence>
+        {showMembershipPrompt && isGuestMember && (
+          <motion.div
+            className="fixed inset-0 z-[2100] flex items-center justify-center bg-slate-950/55 backdrop-blur-sm px-4 py-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowMembershipPrompt(false)}
+          >
+            <motion.div
+              className="w-full max-w-sm overflow-hidden rounded-[28px] bg-white shadow-2xl ring-1 ring-slate-200"
+              initial={{ y: 20, scale: 0.98, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={{ y: 18, scale: 0.98, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 280, damping: 24 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25">
+                      <Shield size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.28em] text-indigo-500">
+                        Membership required
+                      </p>
+                      <h3 className="mt-1 text-base font-black text-slate-900">
+                        Complete your alumni membership
+                      </h3>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowMembershipPrompt(false)}
+                    className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                    aria-label="Close membership prompt"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+
+                <p className="mt-4 text-xs sm:text-sm leading-6 text-slate-500">
+                  Registering takes a minute .
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 rounded-2xl bg-slate-50 p-3 text-xs text-slate-600 sm:grid-cols-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Quick setup
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                    Alumni benefits
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                    Secure payment
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    onClick={() => setShowMembershipPrompt(false)}
+                    className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    Not now
+                  </button>
+                  <button
+                    onClick={openMembershipRegistration}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:bg-indigo-700"
+                  >
+                    Register now
+                    <ArrowUpRight size={14} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

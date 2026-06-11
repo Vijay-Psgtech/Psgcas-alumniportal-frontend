@@ -771,29 +771,33 @@ const AlumniRegistration = () => {
     [form, files, validate, login],
   );
 
+  const goToMembershipRegistration = () => {
+    navigate("/register/membership");
+  };
+
   // ── Pending Approval Screen ────────────────────────────────────────────────
   if (registered) {
     return (
-      <div className="fixed inset-0 overflow-y-auto bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center p-6 z-50">
+      <div className="fixed inset-0 overflow-y-auto bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center p-4 sm:p-6 z-50">
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="bg-white rounded-2xl shadow-xl border border-slate-100 p-10 max-w-md w-full text-center"
+          className="w-full max-w-md rounded-3xl bg-white border border-slate-100 p-6 sm:p-8 shadow-[0_20px_70px_rgba(15,23,42,0.12)] text-center"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-200">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-5 rounded-2xl sm:rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-200">
             <Check size={36} className="text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-800 mb-2 tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-800 mb-2 tracking-tight">
             Registration Submitted!
           </h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed max-w-sm mx-auto">
             Your alumni profile has been submitted for review. An admin will
             verify and approve your account. You'll receive full access once
             approved.
           </p>
 
-          <div className="space-y-3 text-left mb-8">
+          <div className="space-y-2.5 text-left mb-6">
             {[
               {
                 done: true,
@@ -831,12 +835,20 @@ const AlumniRegistration = () => {
             ))}
           </div>
 
-          <button
-            onClick={() => navigate("/")}
-            className="w-full py-3 rounded-xl bg-linear-to-r from-[#0052ab] to-[#0073e6] text-white font-semibold text-sm tracking-wide hover:shadow-lg hover:shadow-blue-200 transition-all duration-200"
-          >
-            Return to Home
-          </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={goToMembershipRegistration}
+              className="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-[#0052ab] to-[#0073e6] px-4 py-3 text-sm font-bold text-white hover:shadow-lg hover:shadow-blue-200 transition-all duration-200"
+            >
+              Go to Membership
+            </button>
+            <button
+              onClick={() => navigate("/")}
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all duration-200"
+            >
+              Return Home
+            </button>
+          </div>
         </motion.div>
       </div>
     );
