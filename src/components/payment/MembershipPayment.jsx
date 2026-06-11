@@ -8,137 +8,192 @@ import { membershipAPI, departmentAPI } from "../../services/api";
 // Simple inline styles for portability (swap with Tailwind / MUI as needed)
 const styles = {
   container: {
-    maxWidth: 680,
-    margin: "40px auto",
-    padding: "0 20px",
+    minHeight: "calc(100vh - 120px)",
+    padding: "clamp(16px, 3vw, 48px)",
+    background:
+      "radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34%), radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 30%), linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%)",
     fontFamily: "'Segoe UI', sans-serif",
   },
   card: {
-    background: "#fff",
-    borderRadius: 12,
-    boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+    maxWidth: 1040,
+    margin: "0 auto",
+    background: "rgba(255,255,255,0.92)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(148, 163, 184, 0.16)",
+    borderRadius: 24,
+    boxShadow: "0 24px 70px rgba(15, 23, 42, 0.10)",
     overflow: "hidden",
   },
   header: {
-    background: "linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%)",
+    background:
+      "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(37, 99, 235, 0.98) 48%, rgba(56, 189, 248, 0.95) 100%)",
     color: "#fff",
-    padding: "32px 36px",
+    padding: "clamp(24px, 4vw, 40px)",
   },
-  headerTitle: { fontSize: 24, fontWeight: 700, margin: 0 },
-  headerSub: { fontSize: 14, opacity: 0.85, marginTop: 6 },
-  body: { padding: "32px 36px" },
+  headerGrid: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.4fr) minmax(260px, 0.9fr)",
+    gap: 20,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 30,
+    fontWeight: 800,
+    lineHeight: 1.2,
+    margin: 0,
+    letterSpacing: "-0.03em",
+  },
+  headerSub: { fontSize: 15, opacity: 0.92, margin: "12px 0 0", lineHeight: 1.7, maxWidth: 580 },
+  body: { padding: "clamp(20px, 4vw, 40px)" },
+  section: {
+    display: "grid",
+    gap: 18,
+  },
   tierGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
-    gap: 12,
-    marginBottom: 24,
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: 14,
   },
   tierCard: (selected) => ({
-    border: selected ? "2px solid #2563eb" : "2px solid #e2e8f0",
-    borderRadius: 10,
-    padding: "14px 12px",
+    minHeight: 132,
+    border: selected ? "1.5px solid #2563eb" : "1px solid #dbe4f0",
+    borderRadius: 18,
+    padding: "18px 16px",
     cursor: "pointer",
-    background: selected ? "#eff6ff" : "#f8fafc",
-    transition: "all 0.18s",
-    textAlign: "center",
+    background: selected
+      ? "linear-gradient(180deg, rgba(239,246,255,1) 0%, rgba(219,234,254,0.55) 100%)"
+      : "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+    boxShadow: selected ? "0 16px 35px rgba(37, 99, 235, 0.12)" : "0 10px 24px rgba(15, 23, 42, 0.05)",
+    transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+    textAlign: "left",
+    display: "grid",
+    alignContent: "space-between",
+    gap: 10,
   }),
-  tierLabel: { fontWeight: 600, fontSize: 13, color: "#1e3a5f" },
-  tierAmount: { fontSize: 20, fontWeight: 800, color: "#2563eb", margin: "6px 0" },
-  tierDuration: { fontSize: 11, color: "#64748b" },
-  fieldGroup: { marginBottom: 20 },
-  row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 },
+  tierMeta: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  tierLabel: { fontWeight: 700, fontSize: 14, color: "#0f172a", lineHeight: 1.35 },
+  tierTag: {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "5px 9px",
+    borderRadius: 999,
+    background: "rgba(37, 99, 235, 0.10)",
+    color: "#1d4ed8",
+    fontSize: 11,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
+  },
+  tierAmount: { fontSize: 28, fontWeight: 900, color: "#1d4ed8", margin: 0, letterSpacing: "-0.03em" },
+  tierDuration: { fontSize: 12, color: "#64748b", margin: 0 },
+  fieldGroup: { display: "grid", gap: 8 },
+  row: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 },
   label: {
     display: "block",
     fontSize: 13,
-    fontWeight: 600,
-    color: "#374151",
-    marginBottom: 6,
+    fontWeight: 700,
+    color: "#334155",
   },
   input: {
     width: "100%",
-    padding: "10px 14px",
-    borderRadius: 8,
-    border: "1.5px solid #d1d5db",
+    minHeight: 50,
+    padding: "12px 14px",
+    borderRadius: 14,
+    border: "1px solid #d8e1ee",
     fontSize: 14,
     outline: "none",
     boxSizing: "border-box",
-    transition: "border-color 0.15s",
+    background: "#fff",
+    transition: "border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease",
   },
   select: {
     width: "100%",
-    padding: "10px 14px",
-    borderRadius: 8,
-    border: "1.5px solid #d1d5db",
+    minHeight: 50,
+    padding: "12px 14px",
+    borderRadius: 14,
+    border: "1px solid #d8e1ee",
     fontSize: 14,
     background: "#fff",
     boxSizing: "border-box",
+    outline: "none",
   },
-  divider: { borderTop: "1px solid #e2e8f0", margin: "24px 0" },
-  sectionTitle: { fontSize: 15, fontWeight: 700, color: "#1e3a5f", marginBottom: 16 },
+  divider: { borderTop: "1px solid #e2e8f0", margin: "4px 0" },
+  sectionTitle: { fontSize: 16, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" },
+  sectionDescription: { margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.6 },
+  summary: {
+    background: "linear-gradient(180deg, #eff6ff 0%, #eaf2ff 100%)",
+    border: "1px solid #cfe0ff",
+    borderRadius: 18,
+    padding: "18px 20px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 16,
+    flexWrap: "wrap",
+  },
+  summaryLabel: { fontSize: 14, color: "#1e40af", fontWeight: 800 },
+  summaryAmount: { fontSize: "clamp(24px, 3vw, 32px)", fontWeight: 900, color: "#1e40af", letterSpacing: "-0.03em" },
   submitBtn: {
     width: "100%",
-    padding: "14px",
+    minHeight: 54,
+    padding: "14px 18px",
     background: "linear-gradient(135deg, #1e3a5f, #2563eb)",
     color: "#fff",
     border: "none",
-    borderRadius: 10,
+    borderRadius: 14,
     fontSize: 16,
     fontWeight: 700,
     cursor: "pointer",
     letterSpacing: 0.5,
-    marginTop: 8,
-    transition: "opacity 0.18s",
+    marginTop: 4,
+    boxShadow: "0 16px 30px rgba(37, 99, 235, 0.20)",
+    transition: "transform 0.15s ease, opacity 0.18s ease, box-shadow 0.18s ease",
   },
   error: {
-    background: "#fef2f2",
-    border: "1px solid #fecaca",
-    borderRadius: 8,
-    padding: "12px 16px",
-    color: "#dc2626",
+    background: "linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%)",
+    border: "1px solid #fda4af",
+    borderRadius: 14,
+    padding: "14px 16px",
+    color: "#be123c",
     fontSize: 14,
-    marginBottom: 20,
+    marginBottom: 18,
   },
-  summary: {
-    background: "#eff6ff",
-    borderRadius: 10,
-    padding: "16px 20px",
-    marginBottom: 20,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  summaryLabel: { fontSize: 14, color: "#1e40af", fontWeight: 600 },
-  summaryAmount: { fontSize: 22, fontWeight: 800, color: "#1e40af" },
   badge: {
-    display: "inline-block",
-    background: "#dbeafe",
+    display: "inline-flex",
+    alignItems: "center",
+    background: "rgba(37, 99, 235, 0.10)",
     color: "#1d4ed8",
-    borderRadius: 20,
-    padding: "2px 10px",
+    borderRadius: 999,
+    padding: "5px 10px",
     fontSize: 11,
-    fontWeight: 700,
-    marginLeft: 8,
+    fontWeight: 800,
+    marginLeft: 10,
   },
   secureNote: {
     textAlign: "center",
     fontSize: 12,
-    color: "#6b7280",
-    marginTop: 12,
+    color: "#64748b",
+    marginTop: 16,
+    lineHeight: 1.6,
+  },
+  formShell: {
+    display: "grid",
+    gap: 22,
+  },
+  formCard: {
+    display: "grid",
+    gap: 18,
+    padding: "20px",
+    borderRadius: 20,
+    border: "1px solid #e2e8f0",
+    background: "#fff",
+    boxShadow: "0 12px 24px rgba(15, 23, 42, 0.04)",
   },
 };
-
-const DEPARTMENTS = [
-  "Computer Science & Engineering",
-  "Electronics & Communication",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Information Technology",
-  "Electrical Engineering",
-  "Chemical Engineering",
-  "Biotechnology",
-  "Business Administration",
-  "Other",
-];
 
 const YEARS = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i);
 
@@ -147,7 +202,6 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
   const [selectedTier, setSelectedTier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [step, setStep] = useState(1); // 1: tier selection, 2: personal info
   const [departments, setDepartments] = useState([]);
 
   const [form, setForm] = useState({
@@ -202,9 +256,15 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
         console.log("Error fetching departments", error);
         setDepartments([]);
       }
-    }
+    };
     fetchDepartments();
-  }, [])
+  }, []);
+
+  const currentTierData = (Array.isArray(tiers) ? tiers : []).find((t) => t.key === selectedTier);
+  const selectedTierLabel = currentTierData?.label || "Membership plan";
+  const selectedTierMonths = currentTierData?.durationMonths
+    ? `${currentTierData.durationMonths} months`
+    : "Lifetime access";
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -250,189 +310,213 @@ const MembershipPayment = ({ userId = null, prefillData = {} }) => {
     }
   };
 
-  const currentTierData = (Array.isArray(tiers) ? tiers : []).find((t) => t.key === selectedTier);
-
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        {/* Header */}
         <div style={styles.header}>
-          <h2 style={styles.headerTitle}>
-            🎓 Alumni Membership Registration
-          </h2>
-          <p style={styles.headerSub}>
-            Join our alumni network — secure payment via Easebuzz
-          </p>
+          <div style={styles.headerGrid}>
+            <div>
+              <h2 style={styles.headerTitle}>
+                🎓 Alumni Membership Registration
+              </h2>
+              <p style={styles.headerSub}>
+                Join our alumni network — secure payment via Easebuzz
+              </p>
+            </div>
+          </div>
         </div>
 
         <div style={styles.body}>
           {error && <div style={styles.error}>⚠️ {error}</div>}
 
-          {/* ── Step 1: Tier Selection ─────────────────────────────────── */}
-          <p style={styles.sectionTitle}>Select Membership Plan</p>
-          <div style={styles.tierGrid}>
-            {tiers.map((tier) => (
-              <div
-                key={tier.key}
-                style={styles.tierCard(selectedTier === tier.key)}
-                onClick={() => setSelectedTier(tier.key)}
-                role="radio"
-                aria-checked={selectedTier === tier.key}
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && setSelectedTier(tier.key)}
-              >
-                <div style={styles.tierLabel}>{tier.label}</div>
-                <div style={styles.tierAmount}>₹{tier.amount.toLocaleString("en-IN")}</div>
-                <div style={styles.tierDuration}>
-                  {tier.durationMonths ? `${tier.durationMonths} months` : "Lifetime"}
+          <div style={styles.section}>
+            <div>
+              <p style={styles.sectionTitle}>Select membership plan</p>
+              <p style={styles.sectionDescription}>
+                Choose the tier that fits your alumni profile. The cards are wider, easier to scan, and tap-friendly.
+              </p>
+            </div>
+
+            <div style={styles.tierGrid}>
+              {tiers.map((tier) => (
+                <div
+                  key={tier.key}
+                  style={styles.tierCard(selectedTier === tier.key)}
+                  onClick={() => setSelectedTier(tier.key)}
+                  role="radio"
+                  aria-checked={selectedTier === tier.key}
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && setSelectedTier(tier.key)}
+                  onMouseEnter={(e) => {
+                    if (selectedTier !== tier.key) e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
+                >
+                  <div style={styles.tierMeta}>
+                    <div style={styles.tierLabel}>{tier.label}</div>
+                    <span style={styles.tierTag}>{tier.durationMonths ? "Limited" : "Flexible"}</span>
+                  </div>
+                  <div>
+                    <div style={styles.tierAmount}>₹{tier.amount.toLocaleString("en-IN")}</div>
+                    <div style={styles.tierDuration}>
+                      {tier.durationMonths ? `${tier.durationMonths} months` : "Lifetime membership"}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {currentTierData && (
+              <div style={styles.summary}>
+                <div>
+                  <span style={styles.summaryLabel}>{selectedTierLabel}</span>
+                  <span style={styles.badge}>{selectedTierMonths}</span>
+                </div>
+                <div style={styles.summaryAmount}>
+                  ₹{currentTierData.amount.toLocaleString("en-IN")}
                 </div>
               </div>
-            ))}
+            )}
           </div>
-
-          {/* Amount Summary */}
-          {currentTierData && (
-            <div style={styles.summary}>
-              <div>
-                <span style={styles.summaryLabel}>{currentTierData.label}</span>
-                <span style={styles.badge}>
-                  {currentTierData.durationMonths
-                    ? `${currentTierData.durationMonths} months`
-                    : "Lifetime"}
-                </span>
-              </div>
-              <div style={styles.summaryAmount}>
-                ₹{currentTierData.amount.toLocaleString("en-IN")}
-              </div>
-            </div>
-          )}
 
           <div style={styles.divider} />
 
-          {/* ── Step 2: Personal Info Form ─────────────────────────────── */}
           <form onSubmit={handleSubmit}>
-            <p style={styles.sectionTitle}>Personal Information</p>
+            <div style={styles.formShell}>
+              <div>
+                <p style={styles.sectionTitle}>Personal information</p>
+                <p style={styles.sectionDescription}>
+                  Keep the layout readable by grouping related fields. The grid collapses to one column on smaller screens.
+                </p>
+              </div>
 
-            <div style={styles.row}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="firstName">First Name *</label>
-                <input
-                  style={styles.input}
-                  id="firstName" name="firstName"
-                  value={form.firstName} onChange={handleChange}
-                  placeholder="Ramesh" required
-                />
+              <div style={styles.formCard}>
+                <div style={styles.row}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="firstName">First Name *</label>
+                    <input
+                      style={styles.input}
+                      id="firstName" name="firstName"
+                      value={form.firstName} onChange={handleChange}
+                      placeholder="Ramesh" required
+                    />
+                  </div>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="lastName">Last Name *</label>
+                    <input
+                      style={styles.input}
+                      id="lastName" name="lastName"
+                      value={form.lastName} onChange={handleChange}
+                      placeholder="Kumar" required
+                    />
+                  </div>
+                </div>
+
+                <div style={styles.row}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="email">Email Address *</label>
+                    <input
+                      style={styles.input}
+                      id="email" name="email" type="email"
+                      value={form.email} onChange={handleChange}
+                      placeholder="ramesh@email.com" required
+                    />
+                  </div>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="phone">Phone Number *</label>
+                    <input
+                      style={styles.input}
+                      id="phone" name="phone" type="tel"
+                      maxLength={10}
+                      value={form.phone} onChange={handleChange}
+                      placeholder="9XXXXXXXXX" required
+                    />
+                  </div>
+                </div>
+
+                <div style={styles.row}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="batchYear">Graduation Year *</label>
+                    <select
+                      style={styles.select}
+                      id="batchYear" name="batchYear"
+                      value={form.batchYear} onChange={handleChange} required
+                    >
+                      <option value="">Select Year</option>
+                      {YEARS.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="department">Department *</label>
+                    <select
+                      style={styles.select}
+                      id="department" name="department"
+                      value={form.department} onChange={handleChange} required
+                    >
+                      <option value="">Select Department</option>
+                      {departments.map((dept) => (
+                        <option key={dept._id || dept.id || dept.name} value={dept.name}>
+                          {dept.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <p style={styles.sectionTitle}>Address</p>
+                  <p style={styles.sectionDescription}>Optional, but useful for alumni records and future communication.</p>
+                </div>
+
+                <div style={styles.row}>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="city">City</label>
+                    <input
+                      style={styles.input}
+                      id="city" name="city"
+                      value={form.city} onChange={handleChange}
+                      placeholder="Coimbatore"
+                    />
+                  </div>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="state">State</label>
+                    <input
+                      style={styles.input}
+                      id="state" name="state"
+                      value={form.state} onChange={handleChange}
+                      placeholder="Tamil Nadu"
+                    />
+                  </div>
+                  <div style={styles.fieldGroup}>
+                    <label style={styles.label} htmlFor="pincode">Pincode</label>
+                    <input
+                      style={styles.input}
+                      id="pincode" name="pincode" maxLength={6}
+                      value={form.pincode} onChange={handleChange}
+                      placeholder="641001"
+                    />
+                  </div>
+                </div>
               </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="lastName">Last Name *</label>
-                <input
-                  style={styles.input}
-                  id="lastName" name="lastName"
-                  value={form.lastName} onChange={handleChange}
-                  placeholder="Kumar" required
-                />
-              </div>
+
+              <button
+                type="submit"
+                style={{ ...styles.submitBtn, opacity: loading || !selectedTier ? 0.72 : 1 }}
+                disabled={loading || !selectedTier}
+              >
+                {loading
+                  ? "Initiating payment..."
+                  : `Pay ₹${currentTierData?.amount?.toLocaleString("en-IN") || "0"} & Register`}
+              </button>
             </div>
-
-            <div style={styles.row}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="email">Email Address *</label>
-                <input
-                  style={styles.input}
-                  id="email" name="email" type="email"
-                  value={form.email} onChange={handleChange}
-                  placeholder="ramesh@email.com" required
-                />
-              </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="phone">Phone Number *</label>
-                <input
-                  style={styles.input}
-                  id="phone" name="phone" type="tel"
-                  maxLength={10}
-                  value={form.phone} onChange={handleChange}
-                  placeholder="9XXXXXXXXX" required
-                />
-              </div>
-            </div>
-
-            <div style={styles.row}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="batchYear">Graduation Year *</label>
-                <select
-                  style={styles.select}
-                  id="batchYear" name="batchYear"
-                  value={form.batchYear} onChange={handleChange} required
-                >
-                  <option value="">Select Year</option>
-                  {YEARS.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="department">Department *</label>
-                <select
-                  style={styles.select}
-                  id="department" name="department"
-                  value={form.department} onChange={handleChange} required
-                >
-                  <option value="">Select Department</option>
-                  {departments.map((dept) => (
-                    <option key={dept._id || dept.id || dept.name} value={dept.name}>
-                      {dept.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div style={styles.divider} />
-            <p style={styles.sectionTitle}>Address (Optional)</p>
-
-            <div style={{ ...styles.row, gridTemplateColumns: "1fr 1fr 1fr" }}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="city">City</label>
-                <input
-                  style={styles.input}
-                  id="city" name="city"
-                  value={form.city} onChange={handleChange}
-                  placeholder="Coimbatore"
-                />
-              </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="state">State</label>
-                <input
-                  style={styles.input}
-                  id="state" name="state"
-                  value={form.state} onChange={handleChange}
-                  placeholder="Tamil Nadu"
-                />
-              </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label} htmlFor="pincode">Pincode</label>
-                <input
-                  style={styles.input}
-                  id="pincode" name="pincode" maxLength={6}
-                  value={form.pincode} onChange={handleChange}
-                  placeholder="641001"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              style={{ ...styles.submitBtn, opacity: loading ? 0.7 : 1 }}
-              disabled={loading || !selectedTier}
-            >
-              {loading
-                ? "⏳ Initiating Payment..."
-                : `🔒 Pay ₹${currentTierData?.amount?.toLocaleString("en-IN") || ""} & Register`}
-            </button>
           </form>
 
           <p style={styles.secureNote}>
-            🔐 Secured by Easebuzz · UPI · Cards · Net Banking · Wallets accepted
+            Secure checkout via Easebuzz. UPI, cards, net banking, and wallets are supported.
           </p>
         </div>
       </div>
