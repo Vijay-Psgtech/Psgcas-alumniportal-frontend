@@ -796,7 +796,7 @@ export const adminAPI = {
   makeAlumniAdmin: (id) => api.put(`/admin/make-admin/${id}`),
 
   // Membership management
-  fetchAllMemberships: () => api.get("/admin/dashboard/memberships/all"),
+  fetchAllMemberships: (params) => api.get("/admin/dashboard/memberships/all", { params }),
 };
 
 // ── Events API ────────────────────────────────────────────────────────
