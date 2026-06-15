@@ -6,7 +6,7 @@ const SearchIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentCol
 const FilterIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
 const ResetIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
 
-export const MembershipTab = ({ onError, onSuccess }) => {
+export const MembershipTab = ({ onError }) => {
     const [memberships, setMemberships] = useState([]);
     const [summary, setSummary] = useState({ totalMemberships: 0, activeMemberships: 0, totalAmount: 0 });
     const [loading, setLoading] = useState(true);
@@ -16,18 +16,26 @@ export const MembershipTab = ({ onError, onSuccess }) => {
     const [departmentFilter, setDepartmentFilter] = useState('');
     const [paymentFilter, setPaymentFilter] = useState('');
     const [query, setQuery] = useState('');
-    const [page, setPage] = useState(1);
-    const [perPage, setPerPage] = useState(10);
     const [showFilters, setShowFilters] = useState(false);
+    const [pageData, setPageData] = useState({
+        currentPage: 1,
+        totalPages: 1,
+    });
 
     useEffect(() => {
         const fetchMemberships = async () => {
             try {
-                const response = await adminAPI.fetchAllMemberships();
+                const response = await adminAPI.fetchAllMemberships({
+                    page: 1,
+                    limit: 20,
+                });
                 const data = response?.data || {};
+                setPageData({
+                    currentPage: data.currentPage || 1,
+                    totalPages: data.totalPages || 1,
+                });
                 setMemberships(data.memberships || []);
                 setSummary(data.summary || { totalMemberships: (data.memberships || []).length, activeMemberships: 0, totalAmount: 0 });
-                // if (onSuccess) onSuccess(data.message || 'Memberships loaded');
             } catch (error) {
                 console.error('Error fetching memberships:', error);
                 if (onError) onError('Failed to load memberships');
@@ -37,7 +45,28 @@ export const MembershipTab = ({ onError, onSuccess }) => {
         };
 
         fetchMemberships();
-    }, [onError, onSuccess]);
+    }, [onError]);
+
+    const handlePageChange = async (page) => {
+        try {
+            setLoading(true);
+            const queryParams = {
+                page,
+                limit: 20,
+            };
+            const res = await adminAPI.fetchAllMemberships(queryParams);
+            setPageData({
+                totalPages: res.data.totalPages || 1,
+                currentPage: res.data.currentPage || 1,
+            });
+            setMemberships(res.data.memberships || []);
+            window.scrollTo({ top: 550, behavior: "smooth" });
+        } catch (error) {
+            console.error("Failed to fetch page:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Optimized departments from current page data
     const departments = Array.from(
@@ -62,12 +91,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
     }, [memberships, statusFilter, departmentFilter, paymentFilter, query]);
 
     const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / perPage));
-    const currentPage = Math.min(page, totalPages);
-    const startIdx = (currentPage - 1) * perPage;
-    const currentSlice = filtered.slice(startIdx, startIdx + perPage);
-
-    useEffect(() => setPage(1), [statusFilter, departmentFilter, paymentFilter, query, perPage]);
+    const currentSlice = filtered;
 
     const hasActiveFilters = statusFilter || departmentFilter || paymentFilter || query;
 
@@ -79,9 +103,6 @@ export const MembershipTab = ({ onError, onSuccess }) => {
             </div>
         </div>
     );
-
-    const ChevronLeftIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
-    const ChevronRightIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
 
     return (
         <div className="w-full space-y-6">
@@ -235,19 +256,6 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                     </button>
                                 )}
                             </div>
-                            <div className="flex items-center gap-3">
-                                <label className="text-sm font-medium text-slate-600 whitespace-nowrap">Show rows:</label>
-                                <select
-                                    value={perPage}
-                                    onChange={(e) => setPerPage(Number(e.target.value))}
-                                    className="px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
-                                >
-                                    <option value={5}>5</option>
-                                    <option value={10}>10</option>
-                                    <option value={25}>25</option>
-                                    <option value={50}>50</option>
-                                </select>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -278,11 +286,10 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                                     <p className="text-xs text-slate-500 truncate">{m.email}</p>
                                                 </div>
                                                 <div className="text-right flex-shrink-0">
-                                                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                                                        (m.membershipStatus || '').toLowerCase() === 'active'
-                                                            ? 'bg-emerald-100 text-emerald-700'
-                                                            : 'bg-slate-100 text-slate-700'
-                                                    }`}>
+                                                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${(m.membershipStatus || '').toLowerCase() === 'active'
+                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                        : 'bg-slate-100 text-slate-700'
+                                                        }`}>
                                                         {m.membershipStatus}
                                                     </span>
                                                 </div>
@@ -364,13 +371,12 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.phone}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.department}</td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                    (m.membershipStatus || '').toLowerCase() === 'active'
-                                                        ? 'bg-emerald-100 text-emerald-700'
-                                                        : (m.membershipStatus || '').toLowerCase() === 'expired'
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active'
+                                                    ? 'bg-emerald-100 text-emerald-700'
+                                                    : (m.membershipStatus || '').toLowerCase() === 'expired'
                                                         ? 'bg-red-100 text-red-700'
                                                         : 'bg-amber-100 text-amber-700'
-                                                }`}>
+                                                    }`}>
                                                     {m.membershipStatus}
                                                 </span>
                                             </td>
@@ -378,7 +384,7 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                             </td>
-                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</td>
                                         </tr>
                                     ))
@@ -389,59 +395,86 @@ export const MembershipTab = ({ onError, onSuccess }) => {
                 </div>
 
                 {/* Pagination Section */}
-                <div className="px-6 lg:px-8 py-6 lg:py-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="text-sm text-slate-600">
-                        Showing <span className="font-semibold text-slate-900">{startIdx + 1}</span> to <span className="font-semibold text-slate-900">{Math.min(startIdx + currentSlice.length, totalItems)}</span> of <span className="font-semibold text-slate-900">{totalItems}</span> members
-                    </div>
-
-                    {/* Pagination Controls */}
-                    <div className="flex items-center gap-2">
+                {pageData.totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
                         <button
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                            disabled={currentPage === 1}
-                            className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-white transition-all font-medium text-slate-700"
+                            onClick={() => {
+                                handlePageChange(Math.max(1, pageData.currentPage - 1));
+                            }}
+                            disabled={pageData.currentPage === 1}
+                            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronLeftIcon />
-                            <span className="hidden sm:inline">Prev</span>
+                            ← Prev
                         </button>
 
-                        {/* Page Numbers */}
-                        <div className="hidden sm:flex items-center gap-1">
-                            {Array.from({ length: totalPages }).map((_, i) => {
-                                const pageNum = i + 1;
-                                const isCurrentPage = currentPage === pageNum;
-                                const isNearCurrent = Math.abs(pageNum - currentPage) <= 2;
-                                const isFirst = pageNum === 1;
-                                const isLast = pageNum === totalPages;
+                        <div className="flex items-center gap-1 flex-wrap justify-center">
+                            {(() => {
+                                const pages = [];
+                                const { totalPages, currentPage } = pageData;
+                                const range = 2; // pages before/after current
 
-                                if (!isCurrentPage && !isNearCurrent && !isFirst && !isLast) return null;
+                                // Always add first page
+                                pages.push(1);
 
-                                return (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => setPage(pageNum)}
-                                        className={`px-3 py-2 rounded-lg font-medium transition-all ${
-                                            isCurrentPage
-                                                ? 'bg-blue-600 text-white shadow-lg'
-                                                : 'border-2 border-slate-200 text-slate-700 hover:border-blue-500 hover:bg-blue-50'
-                                        }`}
-                                    >
-                                        {pageNum}
-                                    </button>
+                                // Add pages around current
+                                const start = Math.max(2, currentPage - range);
+                                const end = Math.min(totalPages - 1, currentPage + range);
+
+                                // Add ellipsis if needed
+                                if (start > 2) pages.push("...");
+
+                                // Add range
+                                for (let i = start; i <= end; i++) pages.push(i);
+
+                                // Add ellipsis if needed
+                                if (end < totalPages - 1) pages.push("...");
+
+                                // Always add last page (if more than 1 page)
+                                if (totalPages > 1) pages.push(totalPages);
+
+                                return pages.map((page, idx) =>
+                                    page === "..." ? (
+                                        <span
+                                            key={`ellipsis-${idx}`}
+                                            className="text-slate-400 px-1"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <button
+                                            key={page}
+                                            onClick={() => {
+                                                handlePageChange(page);
+                                            }}
+                                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
+                                                    ? "bg-purple-500 text-white"
+                                                    : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ),
                                 );
-                            })}
+                            })()}
                         </div>
 
                         <button
-                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                            disabled={currentPage === totalPages}
-                            className="flex items-center gap-1 px-3 py-2 rounded-lg border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-200 disabled:hover:bg-white transition-all font-medium text-slate-700"
+                            onClick={() => {
+                                handlePageChange(
+                                    Math.min(pageData.totalPages, pageData.currentPage + 1),
+                                );
+                            }}
+                            disabled={pageData.currentPage === pageData.totalPages}
+                            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                            <span className="hidden sm:inline">Next</span>
-                            <ChevronRightIcon />
+                            Next →
                         </button>
+
+                        <span className="text-xs text-slate-500 font-medium ml-4">
+                            Page {pageData.currentPage} of {pageData.totalPages}
+                        </span>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
