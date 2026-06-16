@@ -306,12 +306,15 @@ export const MembershipTab = ({ onError }) => {
                                                     <p className="font-medium text-slate-900">{m.batchYear || '-'}</p>
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Start Date</p>
-                                                    <p className="font-medium text-slate-900">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Expiry</p>
-                                                    <p className="font-medium text-slate-900">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</p>
+                                                    <p className="text-slate-500">Date</p>
+                                                    <p className="font-medium text-slate-900">{m.createdAt ? new Date(m.createdAt).toLocaleString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit',
+                                                        hour12: true,
+                                                    }) : m.completedAt}</p>
                                                 </div>
                                                 <div className="space-y-0.5">
                                                     <p className="text-slate-500">Payment</p>
@@ -321,6 +324,7 @@ export const MembershipTab = ({ onError }) => {
                                                     <p className="text-slate-500">Amount</p>
                                                     <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -341,8 +345,7 @@ export const MembershipTab = ({ onError }) => {
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Payment</th>
                                     <th className="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Amount</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Start</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Expiry</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Date</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-slate-200">
@@ -384,8 +387,14 @@ export const MembershipTab = ({ onError }) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.startDate ? new Date(m.startDate).toLocaleDateString() : '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.expiryDate ? new Date(m.expiryDate).toLocaleDateString() : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.createdAt ? new Date(m.createdAt).toLocaleString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true,
+                                            }) : m.completedAt}</td>
                                         </tr>
                                     ))
                                 )}
@@ -447,8 +456,8 @@ export const MembershipTab = ({ onError }) => {
                                                 handlePageChange(page);
                                             }}
                                             className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                                                    ? "bg-purple-500 text-white"
-                                                    : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                                                ? "bg-purple-500 text-white"
+                                                : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                                                 }`}
                                         >
                                             {page}
