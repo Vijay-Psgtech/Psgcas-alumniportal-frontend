@@ -28,7 +28,7 @@ const WelcomeSection = () => {
     {
       id: 1,
       name: "Mr. L. Gopalakrishnan",
-      title: "Managing Trustee - PSG Sons & Charities",
+      title: "Managing Trustee - PSG & Sons' Charities",
       subtitle: "Visionary Leader & Philanthropist",
       image: leaderImage1,
       icon: Heart,
