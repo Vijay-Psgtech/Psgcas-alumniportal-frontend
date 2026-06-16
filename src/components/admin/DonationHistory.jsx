@@ -529,11 +529,9 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                   <p className="text-xs text-gray-500 font-semibold">Status</p>
                   <div className="mt-1">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${
-                        getStatusStyles(donation.status).bg
-                      } ${getStatusStyles(donation.status).text} border ${
-                        getStatusStyles(donation.status).border
-                      }`}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusStyles(donation.status).bg
+                        } ${getStatusStyles(donation.status).text} border ${getStatusStyles(donation.status).border
+                        }`}
                     >
                       {getStatusStyles(donation.status).icon}
                       {donation.status}
@@ -617,14 +615,28 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
               <div>
                 <p className="text-gray-500 font-semibold">Created</p>
                 <p className="text-gray-700">
-                  {new Date(donation.createdAt).toLocaleString()}
+                  {new Date(donation.createdAt).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
                 </p>
               </div>
               {donation.completedAt && (
                 <div>
                   <p className="text-gray-500 font-semibold">Completed</p>
                   <p className="text-gray-700">
-                    {new Date(donation.completedAt).toLocaleString()}
+                    {new Date(donation.completedAt).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
                   </p>
                 </div>
               )}
@@ -646,11 +658,10 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                 <button
                   onClick={() => handleFlagDonation(donation._id, !donation.adminFlagged)}
                   disabled={loading}
-                  className={`flex-1 px-4 py-2 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${
-                    donation.adminFlagged
-                      ? "bg-red-100 hover:bg-red-200 text-red-700"
-                      : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                  }`}
+                  className={`flex-1 px-4 py-2 font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${donation.adminFlagged
+                    ? "bg-red-100 hover:bg-red-200 text-red-700"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                    }`}
                 >
                   <Flag size={16} />
                   {donation.adminFlagged ? "Unflag" : "Flag"}
@@ -893,7 +904,7 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-3">
                       <div>
                         <p className="text-xs text-gray-500 font-semibold">Amount</p>
                         <p className="font-bold text-emerald-600">
@@ -906,13 +917,15 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                         <p className="font-semibold text-gray-700">{donation.paymentId?.gatewayResponse?.mode}</p>
                       </div>
                       <div>
+                        <p className="text-xs text-gray-500 font-semibold">Cause</p>
+                        <p className="font-semibold text-gray-700">{donation.category}</p>
+                      </div>
+                      <div>
                         <p className="text-xs text-gray-500 font-semibold">Status</p>
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                            getStatusStyles(donation.status).bg
-                          } ${getStatusStyles(donation.status).text} border ${
-                            getStatusStyles(donation.status).border
-                          }`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusStyles(donation.status).bg
+                            } ${getStatusStyles(donation.status).text} border ${getStatusStyles(donation.status).border
+                            }`}
                         >
                           {getStatusStyles(donation.status).icon}
                           {donation.status}
@@ -921,7 +934,14 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                       <div>
                         <p className="text-xs text-gray-500 font-semibold">Date</p>
                         <p className="text-gray-700">
-                          {new Date(donation.createdAt).toLocaleDateString()}
+                          {new Date(donation.createdAt).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })}
                         </p>
                       </div>
                     </div>
@@ -986,11 +1006,10 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                      pagination.page === page
-                        ? "bg-emerald-600 text-white"
-                        : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`w-10 h-10 rounded-lg font-semibold transition-all ${pagination.page === page
+                      ? "bg-emerald-600 text-white"
+                      : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     {page}
                   </button>
