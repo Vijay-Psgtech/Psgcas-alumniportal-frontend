@@ -32,7 +32,7 @@ export const Patrons = [
   {
     name: "Mr.L.Gopalakrishnan",
     role: "Managing Trustee",
-    note: "",
+    note: "PSG & Sons' Charities",
     bio: "",
     image: patronImg1,
     rank: "Cheif Patron"

@@ -713,7 +713,7 @@ const LeadershipPage = () => {
                     </motion.h3>
 
                     <motion.p variants={itemVariants} className="chief-role">
-                      {chiefPatron.role}
+                      {chiefPatron.role} - {chiefPatron.note}
                     </motion.p>
 
                     <motion.p variants={itemVariants} className="chief-bio">
