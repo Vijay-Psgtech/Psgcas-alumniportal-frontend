@@ -483,6 +483,12 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
                     <p className="font-semibold text-gray-900">{donation.donorPhone}</p>
                   </div>
                 )}
+                {donation.category && (
+                  <div>
+                    <p className="text-xs text-gray-500 font-semibold">Cause</p>
+                    <p className="font-semibold text-gray-900">{donation.category}</p>
+                  </div>
+                )}
                 {donation.donorCity && (
                   <div>
                     <p className="text-xs text-gray-500 font-semibold">Location</p>
