@@ -416,7 +416,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                     Programme Type
                   </h5>
                   <div className="space-y-2.5">
-                    {["UG", "PG"].map((type) => (
+                    {["UG", "PG", "MPhil", "PHD", "PUC"].map((type) => (
                       <label
                         key={type}
                         className="flex items-center gap-3 cursor-pointer group"
@@ -427,9 +427,6 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                           onChange={() => toggleProgrammeType(type)}
                           className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500/20 cursor-pointer"
                         />
-                        <span className="text-sm text-slate-600 group-hover:text-slate-900 transition">
-                          {type === "UG" ? "Undergraduate" : "Postgraduate"}
-                        </span>
                       </label>
                     ))}
                   </div>
@@ -676,8 +673,11 @@ const DepartmentTab = ({ onError, onSuccess }) => {
                     outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition`}
                   >
                     <option value="">-- Select --</option>
-                    <option value="UG">UG (Undergraduate)</option>
-                    <option value="PG">PG (Postgraduate)</option>
+                    <option value="UG">UG</option>
+                    <option value="PG">PG</option>
+                    <option value="MPhil">MPhil</option>
+                    <option value="PHD">PHD</option>
+                    <option value="PUC">PUC</option>
                   </select>
                   {formErrors.programmeType && (
                     <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
