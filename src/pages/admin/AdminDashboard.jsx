@@ -760,7 +760,7 @@ const AdminDashboard = () => {
                 initial={{ scale: 0.92, y: 10 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.92, y: 10 }}
-                className="bg-white rounded-2xl w-full max-w-[620px] max-h-[90vh] overflow-y-auto p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
+                className="bg-white rounded-[28px] w-full max-w-[680px] max-h-[90vh] overflow-y-auto p-6 sm:p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close Button */}
@@ -774,11 +774,11 @@ const AdminDashboard = () => {
                 {/* Alumni View */}
                 {selectedItem.firstName ? (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
                       {/* Profile Column */}
-                      <div className="md:col-span-1 bg-slate-50 rounded-xl p-5 border border-slate-100">
+                      <div className="md:col-span-1 bg-slate-50 rounded-2xl p-5 border border-slate-100">
                         <div className="flex flex-col items-center text-center">
-                          <div className="w-28 h-28 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl mb-4">
+                          <div className="w-28 h-28 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl mb-4 ring-4 ring-white shadow-md">
                             {selectedItem.files?.currentPhoto ? (
                               <img
                                 src={`${API_BASE}/uploads/${selectedItem.files.currentPhoto}`}
@@ -796,7 +796,10 @@ const AdminDashboard = () => {
                           <p className="text-sm text-slate-500 mt-1">
                             {selectedItem.department || "Department N/A"}
                           </p>
-                          <p className="text-sm text-slate-500">{selectedItem.batchYear || "Year N/A"}</p>
+                          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
+                            Roll No: {selectedItem.rollNumber || "N/A"}
+                          </div>
+                          <p className="text-sm text-slate-500 mt-2">{selectedItem.batchYear || "Year N/A"}</p>
 
                           <div className="mt-4 w-full space-y-2">
                             {selectedItem.linkedin && (
@@ -804,7 +807,7 @@ const AdminDashboard = () => {
                                 href={selectedItem.linkedin}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="block w-full text-center px-4 py-2 rounded-lg bg-white border border-slate-200 text-blue-600 font-medium hover:bg-slate-100"
+                                className="block w-full text-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-blue-600 font-semibold hover:bg-slate-100"
                               >
                                 View LinkedIn
                               </a>
@@ -815,41 +818,59 @@ const AdminDashboard = () => {
                       </div>
 
                       {/* Details Column */}
-                      <div className="md:col-span-2 space-y-4">
-
-
+                      <div className="md:col-span-2 space-y-5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="bg-white rounded-xl p-4 border border-slate-100">
-                            <p className="text-xs uppercase text-gray-400 font-semibold">Contact</p>
-                            <p className="mt-2 text-sm text-slate-800">{selectedItem.email || "-"}</p>
-                            <p className="mt-1 text-sm text-slate-800">{selectedItem.phone || "-"}</p>
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Contact</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.email || "-"}</p>
+                              <p>{selectedItem.phone || "-"}</p>
+                            </div>
                           </div>
 
-                          <div className="bg-white rounded-xl p-4 border border-slate-100">
-                            <p className="text-xs uppercase text-gray-400 font-semibold">Work</p>
-                            <p className="mt-2 text-sm text-slate-800">{selectedItem.currentCompany || "-"}</p>
-                            <p className="mt-1 text-sm text-slate-800">{selectedItem.jobTitle || "-"}</p>
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Academic</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">Department: {selectedItem.department || "-"}</p>
+                              <p>Roll No: {selectedItem.rollNumber || "-"}</p>
+                            </div>
                           </div>
 
-                          <div className="bg-white rounded-xl p-4 border border-slate-100">
-                            <p className="text-xs uppercase text-gray-400 font-semibold">Location</p>
-                            <p className="mt-2 text-sm text-slate-800">{selectedItem.city || "-"}</p>
-                            <p className="mt-1 text-sm text-slate-800">{selectedItem.country || "-"}</p>
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Work</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.currentCompany || "-"}</p>
+                              <p className="truncate">{selectedItem.jobTitle || "-"}</p>
+                            </div>
                           </div>
 
-                          <div className="bg-white rounded-xl p-4 border border-slate-100">
-                            <p className="text-xs uppercase text-gray-400 font-semibold">Other</p>
-                            <p className="mt-2 text-sm text-slate-800">Batch: {selectedItem.batchYear || "-"}</p>
-                            <p className="mt-1 text-sm text-slate-800">Status: {selectedItem.isApproved ? "Approved" : "Pending"}</p>
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Location</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.city || "-"}</p>
+                              <p className="truncate">{selectedItem.country || "-"}</p>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm sm:col-span-2">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Other</p>
+                            <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-800">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                                Batch: {selectedItem.batchYear || "-"}
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                                Status: {selectedItem.isApproved ? "Approved" : "Pending"}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
                           {!selectedItem.isApproved && (
                             <button
                               onClick={() => handleApprove(selectedItem._id)}
-                              className="flex-1 px-4 py-3 rounded-lg bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
+                              className="flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
                             >
                               Approve Alumni
                             </button>
@@ -857,7 +878,7 @@ const AdminDashboard = () => {
 
                           <button
                             onClick={() => setSelectedItem(null)}
-                            className="px-4 py-3 rounded-lg border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition"
+                            className="px-4 py-3 rounded-xl border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition"
                           >
                             Close
                           </button>

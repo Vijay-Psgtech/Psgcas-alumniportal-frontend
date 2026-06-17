@@ -3,6 +3,7 @@ import {
   Search,
   Clock,
   CheckCircle,
+  Hash,
   GraduationCap,
   Building2,
   Mail,
@@ -102,7 +103,7 @@ export const AlumniTab = ({
               />
             </div>
             <input
-              placeholder="Search by name, email, department, or year…"
+              placeholder="Search by name, email, rollNumber, or jobTitle..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -264,7 +265,7 @@ export const AlumniTab = ({
                         <p className="text-sm text-gray-600 truncate">
                           {a.email}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                               a.isApproved
@@ -279,7 +280,10 @@ export const AlumniTab = ({
                             )}
                             {a.isApproved ? "Approved" : "Pending"}
                           </span>
-                          
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
+                            <Hash size={12} />
+                            {a.rollNumber || "Roll number N/A"}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           {paidMember && (
@@ -289,7 +293,6 @@ export const AlumniTab = ({
                             </span>
                           )}
                         </div>
-                          
                       </div>
                     </div>
 
