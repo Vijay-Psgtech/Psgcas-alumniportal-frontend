@@ -511,7 +511,6 @@ const CAUSES = [
 
 // ✅ Updated presets: ₹5K – ₹25K only
 const INR_PRESETS = [
-  { amount: 100, label: "₹100" },
   { amount: 5000, label: "₹5,000" },
   { amount: 10000, label: "₹10,000" },
   { amount: 15000, label: "₹15,000" },
