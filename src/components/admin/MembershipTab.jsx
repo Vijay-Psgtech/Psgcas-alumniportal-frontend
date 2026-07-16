@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { adminAPI } from "../../services/api";
+import { Download } from 'lucide-react';
 
 // Icons (can be replaced with icon library like lucide-react or react-icons)
 const SearchIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
@@ -94,6 +95,41 @@ export const MembershipTab = ({ onError }) => {
     const currentSlice = filtered;
 
     const hasActiveFilters = statusFilter || departmentFilter || paymentFilter || query;
+
+    const handleExportCSV = () => {
+        if (currentSlice.length === 0) return;
+        const headers = ['Alumni Name', 'Roll Number', 'Batch/Department', 'Email', 'Designation', 'Payment Mode', 'Amount', 'Transaction Id', 'Transaction Date'];
+        const rows = currentSlice.map((m) => [
+            `${m.firstName || ''} ${m.lastName || ''}`,
+            m.alumniId?.rollNumber || '',
+            `(${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}  ${m.department || ''})`,
+            m.email || '',
+            m.alumniId?.jobTitle || '',
+            m.paymentId?.gatewayResponse?.mode || '',
+            m.amount || '',
+            m.txnid || '',
+            m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-GB', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }) : m.completedAt || '',
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map((row) => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'memberships.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    };
 
     if (loading) return (
         <div className="flex items-center justify-center h-96">
@@ -260,6 +296,18 @@ export const MembershipTab = ({ onError }) => {
                     </div>
                 </div>
 
+                {/* Export Button */}
+                <div className="px-6 py-3 flex gap-2">
+                    <button
+                        onClick={handleExportCSV}
+                        disabled={currentSlice.length === 0 || loading}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
+                    >
+                        <Download size={18} />
+                        Export CSV
+                    </button>
+                </div>
+
                 {/* Content Section */}
                 <div className="overflow-hidden">
                     {/* Mobile Card View */}
@@ -324,7 +372,7 @@ export const MembershipTab = ({ onError }) => {
                                                     <p className="text-slate-500">Amount</p>
                                                     <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                                 </div>
-                                                
+
                                             </div>
                                         </div>
                                     </div>
