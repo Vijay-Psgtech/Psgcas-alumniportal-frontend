@@ -1226,7 +1226,7 @@ const EpicBanner = () => {
           padding: 12px 0;
         }
 
-        .feature-icon {
+        .feature-bannericon {
           width: 36px;
           height: 36px;
           display: flex;
@@ -1236,6 +1236,7 @@ const EpicBanner = () => {
           border-radius: 10px;
           color: #ff6b9d;
           flex-shrink: 0;
+          animation: bounce 2s ease-in-out infinite;
         }
 
         .feature-text {
@@ -1426,7 +1427,7 @@ const EpicBanner = () => {
                       key={idx}
                       className="feature-item"
                     >
-                      <div className="feature-icon">
+                      <div className="feature-bannericon">
                         <Icon size={18} />
                       </div>
 
