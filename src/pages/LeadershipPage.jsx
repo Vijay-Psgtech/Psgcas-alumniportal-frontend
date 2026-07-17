@@ -498,7 +498,7 @@ const LeadershipPage = () => {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          object-position: center;
+          object-position: top center;
           transition: transform 700ms cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
