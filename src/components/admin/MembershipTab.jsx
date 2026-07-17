@@ -9,6 +9,7 @@ const ResetIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColo
 
 export const MembershipTab = ({ onError }) => {
     const [memberships, setMemberships] = useState([]);
+    const [allMemberships, setAllMemberships] = useState([]);
     const [summary, setSummary] = useState({ totalMemberships: 0, activeMemberships: 0, totalAmount: 0 });
     const [loading, setLoading] = useState(true);
 
@@ -26,17 +27,27 @@ export const MembershipTab = ({ onError }) => {
     useEffect(() => {
         const fetchMemberships = async () => {
             try {
-                const response = await adminAPI.fetchAllMemberships({
-                    page: 1,
-                    limit: 20,
-                });
-                const data = response?.data || {};
+                const [pageResponse, allResponse] = await Promise.all([
+                    adminAPI.fetchAllMemberships({
+                        page: 1,
+                        limit: 20,
+                    }),
+                    adminAPI.fetchAllMemberships({
+                        page: 1,
+                        limit: 10000,
+                    }),
+                ]);
+
+                const pageDataResponse = pageResponse?.data || {};
+                const allDataResponse = allResponse?.data || {};
+
                 setPageData({
-                    currentPage: data.currentPage || 1,
-                    totalPages: data.totalPages || 1,
+                    currentPage: pageDataResponse.currentPage || 1,
+                    totalPages: pageDataResponse.totalPages || 1,
                 });
-                setMemberships(data.memberships || []);
-                setSummary(data.summary || { totalMemberships: (data.memberships || []).length, activeMemberships: 0, totalAmount: 0 });
+                setMemberships(pageDataResponse.memberships || []);
+                setAllMemberships(allDataResponse.memberships || []);
+                setSummary(pageDataResponse.summary || allDataResponse.summary || { totalMemberships: (pageDataResponse.memberships || []).length, activeMemberships: 0, totalAmount: 0 });
             } catch (error) {
                 console.error('Error fetching memberships:', error);
                 if (onError) onError('Failed to load memberships');
@@ -78,9 +89,9 @@ export const MembershipTab = ({ onError }) => {
         new Set(memberships.map((m) => m.paymentId?.gatewayResponse?.mode).filter(Boolean)),
     ).sort();
 
-    const filtered = useMemo(() => {
+    const filterMemberships = (items) => {
         const q = query.trim().toLowerCase();
-        return memberships.filter((m) => {
+        return (items || []).filter((m) => {
             if (statusFilter && (m.membershipStatus || '').toLowerCase() !== statusFilter.toLowerCase()) return false;
             if (departmentFilter && (m.department || '').toLowerCase() !== departmentFilter.toLowerCase()) return false;
             const mode = m.paymentId?.gatewayResponse?.mode || '';
@@ -89,17 +100,31 @@ export const MembershipTab = ({ onError }) => {
             const fullName = `${m.firstName || ''} ${m.lastName || ''}`.toLowerCase();
             return fullName.includes(q) || (m.email || '').toLowerCase().includes(q) || (m.phone || '').toLowerCase().includes(q);
         });
-    }, [memberships, statusFilter, departmentFilter, paymentFilter, query]);
+    };
+
+    const filtered = useMemo(() => filterMemberships(memberships), [memberships, statusFilter, departmentFilter, paymentFilter, query]);
+    const filteredForExport = useMemo(() => filterMemberships(allMemberships), [allMemberships, statusFilter, departmentFilter, paymentFilter, query]);
 
     const totalItems = filtered.length;
     const currentSlice = filtered;
 
     const hasActiveFilters = statusFilter || departmentFilter || paymentFilter || query;
 
+    const escapeCsvValue = (value) => {
+        if (value === null || value === undefined) return '';
+        const stringValue = String(value);
+        if (/[",\n]/.test(stringValue)) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+    };
+
     const handleExportCSV = () => {
-        if (currentSlice.length === 0) return;
+        const exportItems = filteredForExport.length > 0 ? filteredForExport : filtered;
+        if (exportItems.length === 0) return;
+
         const headers = ['Alumni Name', 'Roll Number', 'Batch/Department', 'Email', 'Designation', 'Payment Mode', 'Amount', 'Transaction Id', 'Transaction Date'];
-        const rows = currentSlice.map((m) => [
+        const rows = exportItems.map((m) => [
             `${m.firstName || ''} ${m.lastName || ''}`,
             m.alumniId?.rollNumber || '',
             `(${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}  ${m.department || ''})`,
@@ -113,18 +138,18 @@ export const MembershipTab = ({ onError }) => {
                 month: '2-digit',
                 day: '2-digit'
             }) : m.completedAt || '',
-        ]);
+        ].map(escapeCsvValue));
 
         const csvContent = [
-            headers.join(','),
+            headers.map(escapeCsvValue).join(','),
             ...rows.map((row) => row.join(','))
         ].join('\n');
 
-        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'memberships.csv';
+        a.download = 'Memberships.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -233,9 +258,10 @@ export const MembershipTab = ({ onError }) => {
                                 className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
                             >
                                 <option value="">All Status</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="EXPIRED">Expired</option>
-                                <option value="PENDING">Pending</option>
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="EXPIRED">EXPIRED</option>
+                                <option value="CANCELLED">CANCELLED</option>
+                                <option value="PENDING">PENDING_PAYMENT</option>
                             </select>
                         </div>
 

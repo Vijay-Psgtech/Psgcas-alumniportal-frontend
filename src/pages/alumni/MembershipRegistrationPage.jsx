@@ -1,12 +1,16 @@
 import React from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import MembershipPayment from "../../components/payment/MembershipPayment";
 
 const MembershipRegistrationPage = () => {
-  const { user } = useAuth();
+  const { user, authLoading } = useAuth();
 
   usePageTitle("Membership Registration");
+
+  if (authLoading) return null;
+  if (!user) return <Navigate to="/alumni/login" replace />;
 
   const prefillData = {
     firstName: user?.firstName || "",
