@@ -258,9 +258,10 @@ export const MembershipTab = ({ onError }) => {
                                 className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
                             >
                                 <option value="">All Status</option>
-                                <option value="ACTIVE">Active</option>
-                                <option value="EXPIRED">Expired</option>
-                                <option value="PENDING">Pending</option>
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="EXPIRED">EXPIRED</option>
+                                <option value="CANCELLED">CANCELLED</option>
+                                <option value="PENDING">PENDING_PAYMENT</option>
                             </select>
                         </div>
 
