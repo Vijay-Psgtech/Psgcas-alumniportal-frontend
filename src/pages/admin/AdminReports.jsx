@@ -311,8 +311,8 @@ const AdminReports = () => {
                           <td className="py-3 px-4 border-b flex items-center gap-3 font-medium">
                             <img
                               src={
-                                alumni.profileImage
-                                  ? `${API_BASE}/${alumni.profileImage}`
+                                alumni.files?.currentPhoto
+                                  ? `${API_BASE}/uploads/${alumni?.files?.currentPhoto}`
                                   : "/default-avatar.png"
                               }
                               alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`}
