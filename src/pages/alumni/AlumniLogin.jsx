@@ -102,16 +102,16 @@ const AlumniLogin = () => {
           <p className="text-sm font-semibold opacity-90">
             Sign in to connect with your alumni network and stay updated.
           </p>
-          <div className="mt-8 space-y-3 text-sm">
-            <div className="flex items-center gap-2 justify-center">
+          <div className="mt-8 w-fit mx-auto space-y-4">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">✓</div>
               <span>Connect with fellow alumni</span>
             </div>
-            <div className="flex items-center gap-2 justify-center">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">✓</div>
               <span>Share your experiences</span>
             </div>
-            <div className="flex items-center gap-2 justify-center">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">✓</div>
               <span>Access exclusive events</span>
             </div>
