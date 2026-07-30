@@ -574,9 +574,9 @@ const AlumniUsersList = () => {
                   {/* Profile Header */}
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                      {alumni.profileImage ? (
+                      {alumni.files?.currentPhoto ? (
                         <img
-                          src={`${API_BASE}/${alumni.profileImage}`}
+                          src={`${API_BASE}/uploads/${alumni.files?.currentPhoto}`}
                           alt={`${alumni.firstName} ${alumni.lastName}`}
                           className="w-full h-full object-cover"
                         />
@@ -793,9 +793,9 @@ const AlumniUsersList = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                              {alumni.profileImage ? (
+                              {alumni.files?.currentPhoto ? (
                                 <img
-                                  src={`${API_BASE}/${alumni.profileImage}`}
+                                  src={`${API_BASE}/uploads/${alumni.files.currentPhoto}`}
                                   alt={`${alumni.firstName} ${alumni.lastName}`}
                                   className="w-full h-full object-cover"
                                 />
