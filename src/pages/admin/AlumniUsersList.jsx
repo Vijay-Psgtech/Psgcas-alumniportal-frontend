@@ -422,8 +422,8 @@ const AlumniUsersList = () => {
                     });
                   }}
                   className={`flex-1 sm:flex-none px-4 py-2.5 border-none text-xs sm:text-sm font-bold transition-all capitalize ${statusFilter === filter.value
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-gray-600 hover:bg-slate-50"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-600 hover:bg-slate-50"
                     }`}
                 >
                   {filter.label}
@@ -508,8 +508,8 @@ const AlumniUsersList = () => {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2.5 transition-all ${viewMode === "grid"
-                      ? "bg-blue-500 text-white"
-                      : "bg-white text-gray-500 hover:bg-slate-50"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-500 hover:bg-slate-50"
                     }`}
                   title="Grid View"
                 >
@@ -519,8 +519,8 @@ const AlumniUsersList = () => {
                 <button
                   onClick={() => setViewMode("table")}
                   className={`p-2.5 transition-all ${viewMode === "table"
-                      ? "bg-purple-500 text-white"
-                      : "bg-white text-gray-500 hover:bg-slate-50"
+                    ? "bg-purple-500 text-white"
+                    : "bg-white text-gray-500 hover:bg-slate-50"
                     }`}
                   title="Table View"
                 >
@@ -597,8 +597,8 @@ const AlumniUsersList = () => {
                       <div className="flex items-center gap-2 mt-1">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${alumni.isApproved
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
                             }`}
                         >
                           {alumni.isApproved ? (
@@ -725,8 +725,8 @@ const AlumniUsersList = () => {
                             handlePageChange(page);
                           }}
                           className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                              ? "bg-purple-500 text-white"
-                              : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            ? "bg-purple-500 text-white"
+                            : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                             }`}
                         >
                           {page}
@@ -855,8 +855,8 @@ const AlumniUsersList = () => {
                         <td className="px-6 py-4 text-center">
                           <span
                             className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${alumni.isApproved
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {alumni.isApproved ? (
@@ -947,8 +947,8 @@ const AlumniUsersList = () => {
                             handlePageChange(page);
                           }}
                           className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                              ? "bg-purple-500 text-white"
-                              : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                            ? "bg-purple-500 text-white"
+                            : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                             }`}
                         >
                           {page}
@@ -984,14 +984,25 @@ const AlumniUsersList = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-2000 flex items-center justify-center p-4"
               onClick={() => setSelectedItem(null)}
             >
+              {/* Backdrop */}
+              <div
+                onClick={() => setSelectedItem(null)}
+                style={{
+                  position: "absolute inset-0 z-[2000]",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.45)",
+                  backdropFilter: "blur(4px)",
+                }}
+              />
+              {/* Modal */}
               <motion.div
                 initial={{ scale: 0.92, y: 10 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.92, y: 10 }}
-                className="bg-white rounded-2xl w-full max-w-[620px] max-h-[90vh] overflow-y-auto p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
+                className="bg-white rounded-[28px] w-full max-w-[680px] max-h-[90vh] overflow-y-auto p-6 sm:p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Close Button */}
@@ -1005,97 +1016,123 @@ const AlumniUsersList = () => {
                 {/* Alumni View */}
                 {selectedItem.firstName ? (
                   <>
-                    {/* Header with Profile Image */}
-                    <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-                        {selectedItem.profileImage ? (
-                          <img
-                            src={`${API_BASE}/${selectedItem.profileImage}`}
-                            alt="profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          `${selectedItem.firstName?.[0] || ""}${selectedItem.lastName?.[0] || ""
-                          }`
-                        )}
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+                      {/* Profile Column */}
+                      <div className="md:col-span-1 bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="w-28 h-28 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl mb-4 ring-4 ring-white shadow-md">
+                            {selectedItem.files?.currentPhoto ? (
+                              <img
+                                src={`${API_BASE}/uploads/${selectedItem.files.currentPhoto}`}
+                                alt={`${selectedItem.firstName} ${selectedItem.lastName}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              `${selectedItem.firstName?.[0] || ""}${selectedItem.lastName?.[0] || ""}`
+                            )}
+                          </div>
 
-                      <div>
-                        <h2 className="text-[22px] font-bold text-[#0c0e1a] font-['Playfair_Display']">
-                          {selectedItem.firstName} {selectedItem.lastName}
-                        </h2>
-
-                        <p className="text-sm text-gray-500 font-medium">
-                          {selectedItem.department || "Department N/A"} •{" "}
-                          {selectedItem.batchYear || "Year N/A"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Info Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { l: "Email", v: selectedItem.email },
-                        { l: "Phone", v: selectedItem.phone || "N/A" },
-                        {
-                          l: "Company",
-                          v: selectedItem.currentCompany || "N/A",
-                        },
-                        { l: "Job Title", v: selectedItem.jobTitle || "N/A" },
-                        { l: "City", v: selectedItem.city || "N/A" },
-                        { l: "Country", v: selectedItem.country || "N/A" },
-                      ].map((it) => (
-                        <div
-                          key={it.l}
-                          className="p-4 rounded-xl bg-slate-50 border border-slate-100 hover:shadow-sm transition"
-                        >
-                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-                            {it.l}
+                          <h2 className="text-lg md:text-xl font-semibold text-slate-900">
+                            {selectedItem.firstName} {selectedItem.lastName}
+                          </h2>
+                          <p className="text-sm text-slate-500 mt-1">
+                            {selectedItem.department || "Department N/A"}
                           </p>
+                          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
+                            Roll No: {selectedItem.rollNumber || "N/A"}
+                          </div>
+                          <p className="text-sm text-slate-500 mt-2">{selectedItem.batchYear || "Year N/A"}</p>
 
-                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 break-words">
-                            {it.v}
-                          </p>
+                          <div className="mt-4 w-full space-y-2">
+                            {selectedItem.linkedin && (
+                              <a
+                                href={selectedItem.linkedin}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="block w-full text-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-blue-600 font-semibold hover:bg-slate-100"
+                              >
+                                View LinkedIn
+                              </a>
+                            )}
+
+                          </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
 
-                    {/* LinkedIn */}
-                    {selectedItem.linkedin && (
-                      <a
-                        href={selectedItem.linkedin}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-block mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700"
-                      >
-                        View LinkedIn Profile
-                      </a>
-                    )}
+                      {/* Details Column */}
+                      <div className="md:col-span-2 space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Contact</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.email || "-"}</p>
+                              <p>{selectedItem.phone || "-"}</p>
+                            </div>
+                          </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-wrap gap-3 pt-6 mt-6 border-t border-slate-100">
-                      {!selectedItem.isApproved && (
-                        <button
-                          onClick={() => handleApprove(selectedItem._id)}
-                          className="flex-1 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
-                        >
-                          Approve Alumni
-                        </button>
-                      )}
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Academic</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">Department: {selectedItem.department || "-"}</p>
+                              <p>Roll No: {selectedItem.rollNumber || "-"}</p>
+                            </div>
+                          </div>
 
-                      <button
-                        onClick={() => setSelectedItem(null)}
-                        className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
-                      >
-                        Close
-                      </button>
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Work</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.currentCompany || "-"}</p>
+                              <p className="truncate">{selectedItem.jobTitle || "-"}</p>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Location</p>
+                            <div className="mt-3 space-y-1 text-sm text-slate-800">
+                              <p className="truncate">{selectedItem.city || "-"}</p>
+                              <p className="truncate">{selectedItem.country || "-"}</p>
+                            </div>
+                          </div>
+
+                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm sm:col-span-2">
+                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Other</p>
+                            <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-800">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                                Batch: {selectedItem.batchYear || "-"}
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                                Status: {selectedItem.isApproved ? "Approved" : "Pending"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                          {!selectedItem.isApproved && (
+                            <button
+                              onClick={() => handleApprove(selectedItem._id)}
+                              className="flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
+                            >
+                              Approve Alumni
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => setSelectedItem(null)}
+                            className="px-4 py-3 rounded-xl border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
                   <>
                     {/* Donation View */}
-                    <h2 className="text-[22px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
-                      Donation Details
+                    <h2 className="text-[25px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
+                      Membership Funds Details
                     </h2>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
