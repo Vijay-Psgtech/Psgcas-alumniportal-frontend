@@ -123,18 +123,18 @@ export const MembershipTab = ({ onError }) => {
         const exportItems = filteredForExport.length > 0 ? filteredForExport : filtered;
         if (exportItems.length === 0) return;
 
-        const headers = ['Alumni Name', 'Roll Number', 'Batch', 'Department', 'Email', 'Phone', 'Designation', 'Payment Mode', 'Amount', 'Status', 'Transaction Id', 'Transaction Date'];
+        const headers = ['Member Name', 'Email Address', 'Phone Number', 'Department', 'Batch', 'Roll Number', 'Job Title', 'Membership Status', 'Payment Method', 'Amount (INR)', 'Transaction ID', 'Transaction Date'];
         const rows = exportItems.map((m) => [
             `${m.firstName || ''} ${m.lastName || ''}`,
-            m.alumniId?.rollNumber || '',
-            `${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}`,
-            `${m.department || ''}`,
             m.email || '',
             m.phone || '',
+            `${m.department || ''}`,
+            `${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}`,
+            m.alumniId?.rollNumber || '',
             m.alumniId?.jobTitle || '',
+            m.membershipStatus || '',
             m.paymentId?.gatewayResponse?.mode || '',
             m.amount || '',
-            m.membershipStatus || '',
             m.txnid || '',
             m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-GB', {
                 year: 'numeric',
