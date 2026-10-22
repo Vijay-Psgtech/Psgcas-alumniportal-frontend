@@ -123,13 +123,16 @@ export const MembershipTab = ({ onError }) => {
         const exportItems = filteredForExport.length > 0 ? filteredForExport : filtered;
         if (exportItems.length === 0) return;
 
-        const headers = ['Alumni Name', 'Roll Number', 'Batch/Department', 'Email', 'Designation', 'Payment Mode', 'Amount', 'Transaction Id', 'Transaction Date'];
+        const headers = ['Member Name', 'Email Address', 'Phone Number', 'Department', 'Batch', 'Roll Number', 'Job Title', 'Membership Status', 'Payment Method', 'Amount (INR)', 'Transaction ID', 'Transaction Date', 'Address'];
         const rows = exportItems.map((m) => [
             `${m.firstName || ''} ${m.lastName || ''}`,
-            m.alumniId?.rollNumber || '',
-            `(${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}  ${m.department || ''})`,
             m.email || '',
+            m.phone || '',
+            `${m.department || ''}`,
+            `${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}`,
+            m.alumniId?.rollNumber || '',
             m.alumniId?.jobTitle || '',
+            m.membershipStatus || '',
             m.paymentId?.gatewayResponse?.mode || '',
             m.amount || '',
             m.txnid || '',
@@ -138,6 +141,7 @@ export const MembershipTab = ({ onError }) => {
                 month: '2-digit',
                 day: '2-digit'
             }) : m.completedAt || '',
+            `${m.address?.street || ''}, ${m.address?.city || ''}, ${m.address?.state || ''}, ${m.address?.pincode || ''}, ${m.address?.country || ''}`
         ].map(escapeCsvValue));
 
         const csvContent = [
@@ -398,7 +402,10 @@ export const MembershipTab = ({ onError }) => {
                                                     <p className="text-slate-500">Amount</p>
                                                     <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                                 </div>
-
+                                                <div className="space-y-0.5">
+                                                    <p className="text-slate-500">Transaction ID</p>
+                                                    <p className="font-medium text-slate-900">{m?.txnid || '-'}</p>
+                                                </div>  
                                             </div>
                                         </div>
                                     </div>
@@ -418,7 +425,8 @@ export const MembershipTab = ({ onError }) => {
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Department</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Payment</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-700 uppercase tracking-wider">Amount</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Amount</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Transaction ID</th>
                                     <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Date</th>
                                 </tr>
                             </thead>
@@ -461,6 +469,7 @@ export const MembershipTab = ({ onError }) => {
                                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                                 <p className="font-bold text-indigo-600">₹{m.amount}</p>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m?.txnid || '-'}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.createdAt ? new Date(m.createdAt).toLocaleString('en-US', {
                                                 year: 'numeric',
                                                 month: 'long',
