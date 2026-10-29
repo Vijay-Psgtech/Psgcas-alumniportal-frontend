@@ -346,7 +346,7 @@ const AdminNotifCard = ({ notification, onApprove, onReject, onDelete }) => {
 };
 
 /* ── Main Component ───────────────────────────────────────────── */
-const AdminNotifications = () => {
+const AdminNotifications = ({ embedded = false }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -421,7 +421,12 @@ const AdminNotifications = () => {
   ];
 
   return (
-    <div style={{ fontFamily: "'Outfit','Inter',sans-serif", padding: "100px 50px" }}>
+    <div
+      style={{
+        fontFamily: "'Outfit','Inter',sans-serif",
+        padding: embedded ? "24px 0" : "100px 50px",
+      }}
+    >
       {/* Toast */}
       {toast && (
         <div style={{

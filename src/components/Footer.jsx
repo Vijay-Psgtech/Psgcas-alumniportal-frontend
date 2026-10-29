@@ -1,53 +1,36 @@
 import React from "react";
-import { Mail, Linkedin, Twitter, Instagram, ArrowRight, Heart, Phone, MapPin, Globe } from "lucide-react";
+import {
+  Mail,
+  Linkedin,
+  Twitter,
+  Instagram,
+  ArrowRight,
+  Heart,
+  Phone,
+  MapPin,
+  Globe,
+} from "lucide-react";
 import PSGLogo from "../assets/Images/1280.png";
 
 const ModernFooter = () => {
   const currentYear = new Date().getFullYear();
 
-  const footerSections = [
-    {
-      title: "Alumni",
-      links: [
-        { name: "Alumni Directory", href: "/alumni/directory" },
-        { name: "Events & Reunions", href: "/upcoming-events" },
-        { name: "Alumni Profile", href: "/alumni/profile" },
-        { name: "Alumni Chapters", href: "/alumni/chapters" },
-      ],
-    },
-    {
-      title: "Community",
-      links: [
-        { name: "Leadership", href: "/leadership" },
-        { name: "News & Updates", href: "/newsletter" },
-        { name: "Gallery", href: "/gallery" },
-        { name: "Contact Us", href: "/contact" },
-      ],
-    },
-    {
-      title: "Support",
-      links: [
-        { name: "Donate", href: "/donate" },
-        { name: "Become Member", href: "/alumni/register" },
-        { name: "Campaigns", href: "/campaigns" },
-        { name: "Mentorship", href: "/alumni/dashboard" },
-      ],
-    },
-    {
-      title: "Careers",
-      links: [
-        { name: "Job Board", href: "/alumni/dashboard" },
-        { name: "Career Services", href: "https://careers.psginstitutions.in/" },
-        { name: "Internships", href: "https://careers.psginstitutions.in/" },
-        { name: "For Employers", href: "/contact" },
-      ],
-    },
-  ];
-
   const socialLinks = [
-    { icon: Linkedin, href: "https://www.linkedin.com/company/psg-institutions/", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com/psginstitutions", label: "Twitter" },
-    { icon: Instagram, href: "https://www.instagram.com/psginstitutions/", label: "Instagram" },
+    {
+      icon: Linkedin,
+      href: "https://www.linkedin.com/company/psg-institutions/",
+      label: "LinkedIn",
+    },
+    {
+      icon: Twitter,
+      href: "https://twitter.com/psginstitutions",
+      label: "Twitter",
+    },
+    {
+      icon: Instagram,
+      href: "https://www.instagram.com/psginstitutions/",
+      label: "Instagram",
+    },
     { icon: Mail, href: "mailto:alumni@psgcas.ac.in", label: "Email" },
   ];
 
@@ -476,7 +459,7 @@ const ModernFooter = () => {
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: clamp(1.5rem, 3vw, 2.5rem);
           }
-
+   
           .footer-content {
             padding: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 2rem);
           }
@@ -608,9 +591,13 @@ const ModernFooter = () => {
           <div className="newsletter-section">
             <h3 className="newsletter-title">📬 Stay Connected</h3>
             <p className="newsletter-desc">
-              Get the latest news, events, career opportunities, and updates from PSG Arts Alumni community
+              Get the latest news, events, career opportunities, and updates
+              from PSG Arts Alumni community
             </p>
-            <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+            <form
+              className="newsletter-form"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <input
                 type="email"
                 className="newsletter-input"
@@ -647,11 +634,15 @@ const ModernFooter = () => {
                 </div>
                 <div>
                   <div>PSG Arts</div>
-                  <div style={{ fontSize: "0.7em", opacity: 0.8 }}>Alumni Portal</div>
+                  <div style={{ fontSize: "0.7em", opacity: 0.8 }}>
+                    Alumni Portal
+                  </div>
                 </div>
               </a>
               <p className="footer-description">
-                Connecting global PSG Arts alumni through mentorship, community engagement, professional opportunities, and lifelong growth for sustained excellence.
+                Connecting global PSG Arts alumni through mentorship, community
+                engagement, professional opportunities, and lifelong growth for
+                sustained excellence.
               </p>
               <div className="footer-social">
                 {socialLinks.map((social, idx) => {
@@ -663,8 +654,14 @@ const ModernFooter = () => {
                       className="social-btn"
                       aria-label={social.label}
                       title={social.label}
-                      target={social.href.startsWith("http") ? "_blank" : "_self"}
-                      rel={social.href.startsWith("http") ? "noopener noreferrer" : ""}
+                      target={
+                        social.href.startsWith("http") ? "_blank" : "_self"
+                      }
+                      rel={
+                        social.href.startsWith("http")
+                          ? "noopener noreferrer"
+                          : ""
+                      }
                     >
                       <Icon size={55} strokeWidth={1.5} />
                     </a>
@@ -737,16 +734,16 @@ const ModernFooter = () => {
                 <a href="/alumni/dashboard" className="footer-link">
                   Job Board
                 </a>
-                <a 
-                  href="https://careers.psginstitutions.in/" 
+                <a
+                  href="https://careers.psginstitutions.in/"
                   className="footer-link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   Career Services
                 </a>
-                <a 
-                  href="https://careers.psginstitutions.in/" 
+                <a
+                  href="https://careers.psginstitutions.in/"
                   className="footer-link"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -770,13 +767,26 @@ const ModernFooter = () => {
               <span>PSG Institutions</span>
               <span>•</span>
               <span>Powered by Central IT Services</span>
-              <Heart size={14} strokeWidth={2} className="heart-icon" style={{ color: "#c83e7d" }} />
+              <Heart
+                size={14}
+                strokeWidth={2}
+                className="heart-icon"
+                style={{ color: "#c83e7d" }}
+              />
             </div>
             <div className="footer-links-bottom">
-              <a href="#" className="footer-link-bottom">Privacy Policy</a>
-              <a href="#" className="footer-link-bottom">Terms of Service</a>
-              <a href="#" className="footer-link-bottom">Cookie Settings</a>
-              <a href="#" className="footer-link-bottom">Accessibility</a>
+              <a href="#" className="footer-link-bottom">
+                Privacy Policy
+              </a>
+              <a href="#" className="footer-link-bottom">
+                Terms of Service
+              </a>
+              <a href="#" className="footer-link-bottom">
+                Cookie Settings
+              </a>
+              <a href="#" className="footer-link-bottom">
+                Accessibility
+              </a>
             </div>
           </div>
         </div>

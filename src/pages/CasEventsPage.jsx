@@ -269,10 +269,6 @@ const CasEventsPage = () => {
 
 
   // ✅ Fetch events on mount
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
   // ✅ Fetch all events from API
   const fetchEvents = async () => {
     try {
@@ -284,6 +280,10 @@ const CasEventsPage = () => {
       setEvents([]);
     }
   };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
 
   const filteredEvents = casEvents.filter((e) => {
     const matchFilter = e.status === filter;

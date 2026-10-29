@@ -8,7 +8,6 @@ import {
   Edit2,
   Trash2,
   X,
-  CheckCircle,
   AlertCircle,
   Save,
   Eye,
@@ -16,8 +15,6 @@ import {
   Loader,
   Search,
   Filter,
-  ChevronDown,
-  Tag,
   RotateCcw,
 } from "lucide-react";
 import { departmentAPI } from "../../services/api";    
@@ -59,7 +56,7 @@ const DepartmentTab = ({ onError, onSuccess }) => {
       setLoading(true);
       const response = await departmentAPI.getAllAdmin();
       console.log("✅ Departments fetched:", response.data);
-
+  
       if (response.data?.data?.departments) {
         setDepartments(response.data.data.departments);
       } else {

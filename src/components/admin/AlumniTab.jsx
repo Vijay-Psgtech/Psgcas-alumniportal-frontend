@@ -21,7 +21,6 @@ import {
   UserCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { a } from "framer-motion/client";
 import { API_BASE } from "../../services/api";
 
 export const AlumniTab = ({ 
@@ -29,7 +28,6 @@ export const AlumniTab = ({
   setSelectedItem,
   pageData = { totalAlumni: 0, totalPages: 1, currentPage: 1 },
   userRole = "admin",
-  userDepartment = "",
   onPageChange = () => {},
   onFilterChange = () => {},
 }) => {
@@ -64,11 +62,6 @@ export const AlumniTab = ({
         staggerChildren: 0.05,
       },
     },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
   };
 
   return (

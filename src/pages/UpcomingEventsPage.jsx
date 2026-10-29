@@ -261,10 +261,6 @@ const UpcomingEventsPage = () => {
   usePageTitle("Events");
 
   // ✅ Fetch events on mount
-  useEffect(() => {
-    fetchUpcomingEvents();
-  }, []);
-
   // ✅ Fetch Upcoming events from API
   const fetchUpcomingEvents = async () => {
     try {
@@ -276,6 +272,10 @@ const UpcomingEventsPage = () => {
       setUpcomingEvents([]);
     }
   };
+
+  useEffect(() => {
+    fetchUpcomingEvents();
+  }, []);
 
   const filteredEvents = upcomingEvents.filter((e) => {
     const q = searchTerm.toLowerCase();

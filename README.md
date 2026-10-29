@@ -12,3 +12,12 @@ A modern, responsive web application frontend for the PSG CAS Alumni Portal buil
 - **Routing:** React Router DOM 7.9.6
 - **Payment:** Razorpay Checkout
 - **Deployment:** Docker + Nginx (SPA routing)
+
+The admin dashboard includes paid-alumni approval and editing, duplicate review,
+CSV import/export, receipt resend, homepage and leadership content management, and
+password change. Membership registration redirects to the server-created payment
+session and confirms the profile only after the backend verifies the payment result.
+
+## Validation
+
+Run `npm test` to lint the frontend and verify that it produces a production build.

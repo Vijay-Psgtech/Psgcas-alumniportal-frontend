@@ -226,7 +226,6 @@ const BatchCard = ({ year, count, palette, isMine, onClick, index }) => (
 
 /* ─── Alumni Card — Full Details ─── */
 const AlumniCardFull = ({ alumni, apiBase, index }) => {
-  const [flipped, setFlipped] = useState(false);
   const gradient = pickGradient(alumni.firstName);
   const photo = alumni.files?.currentPhoto || alumni.profileImage;
   const photoUrl = photo ? `${apiBase}/uploads/${photo}` : null;
@@ -483,7 +482,7 @@ const AlumniDirectory = () => {
         } else if (countsArray && typeof countsArray === "object") {
           setBatchCounts(countsArray);
         }
-      } catch (e) {
+      } catch {
         setError("Could not load batches. Please try again.");
       } finally {
         setBatchLoading(false);
@@ -502,7 +501,7 @@ const AlumniDirectory = () => {
           batchStats: data.batchStats || 0,
           departmentStats: data.departmentStats || 0,
         });
-      } catch (e) {
+      } catch {
         // Ignore stats loading errors — not critical
       }
     })();
@@ -538,7 +537,7 @@ const AlumniDirectory = () => {
         setCurrentPage(data.page || 1);
         setSelectedBatch(year);
         setView("alumni");
-      } catch (e) {
+      } catch {
         setError("Failed to load alumni for this batch.");
       } finally {
         setLoading(false);
@@ -983,7 +982,7 @@ const AlumniDirectory = () => {
                                 </tr>
                               </thead>
                               <tbody className="bg-white divide-y divide-slate-100">
-                                {fullCards.map((alumni, i) => (
+                                {fullCards.map((alumni) => (
                                   <tr
                                     key={alumni._id}
                                     onClick={() => setSelectedAlumni(alumni)}
@@ -1208,7 +1207,7 @@ const AlumniDirectory = () => {
                                 </tr>
                               </thead>
                               <tbody className="bg-white divide-y divide-slate-100">
-                                {limitedCards.map((alumni, i) => (
+                                {limitedCards.map((alumni) => (
                                   <tr
                                     key={alumni._id}
                                     className="hover:bg-slate-50 cursor-pointer"

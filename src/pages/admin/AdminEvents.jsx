@@ -24,8 +24,6 @@ import { eventsAPI, API_BASE } from "../../services/api";
 import { DeleteModal } from "../../components/admin/AdminSharedUI";
 import { EventFormModal } from "../../components/admin/EventFormModal";
 import usePageTitle from "../../hooks/usePageTitle";
-import { u } from "framer-motion/client";
-
 
 // Category colors mapping
 const CATEGORY_COLORS = {

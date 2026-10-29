@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Award, Briefcase, Zap, ChevronRight, Star, Users } from "lucide-react";
 import alumniImage1 from "../assets/Images/Alum1.png";
 import alumniImage2 from "../assets/Images/Alum2.png";
 import alumniImage3 from "../assets/Images/Alum3.png";
+import { API_BASE, siteContentAPI } from "../services/api";
 
 const NotableAlumni = () => {
   const [imageErrors, setImageErrors] = useState({});
@@ -24,10 +25,16 @@ const NotableAlumni = () => {
       "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=400&fit=crop",
       "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=400&h=400&fit=crop",
     ];
-    return images[alumniId % images.length];
+    const seed =
+      typeof alumniId === "number"
+        ? alumniId
+        : String(alumniId)
+            .split("")
+            .reduce((total, character) => total + character.charCodeAt(0), 0);
+    return images[seed % images.length];
   };
 
-  const alumni = [
+  const defaultAlumni = [
     {
       id: 1,
       name: "Dr. Nalla G Palaniswami",
@@ -675,6 +682,57 @@ const NotableAlumni = () => {
     },
   ];
 
+  const [alumni, setAlumni] = useState(defaultAlumni);
+  const [sectionTitle, setSectionTitle] = useState("");
+  const [sectionDescription, setSectionDescription] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    siteContentAPI
+      .getPublic("notable-alumni")
+      .then(({ data }) => {
+        if (!active || !data?.managed) return;
+        const managedProfiles = (data.profiles || []).map((profile, index) => {
+          const palette = [
+            { color: "#3B82F6", bgColor: "#F0F9FF", borderColor: "#BFDBFE", icon: Award },
+            { color: "#10B981", bgColor: "#F0FDF4", borderColor: "#A7F3D0", icon: Briefcase },
+            { color: "#8B5CF6", bgColor: "#F5F3FF", borderColor: "#DDD6FE", icon: Zap },
+            { color: "#EC4899", bgColor: "#FDF2F8", borderColor: "#FBCFE8", icon: Star },
+          ][index % 4];
+          return {
+            id: profile._id || `managed-${index}`,
+            name: profile.name,
+            batch: profile.batch || "",
+            degree: profile.degree || "",
+            title: profile.title || profile.role || "",
+            company: profile.company || "",
+            category: profile.category || "",
+            achievement: profile.achievement || "",
+            image: profile.image
+              ? /^https?:\/\//i.test(profile.image) || profile.image.startsWith("/")
+                ? profile.image
+                : `${API_BASE}/${profile.image}`
+              : "",
+            ...palette,
+          };
+        });
+        if (data.section?.title) setSectionTitle(data.section.title);
+        if (data.section?.description)
+          setSectionDescription(data.section.description);
+        if (data.section?.replaceProfiles) {
+          setAlumni(managedProfiles);
+        } else if (managedProfiles.length) {
+          setAlumni([...defaultAlumni, ...managedProfiles]);
+        }
+      })
+      .catch((error) => {
+        console.warn("Could not load managed notable alumni:", error.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <>
       <style>{`
@@ -1181,9 +1239,12 @@ const NotableAlumni = () => {
         {/* Header */}
         <div className="alumni-header">
           <div className="alumni-badge">⭐ Excellence in Education</div>
-          <h2 className="alumni-title">Distinguished Alumni Network</h2>
+          <h2 className="alumni-title">
+            {sectionTitle || "Distinguished Alumni Network"}
+          </h2>
           <p className="alumni-subtitle">
-            Meet our accomplished graduates leading transformative change across the globe
+            {sectionDescription ||
+              "Meet our accomplished graduates leading transformative change across the globe"}
           </p>
         </div>
 
@@ -1191,7 +1252,7 @@ const NotableAlumni = () => {
         <div className="alumni-scroll-wrapper">
           <div className="alumni-scroll-container">
             {alumni.concat(alumni).map((person, index) => {
-              const IconComponent = person.icon;
+              const IconComponent = person.icon || Award;
               const imageUrl = imageErrors[person.id]
                 ? getFallbackImage(person.id)
                 : person.image;

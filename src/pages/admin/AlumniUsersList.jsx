@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
@@ -19,6 +19,10 @@ import {
   UserCheck,
   UserX,
   X,
+  Download,
+  Upload,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { adminAPI, API_BASE } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -33,8 +37,6 @@ const AlumniUsersList = () => {
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
   const [viewMode, setViewMode] = useState("table"); // grid or table
-  const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
-  const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
   const [pageData, setPageData] = useState({
     totalAlumni: 0,
@@ -44,6 +46,15 @@ const AlumniUsersList = () => {
     totalPending: 0,
   });
   const [alumniFilters, setAlumniFilters] = useState({});
+  const [csvFile, setCsvFile] = useState(null);
+  const [duplicates, setDuplicates] = useState(null);
+  const [toolsMessage, setToolsMessage] = useState("");
+  const [toolsError, setToolsError] = useState("");
+  const [editingItem, setEditingItem] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [resendingReceipt, setResendingReceipt] = useState(false);
+  const csvInputRef = useRef(null);
   const { user } = useAuth();
   const department = user.department || "";
   usePageTitle("Alumni Users Management");
@@ -146,37 +157,278 @@ const AlumniUsersList = () => {
     try {
       await adminAPI.approveAlumni(id);
       setSelectedItem(null);
-      // ✅ Refetch with current filters and current page to maintain pagination
-      const queryParams = {
-        ...alumniFilters,
-        page: pageData.currentPage,
-        limit: 20,
-      };
-
-      if (user.role === "admin") {
-        queryParams.department = department;
-      }
-
-      const res = await adminAPI.getAllAlumni(queryParams);
-      setAlumniUsers(res.data.alumni || []);
-      setPageData({
-        totalAlumni: res.data.totalAlumni || 0,
-        totalPages: res.data.totalPages || 1,
-        currentPage: res.data.currentPage || 1,
-      });
+      await refreshCurrentPage();
     } catch (error) {
       console.error("Approve error:", error);
     }
   };
 
-  // Scroll to top smoothly
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const refreshCurrentPage = async () => {
+    const queryParams = {
+      ...alumniFilters,
+      page: pageData.currentPage,
+      limit: 20,
+    };
+    if (user.role === "admin") queryParams.department = department;
+    const response = await adminAPI.getAllAlumni(queryParams);
+    setAlumniUsers(response.data.alumni || []);
+    setPageData({
+      totalAlumni: response.data.totalAlumni || 0,
+      totalPages: response.data.totalPages || 1,
+      currentPage: response.data.currentPage || 1,
+      totalApproved: response.data.totalApproved || 0,
+      totalPending: response.data.totalPending || 0,
+    });
   };
+
+  const downloadCsv = async () => {
+    setToolsError("");
+    setToolsMessage("");
+    try {
+      const params = {
+        department: user.role === "admin" ? department : undefined,
+        batchYear: batchFilter || undefined,
+        search: search || undefined,
+      };
+      const response = await adminAPI.exportAlumniCsv(params);
+      const url = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "paid-alumni-members.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      setToolsMessage("Paid alumni CSV downloaded.");
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not download the alumni CSV.",
+      );
+    }
+  };
+
+  const importCsv = async () => {
+    if (!csvFile) {
+      setToolsError("Choose a CSV file first.");
+      return;
+    }
+    setToolsError("");
+    setToolsMessage("");
+    const formData = new FormData();
+    formData.append("file", csvFile);
+    try {
+      const response = await adminAPI.importAlumniCsv(formData);
+      setToolsMessage(
+        `${response.data.processed} CSV row(s) processed (${response.data.inserted} new, ${response.data.updated} updated). Legacy payment rows are super-admin attested.`,
+      );
+      setCsvFile(null);
+      if (csvInputRef.current) csvInputRef.current.value = "";
+      await refreshCurrentPage();
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not import the alumni CSV.",
+      );
+    }
+  };
+
+  const downloadCsvTemplate = () => {
+    const headers = [
+      "Transaction ID/Reference",
+      "Receipt Number",
+      "Transaction Date and Time",
+      "Alumni Name",
+      "Batch Details",
+      "Department/Subject",
+      "Email Address",
+      "Contact Number",
+      "Complete Postal Address",
+      "Current Designation",
+      "Organization/Institution/Company",
+      "Professional Location",
+      "Postal Address Line 1",
+      "Postal Address Line 2",
+      "City",
+      "State",
+      "PIN Code",
+      "Country",
+      "Professional Location Line 2",
+      "Professional City",
+      "Professional State",
+      "Professional PIN Code",
+      "Professional Country",
+    ];
+    const content = `\uFEFF${headers.map((header) => `"${header}"`).join(",")}\r\n`;
+    const url = window.URL.createObjectURL(
+      new Blob([content], { type: "text/csv;charset=utf-8" }),
+    );
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "alumni-import-template.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const loadDuplicates = async () => {
+    setToolsError("");
+    try {
+      const response = await adminAPI.findAlumniDuplicates();
+      setDuplicates(response.data.duplicates || []);
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not find duplicate records.",
+      );
+    }
+  };
+
+  const beginEdit = (alumni) => {
+    setToolsError("");
+    setToolsMessage("");
+    const educationHistory = alumni.educationHistory?.length
+      ? alumni.educationHistory
+      : [
+          {
+            department: alumni.department || "",
+            degree: alumni.degree || "",
+            studyStartYear: alumni.studyStartYear || "",
+            studyEndYear: alumni.studyEndYear || "",
+          },
+        ];
+    setEditingItem(alumni);
+    setEditForm({
+      firstName: alumni.firstName || "",
+      lastName: alumni.lastName || "",
+      email: alumni.email || "",
+      phone: alumni.phone || "",
+      department: alumni.department || "",
+      degree: alumni.degree || "",
+      batchYear: alumni.batchYear || "",
+      studyStartYear: alumni.studyStartYear || "",
+      studyEndYear: alumni.studyEndYear || "",
+      batchDetails:
+        alumni.batchDetails ||
+        educationHistory
+          .map((entry) =>
+            [entry.studyStartYear, entry.studyEndYear].filter(Boolean).join("-"),
+          )
+          .filter(Boolean)
+          .join(" & "),
+      departmentDetails:
+        alumni.departmentDetails ||
+        educationHistory
+          .map((entry) =>
+            [entry.department, entry.degree].filter(Boolean).join(" / "),
+          )
+          .filter(Boolean)
+          .join(" & "),
+      jobTitle: alumni.jobTitle || "",
+      currentCompany: alumni.currentCompany || "",
+      occupation: alumni.occupation || "",
+      fullAddress: alumni.fullAddress || "",
+      postalAddress: {
+        line1: alumni.postalAddress?.line1 || "",
+        line2: alumni.postalAddress?.line2 || "",
+        city: alumni.postalAddress?.city || "",
+        state: alumni.postalAddress?.state || "",
+        pincode: alumni.postalAddress?.pincode || "",
+        country: alumni.postalAddress?.country || "",
+      },
+      officeAddress: {
+        line1: alumni.officeAddress?.line1 || "",
+        line2: alumni.officeAddress?.line2 || "",
+        city: alumni.officeAddress?.city || "",
+        state: alumni.officeAddress?.state || "",
+        pincode: alumni.officeAddress?.pincode || "",
+        country: alumni.officeAddress?.country || "",
+      },
+    });
+    setSelectedItem(null);
+  };
+
+  const saveAlumniEdit = async (event) => {
+    event.preventDefault();
+    setSavingEdit(true);
+    try {
+      const postalAddress = editForm.postalAddress;
+      const fullAddress =
+        [
+          postalAddress.line1,
+          postalAddress.line2,
+          postalAddress.city,
+          postalAddress.state,
+          postalAddress.pincode,
+          postalAddress.country,
+        ]
+          .filter(Boolean)
+          .join(", ") || editForm.fullAddress;
+      await adminAPI.updateAlumni(editingItem._id, {
+        ...editForm,
+        fullAddress,
+      });
+      setEditingItem(null);
+      setEditForm(null);
+      setToolsMessage("Alumni profile updated.");
+      await refreshCurrentPage();
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not update alumni profile.",
+      );
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const deleteAlumniRecord = async (alumni) => {
+    if (!window.confirm(`Permanently delete ${alumni.firstName}'s record?`)) {
+      return;
+    }
+    try {
+      await adminAPI.deleteAlumni(alumni._id);
+      setSelectedItem(null);
+      setToolsMessage("Alumni record deleted.");
+      await refreshCurrentPage();
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not delete alumni record.",
+      );
+    }
+  };
+
+  const resendReceipt = async (alumni) => {
+    setResendingReceipt(true);
+    setToolsError("");
+    try {
+      await adminAPI.resendMembershipReceipt(alumni._id);
+      setToolsMessage(`Receipt email sent again to ${alumni.email}.`);
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not resend the payment receipt.",
+      );
+    } finally {
+      setResendingReceipt(false);
+    }
+  };
+
+  const deleteDuplicate = async (alumni) => {
+    if (!window.confirm(`Delete duplicate record for ${alumni.email}?`)) return;
+    try {
+      await adminAPI.deleteAlumni(alumni._id);
+      await loadDuplicates();
+      await refreshCurrentPage();
+      setToolsMessage(`Duplicate record ${alumni.email} deleted.`);
+    } catch (error) {
+      setToolsError(
+        error.response?.data?.message || "Could not delete duplicate record.",
+      );
+    }
+  };
+
+  // Scroll to top smoothly
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
         <div className="text-center">
           <Users
             size={48}
@@ -189,7 +441,7 @@ const AlumniUsersList = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
+    <div className="min-h-screen bg-linear-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
       {/* Header */}
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -275,6 +527,111 @@ const AlumniUsersList = () => {
           })}{" "}
         </div>
       </div>
+
+      <section className="mb-6 space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={downloadCsv}
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800"
+          >
+            <Download size={16} />
+            Export paid alumni CSV
+          </button>
+          <button
+            type="button"
+            onClick={loadDuplicates}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Find duplicates
+          </button>
+          {user.role === "superadmin" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={downloadCsvTemplate}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                <Download size={16} />
+                Download import template
+              </button>
+              <input
+                ref={csvInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                onChange={(event) => setCsvFile(event.target.files?.[0] || null)}
+                className="max-w-60 text-sm"
+              />
+              <button
+                type="button"
+                onClick={importCsv}
+                disabled={!csvFile}
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Upload size={16} />
+                Import master list
+              </button>
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-slate-500">
+          Super-admin: download the template or select your alumni CSV, then choose
+          “Import master list”. Name, email, phone, batch years, department/course,
+          and postal address are required; payment references can be blank. To fix
+          a profile, select “Edit” on its row, update the details, and save.
+          Imported historical payments are marked as admin-attested, not gateway-verified.
+        </p>
+        {toolsMessage && (
+          <p role="status" className="text-sm font-medium text-emerald-700">
+            {toolsMessage}
+          </p>
+        )}
+        {toolsError && (
+          <p role="alert" className="text-sm font-medium text-rose-700">
+            {toolsError}
+          </p>
+        )}
+        {duplicates && (
+          <div className="space-y-3 border-t border-slate-200 pt-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-slate-900">
+                Possible duplicate groups ({duplicates.length})
+              </h2>
+              <button
+                type="button"
+                onClick={() => setDuplicates(null)}
+                className="rounded-lg border px-3 py-1 text-sm"
+              >
+                Close
+              </button>
+            </div>
+            {duplicates.length === 0 && (
+              <p className="text-sm text-slate-600">No matching duplicate groups found.</p>
+            )}
+            {duplicates.map((group, index) => (
+              <div key={index} className="space-y-2 rounded-xl bg-amber-50 p-3">
+                {group.records.map((record) => (
+                  <div
+                    key={record._id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white p-3"
+                  >
+                    <span className="text-sm text-slate-800">
+                      {record.firstName} {record.lastName} · {record.email} · {record.department} · {record.batchYear}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => deleteDuplicate(record)}
+                      className="rounded-lg border border-rose-200 px-3 py-1.5 text-xs font-semibold text-rose-700"
+                    >
+                      Delete duplicate
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Toolbar */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 mb-6 shadow-sm">
@@ -474,7 +831,7 @@ const AlumniUsersList = () => {
                 >
                   {/* Profile Header */}
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 shrink-0">
                       {alumni.profileImage ? (
                         <img
                           src={`${API_BASE}/${alumni.profileImage}`}
@@ -482,7 +839,7 @@ const AlumniUsersList = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                        <div className="w-full h-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
                           {alumni.firstName.charAt(0)}
                           {alumni.lastName && alumni.lastName.charAt(0)}
                         </div>
@@ -663,7 +1020,7 @@ const AlumniUsersList = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+                    <tr className="bg-linear-to-r from-slate-50 to-blue-50 border-b border-slate-200">
                       <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
                         Alumni
                       </th>
@@ -695,7 +1052,7 @@ const AlumniUsersList = () => {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0">
                               {alumni.profileImage ? (
                                 <img
                                   src={`${API_BASE}/${alumni.profileImage}`}
@@ -703,7 +1060,7 @@ const AlumniUsersList = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                                <div className="w-full h-full bg-linear-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
                                   {alumni.firstName.charAt(0)}
                                   {alumni.lastName && alumni.lastName.charAt(0)}
                                 </div>
@@ -782,6 +1139,14 @@ const AlumniUsersList = () => {
                                 <CheckCircle size={14} />
                               </button>
                             )}
+                            <button
+                              onClick={() => beginEdit(alumni)}
+                              className="inline-flex items-center gap-1 rounded-lg bg-amber-100 px-2 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-200 transition-colors"
+                              title="Edit alumni profile"
+                            >
+                              <Pencil size={14} />
+                              Edit
+                            </button>
                             <button
                               className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                               title="View Details"
@@ -889,7 +1254,7 @@ const AlumniUsersList = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-[1000] p-4 backdrop-blur-sm"
+              className="fixed inset-0 bg-[#0c0e1a]/60 flex items-center justify-center z-1000 p-4 backdrop-blur-sm"
               onClick={() => setSelectedItem(null)}
             >
               <motion.div
@@ -912,7 +1277,7 @@ const AlumniUsersList = () => {
                   <>
                     {/* Header with Profile Image */}
                     <div className="flex items-center gap-4 mb-7 pb-5 border-b border-slate-100">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
                         {selectedItem.profileImage ? (
                           <img
                             src={`${API_BASE}/${selectedItem.profileImage}`}
@@ -948,6 +1313,30 @@ const AlumniUsersList = () => {
                           v: selectedItem.currentCompany || "N/A",
                         },
                         { l: "Job Title", v: selectedItem.jobTitle || "N/A" },
+                        { l: "Batch range", v: `${selectedItem.studyStartYear || ""}-${selectedItem.studyEndYear || ""}` },
+                        {
+                          l: "Postal address",
+                          v: [
+                            selectedItem.postalAddress?.line1,
+                            selectedItem.postalAddress?.line2,
+                            selectedItem.postalAddress?.city,
+                            selectedItem.postalAddress?.state,
+                            selectedItem.postalAddress?.pincode,
+                            selectedItem.postalAddress?.country,
+                          ].filter(Boolean).join(", ") || selectedItem.fullAddress || "N/A",
+                        },
+                        {
+                          l: "Membership receipt",
+                          v: selectedItem.membershipPayment?.receiptNumber || "N/A",
+                        },
+                        {
+                          l: "Payment reference",
+                          v: selectedItem.membershipPayment?.transactionId || "N/A",
+                        },
+                        {
+                          l: "Receipt email",
+                          v: selectedItem.membershipPayment?.receiptEmailStatus || "N/A",
+                        },
                         { l: "City", v: selectedItem.city || "N/A" },
                         { l: "Country", v: selectedItem.country || "N/A" },
                       ].map((it) => (
@@ -959,7 +1348,7 @@ const AlumniUsersList = () => {
                             {it.l}
                           </p>
 
-                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 break-words">
+                          <p className="text-[14px] font-semibold text-[#0c0e1a] mt-1 wrap-break-word">
                             {it.v}
                           </p>
                         </div>
@@ -980,6 +1369,29 @@ const AlumniUsersList = () => {
 
                     {/* Actions */}
                     <div className="flex flex-wrap gap-3 pt-6 mt-6 border-t border-slate-100">
+                      <button
+                        onClick={() => beginEdit(selectedItem)}
+                        className="inline-flex items-center gap-2 rounded-xl border border-blue-200 px-4 py-3 font-semibold text-blue-700 hover:bg-blue-50"
+                      >
+                        <Pencil size={16} />
+                        Edit details
+                      </button>
+                      {selectedItem.membershipPayment?.status === "paid" && (
+                        <button
+                          disabled={resendingReceipt}
+                          onClick={() => resendReceipt(selectedItem)}
+                          className="rounded-xl border border-emerald-200 px-4 py-3 font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50"
+                        >
+                          {resendingReceipt ? "Sending..." : "Resend receipt"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => deleteAlumniRecord(selectedItem)}
+                        className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-3 font-semibold text-rose-700 hover:bg-rose-50"
+                      >
+                        <Trash2 size={16} />
+                        Delete
+                      </button>
                       {!selectedItem.isApproved && (
                         <button
                           onClick={() => handleApprove(selectedItem._id)}
@@ -1043,6 +1455,176 @@ const AlumniUsersList = () => {
                   </>
                 )}
               </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {editingItem && editForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-1100 flex items-center justify-center bg-slate-950/60 p-4"
+              onClick={() => {
+                setEditingItem(null);
+                setEditForm(null);
+              }}
+            >
+              <motion.form
+                initial={{ y: 12, scale: 0.98 }}
+                animate={{ y: 0, scale: 1 }}
+                exit={{ y: 12, scale: 0.98 }}
+                onSubmit={saveAlumniEdit}
+                onClick={(event) => event.stopPropagation()}
+                className="max-h-[90vh] w-full max-w-3xl space-y-4 overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+              >
+                <h2 className="text-xl font-bold text-slate-900">
+                  Edit alumni membership details
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {                  [
+                    ["firstName", "First name"],
+                    ["lastName", "Last name"],
+                    ["email", "Email"],
+                    ["phone", "Contact number"],
+                    ["jobTitle", "Current designation"],
+                    ["currentCompany", "Organization"],
+                    ["occupation", "Occupation"],
+                  ].map(([field, label]) => (
+                    <label key={field} className="space-y-1 text-sm text-slate-700">
+                      <span>{label}</span>
+                      <input
+                        value={editForm[field] || ""}
+                        onChange={(event) =>
+                          setEditForm((current) => ({
+                            ...current,
+                            [field]: event.target.value,
+                          }))
+                        }
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <h3 className="pt-2 font-semibold text-slate-800">
+                  Education history
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Use one entry per qualification, separated by “ &amp; ”. Batch format: YYYY-YYYY. Subject format: Department / Degree.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ["batchDetails", "Batch details"],
+                    ["departmentDetails", "Department / subject details"],
+                  ].map(([field, label]) => (
+                    <label key={field} className="space-y-1 text-sm text-slate-700">
+                      <span>{label}</span>
+                      <textarea
+                        value={editForm[field] || ""}
+                        onChange={(event) =>
+                          setEditForm((current) => ({
+                            ...current,
+                            [field]: event.target.value,
+                          }))
+                        }
+                        rows={3}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <h3 className="pt-2 font-semibold text-slate-800">Postal address</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ["line1", "Address line 1"],
+                    ["line2", "Address line 2"],
+                    ["city", "City"],
+                    ["state", "State"],
+                    ["pincode", "PIN code"],
+                    ["country", "Country"],
+                  ].map(([field, label]) => (
+                    <label key={field} className="space-y-1 text-sm text-slate-700">
+                      <span>{label}</span>
+                      <input
+                        value={editForm.postalAddress[field] || ""}
+                        onChange={(event) =>
+                          setEditForm((current) => ({
+                            ...current,
+                            postalAddress: {
+                              ...current.postalAddress,
+                              [field]: event.target.value,
+                            },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <h3 className="pt-2 font-semibold text-slate-800">
+                  Professional location
+                </h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ["line1", "Office address line 1"],
+                    ["line2", "Office address line 2"],
+                    ["city", "Office city"],
+                    ["state", "Office state"],
+                    ["pincode", "Office PIN code"],
+                    ["country", "Office country"],
+                  ].map(([field, label]) => (
+                    <label key={field} className="space-y-1 text-sm text-slate-700">
+                      <span>{label}</span>
+                      <input
+                        value={editForm.officeAddress[field] || ""}
+                        onChange={(event) =>
+                          setEditForm((current) => ({
+                            ...current,
+                            officeAddress: {
+                              ...current.officeAddress,
+                              [field]: event.target.value,
+                            },
+                          }))
+                        }
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      />
+                    </label>
+                  ))}
+                </div>
+                <label className="block space-y-1 text-sm text-slate-700">
+                  <span>Full address (legacy/display)</span>
+                  <textarea
+                    value={editForm.fullAddress || ""}
+                    onChange={(event) =>
+                      setEditForm((current) => ({
+                        ...current,
+                        fullAddress: event.target.value,
+                      }))
+                    }
+                    rows={2}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                  />
+                </label>
+                {toolsError && <p role="alert" className="text-sm text-rose-700">{toolsError}</p>}
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingItem(null);
+                      setEditForm(null);
+                    }}
+                    className="rounded-lg border px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    disabled={savingEdit}
+                    className="rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white disabled:opacity-50"
+                  >
+                    {savingEdit ? "Saving..." : "Save changes"}
+                  </button>
+                </div>
+              </motion.form>
             </motion.div>
           )}
         </AnimatePresence>

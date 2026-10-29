@@ -233,7 +233,7 @@ const NewsDetailPage = () => {
                       { icon: <Calendar size={14} />, label: "Published", value: formatDate(newsletter.date) },
                       { icon: <User     size={14} />, label: "Author",    value: newsletter.author || "Anonymous" },
                       // { icon: <Clock    size={14} />, label: "Created",   value: formatDate(newsletter.createdAt) },
-                    ].map(({ icon, label, value }) => (
+                    ].map(({ label, value }) => (
                       <div key={label} className="flex items-center gap-2.5 text-[13.5px] text-[#4b5261]">
                         <span className="text-[#1a3d6e] shrink-0">{  }</span>
                         <span className="font-semibold text-[#8891a4] min-w-[70px]">{label}</span>

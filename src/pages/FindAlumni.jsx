@@ -163,8 +163,8 @@ const FindAlumni = () => {
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            font-weight: 700;
-          }
+            font-weight: 700;               
+          } 
 
           .logout-btn {
             display: flex;
@@ -231,7 +231,7 @@ const FindAlumni = () => {
 
           .quick-card:hover::before {
             left: 0;
-          }
+          }-
 
           .quick-card:hover {
             transform: translateY(-8px);
@@ -331,7 +331,7 @@ const FindAlumni = () => {
 
         <div className="alumni-hub-wrapper">
           <div className="alumni-hub-container">
-            {/* Welcome Header */}
+             
             <div
               className="hub-header"
               style={{

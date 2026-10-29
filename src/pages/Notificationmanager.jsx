@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Award, Briefcase, Zap, Star, Users, Image as ImageIcon } from "lucide-react";
 
 const NotableAlumni = () => {
-  const [hoveredId, setHoveredId] = useState(null);
+  const [, setHoveredId] = useState(null);
 
   const alumni = [
     {

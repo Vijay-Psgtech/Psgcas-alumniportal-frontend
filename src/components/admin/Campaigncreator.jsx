@@ -579,7 +579,7 @@ const CampaignCreator = ({ onCampaignCreated = () => {} }) => {
                 Added Fields ({formData.formFields.length})
               </h3>
               <div className="space-y-3">
-                {formData.formFields.map((field, idx) => (
+                {formData.formFields.map((field) => (
                   <div
                     key={field.fieldId}
                     className="flex items-center justify-between p-4 bg-slate-50 rounded-xl"

@@ -55,31 +55,41 @@ export const authAPI = {
     api.post("/auth/reset-password", { email, otp, newPassword }),
 };
 
+export const membershipPaymentAPI = {
+  getFee: () => api.get("/payment/membership-fee"),
+};
+
 // Banner Service
 export const bannerService = {
   async getActiveBanner() {
     try {
       const response = await api.get("/banners/active");
-      return { success: true, data: response.data?.data || response.data };
+      return {
+        success: true,
+        data: response.data?.data ?? response.data,
+      };
     } catch (error) {
       console.warn("Banner API Error:", error.message);
       return { success: false, data: null };
     }
   },
 
-  async getAllBanners() {
+  async getAllBanners() { 
     const response = await api.get("/banners");
-    return response.data;
+    return response.data; 
   },
 
   async createBanner(bannerData) {
-    const response = await api.post("/banners", bannerData);
+    const response = await api.post("/banners", bannerData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   },
 
-  async updateBanner(bannerData) {
-    const bannerId = bannerData._id || bannerData.id;
-    const response = await api.put(`/banners/${bannerId}`, bannerData);
+  async updateBanner(bannerId, formData) {
+    const response = await api.put(`/banners/${bannerId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   },
 
@@ -94,11 +104,19 @@ export const bannerService = {
   },
 };
 
-// Notification Scroll Service
+
+// Notification Scroll Service  
 export const notificationService = {
   async getActiveNotifications() {
     try {
       const response = await api.get("/notification-scrolls/active");
+      
+      // Guard against HTML error pages
+      if (typeof response.data === "string") {
+        console.error("Server returned HTML instead of JSON — check backend route registration for /notification-scrolls");
+        return { success: false, data: [] };
+      }
+      
       return { success: true, data: response.data?.data || [] };
     } catch (error) {
       console.warn("Notifications API Error:", error.message);
@@ -108,6 +126,9 @@ export const notificationService = {
 
   async getAllNotifications() {
     const response = await api.get("/notification-scrolls");
+    if (typeof response.data === "string") {
+      throw new Error("Route /notification-scrolls not found on backend — got HTML response");
+    }
     return response.data;
   },
 
@@ -175,7 +196,7 @@ export const campaignService = {
   publishResponse: (responseId, title) =>
     api.post(`/campaigns/response/${responseId}/publish`, { title }),
   exportResponses: (campaignId, params = {}) =>
-    api.get(`/campaigns/${campaignId}/responses/export`, {
+    api.get(`/campaigns/${campaignId}/responses/export`, {  
       params,
       responseType: "blob",
     }),
@@ -246,10 +267,49 @@ export const departmentAPI = {
 export const adminAPI = {
   getStats: () => api.get("/admin/dashboard/stats"),
   getAllAlumni: (params) => api.get("/admin/dashboard/alumni/all", { params }),
+  exportAlumniCsv: (params) =>
+    api.get("/admin/dashboard/alumni/export.csv", {
+      params,
+      responseType: "blob",
+    }),
+  importAlumniCsv: (data) =>
+    api.post("/admin/dashboard/alumni/import", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  findAlumniDuplicates: () => api.get("/admin/dashboard/alumni/duplicates"),
+  updateAlumni: (id, data) => api.put(`/admin/dashboard/alumni/${id}`, data),
+  deleteAlumni: (id) => api.delete(`/admin/dashboard/alumni/${id}`),
+  resendMembershipReceipt: (id) =>
+    api.post(`/admin/dashboard/alumni/${id}/resend-receipt`),
   getPendingAlumni: () => api.get("/admin/pending"),
   approveAlumni: (id) => api.put(`/admin/approve/${id}`),
   rejectAlumni: (id) => api.put(`/admin/reject/${id}`),
   getAllDonations: () => api.get("/admin/dashboard/donations/all"),
+};
+
+export const siteContentAPI = {
+  getPublic: (type) => api.get(`/site-content/${type}`),
+  getAdmin: (type) => api.get(`/site-content/admin/${type}`),
+  updateSection: (type, data) =>
+    api.put(`/site-content/admin/${type}/section`, data),
+  createProfile: (type, data) =>
+    api.post(`/site-content/admin/${type}`, data, {
+      headers:
+        typeof FormData !== "undefined" && data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+    }),
+  updateProfile: (type, id, data) =>
+    api.put(`/site-content/admin/${type}/${id}`, data, {
+      headers:
+        typeof FormData !== "undefined" && data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+    }),
+  deleteProfile: (type, id) =>
+    api.delete(`/site-content/admin/${type}/${id}`),
+  seedProfiles: (type, profiles) =>
+    api.post(`/site-content/admin/${type}/seed`, { profiles }),
 };
 
 // Events API

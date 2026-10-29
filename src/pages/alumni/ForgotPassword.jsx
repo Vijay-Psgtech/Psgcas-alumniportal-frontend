@@ -52,8 +52,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const res = await authAPI.verifyOtp(email, otp);
-      const data = res.data || {};
+      await authAPI.verifyOtp(email, otp);
       setStep(STEPS.RESET);
     } catch (err) {
       const errorMessage =
@@ -72,8 +71,7 @@ export default function ForgotPassword() {
     if (password !== confirm) { setError("Passwords do not match."); return; }
     setLoading(true);
     try {
-      const res = await authAPI.resetPassword(email, otp, password);
-      const data = res.data || {};
+      await authAPI.resetPassword(email, otp, password);
       setStep(STEPS.DONE);
     } catch (err) {
       const errorMessage =

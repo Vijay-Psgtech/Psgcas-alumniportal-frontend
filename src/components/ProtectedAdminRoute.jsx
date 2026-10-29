@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useAutoLogout from "../hooks/useAutoLogout";
 
-const ProtectedAdminRoute = ({ children }) => {
+const ProtectedAdminRoute = ({ children }) => {   
   const { user, authLoading } = useAuth();
 
   useAutoLogout();

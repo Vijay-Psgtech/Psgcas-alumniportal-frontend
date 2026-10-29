@@ -96,7 +96,6 @@ const SendNotification = ({ onClose, onSuccess }) => {
   };
 
   const isImage = attachment && attachment.type.startsWith("image/");
-  const isPDF = attachment && attachment.type === "application/pdf";
 
   return (
     <>

@@ -40,8 +40,6 @@ const AdminLogin = () => {
         return;
       }
 
-      console.log("🔐 Attempting admin login with:", { email });
-
       const response = await authAPI.login({ email, password });
 
       // Server sets HttpOnly cookie automatically — no token in response body
@@ -65,7 +63,6 @@ const AdminLogin = () => {
         return;
       }
 
-      console.log("✅ Admin login successful");
       await authLogin(user); // seed AuthContext state; cookie already set by server
       navigate("/admin/dashboard");
     } catch (err) {

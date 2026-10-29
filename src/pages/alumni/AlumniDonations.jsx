@@ -11,7 +11,7 @@ import { donationAPI } from "../../services/api";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const AlumniDonations = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   usePageTitle("Make a Donation");
   

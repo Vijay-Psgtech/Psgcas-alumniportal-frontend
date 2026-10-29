@@ -187,7 +187,7 @@ const EventCard = ({ event, idx }) => {
                 overflow: "hidden",
                 fontFamily: "'Poppins', sans-serif",
               }}
-            >
+            >     
               {event.description}
             </p>
           </div>
@@ -279,10 +279,6 @@ const PastEventsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   usePageTitle("Events");
 
-  useEffect(() => {
-    fetchPastEvents();
-  }, []);
-
   // ✅ Fetch Upcoming events from API
   const fetchPastEvents = async () => {
     try {
@@ -294,6 +290,10 @@ const PastEventsPage = () => {
       setpastEvents([]);
     }
   };
+
+  useEffect(() => {
+    fetchPastEvents();
+  }, []);
 
   const filteredEvents = pastEvents.filter((e) => {
     const matchSearch =

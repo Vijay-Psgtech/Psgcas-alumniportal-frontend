@@ -1,20 +1,63 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Patrons } from "../content/data/PatronsData";
+import { API_BASE, siteContentAPI } from "../services/api";
 import usePageTitle from "../hooks/usePageTitle";
 
 const LeadershipPage = () => {
   usePageTitle("Leadership Team");
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [animatedStats, setAnimatedStats] = useState({});
+  const [, setHoveredCard] = useState(null);
+  const [patrons, setPatrons] = useState(Patrons);
+  const [sectionTitle, setSectionTitle] = useState("Meet Our Team");
+  const [sectionDescription, setSectionDescription] = useState(
+    "Visionary leaders and mentors dedicated to institutional excellence and student success",
+  );
+
+  useEffect(() => {
+    let active = true;
+    siteContentAPI
+      .getPublic("leadership")
+      .then(({ data }) => {
+        if (!active || !data?.managed) return;
+        const managedProfiles = (data.profiles || []).map((profile) => ({
+          ...profile,
+          image: profile.image
+            ? /^https?:\/\//i.test(profile.image) || profile.image.startsWith("/")
+              ? profile.image
+              : `${API_BASE}/${profile.image}`
+            : "",
+        }));
+        if (data.section?.title) setSectionTitle(data.section.title);
+        if (data.section?.description)
+          setSectionDescription(data.section.description);
+        if (data.section?.replaceProfiles) {
+          setPatrons(managedProfiles);
+        } else if (managedProfiles.length) {
+          setPatrons([...Patrons, ...managedProfiles]);
+        }
+      })
+      .catch((error) => {
+        console.warn("Could not load managed leadership profiles:", error.message);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Organize patrons by role/category for role-wise UI sections
-  const chiefPatron = Patrons.find(
-    (p) => p.rank === "Chief Patron" || p.role === "Managing Trustee",
+  const CHIEF_PATRON_RANKS = ["Chief Patron", "Cheif Patron"];
+  const chiefPatron = patrons.find(
+    (p) =>
+      CHIEF_PATRON_RANKS.includes(p.rank) ||
+      p.role?.toLowerCase().includes("managing trustee"),
   );
 
   const roleGroupsConfig = [
-    { title: "Patrons", roles: ["Secretary", "Principal"], rank: "Patron" },
+    {
+      title: "Patrons",
+      roles: ["Secretary", "Principal"],
+      ranks: ["Patron"],
+    },
     {
       title: "Office Bearers",
       roles: [
@@ -25,12 +68,12 @@ const LeadershipPage = () => {
         "Auditor",
         "Co-ordinator",
       ],
-      rank: "Office Bearer"
+      ranks: ["Office Bearer"],
     },
     {
       title: "Executive Committee Members",
       roles: ["EC Member", "Executive Committee Member"],
-      rank: "Executive Committee Members"
+      ranks: ["Executive Committee Members"],
     },
     {
       title: "Past Presidents",
@@ -39,17 +82,17 @@ const LeadershipPage = () => {
         "Past President",
         "Immediate Past President",
       ],
-      rank: "Past Presidents"
+      ranks: ["Past Presidents"],
     },
   ];
 
   const groupedPatrons = roleGroupsConfig.map((group) => ({
     ...group,
-    members: Patrons.filter((p) => group.rank.includes(p.rank)),
+    members: patrons.filter((p) => group.ranks.includes(p.rank)),
   }));
 
   // const otherMembers = Patrons.filter(
-  //   (p) => !roleGroupsConfig.some((group) => group.rank.includes(p.rank)),
+  //   (p) => !roleGroupsConfig.some((group) => group.ranks.includes(p.rank)),
   // );
 
   // if (otherMembers.length) {
@@ -60,33 +103,6 @@ const LeadershipPage = () => {
   //   });
   // }
 
-  // Animation for counting stats
-  useEffect(() => {
-    const stats = [
-      { key: "members", target: 27 },
-      { key: "commitment", target: 100 },
-      { key: "alumni", target: 10 },
-      { key: "rank", target: 1 },
-    ];
-
-    stats.forEach((stat) => {
-      let current = 0;
-      const increment = stat.target / 30;
-      const interval = setInterval(() => {
-        current += increment;
-        if (current >= stat.target) {
-          setAnimatedStats((prev) => ({ ...prev, [stat.key]: stat.target }));
-          clearInterval(interval);
-        } else {
-          setAnimatedStats((prev) => ({
-            ...prev,
-            [stat.key]: Math.floor(current),
-          }));
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    });
-  }, []);
 
   // Advanced animation variants
   const pageVariants = {
@@ -131,19 +147,7 @@ const LeadershipPage = () => {
     },
   };
 
-  const floatingVariants = {
-    animate: {
-      y: [0, -20, 0],
-      transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-    },
-  };
 
-  const rotateVariants = {
-    animate: {
-      rotate: 360,
-      transition: { duration: 20, repeat: Infinity, linear: true },
-    },
-  };
 
   return (
     <>
@@ -795,12 +799,11 @@ const LeadershipPage = () => {
               </motion.div>
 
               <motion.h1 variants={itemVariants} className="hero-title">
-                Meet Our Team
+                {sectionTitle}
               </motion.h1>
 
               <motion.p variants={itemVariants} className="hero-subtitle">
-                Visionary leaders and mentors dedicated to institutional
-                excellence and student success
+                {sectionDescription}
               </motion.p>
 
               <motion.div

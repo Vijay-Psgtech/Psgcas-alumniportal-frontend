@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Award, Heart, Users, Zap, ArrowRight } from "lucide-react";
 import leaderImage1 from "../assets/Images/250.png";
 import leaderImage2 from "../assets/Images/251.png";
 
 const WelcomeSection = () => {
-  const [selectedCard, setSelectedCard] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
+  const [, setSelectedCard] = useState(null);
 
   const handleImageError = (leaderId) => {
     console.warn(`Image failed to load for leader ${leaderId}`);

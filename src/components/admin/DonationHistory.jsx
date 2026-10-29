@@ -54,8 +54,6 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
   const [editingNote, setEditingNote] = useState(false);
   const [adminNote, setAdminNote] = useState("");
 
-  // Multi-select for bulk actions
-  const [selectedDonations, setSelectedDonations] = useState(new Set());
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState("");
@@ -411,18 +409,6 @@ export const DonationHistory = ({ isSuperAdmin = false }) => {
 
     setSuccess("Donations exported successfully");
     setTimeout(() => setSuccess(null), 3000);
-  };
-
-  const toggleSelectDonation = (donationId) => {
-    setSelectedDonations((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(donationId)) {
-        newSet.delete(donationId);
-      } else {
-        newSet.add(donationId);
-      }
-      return newSet;
-    });
   };
 
   // ═════════════════════════════════════════════════════════════════════════

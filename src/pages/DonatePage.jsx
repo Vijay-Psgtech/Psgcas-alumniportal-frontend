@@ -50,7 +50,8 @@ const G = `
     overflow-x: hidden;
     min-height: 100vh;
   }
-
+style scoped>
+        
   /* ── HERO ─────────────────────────────── */
   .jog-hero {
     background: var(--navy);
@@ -84,7 +85,7 @@ const G = `
   .jog-hero h1 {
     font-family: 'Libre Baskerville', serif;
     font-size: clamp(36px, 5.5vw, 68px);
-    font-weight: 700; color: var(--white);
+    font-weigh  t: 700; color: var(--white);
     line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 18px;
   }
   .jog-hero h1 em { font-style: italic; color: var(--gold3); }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, use } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Images,
@@ -123,7 +123,6 @@ const GalleryPage = () => {
   const [search, setSearch] = useState("");
   const [filterYear, setFilterYear] = useState("");
   const [gridDense, setGridDense] = useState(false);
-  const [imgLoadMap, setImgLoadMap] = useState({}); // track loaded state per img
   usePageTitle("Gallery");
 
   /* ── fetch ── */
@@ -136,7 +135,7 @@ const GalleryPage = () => {
           ? res.data
           : (res.data?.data ?? res.data?.albums ?? []);
         setAlbums(data);
-      } catch (e) {
+      } catch {
         setError("Could not load albums. Please try again.");
       } finally {
         setLoading(false);
@@ -159,7 +158,7 @@ const GalleryPage = () => {
       if (e.key === "ArrowLeft")
         setLightboxIdx((i) => (i - 1 + imgs.length) % imgs.length);
       if (e.key === "Escape") setLightboxIdx(null);
-    };
+    }; 
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxIdx, activeImages]);
@@ -234,7 +233,7 @@ const GalleryPage = () => {
             onClick={() => window.location.reload()}
             className="mt-4 px-5 py-2 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 transition-colors"
           >
-            Retry
+            Retry 
           </button>
         </div>
       </div>
@@ -376,11 +375,11 @@ const GalleryPage = () => {
           )}
         </div>
 
-        {/* ── Lightbox ── */}
+        {/* ── Lightbox ── */}  
         <AnimatePresence>
           {lightboxIdx !== null && images[lightboxIdx] && (
             <motion.div
-              className="fixed inset-0 z-[2000] bg-slate-900/85 flex items-center justify-center"
+              className="fixed inset-0 z-2000 bg-slate-900/85 flex items-center justify-center"
               initial="hidden"
               animate="visible"
               onClick={closeLightbox}
@@ -449,7 +448,7 @@ const GalleryPage = () => {
                       e.stopPropagation();
                       setLightboxIdx(i);
                     }}
-                    className={`flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden transition-all duration-200 ${i === lightboxIdx ? "ring-2 opacity-100 scale-110" : "opacity-40 hover:opacity-70"}`}
+                    className={`shrink-0 w-10 h-10 rounded-lg overflow-hidden transition-all duration-200 ${i === lightboxIdx ? "ring-2 opacity-100 scale-110" : "opacity-40 hover:opacity-70"}`}
                     style={{ ringColor: activeAlbum.accent }}
                   >
                     <ImgWithFallback
@@ -541,7 +540,7 @@ const GalleryPage = () => {
           </div>
 
           {/* Accent separator */}
-          <div className="mt-6 h-px bg-gradient-to-r from-indigo-500/40 via-slate-300 to-transparent" />
+          <div className="mt-6 h-px bg-linear-to-r from-indigo-500/40 via-slate-300 to-transparent" />
         </motion.div>
       </div>
 
@@ -563,7 +562,8 @@ const GalleryPage = () => {
               >
                 Clear filters
               </button>
-            )}
+            )} 
+             
           </div>
         ) : (
           <motion.div
@@ -581,7 +581,7 @@ const GalleryPage = () => {
                 <motion.div
                   key={album.id || i}
                   variants={stagger(0)}
-                  whileHover={{ y: -6 }}
+                  whileHover={{ y: -6 }}   
                   whileTap={{ scale: 0.98 }}
                   onClick={() => openAlbum(album)}
                   className="group relative overflow-hidden rounded-2xl cursor-pointer border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
@@ -594,7 +594,7 @@ const GalleryPage = () => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
+                    <div className="absolute inset-0 bg-linear-to-t from-white via-transparent to-transparent opacity-40" />
 
                     <div
                       className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -622,6 +622,7 @@ const GalleryPage = () => {
                       {album.year}
                     </div>
                   </div>
+                
 
                   {/* Card body */}
                   <div className="px-5 py-4">

@@ -6,14 +6,13 @@
 // ✅ FIXED: Proper FormData field appending (not wrapped in payload)
 // ✅ FIXED: alumniId mapping from _id
 
-import React, { useState, useCallback, useEffect, useRef, use } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   UserPlus,
   AlertCircle,
   Check,
-  Clock,
   ChevronRight,
   ChevronLeft,
   GraduationCap,
@@ -29,8 +28,11 @@ import {
   Calendar,
   Info,
 } from "lucide-react";
-import { authAPI, departmentAPI } from "../../services/api";
-import { useAuth } from "../../context/AuthContext";
+import {
+  authAPI,
+  departmentAPI,
+  membershipPaymentAPI,
+} from "../../services/api";
 import usePageTitle from "../../hooks/usePageTitle";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -293,12 +295,11 @@ const FileUpload = ({
 // ─── Main Component ──────────────────────────────────────────────────────────
 const AlumniRegistration = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [registered, setRegistered] = useState(false);
+  const [paymentResult, setPaymentResult] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -310,6 +311,7 @@ const AlumniRegistration = () => {
   // ✅ DYNAMIC DEPARTMENTS STATE
   const [departments, setDepartments] = useState([]);
   const [departmentsLoading, setDepartmentsLoading] = useState(false);
+  const [membershipFee, setMembershipFee] = useState(null);
 
   usePageTitle("Sign Up");
 
@@ -341,6 +343,7 @@ const AlumniRegistration = () => {
     batchYear: "",
     studyStartYear: "",
     studyEndYear: "",
+    educationHistory: [],
     // Employment
     jobTitle: "",
     companyName: "",
@@ -371,6 +374,18 @@ const AlumniRegistration = () => {
 
   // ✅ FETCH DEPARTMENTS DYNAMICALLY
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    if (payment === "success" || payment === "failed") {
+      setPaymentResult({
+        status: payment,
+        receiptNumber: params.get("receipt") || "",
+      });
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchDepartments = async () => {
       try {
         setDepartmentsLoading(true);
@@ -387,6 +402,21 @@ const AlumniRegistration = () => {
     };
 
     fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    membershipPaymentAPI
+      .getFee()
+      .then(({ data }) => {
+        if (active) setMembershipFee(data);
+      })
+      .catch((error) => {
+        console.error("Could not load membership fee:", error);
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -589,6 +619,18 @@ const AlumniRegistration = () => {
       if (!form.batchYear) e.batchYear = "Batch year required";
       if (!form.studyStartYear) e.studyStartYear = "Start year required";
       if (!form.studyEndYear) e.studyEndYear = "End year required";
+      if (
+        form.educationHistory.some(
+          (entry) =>
+            !entry.department.trim() ||
+            !entry.degree.trim() ||
+            !entry.studyStartYear ||
+            !entry.studyEndYear,
+        )
+      ) {
+        e.educationHistory =
+          "Complete all fields for each additional qualification or remove the blank entry.";
+      }
     }
     if (step === 3) {
       if (!form.jobTitle.trim()) e.jobTitle = "Job title is required";
@@ -604,6 +646,8 @@ const AlumniRegistration = () => {
       if (!form.resCity.trim()) e.resCity = "City required";
       if (!form.resState.trim()) e.resState = "State required";
       if (!form.resCountry.trim()) e.resCountry = "Country required";
+      if (!form.resAddress1.trim()) e.resAddress1 = "Street address required";
+      if (!form.resPincode.trim()) e.resPincode = "PIN code required";
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -652,6 +696,15 @@ const AlumniRegistration = () => {
           batchYear: form.batchYear,
           studyStartYear: form.studyStartYear,
           studyEndYear: form.studyEndYear,
+          educationHistory: [
+            {
+              department: form.programmeName.trim(),
+              degree: form.degree.trim(),
+              studyStartYear: form.studyStartYear,
+              studyEndYear: form.studyEndYear,
+            },
+            ...form.educationHistory,
+          ],
 
           // Employment
           jobTitle: form.jobTitle.trim(),
@@ -679,6 +732,14 @@ const AlumniRegistration = () => {
           city: form.resCity.trim(),
           country: form.resCountry.trim(),
           fullAddress: `${form.resAddress1}, ${form.resAddress2}, ${form.resCity}, ${form.resState} - ${form.resPincode}, ${form.resCountry}`,
+          postalAddress: {
+            line1: form.resAddress1.trim(),
+            line2: form.resAddress2.trim(),
+            city: form.resCity.trim(),
+            state: form.resState.trim(),
+            pincode: form.resPincode.trim(),
+            country: form.resCountry.trim(),
+          },
           coordinates: form.resCoordinates.length ? form.resCoordinates : [],
         };
 
@@ -704,6 +765,10 @@ const AlumniRegistration = () => {
         formData.append("batchYear", payload.batchYear);
         formData.append("studyStartYear", payload.studyStartYear);
         formData.append("studyEndYear", payload.studyEndYear);
+        formData.append(
+          "educationHistory",
+          JSON.stringify(payload.educationHistory),
+        );
 
         // Employment
         formData.append("jobTitle", payload.jobTitle);
@@ -725,6 +790,7 @@ const AlumniRegistration = () => {
         formData.append("city", payload.city);
         formData.append("country", payload.country);
         formData.append("fullAddress", payload.fullAddress);
+        formData.append("postalAddress", JSON.stringify(payload.postalAddress));
         formData.append("coordinates", JSON.stringify(payload.coordinates));
 
         // ✅ Append files
@@ -741,22 +807,11 @@ const AlumniRegistration = () => {
           formData.append("currentPhoto", files.currentPhoto);
 
         const response = await authAPI.register(formData);
-
-        let alumni = response.data?.data || response.data?.alumni;
-
-        if (alumni) {
-          // ✅ FIXED: Ensure alumniId exists by mapping from common ID field names
-          if (!alumni.alumniId && alumni._id) {
-            alumni.alumniId = alumni._id;
-          }
-          if (!alumni.alumniId && alumni.id) {
-            alumni.alumniId = alumni.id;
-          }
-
-          await login(alumni);
+        const paymentUrl = response.data?.paymentUrl;
+        if (!paymentUrl) {
+          throw new Error("Payment session was not returned by the server.");
         }
-
-        setRegistered(true);
+        window.location.assign(paymentUrl);
       } catch (err) {
         console.error("Registration error:", err);
         setErrors({
@@ -768,11 +823,11 @@ const AlumniRegistration = () => {
         setLoading(false);
       }
     },
-    [form, files, validate, login],
+    [form, files, validate],
   );
 
-  // ── Pending Approval Screen ────────────────────────────────────────────────
-  if (registered) {
+  if (paymentResult) {
+    const paymentSucceeded = paymentResult.status === "success";
     return (
       <div className="fixed inset-0 overflow-y-auto bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 flex items-center justify-center p-6 z-50">
         <motion.div
@@ -781,47 +836,36 @@ const AlumniRegistration = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="bg-white rounded-2xl shadow-xl border border-slate-100 p-10 max-w-md w-full text-center"
         >
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-200">
-            <Check size={36} className="text-white" />
+          <div className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center shadow-lg ${paymentSucceeded ? "bg-linear-to-br from-emerald-500 to-emerald-700 shadow-emerald-200" : "bg-linear-to-br from-rose-500 to-rose-700 shadow-rose-200"}`}>
+            {paymentSucceeded ? <Check size={36} className="text-white" /> : <AlertCircle size={36} className="text-white" />}
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2 tracking-tight">
-            Registration Submitted!
+            {paymentSucceeded ? "Payment Confirmed" : "Payment Not Completed"}
           </h2>
           <p className="text-sm text-slate-500 mb-8 leading-relaxed">
-            Your alumni profile has been submitted for review. An admin will
-            verify and approve your account. You'll receive full access once
-            approved.
+            {paymentSucceeded
+              ? "Your payment is verified and your membership profile has been saved. Your account is awaiting administrator approval."
+              : "No membership profile was created because the payment was not successful. You can start a new registration and try again."}
           </p>
 
-          <div className="space-y-3 text-left mb-8">
+          {paymentSucceeded && paymentResult.receiptNumber && (
+            <p className="mb-6 rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
+              Receipt number: <strong>{paymentResult.receiptNumber}</strong>
+            </p>
+          )}
+          {paymentSucceeded && (
+            <div className="space-y-3 text-left mb-8">
             {[
-              {
-                done: true,
-                color: "green",
-                label: "Account registered successfully",
-              },
-              { done: false, color: "yellow", label: "Admin approval pending" },
-              {
-                done: false,
-                color: "blue",
-                label: "Access alumni network & features",
-              },
-            ].map(({ done, color, label }, i) => (
+              { done: true, label: "Payment verified and profile saved" },
+              { done: false, label: "Administrator approval pending" },
+              { done: false, label: "Alumni portal access after approval" },
+            ].map(({ done, label }, i) => (
               <div key={i} className="flex items-center gap-3">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0
-                  ${
-                    done
-                      ? "bg-green-100 text-green-600"
-                      : color === "yellow"
-                        ? "bg-amber-100 text-amber-600"
-                        : "bg-blue-100 text-blue-600"
-                  }`}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${done ? "bg-green-100 text-green-600" : "bg-blue-100 text-blue-600"}`}
                 >
                   {done ? (
                     <Check size={13} />
-                  ) : color === "yellow" ? (
-                    <Clock size={13} />
                   ) : (
                     i + 1
                   )}
@@ -830,12 +874,13 @@ const AlumniRegistration = () => {
               </div>
             ))}
           </div>
+          )}
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(paymentSucceeded ? "/" : "/alumni/register")}
             className="w-full py-3 rounded-xl bg-linear-to-r from-[#0052ab] to-[#0073e6] text-white font-semibold text-sm tracking-wide hover:shadow-lg hover:shadow-blue-200 transition-all duration-200"
           >
-            Return to Home
+            {paymentSucceeded ? "Return to Home" : "Start Registration Again"}
           </button>
         </motion.div>
       </div>
@@ -1422,6 +1467,134 @@ const AlumniRegistration = () => {
                         </p>
                       </Field>
                     </div>
+                    <section className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-800">
+                            Additional completed programmes (optional)
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            Include each degree and its joining/completion years for complete batch records.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setForm((current) => ({
+                              ...current,
+                              educationHistory: [
+                                ...current.educationHistory,
+                                {
+                                  department: "",
+                                  degree: "",
+                                  studyStartYear: "",
+                                  studyEndYear: "",
+                                },
+                              ],
+                            }))
+                          }
+                          className="rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-blue-700"
+                        >
+                          Add qualification
+                        </button>
+                      </div>
+                      {form.educationHistory.map((entry, index) => (
+                        <div
+                          key={index}
+                          className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-2"
+                        >
+                          <label className="space-y-1 text-xs font-medium text-slate-600">
+                            <span>Department / subject</span>
+                            <input
+                              value={entry.department}
+                              onChange={(event) =>
+                                setForm((current) => ({
+                                  ...current,
+                                  educationHistory: current.educationHistory.map(
+                                    (item, itemIndex) =>
+                                      itemIndex === index
+                                        ? { ...item, department: event.target.value }
+                                        : item,
+                                  ),
+                                }))
+                              }
+                              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                            />
+                          </label>
+                          <label className="space-y-1 text-xs font-medium text-slate-600">
+                            <span>Degree / qualification</span>
+                            <input
+                              value={entry.degree}
+                              onChange={(event) =>
+                                setForm((current) => ({
+                                  ...current,
+                                  educationHistory: current.educationHistory.map(
+                                    (item, itemIndex) =>
+                                      itemIndex === index
+                                        ? { ...item, degree: event.target.value }
+                                        : item,
+                                  ),
+                                }))
+                              }
+                              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                            />
+                          </label>
+                          <label className="space-y-1 text-xs font-medium text-slate-600">
+                            <span>Year of joining</span>
+                            <YearPicker
+                              value={entry.studyStartYear}
+                              onChange={(value) =>
+                                setForm((current) => ({
+                                  ...current,
+                                  educationHistory: current.educationHistory.map(
+                                    (item, itemIndex) =>
+                                      itemIndex === index
+                                        ? { ...item, studyStartYear: value }
+                                        : item,
+                                  ),
+                                }))
+                              }
+                            />
+                          </label>
+                          <label className="space-y-1 text-xs font-medium text-slate-600">
+                            <span>Year of completion</span>
+                            <YearPicker
+                              value={entry.studyEndYear}
+                              onChange={(value) =>
+                                setForm((current) => ({
+                                  ...current,
+                                  educationHistory: current.educationHistory.map(
+                                    (item, itemIndex) =>
+                                      itemIndex === index
+                                        ? { ...item, studyEndYear: value }
+                                        : item,
+                                  ),
+                                }))
+                              }
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setForm((current) => ({
+                                ...current,
+                                educationHistory: current.educationHistory.filter(
+                                  (_, itemIndex) => itemIndex !== index,
+                                ),
+                              }))
+                            }
+                            className="justify-self-start text-xs font-semibold text-rose-700"
+                          >
+                            Remove qualification
+                          </button>
+                        </div>
+                      ))}
+                      {errors.educationHistory && (
+                        <p className="text-xs text-rose-700">
+                          {errors.educationHistory}
+                        </p>
+                      )}
+                    </section>
                   </motion.div>
                 )}
 
@@ -1841,6 +2014,23 @@ const AlumniRegistration = () => {
                 )}
               </AnimatePresence>
 
+              {step === STEPS.length && (
+                <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                  <p className="font-semibold">
+                    Membership fee:{" "}
+                    {membershipFee
+                      ? new Intl.NumberFormat("en-IN", {
+                          style: "currency",
+                          currency: membershipFee.currency || "INR",
+                        }).format(membershipFee.amount)
+                      : "Confirmed securely at checkout"}
+                  </p>
+                  <p className="mt-1">
+                    Your profile is saved only after the payment provider confirms successful payment.
+                  </p>
+                </div>
+              )}
+
               {/* Navigation Buttons */}
               <div
                 className={`flex mt-8 pt-6 border-t border-slate-100 ${step > 1 ? "justify-between" : "justify-end"}`}
@@ -1882,7 +2072,7 @@ const AlumniRegistration = () => {
                       </>
                     ) : (
                       <>
-                        <Check size={16} /> Submit Alumni Information
+                        <Check size={16} /> Continue to Secure Payment
                       </>
                     )}
                   </button>

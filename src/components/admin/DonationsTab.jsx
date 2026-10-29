@@ -22,13 +22,11 @@ export const DonationsTab = ({
   donationList = [],
   setSelectedItem = () => {},
   isSuperAdmin = false,
-  onFlagDonation = () => {},
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [selectedForBulk, setSelectedForBulk] = useState(new Set());
-  const [quickViewDonation, setQuickViewDonation] = useState(null);
 
   // Advanced search filters
   const [advancedFilters, setAdvancedFilters] = useState({
@@ -721,11 +719,7 @@ export const DonationsTab = ({
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="ml-3 text-gray-400 hover:text-emerald-600 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setQuickViewDonation(d);
-                }}
+                className="ml-3 text-gray-400 hover:text-emerald-600 transition-colors" onClick={(e) => e.stopPropagation()}
               >
                 <Eye size={18} />
               </motion.button>

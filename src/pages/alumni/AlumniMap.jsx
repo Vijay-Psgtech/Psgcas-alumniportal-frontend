@@ -1,7 +1,7 @@
 // src/pages/alumni/AlumniMap.jsx
 // ✅ Redesigned with Tailwind CSS — no custom <style> block
 
-import React, { useState, useEffect, useCallback, useMemo, use } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { alumniAPI, API_BASE } from "../../services/api";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";

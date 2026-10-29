@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 const WhatIsNew = () => {
-  const [hoveredCard, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
 
   const newsletters = [
@@ -957,8 +956,6 @@ const WhatIsNew = () => {
                 "--thumbnail": item.thumbnail,
               }}
               onClick={() => handleOpenPDF(item)}
-              onMouseEnter={() => setHoveredCard(item.id)}
-              onMouseLeave={() => setHoveredCard(null)}
               role="button"
               tabIndex={0}
               aria-label={`Open ${item.title}`}

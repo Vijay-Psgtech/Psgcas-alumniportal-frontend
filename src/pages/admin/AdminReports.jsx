@@ -148,8 +148,8 @@ const AdminReports = () => {
                 </p>
               </div>
 
-              <div className="mt-6 h-80">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="mt-6 h-80 min-w-0 w-full">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                   <BarChart
                     data={chartData}
                     margin={{ top: 20, right: 30, left: -10, bottom: 20 }}
@@ -204,9 +204,9 @@ const AdminReports = () => {
                 </p>
               </div>
 
-              <div className="mt-6 flex flex-col lg:flex-row gap-6">
-                <div className="h-64 w-full lg:w-1/2">
-                  <ResponsiveContainer width="100%" height="100%">
+              <div className="mt-6 flex min-w-0 flex-col gap-6 lg:flex-row">
+                <div className="h-64 min-w-0 w-full lg:w-1/2">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie
                         data={departmentData}
@@ -246,7 +246,7 @@ const AdminReports = () => {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="w-full lg:w-1/2 flex flex-col justify-center">
+                <div className="flex min-w-0 w-full flex-col justify-center lg:w-1/2">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2">
                     {departmentData.map((dept, index) => {
                       const colors = [

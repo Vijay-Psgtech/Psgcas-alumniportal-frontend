@@ -170,7 +170,7 @@ export default function NavBar() {
     if (label === "Find Alumni") setMobileDiscoverOpen((p) => !p);
     if (label === "Events") setMobileEventsOpen((p) => !p);
     if (label === "Admin") setMobileAlumniOpen((p) => !p);
-    if (label === "Access") setMobileAccessOpen((p) => !p); 
+    if (label === "Access") setMobileAccessOpen((p) => !p);
   };
 
   const isMobileDropdownOpen = (label) => {
