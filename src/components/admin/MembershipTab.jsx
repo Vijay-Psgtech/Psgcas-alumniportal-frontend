@@ -115,36 +115,91 @@ export const MembershipTab = ({ onError }) => {
     const escapeCsvValue = (value) => {
         if (value === null || value === undefined) return '';
         const stringValue = String(value);
-        if (/[",\n]/.test(stringValue)) {
+        if (/[",\r\n]/.test(stringValue)) {
             return `"${stringValue.replace(/"/g, '""')}"`;
         }
         return stringValue;
     };
 
     const handleExportCSV = () => {
-        const exportItems = filteredForExport.length > 0 ? filteredForExport : filtered;
+        const exportItems = filteredForExport;
         if (exportItems.length === 0) return;
 
-        const headers = ['Member Name', 'Email Address', 'Phone Number', 'Department', 'Batch', 'Roll Number', 'Job Title', 'Membership Status', 'Payment Method', 'Amount (INR)', 'Transaction ID', 'Transaction Date', 'Address'];
-        const rows = exportItems.map((m) => [
-            `${m.firstName || ''} ${m.lastName || ''}`,
-            m.email || '',
-            m.phone || '',
-            `${m.department || ''}`,
-            `${m.alumniId?.studyStartYear || ''} - ${m.alumniId?.studyEndYear || ''}`,
-            m.alumniId?.rollNumber || '',
-            m.alumniId?.jobTitle || '',
-            m.membershipStatus || '',
-            m.paymentId?.gatewayResponse?.mode || '',
-            m.amount || '',
-            m.txnid || '',
-            m.createdAt ? new Date(m.createdAt).toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            }) : m.completedAt || '',
-            `${m.address?.street || ''}, ${m.address?.city || ''}, ${m.address?.state || ''}, ${m.address?.pincode || ''}, ${m.address?.country || ''}`
-        ].map(escapeCsvValue));
+        const headers = [
+            'Transaction ID',
+            'Transaction Date and Time',
+            'Alumni Name',
+            'Batch Details (Year of Joining - Year of Completion)',
+            'Department / Subject',
+            'Email Address',
+            'Contact Number',
+            'Complete Postal Address (including PIN Code)',
+            'Current Professional Designation',
+            'Organization / Institution / Company',
+            'Professional Location',
+        ];
+        const rows = exportItems.map((m) => {
+            const alumni = m.alumniId || {};
+            const payment = m.paymentId || {};
+            const transactionDate = payment.completedAt || m.createdAt;
+            const parsedTransactionDate = transactionDate ? new Date(transactionDate) : null;
+            const transactionDateTime = parsedTransactionDate
+                && !Number.isNaN(parsedTransactionDate.getTime())
+                ? parsedTransactionDate.toLocaleString('en-IN', {
+                    timeZone: 'Asia/Kolkata',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true,
+                })
+                : '';
+            const degree = (alumni.degree || '').trim();
+            const department = (m.department || alumni.department || '').trim();
+            const departmentSubject = degree && department
+                && !degree.toLowerCase().includes(department.toLowerCase())
+                ? `${degree} ${department}`
+                : degree || department;
+            const postalAddressParts = [
+                alumni.fullAddress,
+                m.address?.street,
+                m.address?.line1,
+                m.address?.line2,
+                m.address?.city,
+                m.address?.state,
+                m.address?.pincode,
+                m.address?.country,
+            ].map((part) => (part || '').trim()).filter(Boolean);
+            const postalAddress = postalAddressParts.reduce((address, part) => {
+                if (address.toLowerCase().includes(part.toLowerCase())) return address;
+                return address ? `${address}, ${part}` : part;
+            }, '');
+            const officeAddress = alumni.officeAddress || {};
+            const professionalLocation = [
+                officeAddress.line1,
+                officeAddress.line2,
+                officeAddress.city || alumni.city,
+                officeAddress.state,
+                officeAddress.pincode,
+                officeAddress.country || alumni.country,
+            ].filter(Boolean).join(', ');
+
+            return [
+                payment.txnid || m.txnid || '',
+                transactionDateTime,
+                `${m.firstName || alumni.firstName || ''} ${m.lastName || alumni.lastName || ''}`.trim(),
+                [alumni.studyStartYear, alumni.studyEndYear].filter(Boolean).join('-'),
+                departmentSubject,
+                m.email || alumni.email || '',
+                m.phone || alumni.phone || '',
+                postalAddress,
+                alumni.jobTitle || alumni.occupation || '',
+                alumni.currentCompany || '',
+                professionalLocation,
+            ].map(escapeCsvValue);
+        });
 
         const csvContent = [
             headers.map(escapeCsvValue).join(','),
