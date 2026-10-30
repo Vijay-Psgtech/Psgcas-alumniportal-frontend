@@ -1,11 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { adminAPI } from "../../services/api";
-import { Download } from 'lucide-react';
-
-// Icons (can be replaced with icon library like lucide-react or react-icons)
-const SearchIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>;
-const FilterIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>;
-const ResetIcon = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>;
+import {
+    BadgeCheck,
+    Building2,
+    CalendarDays,
+    CreditCard,
+    Download,
+    GraduationCap,
+    IndianRupee,
+    Mail,
+    Phone,
+    RotateCcw,
+    Search,
+    SlidersHorizontal,
+    UsersRound,
+} from 'lucide-react';
 
 export const MembershipTab = ({ onError }) => {
     const [memberships, setMemberships] = useState([]);
@@ -111,6 +120,10 @@ export const MembershipTab = ({ onError }) => {
     const currentSlice = filtered;
 
     const hasActiveFilters = departmentFilter || paymentFilter || query;
+    const activeMemberCount = summary.activeMemberships
+        ?? memberships.filter((m) => (m.membershipStatus || '').toUpperCase() === 'ACTIVE').length;
+    const totalRevenue = summary.totalAmount
+        ?? memberships.reduce((sum, member) => sum + (member.amount || 0), 0);
 
     const escapeCsvValue = (value) => {
         if (value === null || value === undefined) return '';
@@ -227,315 +240,293 @@ export const MembershipTab = ({ onError }) => {
     );
 
     return (
-        <div className="w-full space-y-6">
-            {/* Header Section with Stats */}
-            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 rounded-2xl px-6 lg:px-8 py-4 lg:py-6 shadow-lg">
-                <div className="mb-8">
-                    <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">Membership Management</h1>
-                    <p className="text-blue-100">Overview, search and manage active members</p>
+        <div className="w-full space-y-5">
+            <section className="flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                <div>
+                    <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        Active membership overview
+                    </div>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Memberships</h1>
+                    <p className="mt-1 text-sm text-slate-500">Review active alumni and membership revenue.</p>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
-                    {/* Stat Card 1 - Total Members */}
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-blue-100 text-sm font-medium mb-2">Total Members</p>
-                                <p className="text-3xl lg:text-4xl font-bold text-white">{summary.totalMemberships || memberships.length}</p>
-                            </div>
-                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-blue-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">👥</div>
+                <div className="grid grid-cols-2 gap-3 sm:w-[min(100%,26rem)] sm:gap-4">
+                    <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">Active members</p>
+                            <span className="rounded-lg bg-white p-2 text-emerald-700 shadow-sm">
+                                <UsersRound size={17} />
+                            </span>
                         </div>
+                        <p className="mt-2 text-2xl font-bold tabular-nums text-slate-900">{activeMemberCount.toLocaleString()}</p>
                     </div>
-
-                    {/* Stat Card 2 - Active Members */}
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-blue-100 text-sm font-medium mb-2">Active Members</p>
-                                <p className="text-3xl lg:text-4xl font-bold text-emerald-300">{summary.activeMemberships || memberships.filter(m => (m.membershipStatus || '').toLowerCase() === 'active').length}</p>
-                            </div>
-                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-emerald-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">✓</div>
+                    <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4">
+                        <div className="flex items-center justify-between gap-2">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-blue-800">Total revenue</p>
+                            <span className="rounded-lg bg-white p-2 text-blue-700 shadow-sm">
+                                <IndianRupee size={17} />
+                            </span>
                         </div>
-                    </div>
-
-                    {/* Stat Card 3 - Total Revenue */}
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl p-5 lg:p-6 border border-white/20 hover:bg-white/15 transition-colors">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-blue-100 text-sm font-medium mb-2">Total Revenue</p>
-                                <p className="text-3xl lg:text-4xl font-bold text-amber-300">₹{(summary.totalAmount || memberships.reduce((s, m) => s + (m.amount || 0), 0)).toLocaleString()}</p>
-                            </div>
-                            <div className="w-12 h-12 lg:w-14 lg:h-14 bg-amber-400/20 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">₹</div>
-                        </div>
+                        <p className="mt-2 truncate text-2xl font-bold tabular-nums text-slate-900">₹{totalRevenue.toLocaleString('en-IN')}</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Search and Filters Section */}
-            <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-                <div className="px-6 lg:px-8 py-6 lg:py-8 space-y-6 border-b border-slate-200">
-                    {/* Search Bar */}
-                    <div className="relative">
-                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400">
-                            <SearchIcon />
+            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="space-y-4 p-4 sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h2 className="text-base font-semibold text-slate-900">Find a member</h2>
+                            <p className="mt-0.5 text-sm text-slate-500">Search and filter the active membership list.</p>
                         </div>
-                        <input
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search by name, email, or phone number…"
-                            className="w-full pl-12 pr-4 py-3 lg:py-4 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all text-slate-700 placeholder-slate-400"
-                        />
+                        <div className="flex items-center justify-between gap-3 sm:justify-end">
+                            <p className="text-sm text-slate-500">
+                                <span className="font-semibold text-slate-900">{totalItems}</span> {totalItems === 1 ? 'member' : 'members'}
+                                {hasActiveFilters && <span className="text-slate-400"> · filtered</span>}
+                            </p>
+                            <button
+                                onClick={handleExportCSV}
+                                disabled={filteredForExport.length === 0 || loading}
+                                className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <Download size={16} />
+                                <span className="hidden sm:inline">Export CSV</span>
+                                <span className="sm:hidden">Export</span>
+                            </button>
+                        </div>
                     </div>
 
-                    {/* Filter Toggle Button (Mobile) */}
-                    <div className="lg:hidden flex gap-3">
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors"
-                        >
-                            <FilterIcon />
-                            Filters
-                        </button>
+                    <div className="flex flex-col gap-3 lg:flex-row">
+                        <label className="relative block min-w-0 flex-1">
+                            <Search size={18} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                                placeholder="Search name, email, or phone"
+                                aria-label="Search active members"
+                                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                            />
+                        </label>
+                        <div className="grid grid-cols-2 gap-3 lg:w-[min(100%,30rem)]">
+                            <label className={`${showFilters ? 'block' : 'hidden'} space-y-1.5 lg:block`}>
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Department</span>
+                                <select
+                                    value={departmentFilter}
+                                    onChange={(e) => setDepartmentFilter(e.target.value)}
+                                    aria-label="Filter by department"
+                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                                >
+                                    <option value="">All departments</option>
+                                    {departments.map((department) => <option key={department} value={department}>{department}</option>)}
+                                </select>
+                            </label>
+                            <label className={`${showFilters ? 'block' : 'hidden'} space-y-1.5 lg:block`}>
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment mode</span>
+                                <select
+                                    value={paymentFilter}
+                                    onChange={(e) => setPaymentFilter(e.target.value)}
+                                    aria-label="Filter by payment mode"
+                                    className="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                                >
+                                    <option value="">All methods</option>
+                                    {paymentMode.map((mode) => <option key={mode} value={mode}>{mode}</option>)}
+                                </select>
+                            </label>
+                        </div>
+                        <div className="flex gap-2 lg:hidden">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                aria-expanded={showFilters}
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                            >
+                                <SlidersHorizontal size={16} />
+                                {showFilters ? 'Hide filters' : 'Filters'}
+                            </button>
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={() => { setQuery(''); setDepartmentFilter(''); setPaymentFilter(''); }}
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                                >
+                                    <RotateCcw size={15} />
+                                    Reset
+                                </button>
+                            )}
+                        </div>
                         {hasActiveFilters && (
                             <button
                                 onClick={() => { setQuery(''); setDepartmentFilter(''); setPaymentFilter(''); }}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
+                                className="hidden items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 lg:inline-flex"
                             >
-                                <ResetIcon />
+                                <RotateCcw size={15} />
                                 Reset
                             </button>
                         )}
                     </div>
-
-                    {/* Filters Section */}
-                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 ${!showFilters && 'hidden lg:grid'}`}>
-                        {/* Department Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 block">Department</label>
-                            <select
-                                value={departmentFilter}
-                                onChange={(e) => setDepartmentFilter(e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
-                            >
-                                <option value="">All Departments</option>
-                                {departments.map((d) => (
-                                    <option key={d} value={d}>
-                                        {d}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Payment Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 block">Payment Mode</label>
-                            <select
-                                value={paymentFilter}
-                                onChange={(e) => setPaymentFilter(e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
-                            >
-                                <option value="">All Methods</option>
-                                {paymentMode.map((p) => (
-                                    <option key={p} value={p}>
-                                        {p}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-
-                    {/* Desktop Reset Button & Results Info */}
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <p className="text-sm text-slate-600">
-                            Found <span className="font-semibold text-slate-900">{totalItems}</span> {totalItems === 1 ? 'member' : 'members'}
-                            {hasActiveFilters && <span className="text-slate-500"> (filtered)</span>}
-                        </p>
-                        <div className="flex items-center gap-4">
-                            <div className="hidden lg:flex">
-                                {hasActiveFilters && (
-                                    <button
-                                        onClick={() => { setQuery(''); setDepartmentFilter(''); setPaymentFilter(''); }}
-                                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
-                                    >
-                                        <ResetIcon />
-                                        Reset Filters
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                {/* Export Button */}
-                <div className="px-6 py-3 flex gap-2">
-                    <button
-                        onClick={handleExportCSV}
-                        disabled={currentSlice.length === 0 || loading}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
-                    >
-                        <Download size={18} />
-                        Export CSV
-                    </button>
-                </div>
-
-                {/* Content Section */}
-                <div className="overflow-hidden">
-                    {/* Mobile Card View */}
-                    <div className="block md:hidden space-y-3 px-6 py-6 lg:px-8 lg:py-8">
+                <div className="border-t border-slate-100 bg-slate-50/60 p-3 sm:p-5">
+                    <div className="grid grid-cols-1 gap-3 md:hidden">
                         {currentSlice.length === 0 ? (
-                            <div className="text-center py-12">
-                                <p className="text-slate-500 text-lg">No active memberships found</p>
-                                <p className="text-slate-400 text-sm mt-2">Try adjusting your search or filters</p>
+                            <div className="rounded-xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center">
+                                <UsersRound className="mx-auto mb-3 text-slate-300" size={30} />
+                                <p className="font-semibold text-slate-700">No active memberships found</p>
+                                <p className="mt-1 text-sm text-slate-500">Try changing your search or filters.</p>
                             </div>
-                        ) : (
-                            currentSlice.map((m) => (
-                                <div key={m._id} className="bg-white border-2 border-slate-200 rounded-xl p-4 hover:border-slate-300 hover:shadow-md transition-all">
-                                    <div className="flex items-start gap-4">
-                                        {/* Avatar */}
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-md">
-                                            {(m.firstName?.[0] || '').toUpperCase()}{(m.lastName?.[0] || '').toUpperCase()}
+                        ) : currentSlice.map((m) => {
+                            const initials = `${m.firstName?.[0] || ''}${m.lastName?.[0] || ''}`.toUpperCase();
+                            const transactionDate = m.paymentId?.completedAt || m.createdAt;
+
+                            return (
+                                <article key={m._id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                                    <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-4">
+                                        <div className="flex min-w-0 items-center gap-3">
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-bold text-white shadow-sm">
+                                                {initials || 'A'}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <h3 className="truncate font-semibold text-slate-900">{m.firstName} {m.lastName}</h3>
+                                                <p className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-slate-500">
+                                                    <Mail size={13} className="shrink-0" />
+                                                    {m.email || 'Email unavailable'}
+                                                </p>
+                                            </div>
                                         </div>
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                                            <BadgeCheck size={13} />
+                                            Active
+                                        </span>
+                                    </div>
 
-                                        <div className="flex-1 min-w-0">
-                                            {/* Name and Email */}
-                                            <div className="flex justify-between items-start gap-2 mb-2">
-                                                <div className="min-w-0">
-                                                    <h3 className="font-semibold text-slate-900 truncate">{m.firstName} {m.lastName}</h3>
-                                                    <p className="text-xs text-slate-500 truncate">{m.email}</p>
-                                                </div>
-                                                <div className="text-right flex-shrink-0">
-                                                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${(m.membershipStatus || '').toLowerCase() === 'active'
-                                                        ? 'bg-emerald-100 text-emerald-700'
-                                                        : 'bg-slate-100 text-slate-700'
-                                                        }`}>
-                                                        {m.membershipStatus}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Details Grid */}
-                                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Department</p>
-                                                    <p className="font-medium text-slate-900">{m.department || '-'}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Batch</p>
-                                                    <p className="font-medium text-slate-900">{m.batchYear || '-'}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Date</p>
-                                                    <p className="font-medium text-slate-900">{m.createdAt ? new Date(m.createdAt).toLocaleString('en-US', {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                        hour12: true,
-                                                    }) : m.completedAt}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Payment</p>
-                                                    <p className="font-medium text-slate-900">{m.paymentId?.gatewayResponse?.mode || '-'}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Amount</p>
-                                                    <p className="font-bold text-indigo-600">₹{m.amount}</p>
-                                                </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-slate-500">Transaction ID</p>
-                                                    <p className="font-medium text-slate-900">{m?.txnid || '-'}</p>
-                                                </div>  
-                                            </div>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-4 p-4">
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Department</p>
+                                            <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
+                                                <Building2 size={14} className="shrink-0 text-slate-400" />
+                                                <span className="truncate">{m.department || '-'}</span>
+                                            </p>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Batch</p>
+                                            <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
+                                                <GraduationCap size={15} className="shrink-0 text-slate-400" />
+                                                <span>{m.batchYear || '-'}</span>
+                                            </p>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Contact</p>
+                                            <p className="mt-1 flex items-center gap-1.5 truncate text-sm font-medium text-slate-800">
+                                                <Phone size={14} className="shrink-0 text-slate-400" />
+                                                <span className="truncate">{m.phone || '-'}</span>
+                                            </p>
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Payment</p>
+                                            <p className="mt-1 flex items-center gap-1.5 text-sm font-medium text-slate-800">
+                                                <CreditCard size={14} className="shrink-0 text-slate-400" />
+                                                <span className="truncate">{m.paymentId?.gatewayResponse?.mode || '-'}</span>
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                            ))
-                        )}
+
+                                    <div className="flex items-end justify-between gap-3 border-t border-slate-100 bg-slate-50/70 px-4 py-3">
+                                        <div className="min-w-0">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Transaction</p>
+                                            <p className="mt-1 flex items-center gap-1.5 truncate font-mono text-xs text-slate-600">
+                                                <span className="truncate">{m.txnid || '-'}</span>
+                                            </p>
+                                            <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
+                                                <CalendarDays size={13} />
+                                                {transactionDate ? new Date(transactionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                            </p>
+                                        </div>
+                                        <div className="shrink-0 text-right">
+                                            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Paid</p>
+                                            <p className="mt-1 text-lg font-bold tabular-nums text-slate-900">₹{Number(m.amount || 0).toLocaleString('en-IN')}</p>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
                     </div>
 
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block overflow-x-auto">
-                        <table className="w-full divide-y divide-slate-200">
-                            <thead className="bg-gradient-to-r from-slate-50 to-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Member</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Phone</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Department</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Payment</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Amount</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Transaction ID</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-slate-200">
-                                {currentSlice.length === 0 ? (
+                    <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white md:block">
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[980px] divide-y divide-slate-100">
+                                <thead className="bg-slate-50">
                                     <tr>
-                                        <td colSpan={9} className="px-6 py-12 text-center">
-                                            <p className="text-slate-500 text-lg">No active memberships found</p>
-                                            <p className="text-slate-400 text-sm mt-1">Try adjusting your search or filters</p>
-                                        </td>
+                                        {['Member', 'Contact', 'Department & batch', 'Payment', 'Transaction', 'Date', 'Amount'].map((heading) => (
+                                            <th key={heading} className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">{heading}</th>
+                                        ))}
                                     </tr>
-                                ) : (
-                                    currentSlice.map((m) => (
-                                        <tr key={m._id} className="hover:bg-blue-50/50 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
-                                                        {(m.firstName?.[0] || '').toUpperCase()}{(m.lastName?.[0] || '').toUpperCase()}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-slate-900">{m.firstName} {m.lastName}</p>
-                                                        <p className="text-xs text-slate-500">Batch {m.batchYear || '-'}</p>
-                                                    </div>
-                                                </div>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {currentSlice.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={7} className="px-6 py-14 text-center">
+                                                <UsersRound className="mx-auto mb-3 text-slate-300" size={30} />
+                                                <p className="font-semibold text-slate-700">No active memberships found</p>
+                                                <p className="mt-1 text-sm text-slate-500">Try changing your search or filters.</p>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.email}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.phone}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.department}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${(m.membershipStatus || '').toLowerCase() === 'active'
-                                                    ? 'bg-emerald-100 text-emerald-700'
-                                                    : (m.membershipStatus || '').toLowerCase() === 'expired'
-                                                        ? 'bg-red-100 text-red-700'
-                                                        : 'bg-amber-100 text-amber-700'
-                                                    }`}>
-                                                    {m.membershipStatus}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.paymentId?.gatewayResponse?.mode || '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                <p className="font-bold text-indigo-600">₹{m.amount}</p>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m?.txnid || '-'}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{m.createdAt ? new Date(m.createdAt).toLocaleString('en-US', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                hour12: true,
-                                            }) : m.completedAt}</td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : currentSlice.map((m) => {
+                                        const initials = `${m.firstName?.[0] || ''}${m.lastName?.[0] || ''}`.toUpperCase();
+                                        const transactionDate = m.paymentId?.completedAt || m.createdAt;
+
+                                        return (
+                                            <tr key={m._id} className="transition-colors hover:bg-slate-50/80">
+                                                <td className="px-4 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-100">{initials || 'A'}</div>
+                                                        <div className="min-w-0">
+                                                            <p className="max-w-[13rem] truncate text-sm font-semibold text-slate-900">{m.firstName} {m.lastName}</p>
+                                                            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                                                <BadgeCheck size={12} /> Active
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <p className="flex max-w-[14rem] items-center gap-2 truncate text-sm text-slate-700"><Mail size={14} className="shrink-0 text-slate-400" />{m.email || '-'}</p>
+                                                    <p className="mt-1 flex items-center gap-2 text-xs text-slate-500"><Phone size={13} className="shrink-0 text-slate-400" />{m.phone || '-'}</p>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <p className="max-w-[12rem] truncate text-sm font-medium text-slate-800">{m.department || '-'}</p>
+                                                    <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500"><GraduationCap size={14} />Batch {m.batchYear || '-'}</p>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-700">
+                                                        <CreditCard size={13} className="text-slate-500" />
+                                                        {m.paymentId?.gatewayResponse?.mode || '-'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <p className="max-w-[10rem] truncate font-mono text-xs text-slate-700">{m.txnid || '-'}</p>
+                                                </td>
+                                                <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">
+                                                    {transactionDate ? new Date(transactionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                </td>
+                                                <td className="whitespace-nowrap px-4 py-4 text-right text-sm font-bold tabular-nums text-slate-900">
+                                                    ₹{Number(m.amount || 0).toLocaleString('en-IN')}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 {/* Pagination Section */}
                 {pageData.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
                         <button
                             onClick={() => {
                                 handlePageChange(Math.max(1, pageData.currentPage - 1));
                             }}
                             disabled={pageData.currentPage === 1}
-                            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             ← Prev
                         </button>
@@ -580,7 +571,7 @@ export const MembershipTab = ({ onError }) => {
                                                 handlePageChange(page);
                                             }}
                                             className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                                                ? "bg-purple-500 text-white"
+                                                ? "bg-slate-900 text-white"
                                                 : "border border-slate-200 text-slate-600 hover:bg-slate-50"
                                                 }`}
                                         >
@@ -598,7 +589,7 @@ export const MembershipTab = ({ onError }) => {
                                 );
                             }}
                             disabled={pageData.currentPage === pageData.totalPages}
-                            className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             Next →
                         </button>
@@ -608,7 +599,7 @@ export const MembershipTab = ({ onError }) => {
                         </span>
                     </div>
                 )}
-            </div>
+            </section>
         </div>
     );
 };
