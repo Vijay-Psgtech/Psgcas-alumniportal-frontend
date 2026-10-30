@@ -36,6 +36,7 @@ export const AlumniTab = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'pending', 'approved'
+  const [activeMembershipOnly, setActiveMembershipOnly] = useState(false);
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
   const [departments, setDepartments] = useState([]);
@@ -112,6 +113,7 @@ export const AlumniTab = ({
                   search: e.target.value || undefined,
                   department: deptFilter || undefined,
                   status: statusFilter === "all" ? undefined : statusFilter,
+                  membershipStatus: activeMembershipOnly ? "ACTIVE" : undefined,
                   batchYear: batchFilter || undefined,
                 });
               }}
@@ -135,6 +137,7 @@ export const AlumniTab = ({
                   handleFilterChange({
                     department: e.target.value || undefined,
                     status: statusFilter === "all" ? undefined : statusFilter,
+                    membershipStatus: activeMembershipOnly ? "ACTIVE" : undefined,
                     batchYear: batchFilter || undefined,
                     search: searchTerm || undefined,
                   });
@@ -159,6 +162,7 @@ export const AlumniTab = ({
                 handleFilterChange({
                   department: deptFilter || undefined,
                   status: statusFilter === "all" ? undefined : statusFilter,
+                  membershipStatus: activeMembershipOnly ? "ACTIVE" : undefined,
                   batchYear: e.target.value || undefined,
                   search: searchTerm || undefined,
                 });
@@ -174,11 +178,12 @@ export const AlumniTab = ({
             </select>
           </div>
 
-          {(deptFilter || batchFilter) && (
+          {(deptFilter || batchFilter || activeMembershipOnly) && (
             <button
               onClick={() => {
                 setDeptFilter("");
                 setBatchFilter("");
+                setActiveMembershipOnly(false);
                 handleFilterChange({
                   search: searchTerm || undefined,
                   status: statusFilter === "all" ? undefined : statusFilter,
@@ -205,11 +210,12 @@ export const AlumniTab = ({
                 handleFilterChange({
                   department: deptFilter || undefined,
                   status: btn.id === "all" ? undefined : btn.id,
+                  membershipStatus: activeMembershipOnly ? "ACTIVE" : undefined,
                   batchYear: batchFilter || undefined,
                   search: searchTerm || undefined,
                 });
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold font-['Outfit',_sans-serif] transition-all duration-300 border ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-bold font-['Outfit',_sans-serif] transition-all duration-300 border cursor-pointer ${
                 statusFilter === btn.id
                   ? "bg-slate-900 border-slate-900 text-white shadow-lg shadow-slate-200 scale-[1.02]"
                   : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50"
@@ -224,6 +230,32 @@ export const AlumniTab = ({
               {btn.label}
             </button>
           ))}
+          <button
+            type="button"
+            aria-pressed={activeMembershipOnly}
+            onClick={() => {
+              const nextActiveMembershipOnly = !activeMembershipOnly;
+              setActiveMembershipOnly(nextActiveMembershipOnly);
+              handleFilterChange({
+                department: deptFilter || undefined,
+                status: statusFilter === "all" ? undefined : statusFilter,
+                membershipStatus: nextActiveMembershipOnly ? "ACTIVE" : undefined,
+                batchYear: batchFilter || undefined,
+                search: searchTerm || undefined,
+              });
+            }}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2 font-['Outfit',_sans-serif] text-[13px] font-bold transition-all duration-300 cursor-pointer ${
+              activeMembershipOnly
+                ? "border-blue-700 bg-blue-700 text-white shadow-lg shadow-blue-200"
+                : "border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50"
+            }`}
+          >
+            <Crown
+              size={14}
+              className={activeMembershipOnly ? "text-white" : "text-slate-400"}
+            />
+            Active Members
+          </button>
         </div>
       </div>
 
