@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Award, Briefcase, Zap, ChevronRight, Star, Users } from "lucide-react";
 import alumniImage1 from "../assets/Images/Alumnis/Alum1.jpg";
-import alumniImage2 from "../assets/Images/Alumnis/Alum2.JPG";
+import alumniImage2 from "../assets/Images/ManagingTrustee.jpeg";
 import alumniImage9 from "../assets/Images/Alumnis/Alum9.jpg";
 import alumniImage10 from "../assets/Images/Alumnis/Alum10.jpg";
 import alumniImage13 from "../assets/Images/Alumnis/Alum13.jpg";
@@ -61,9 +61,9 @@ const NotableAlumni = () => {
       name: "Shri V Gopalakrishnan",
       batch: "",
       degree: "",
-      title: "Managing Director",
-      company: "Sri Ramakrishna Oxygen Ltd.",
-      category: "business",
+      title: "Managing Trustee",
+      company: "PSG & Sons' Charities",
+      category: "Education",
       icon: Briefcase,
       achievement: "Business Innovation",
       color: "#10B981",
