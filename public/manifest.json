@@ -1,0 +1,16 @@
+{
+  "name": "PSG Arts Alumni Association",
+  "short_name": "PSG Alumni",
+  "description": "Official PSG College of Arts & Science Alumni Association portal.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/psgcas.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
