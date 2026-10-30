@@ -1,5 +1,5 @@
 // frontend/src/content/data/PatronsData.js
-import patronImg1 from "../../assets/Patrons/patron1.jpg";
+import patronImg1 from "../../assets/Images/ManagingTrustee.jpeg";
 import patronImg2 from "../../assets/Patrons/patron2.jpg";
 import patronImg3 from "../../assets/Patrons/patron3.jpg";
 import patronImg4 from "../../assets/Patrons/patron4.jpeg";

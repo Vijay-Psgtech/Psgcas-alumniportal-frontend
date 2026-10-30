@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Award, Heart, Users, Zap, ArrowRight } from "lucide-react";
-import leaderImage1 from "../assets/Images/trustee2.JPG";
+import leaderImage1 from "../assets/Images/ManagingTrustee.jpeg";
 import leaderImage2 from "../assets/Images/president.png";
 
 const WelcomeSection = () => {
