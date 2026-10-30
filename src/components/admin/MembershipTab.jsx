@@ -14,7 +14,6 @@ export const MembershipTab = ({ onError }) => {
     const [loading, setLoading] = useState(true);
 
     // Filters & pagination
-    const [statusFilter, setStatusFilter] = useState('');
     const [departmentFilter, setDepartmentFilter] = useState('');
     const [paymentFilter, setPaymentFilter] = useState('');
     const [query, setQuery] = useState('');
@@ -29,10 +28,12 @@ export const MembershipTab = ({ onError }) => {
             try {
                 const [pageResponse, allResponse] = await Promise.all([
                     adminAPI.fetchAllMemberships({
+                        membershipStatus: 'ACTIVE',
                         page: 1,
                         limit: 20,
                     }),
                     adminAPI.fetchAllMemberships({
+                        membershipStatus: 'ACTIVE',
                         page: 1,
                         limit: 10000,
                     }),
@@ -63,6 +64,7 @@ export const MembershipTab = ({ onError }) => {
         try {
             setLoading(true);
             const queryParams = {
+                membershipStatus: 'ACTIVE',
                 page,
                 limit: 20,
             };
@@ -92,7 +94,7 @@ export const MembershipTab = ({ onError }) => {
     const filterMemberships = (items) => {
         const q = query.trim().toLowerCase();
         return (items || []).filter((m) => {
-            if (statusFilter && (m.membershipStatus || '').toLowerCase() !== statusFilter.toLowerCase()) return false;
+            if ((m.membershipStatus || '').toUpperCase() !== 'ACTIVE') return false;
             if (departmentFilter && (m.department || '').toLowerCase() !== departmentFilter.toLowerCase()) return false;
             const mode = m.paymentId?.gatewayResponse?.mode || '';
             if (paymentFilter && mode.toLowerCase() !== paymentFilter.toLowerCase()) return false;
@@ -102,13 +104,13 @@ export const MembershipTab = ({ onError }) => {
         });
     };
 
-    const filtered = useMemo(() => filterMemberships(memberships), [memberships, statusFilter, departmentFilter, paymentFilter, query]);
-    const filteredForExport = useMemo(() => filterMemberships(allMemberships), [allMemberships, statusFilter, departmentFilter, paymentFilter, query]);
+    const filtered = useMemo(() => filterMemberships(memberships), [memberships, departmentFilter, paymentFilter, query]);
+    const filteredForExport = useMemo(() => filterMemberships(allMemberships), [allMemberships, departmentFilter, paymentFilter, query]);
 
     const totalItems = filtered.length;
     const currentSlice = filtered;
 
-    const hasActiveFilters = statusFilter || departmentFilter || paymentFilter || query;
+    const hasActiveFilters = departmentFilter || paymentFilter || query;
 
     const escapeCsvValue = (value) => {
         if (value === null || value === undefined) return '';
@@ -153,7 +155,7 @@ export const MembershipTab = ({ onError }) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Memberships.csv';
+        a.download = 'ActiveMemberships.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -175,7 +177,7 @@ export const MembershipTab = ({ onError }) => {
             <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 rounded-2xl px-6 lg:px-8 py-4 lg:py-6 shadow-lg">
                 <div className="mb-8">
                     <h1 className="text-3xl lg:text-4xl font-bold text-white mb-2">Membership Management</h1>
-                    <p className="text-blue-100">Overview, search and manage membership records</p>
+                    <p className="text-blue-100">Overview, search and manage active members</p>
                 </div>
 
                 {/* Stats Grid */}
@@ -242,7 +244,7 @@ export const MembershipTab = ({ onError }) => {
                         </button>
                         {hasActiveFilters && (
                             <button
-                                onClick={() => { setQuery(''); setStatusFilter(''); setDepartmentFilter(''); setPaymentFilter(''); }}
+                                onClick={() => { setQuery(''); setDepartmentFilter(''); setPaymentFilter(''); }}
                                 className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
                             >
                                 <ResetIcon />
@@ -252,23 +254,7 @@ export const MembershipTab = ({ onError }) => {
                     </div>
 
                     {/* Filters Section */}
-                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 ${!showFilters && 'hidden lg:grid'}`}>
-                        {/* Status Filter */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 block">Status</label>
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10 transition-all bg-white text-slate-700 font-medium"
-                            >
-                                <option value="">All Status</option>
-                                <option value="ACTIVE">ACTIVE</option>
-                                <option value="EXPIRED">EXPIRED</option>
-                                <option value="CANCELLED">CANCELLED</option>
-                                <option value="PENDING">PENDING_PAYMENT</option>
-                            </select>
-                        </div>
-
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 ${!showFilters && 'hidden lg:grid'}`}>
                         {/* Department Filter */}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold text-slate-700 block">Department</label>
@@ -314,7 +300,7 @@ export const MembershipTab = ({ onError }) => {
                             <div className="hidden lg:flex">
                                 {hasActiveFilters && (
                                     <button
-                                        onClick={() => { setQuery(''); setStatusFilter(''); setDepartmentFilter(''); setPaymentFilter(''); }}
+                                        onClick={() => { setQuery(''); setDepartmentFilter(''); setPaymentFilter(''); }}
                                         className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg font-medium transition-colors"
                                     >
                                         <ResetIcon />
@@ -344,7 +330,7 @@ export const MembershipTab = ({ onError }) => {
                     <div className="block md:hidden space-y-3 px-6 py-6 lg:px-8 lg:py-8">
                         {currentSlice.length === 0 ? (
                             <div className="text-center py-12">
-                                <p className="text-slate-500 text-lg">No memberships found</p>
+                                <p className="text-slate-500 text-lg">No active memberships found</p>
                                 <p className="text-slate-400 text-sm mt-2">Try adjusting your search or filters</p>
                             </div>
                         ) : (
@@ -434,7 +420,7 @@ export const MembershipTab = ({ onError }) => {
                                 {currentSlice.length === 0 ? (
                                     <tr>
                                         <td colSpan={9} className="px-6 py-12 text-center">
-                                            <p className="text-slate-500 text-lg">No memberships found</p>
+                                            <p className="text-slate-500 text-lg">No active memberships found</p>
                                             <p className="text-slate-400 text-sm mt-1">Try adjusting your search or filters</p>
                                         </td>
                                     </tr>
