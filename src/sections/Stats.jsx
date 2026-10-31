@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import useSiteContent from "../hooks/useSiteContent";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
 
 const PremiumStats = () => {
   const [counts, setCounts] = useState({ alumni: 0, chapters: 0, countries: 0, events: 0 });
   const [isVisible, setIsVisible] = useState(false);
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -25,58 +28,40 @@ const PremiumStats = () => {
   useEffect(() => {
     if (!isVisible) return;
 
-    const targetCounts = { alumni: 30000, chapters: 50, countries: 35, events: 50 };
-    const speeds = { alumni: 100, chapters: 16, countries: 12, events: 6 };
-    let interval;
-    let currentValues = { alumni: 0, chapters: 0, countries: 0, events: 0 };
+    const targetCounts = Object.fromEntries(
+      homeContent.stats.items.map(({ key, value }) => [key, Number(value) || 0]),
+    );
+    const currentValues = Object.fromEntries(
+      Object.keys(targetCounts).map((key) => [key, 0]),
+    );
+    const speeds = Object.fromEntries(
+      Object.entries(targetCounts).map(([key, target]) => [
+        key,
+        Math.max(1, Math.ceil(target / 30)),
+      ]),
+    );
 
     const incrementCounts = () => {
-      currentValues.alumni += speeds.alumni;
-      currentValues.chapters += speeds.chapters;
-      currentValues.countries += speeds.countries;
-      currentValues.events += speeds.events;
-
-      setCounts({
-        alumni: Math.min(Math.floor(currentValues.alumni), targetCounts.alumni),
-        chapters: Math.min(Math.floor(currentValues.chapters), targetCounts.chapters),
-        countries: Math.min(Math.floor(currentValues.countries), targetCounts.countries),
-        events: Math.min(Math.floor(currentValues.events), targetCounts.events),
-      });
+      for (const key of Object.keys(targetCounts)) {
+        currentValues[key] = Math.min(
+          currentValues[key] + speeds[key],
+          targetCounts[key],
+        );
+      }
+      setCounts((current) => ({ ...current, ...currentValues }));
+      if (Object.keys(targetCounts).every((key) => currentValues[key] >= targetCounts[key])) {
+        clearInterval(interval);
+      }
     };
 
-    interval = setInterval(incrementCounts, 30);
+    const interval = setInterval(incrementCounts, 30);
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [homeContent.stats.items, isVisible]);
 
-  const stats = [
-    { 
-      number: counts.alumni, 
-      suffix: "+", 
-      label: "Active Alumni", 
-      icon: "👥",
-      description: "Worldwide community",
-      color: "#3B82F6",
-      bgColor: "#F0F9FF"
-    },
-    { 
-      number: counts.countries, 
-      suffix: "+", 
-      label: "Countries", 
-      icon: "🗺️",
-      description: "Global presence",
-      color: "#06B6D4",
-      bgColor: "#F0FDFA"
-    },
-    { 
-      number: counts.events, 
-      suffix: "+", 
-      label: "Annual Events", 
-      icon: "🎉",
-      description: "Celebrations & connections",
-      color: "#EC4899",
-      bgColor: "#FDF2F8"
-    },
-  ];
+  const stats = homeContent.stats.items.map((stat) => ({
+    ...stat,
+    number: counts[stat.key] ?? stat.value,
+  }));
 
   return (
     <>
@@ -399,10 +384,10 @@ const PremiumStats = () => {
         <div className="stats-container">
           {/* Header */}
           <div className="stats-header">
-            <div className="stats-subtitle">📊 Our Impact</div>
-            <h2 className="stats-title">By The Numbers</h2>
+            <div className="stats-subtitle">{homeContent.stats.badge}</div>
+            <h2 className="stats-title">{homeContent.stats.title}</h2>
             <p className="stats-description">
-              Our global community continues to grow, creating meaningful connections and driving positive change across the world
+              {homeContent.stats.description}
             </p>
           </div>
 
