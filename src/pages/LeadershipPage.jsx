@@ -1,80 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+// JSX member expressions such as <motion.div> are not recognized by core no-unused-vars.
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import { Patrons } from "../content/data/PatronsData";
+import { DEFAULT_LEADERSHIP_CONTENT } from "../content/data/siteContentDefaults";
+import { getSiteImageUrl } from "../services/api";
+import useSiteContent from "../hooks/useSiteContent";
 import usePageTitle from "../hooks/usePageTitle";
 
 const LeadershipPage = () => {
-  usePageTitle("Leadership Team");
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [animatedStats, setAnimatedStats] = useState({});
+  const leadershipContent = useSiteContent(
+    "leadership",
+    DEFAULT_LEADERSHIP_CONTENT,
+  );
+  usePageTitle(leadershipContent.hero.title || "Leadership Team");
+  const [, setHoveredCard] = useState(null);
+  const profiles = leadershipContent.profiles || Patrons;
 
   // Organize patrons by role/category for role-wise UI sections
-  const chiefPatron = Patrons.find(
+  const chiefPatron = profiles.find(
     (p) => p.rank === "Chief Patron" || p.role === "Managing Trustee",
   );
-
-  const roleGroupsConfig = [
-    { title: "Patrons", roles: ["Secretary", "Principal"], rank: "Patron" },
-    {
-      title: "Office Bearers",
-      roles: [
-        "President",
-        "Vice President",
-        "Joint Secretary",
-        "Treasurer",
-        "Auditor",
-        "Co-ordinator",
-      ],
-      rank: "Office Bearer",
-    },
-    {
-      title: "Executive Committee Members",
-      roles: ["EC Member", "Executive Committee Member"],
-      rank: "Executive Committee Members",
-    },
-    {
-      title: "Past Presidents",
-      roles: [
-        "Founder President",
-        "Past President",
-        "Immediate Past President",
-      ],
-      rank: "Past Presidents",
-    },
-  ];
-
-  const groupedPatrons = roleGroupsConfig.map((group) => ({
+  const groupedPatrons = (leadershipContent.groups || []).map((group) => ({
     ...group,
-    members: Patrons.filter((p) => group.rank.includes(p.rank)),
+    members: profiles.filter((profile) => group.rank.includes(profile.rank)),
   }));
-
-  // Animation for counting stats
-  useEffect(() => {
-    const stats = [
-      { key: "members", target: 27 },
-      { key: "commitment", target: 100 },
-      { key: "alumni", target: 10 },
-      { key: "rank", target: 1 },
-    ];
-
-    stats.forEach((stat) => {
-      let current = 0;
-      const increment = stat.target / 30;
-      const interval = setInterval(() => {
-        current += increment;
-        if (current >= stat.target) {
-          setAnimatedStats((prev) => ({ ...prev, [stat.key]: stat.target }));
-          clearInterval(interval);
-        } else {
-          setAnimatedStats((prev) => ({
-            ...prev,
-            [stat.key]: Math.floor(current),
-          }));
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    });
-  }, []);
 
   // Advanced animation variants
   const pageVariants = {
@@ -116,20 +66,6 @@ const LeadershipPage = () => {
       scale: 1.03,
       transition: { duration: 0.4, ease: "easeOut" },
       boxShadow: "0 30px 80px rgba(59, 130, 246, 0.15)",
-    },
-  };
-
-  const floatingVariants = {
-    animate: {
-      y: [0, -20, 0],
-      transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-    },
-  };
-
-  const rotateVariants = {
-    animate: {
-      rotate: 360,
-      transition: { duration: 20, repeat: Infinity, linear: true },
     },
   };
 
@@ -657,16 +593,15 @@ const LeadershipPage = () => {
               animate="visible"
             >
               <motion.div variants={itemVariants} className="hero-label">
-                Leadership Excellence
+                {leadershipContent.hero.eyebrow}
               </motion.div>
 
               <motion.h1 variants={itemVariants} className="hero-title">
-                Meet Our Team
+                {leadershipContent.hero.title}
               </motion.h1>
 
               <motion.p variants={itemVariants} className="hero-subtitle">
-                Visionary leaders and mentors dedicated to institutional
-                excellence and student success
+                {leadershipContent.hero.description}
               </motion.p>
 
               <motion.div
@@ -685,8 +620,8 @@ const LeadershipPage = () => {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
               >
-                <p className="section-label">Institutional Leadership</p>
-                <h2 className="leadership-title">Chief Patron</h2>
+                <p className="section-label">{leadershipContent.chief.eyebrow}</p>
+                <h2 className="leadership-title">{leadershipContent.chief.title}</h2>
 
                 <div className="chief-content">
                   <motion.div
@@ -699,7 +634,7 @@ const LeadershipPage = () => {
                       className="chief-image"
                       whileHover={{ scale: 1.02 }}
                     >
-                      <img src={chiefPatron.image} alt={chiefPatron.name} />
+                      <img src={getSiteImageUrl(chiefPatron.image)} alt={chiefPatron.name} />
                       <div className="chief-overlay"></div>
                     </motion.div>
                   </motion.div>
@@ -735,8 +670,8 @@ const LeadershipPage = () => {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
               >
-                <p className="section-label">Our Team</p>
-                <h2 className="leadership-title">Leadership Team</h2>
+                <p className="section-label">{leadershipContent.team.eyebrow}</p>
+                <h2 className="leadership-title">{leadershipContent.team.title}</h2>
               </motion.div>
               {groupedPatrons.map((group, groupIndex) => (
                 <div key={group.title} className="role-group-wrapper">
@@ -770,7 +705,7 @@ const LeadershipPage = () => {
                       >
                         <div className="card">
                           <div className="card-image">
-                            <img src={patron.image} alt={patron.name} />
+                            <img src={getSiteImageUrl(patron.image)} alt={patron.name} />
                             <div className="card-overlay"></div>
                           </div>
                           <div className="card-content">
@@ -799,14 +734,9 @@ const LeadershipPage = () => {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
               >
-                {[
-                  { number: "27+", label: "Team Members", key: "members" },
-                  { number: "100%", label: "Commitment", key: "commitment" },
-                  { number: "30K+", label: "Alumni Network", key: "alumni" },
-                  { number: "#1", label: "Institution", key: "rank" },
-                ].map((stat, index) => (
+                {(leadershipContent.stats || []).map((stat, index) => (
                   <motion.div
-                    key={index}
+                    key={`${stat.label}-${index}`}
                     variants={itemVariants}
                     className="stat"
                     whileInView={{ scale: 1.05 }}

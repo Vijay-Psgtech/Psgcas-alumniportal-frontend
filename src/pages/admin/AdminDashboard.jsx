@@ -20,6 +20,7 @@ import {
   IndianRupee,
   BadgeCheck,
   Building,
+  LayoutTemplate,
 } from "lucide-react";
 import { adminAPI, API_BASE, campaignsAPI } from "../../services/api";
 import {
@@ -44,6 +45,7 @@ import NotificationManager from "../../pages/Notificationmanager";
 import DonationHistory from "../../components/admin/DonationHistory";
 import CampaignCreator from "../../components/admin/Campaigncreator";
 import CampaignResponsesManager from "../../components/admin/Campaignresponsesmanager";
+import SiteContentTab from "../../components/admin/SiteContentTab";
 
 // ✅ Helper function to validate MongoDB ObjectId or UUID format
 const isValidCampaignId = (id) => {
@@ -302,6 +304,12 @@ const AdminDashboard = () => {
           badge: "🔔",
         },
         {
+          key: "site-content",
+          Icon: LayoutTemplate,
+          label: "Site Content",
+          badge: "✏️",
+        },
+        {
           key: "departments",
           Icon: BookOpen,
           label: "Departments",
@@ -463,7 +471,7 @@ const AdminDashboard = () => {
 
                 bg-white
                 border border-slate-200/80
-                rounded-lg
+                rounded-2xl
 
                 px-4 py-4
 
@@ -481,7 +489,7 @@ const AdminDashboard = () => {
                 <div
                   className="
                     h-12 w-12
-                    rounded
+                    rounded-xl
 
                     bg-slate-50
                     border border-slate-100
@@ -524,13 +532,13 @@ const AdminDashboard = () => {
           ))}
         </motion.div>
         {/* Tabs Panel */}
-        <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
           <div className="flex gap-2 flex-wrap">
             {TABS.map(({ key, Icon, label, badge }) => (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`px-4 py-2 rounded-xl font-bold flex items-center gap-6 transition ${activeTab === key
+                className={`px-4 py-2 rounded-xl font-bold flex items-center gap-2 transition ${activeTab === key
                     ? "bg-blue-600 text-white"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
@@ -538,7 +546,7 @@ const AdminDashboard = () => {
                 <Icon size={15} />
                 {label}
                 {badge && (
-                  <span className="text-xs ml-1 px-2 py-0.5 rounded-xl bg-white text-black bg-opacity-20">
+                  <span className="text-xs ml-1 px-2 py-0.5 rounded-full bg-white text-black bg-opacity-20">
                     {badge}
                   </span>
                 )}
@@ -731,6 +739,17 @@ const AdminDashboard = () => {
               exit={{ opacity: 0 }}
             >
               <AdminUsersTab onError={setError} onSuccess={setSuccess} />
+            </motion.div>
+          )}
+          {activeTab === "site-content" && user?.role === "superadmin" && (
+            <motion.div
+              key="site-content"
+              variants={iv}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0 }}
+            >
+              <SiteContentTab />
             </motion.div>
           )}
         </AnimatePresence>

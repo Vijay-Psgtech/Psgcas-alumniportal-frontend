@@ -5,6 +5,8 @@ import {
   Eye, Loader2, AlertCircle, Image as ImageIcon,
 } from "lucide-react";
 import { eventsAPI, albumsAPI } from "../services/api";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
+import useSiteContent from "../hooks/useSiteContent";
 
 /* ─── helpers ─────────────────────────────────────────────────── */
 const fmt = (raw) => {
@@ -38,6 +40,7 @@ const Skel = () => (
 ═══════════════════════════════════════════════════════════════ */
 const Events = () => {
   const navigate = useNavigate();
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
 
   const [events,      setEvents]      = useState([]);
   const [gallery,     setGallery]     = useState([]);
@@ -134,8 +137,8 @@ const Events = () => {
 
         {/* header */}
         <div className="ep-head">
-          <p className="ep-eye">PSG Arts &amp; Science College</p>
-          <h2 className="ep-title">Events</h2>
+          <p className="ep-eye">{homeContent.sections.events.eyebrow}</p>
+          <h2 className="ep-title">{homeContent.sections.events.title}</h2>
         </div>
 
         {/* ── carousel ── */}

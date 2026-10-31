@@ -9,10 +9,13 @@ import {
   FileCheck,
 } from "lucide-react";
 import { API_BASE, newsLetterAPI } from "../services/api";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
+import useSiteContent from "../hooks/useSiteContent";
 
 const WhatIsNew = () => {
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const [, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState("all");
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
 
   // fetch Recent 3 Newsletters
   const [newsletters, setNewsletters] = useState([]);  
@@ -867,14 +870,13 @@ const WhatIsNew = () => {
         <div className="whats-new-header">
           <div className="whats-new-badge">
             <Sparkles size={16} />
-            Explore Latest
+            {homeContent.sections.news.badge}
           </div>
           <h2 className="whats-new-title">
-            What's <span>New</span>
+            {homeContent.sections.news.title}
           </h2>
           <p className="whats-new-subtitle">
-            Discover the latest alumni newsletters and brochures. Click any card
-            to view the complete PDF with our interactive viewer.
+            {homeContent.sections.news.description}
           </p>
           <div className="header-line"></div>
         </div>

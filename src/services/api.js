@@ -92,7 +92,10 @@ api.interceptors.response.use(
 );
 
 // ──────────────── API_BASE ──────────────────────── //
-export const API_BASE = import.meta.env.VITE_API_URL.replace("/api", "");
+export const API_BASE = API_BASE_URL.replace(/\/api\/?$/, "");
+
+export const getSiteImageUrl = (image) =>
+  image?.startsWith("/uploads/") ? `${API_BASE}${image}` : image;
 
 // ──────────────── Auth API ──────────────────────── //
 export const authAPI = {
@@ -797,6 +800,29 @@ export const adminAPI = {
 
   // Membership management
   fetchAllMemberships: (params) => api.get("/admin/dashboard/memberships/all", { params }),
+};
+
+export const siteContentAPI = {
+  getPage: (page) => api.get(`/site-content/${page}`),
+  bootstrap: (pages) => api.post("/site-content/bootstrap", { pages }),
+  updatePage: (page, content, imageUploads = []) => {
+    const formData = new FormData();
+    formData.append("content", JSON.stringify(content));
+    formData.append(
+      "imageFields",
+      JSON.stringify(
+        imageUploads.map(({ recordId, collection, field }) => ({
+          recordId,
+          collection,
+          field,
+        })),
+      ),
+    );
+    imageUploads.forEach(({ file }) => formData.append("images", file));
+    return api.put(`/site-content/${page}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  },
 };
 
 // ── Events API ────────────────────────────────────────────────────────

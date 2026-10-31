@@ -8,12 +8,15 @@ import {
   Home, Mail, Building2, Heart
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
+import useSiteContent from "../hooks/useSiteContent";
 
 const FindAlumni = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
 
   console.log("FindAlumni rendered - isAuthenticated:", isAuthenticated, "user:", user);
 
@@ -716,9 +719,9 @@ const FindAlumni = () => {
         <div className="find-alumni-main">
           {/* Header */}
           <div className="find-alumni-header">
-            <div className="find-alumni-header-title">🔍 Find Fellow CASians</div>
+            <div className="find-alumni-header-title">{homeContent.sections.findAlumni.title}</div>
             <div className="find-alumni-header-subtitle">
-              Discover and connect with the PSG Alumni Network
+              {homeContent.sections.findAlumni.description}
             </div>
           </div>
 

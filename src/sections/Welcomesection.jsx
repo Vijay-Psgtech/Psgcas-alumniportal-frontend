@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Award, Heart, Users, Zap, ArrowRight } from "lucide-react";
-import leaderImage1 from "../assets/Images/ManagingTrustee.jpeg";
-import leaderImage2 from "../assets/Images/president.png";
+import { getSiteImageUrl } from "../services/api";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
+import useSiteContent from "../hooks/useSiteContent";
 
 const WelcomeSection = () => {
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [, setSelectedCard] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
 
   const handleImageError = (leaderId) => {
     console.warn(`Image failed to load for leader ${leaderId}`);
@@ -24,32 +26,8 @@ const WelcomeSection = () => {
     return "https://via.placeholder.com/400?text=Leader";
   };
 
-  const leaders = [
-    {
-      id: 1,
-      name: "Mr. L. Gopalakrishnan",
-      title: "Managing Trustee - PSG & Sons' Charities",
-      subtitle: "Visionary Leader & Philanthropist",
-      image: leaderImage1,
-      icon: Heart,
-      stats: { label: "Years of Service", value: "25+" },
-      bio: "Leading innovation in education and community development",
-      color: "#3B82F6",
-      bgColor: "#F0F9FF",
-    },
-    {
-      id: 2,
-      name: "Mr. J Prithiviraj",
-      title: "President - PSG Arts Alumni Association",
-      subtitle: "Connecting Generations of Excellence",
-      image: leaderImage2,
-      icon: Zap,
-      stats: { label: "Alumni Connected", value: "30K+" },
-      bio: "Dedicated to building stronger alumni networks and opportunities",
-      color: "#8B5CF6",
-      bgColor: "#FAF5FF",
-    },
-  ];
+  const leaders = homeContent.welcome.leaders || [];
+  const icons = { Award, Heart, Users, Zap };
 
   return (
     <>
@@ -632,25 +610,23 @@ const WelcomeSection = () => {
           <div className="welcome-header">
             <div className="welcome-badge">
               <span className="badge-icon"></span>
-              Meet Our Leadership
+              {homeContent.welcome.badge}
             </div>
             <h2 className="welcome-title">
-              Visionary Leaders Shaping Excellence
+              {homeContent.welcome.title}
             </h2>
             <p className="welcome-subtitle">
-              Guided by inspiring leaders who are dedicated to nurturing talent,
-              fostering innovation, and building a vibrant community of alumni
-              across the globe.
+              {homeContent.welcome.description}
             </p>
           </div>
 
           {/* Leaders Grid */}
           <div className="leaders-grid">
             {leaders.map((leader) => {
-              const IconComponent = leader.icon;
+              const IconComponent = icons[leader.iconName] || Heart;
               const imageUrl = imageErrors[leader.id]
                 ? getFallbackImage(leader.id)
-                : leader.image;
+                : getSiteImageUrl(leader.image);
 
               return (
                 <div
