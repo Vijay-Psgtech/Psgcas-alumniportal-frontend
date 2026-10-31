@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { Send, CheckCircle, Mail, Phone, MapPin, Clock } from "lucide-react";
 import usePageTitle from "../hooks/usePageTitle";
 import { contactAPI } from "../services/api";
+import { DEFAULT_HOME_CONTENT } from "../content/data/siteContentDefaults";
+import useSiteContent from "../hooks/useSiteContent";
 
 const ContactPage = () => {
+  const homeContent = useSiteContent("home", DEFAULT_HOME_CONTENT);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -514,8 +517,8 @@ const ContactPage = () => {
       {/* Hero Section */}
       <section className="contact-hero">
         <div className="contact-hero-content">
-          <h1>Get In Touch</h1>
-          <p>Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+          <h1>{homeContent.sections.contact.title}</h1>
+          <p>{homeContent.sections.contact.description}</p>
         </div>
       </section>
 
