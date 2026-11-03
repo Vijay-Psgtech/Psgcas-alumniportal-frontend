@@ -31,6 +31,7 @@ const AlumniUsersList = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
+  const [membershipFilter, setMembershipFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
   const [viewMode, setViewMode] = useState("table"); // grid or table
@@ -208,6 +209,8 @@ const AlumniUsersList = () => {
         limit: 10000,
         search: search || undefined,
         status: statusFilter === "all" ? undefined : statusFilter,
+        membershipStatus:
+          membershipFilter === "all" ? undefined : membershipFilter,
         department: deptFilter || undefined,
         batchYear: batchFilter || undefined,
       };
@@ -229,6 +232,7 @@ const AlumniUsersList = () => {
         "Department",
         "Batch Year",
         "Status",
+        "Membership Status",
         "Company",
         "Job Title",
         "City",
@@ -245,6 +249,7 @@ const AlumniUsersList = () => {
           alumni.department || "",
           alumni.batchYear || "",
           alumni.isApproved ? "Approved" : "Pending",
+          alumni.membershipStatus || "NOT_APPLIED",
           alumni.currentCompany || "",
           alumni.jobTitle || "",
           alumni.city || "",
@@ -393,6 +398,8 @@ const AlumniUsersList = () => {
                 handleFilterChange({
                   search: e.target.value || undefined,
                   status: statusFilter === "all" ? undefined : statusFilter,
+                  membershipStatus:
+                    membershipFilter === "all" ? undefined : membershipFilter,
                   department: deptFilter || undefined,
                   batchYear: batchFilter || undefined,
                 });
@@ -417,6 +424,8 @@ const AlumniUsersList = () => {
                     handleFilterChange({
                       search: search || undefined,
                       status: filter.value === "all" ? undefined : filter.value,
+                      membershipStatus:
+                        membershipFilter === "all" ? undefined : membershipFilter,
                       department: deptFilter || undefined,
                       batchYear: batchFilter || undefined,
                     });
@@ -432,6 +441,26 @@ const AlumniUsersList = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              <select
+                value={membershipFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setMembershipFilter(value);
+                  handleFilterChange({
+                    search: search || undefined,
+                    status: statusFilter === "all" ? undefined : statusFilter,
+                    membershipStatus: value === "all" ? undefined : value,
+                    department: deptFilter || undefined,
+                    batchYear: batchFilter || undefined,
+                  });
+                }}
+                aria-label="Filter by membership status"
+                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
+              >
+                <option value="all">All Memberships</option>
+                <option value="ACTIVE">Active Membership</option>
+              </select>
+
               {/* ✅ For SuperAdmin only: Show department filter */}
               {user.role !== "admin" && (
                 <select
@@ -441,6 +470,8 @@ const AlumniUsersList = () => {
                     handleFilterChange({
                       search: search || undefined,
                       status: statusFilter === "all" ? undefined : statusFilter,
+                      membershipStatus:
+                        membershipFilter === "all" ? undefined : membershipFilter,
                       department: e.target.value || undefined,
                       batchYear: batchFilter || undefined,
                     });
@@ -463,6 +494,8 @@ const AlumniUsersList = () => {
                   handleFilterChange({
                     search: search || undefined,
                     status: statusFilter === "all" ? undefined : statusFilter,
+                    membershipStatus:
+                      membershipFilter === "all" ? undefined : membershipFilter,
                     department: deptFilter || undefined,
                     batchYear: e.target.value || undefined,
                   });
@@ -479,11 +512,12 @@ const AlumniUsersList = () => {
                   ))}
               </select>
 
-              {(deptFilter || batchFilter) && (
+              {(deptFilter || batchFilter || membershipFilter !== "all") && (
                 <button
                   onClick={() => {
                     setDeptFilter("");
                     setBatchFilter("");
+                    setMembershipFilter("all");
                     handleFilterChange({
                       search: search || undefined,
                       status: statusFilter === "all" ? undefined : statusFilter,
@@ -607,6 +641,20 @@ const AlumniUsersList = () => {
                             <XCircle size={12} />
                           )}
                           {alumni.isApproved ? "Approved" : "Pending"}
+                        </span>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            alumni.membershipStatus === "ACTIVE"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {alumni.membershipStatus === "ACTIVE"
+                            ? "Active Membership"
+                            : (alumni.membershipStatus || "NOT_APPLIED")
+                                .replace(/_/g, " ")
+                                .toLowerCase()
+                                .replace(/\b\w/g, (letter) => letter.toUpperCase())}
                         </span>
                       </div>
                     </div>
@@ -777,6 +825,9 @@ const AlumniUsersList = () => {
                         Status
                       </th>
                       <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
+                        Membership
+                      </th>
+                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
                         Actions
                       </th>
                     </tr>
@@ -865,6 +916,22 @@ const AlumniUsersList = () => {
                               <XCircle size={12} />
                             )}
                             {alumni.isApproved ? "Approved" : "Pending"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              alumni.membershipStatus === "ACTIVE"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {alumni.membershipStatus === "ACTIVE"
+                              ? "Active"
+                              : (alumni.membershipStatus || "NOT_APPLIED")
+                                  .replace(/_/g, " ")
+                                  .toLowerCase()
+                                  .replace(/\b\w/g, (letter) => letter.toUpperCase())}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -1102,6 +1169,14 @@ const AlumniUsersList = () => {
                               </span>
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
                                 Status: {selectedItem.isApproved ? "Approved" : "Pending"}
+                              </span>
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+                                Membership: {selectedItem.membershipStatus === "ACTIVE"
+                                  ? "Active"
+                                  : (selectedItem.membershipStatus || "NOT_APPLIED")
+                                      .replace(/_/g, " ")
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (letter) => letter.toUpperCase())}
                               </span>
                             </div>
                           </div>
