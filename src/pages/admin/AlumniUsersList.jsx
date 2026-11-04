@@ -20,11 +20,13 @@ import {
   UserCheck,
   UserX,
   X,
+  Upload,
 } from "lucide-react";
 import { adminAPI, API_BASE, alumniAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import usePageTitle from "../../hooks/usePageTitle";
 import { formatNumber } from "../../utils/formatters";
+import AlumniImportModal from "../../components/admin/AlumniImportModal";
 
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
@@ -38,6 +40,7 @@ const AlumniUsersList = () => {
   const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
   const [sortOrder, setSortOrder] = useState("desc");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [filters, setFilters] = useState({ departments: [], batches: [] });
   const [pageData, setPageData] = useState({
     totalAlumni: 0,
@@ -275,6 +278,25 @@ const AlumniUsersList = () => {
     } catch (error) {
       console.error("Failed to export alumni CSV:", error);
     }
+  };
+
+  const handleImportComplete = async () => {
+    const queryParams = {
+      ...alumniFilters,
+      page: pageData.currentPage,
+      limit: 20,
+    };
+    if (user.role === "admin") queryParams.department = department;
+
+    const response = await adminAPI.getAllAlumni(queryParams);
+    setAlumniUsers(response.data.alumni || []);
+    setPageData({
+      totalAlumni: response.data.totalAlumni || 0,
+      totalPages: response.data.totalPages || 1,
+      currentPage: response.data.currentPage || 1,
+      totalApproved: response.data.totalApproved || 0,
+      totalPending: response.data.totalPending || 0,
+    });
   };
 
   if (loading) {
@@ -563,7 +585,14 @@ const AlumniUsersList = () => {
               </div>
             </div>
           </div>
-          <div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setIsImportOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+            >
+              <Upload size={16} />
+              Import Alumni
+            </button>
             <button
               onClick={handleExportCSV}
               disabled={alumniUsers.length === 0}
@@ -575,6 +604,15 @@ const AlumniUsersList = () => {
           </div>
         </div>
       </div>
+
+      {isImportOpen && (
+        <AlumniImportModal
+          onClose={() => setIsImportOpen(false)}
+          onImported={handleImportComplete}
+          departmentLocked={user.role === "admin"}
+          department={department}
+        />
+      )}
 
       {/* Alumni List */}
       <div className="space-y-4">

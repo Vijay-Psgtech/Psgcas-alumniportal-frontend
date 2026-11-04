@@ -800,6 +800,7 @@ export const adminAPI = {
 
   // Membership management
   fetchAllMemberships: (params) => api.get("/admin/dashboard/memberships/all", { params }),
+  importAlumni: (rows) => api.post("/admin/dashboard/alumni/import", { rows }),
 };
 
 export const siteContentAPI = {
