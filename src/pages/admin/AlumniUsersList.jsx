@@ -1,26 +1,29 @@
-import React, { useState, useEffect, useMemo, use } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Search,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Building,
-  Briefcase,
-  Linkedin,
-  Download,
-  CheckCircle,
-  XCircle,
-  Users,
-  Filter,
-  Grid3x3,
-  List,
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowRight,
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  ChevronDown,
   Eye,
-  UserCheck,
-  UserX,
-  X,
+  FilterX,
+  GraduationCap,
+  LayoutGrid,
+  Linkedin,
+  LoaderCircle,
+  Mail,
+  MapPin,
+  Phone,
+  Search,
+  ShieldCheck,
   Upload,
+  Users,
+  X,
+  XCircle,
 } from "lucide-react";
 import { adminAPI, API_BASE, alumniAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -28,20 +31,126 @@ import usePageTitle from "../../hooks/usePageTitle";
 import { formatNumber } from "../../utils/formatters";
 import AlumniImportModal from "../../components/admin/AlumniImportModal";
 
+const PAGE_SIZE = 20;
+
+const formatMembership = (status) =>
+  (status || "NOT_APPLIED")
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const StatusBadge = ({ approved }) => (
+  <span
+    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+      approved
+        ? "bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200"
+        : "bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200"
+    }`}
+  >
+    {approved ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+    {approved ? "Approved" : "Pending"}
+  </span>
+);
+
+const AlumniAvatar = ({ alumni, size = "h-11 w-11" }) => {
+  const initials = `${alumni.firstName?.[0] || ""}${alumni.lastName?.[0] || ""}`;
+  const photo = alumni.files?.currentPhoto;
+
+  return (
+    <div
+      className={`${size} flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-indigo-50 text-sm font-bold text-indigo-700 ring-1 ring-indigo-100`}
+    >
+      {photo ? (
+        <img
+          src={`${API_BASE}/uploads/${photo}`}
+          alt={`${alumni.firstName || ""} ${alumni.lastName || ""}`.trim()}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        initials || <Users size={18} />
+      )}
+    </div>
+  );
+};
+
+const Pagination = ({ pageData, onPageChange }) => {
+  if (pageData.totalPages <= 1) return null;
+
+  const { currentPage, totalPages } = pageData;
+  const pages = [];
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+  pages.push(1);
+  if (start > 2) pages.push("start-gap");
+  for (let page = start; page <= end; page += 1) pages.push(page);
+  if (end < totalPages - 1) pages.push("end-gap");
+  if (totalPages > 1) pages.push(totalPages);
+
+  return (
+    <nav
+      aria-label="Alumni list pages"
+      className="flex flex-col gap-3 border-t border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+    >
+      <p className="text-center text-sm text-slate-500 sm:text-left">
+        Page <span className="font-semibold text-slate-800">{currentPage}</span>{" "}
+        of <span className="font-semibold text-slate-800">{totalPages}</span>
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <ArrowLeft size={15} /> <span className="hidden sm:inline">Prev</span>
+        </button>
+        {pages.map((page, index) =>
+          typeof page === "string" ? (
+            <span key={page} className="px-1 text-sm text-slate-400">
+              ...
+            </span>
+          ) : (
+            <button
+              type="button"
+              key={`${page}-${index}`}
+              onClick={() => onPageChange(page)}
+              aria-current={page === currentPage ? "page" : undefined}
+              className={`h-9 min-w-9 rounded-lg px-2 text-sm font-semibold transition ${
+                page === currentPage
+                  ? "bg-indigo-600 text-white shadow-sm shadow-indigo-200"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              {page}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="inline-flex h-9 items-center gap-1 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <span className="hidden sm:inline">Next</span> <ArrowRight size={15} />
+        </button>
+      </div>
+    </nav>
+  );
+};
+
 const AlumniUsersList = () => {
   const [alumniUsers, setAlumniUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // all, approved, pending
+  const [statusFilter, setStatusFilter] = useState("all");
   const [membershipFilter, setMembershipFilter] = useState("all");
   const [deptFilter, setDeptFilter] = useState("");
   const [batchFilter, setBatchFilter] = useState("");
-  const [viewMode, setViewMode] = useState("table"); // grid or table
-  const [sortBy, setSortBy] = useState("name"); // name, batchyear, department
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [viewMode, setViewMode] = useState("table");
   const [selectedItem, setSelectedItem] = useState(null);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [filters, setFilters] = useState({ departments: [], batches: [] });
+  const [errorMessage, setErrorMessage] = useState("");
   const [pageData, setPageData] = useState({
     totalAlumni: 0,
     totalPages: 1,
@@ -49,1248 +158,703 @@ const AlumniUsersList = () => {
     totalApproved: 0,
     totalPending: 0,
   });
-  const [alumniFilters, setAlumniFilters] = useState({});
   const { user } = useAuth();
-  const department = user.department || "";
+  const department = user?.department || "";
+  const requestId = useRef(0);
+  const alumniFiltersRef = useRef({});
+  const appliedSearchRef = useRef("");
   usePageTitle("Alumni Users Management");
 
-  useEffect(() => {
-    const fetchAlumni = async () => {
-      try {
-        setLoading(true);
-        // ✅ OPTIMIZED: Pass page, limit, and role-aware department
-        const queryParams = {
-          page: 1,
-          limit: 20,
-        };
-
-        if (user.role === "admin") {
-          queryParams.department = department;
-        }
-
-        const res = await adminAPI.getAllAlumni(queryParams);
-        setAlumniUsers(res.data.alumni || []);
-        setPageData({
-          totalAlumni: res.data.totalAlumni || 0,
-          totalPages: res.data.totalPages || 1,
-          currentPage: res.data.currentPage || 1,
-          totalApproved: res.data.totalApproved || 0,
-          totalPending: res.data.totalPending || 0,
-        });
-      } catch (error) {
-        console.error("Alumni error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAlumni();
-  }, []);
-
-  // fetch filters
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await alumniAPI.getFilters();
-        setFilters({
-          departments: res.data.departments || [],
-          batches: res.data.batches || [],
-        });
-      } catch (error) {
-        console.error("Failed to fetch filters:", error);
-      }
-    };
-    fetchFilters();
-  }, []);
-
-  // ✅ OPTIMIZED: Removed client-side filtering/sorting/pagination - all done server-side
-  // alumniUsers already contains only the filtered/paginated results from server
-
-  const handleFilterChange = async (filters) => {
-    try {
+  const loadAlumni = useCallback(
+    async (queryFilters = {}, page = 1) => {
+      const currentRequest = ++requestId.current;
       setLoading(true);
-      const queryParams = {
-        ...filters,
-        page: 1,
-        limit: 20,
-      };
+      setErrorMessage("");
+      const queryParams = { ...queryFilters, page, limit: PAGE_SIZE };
+      if (user?.role === "admin") queryParams.department = department;
 
-      // ✅ For Admin: Always enforce their department
-      if (user.role === "admin") {
-        queryParams.department = department;
+      try {
+        const response = await adminAPI.getAllAlumni(queryParams);
+        if (currentRequest !== requestId.current) return;
+        setAlumniUsers(response.data.alumni || []);
+        setPageData({
+          totalAlumni: response.data.totalAlumni || 0,
+          totalPages: response.data.totalPages || 1,
+          currentPage: response.data.currentPage || page,
+          totalApproved: response.data.totalApproved || 0,
+          totalPending: response.data.totalPending || 0,
+        });
+      } catch (error) {
+        if (currentRequest !== requestId.current) return;
+        console.error("Failed to load alumni:", error);
+        setErrorMessage(
+          error.response?.data?.message || "Unable to load alumni. Please try again.",
+        );
+      } finally {
+        if (currentRequest === requestId.current) setLoading(false);
       }
+    },
+    [department, user?.role],
+  );
 
-      setAlumniFilters(filters);
-      const res = await adminAPI.getAllAlumni(queryParams);
-      setAlumniUsers(res.data.alumni || []);
-      setPageData({
-        totalAlumni: res.data.totalAlumni || 0,
-        totalPages: res.data.totalPages || 1,
-        currentPage: res.data.currentPage || 1,
-        totalApproved: res.data.totalApproved || 0,
-        totalPending: res.data.totalPending || 0,
-      });
-    } catch (error) {
-      console.error("Failed to apply filters:", error);
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    loadAlumni({}, 1);
+    alumniAPI
+      .getFilters()
+      .then((response) =>
+        setFilters({
+          departments: response.data.departments || [],
+          batches: response.data.batches || [],
+        }),
+      )
+      .catch((error) => console.error("Failed to fetch alumni filters:", error));
+  }, [loadAlumni]);
+
+  useEffect(() => {
+    const normalizedSearch = search.trim();
+    if (normalizedSearch === appliedSearchRef.current) return undefined;
+
+    const timer = window.setTimeout(() => {
+      appliedSearchRef.current = normalizedSearch;
+      const nextFilters = {
+        ...alumniFiltersRef.current,
+        search: normalizedSearch || undefined,
+      };
+      alumniFiltersRef.current = nextFilters;
+      loadAlumni(nextFilters, 1);
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [loadAlumni, search]);
+
+  const applyFilters = (nextFilters, normalizedSearch = search.trim()) => {
+    alumniFiltersRef.current = nextFilters;
+    appliedSearchRef.current = normalizedSearch;
+    loadAlumni(nextFilters, 1);
   };
 
-  const handlePageChange = async (page) => {
-    try {
-      setLoading(true);
-      const queryParams = {
-        ...alumniFilters,
-        page,
-        limit: 20,
-      };
-
-      if (user.role === "admin") {
-        queryParams.department = department;
-      }
-
-      const res = await adminAPI.getAllAlumni(queryParams);
-      setAlumniUsers(res.data.alumni || []);
-      setPageData({
-        totalAlumni: res.data.totalAlumni || 0,
-        totalPages: res.data.totalPages || 1,
-        currentPage: res.data.currentPage || 1,
-      });
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-      console.error("Failed to fetch page:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handlePageChange = (page) => {
+    loadAlumni(alumniFiltersRef.current, page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleApprove = async (id) => {
     try {
       await adminAPI.approveAlumni(id);
       setSelectedItem(null);
-      // ✅ Refetch with current filters and current page to maintain pagination
-      const queryParams = {
-        ...alumniFilters,
-        page: pageData.currentPage,
-        limit: 20,
-      };
-
-      if (user.role === "admin") {
-        queryParams.department = department;
-      }
-
-      const res = await adminAPI.getAllAlumni(queryParams);
-      setAlumniUsers(res.data.alumni || []);
-      setPageData({
-        totalAlumni: res.data.totalAlumni || 0,
-        totalPages: res.data.totalPages || 1,
-        currentPage: res.data.currentPage || 1,
-      });
+      await loadAlumni(alumniFiltersRef.current, pageData.currentPage);
     } catch (error) {
-      console.error("Approve error:", error);
+      console.error("Failed to approve alumni:", error);
+      setErrorMessage(
+        error.response?.data?.message || "Unable to approve this alumni.",
+      );
     }
-  };
-
-  // Scroll to top smoothly
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const escapeCsvValue = (value) => {
-    if (value === null || value === undefined) return "";
-    const stringValue = String(value);
-    if (/[",\n]/.test(stringValue)) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-    return stringValue;
   };
 
   const handleExportCSV = async () => {
     try {
       const queryParams = {
+        ...alumniFiltersRef.current,
         page: 1,
         limit: 10000,
-        search: search || undefined,
-        status: statusFilter === "all" ? undefined : statusFilter,
-        membershipStatus:
-          membershipFilter === "all" ? undefined : membershipFilter,
-        department: deptFilter || undefined,
-        batchYear: batchFilter || undefined,
       };
+      if (user?.role === "admin") queryParams.department = department;
 
-      if (user.role === "admin") {
-        queryParams.department = department;
-      }
-
-      const res = await adminAPI.getAllAlumni(queryParams);
-      const exportItems = res.data.alumni || [];
-
+      const response = await adminAPI.getAllAlumni(queryParams);
+      const exportItems = response.data.alumni || [];
       if (!exportItems.length) return;
 
+      const escapeCsvValue = (value) => {
+        const stringValue = String(value ?? "");
+        return /[",\r\n]/.test(stringValue)
+          ? `"${stringValue.replace(/"/g, '""')}"`
+          : stringValue;
+      };
       const headers = [
-        "First Name",
-        "Last Name",
-        "Email",
-        "Phone",
-        "Department",
-        "Batch Year",
-        "Status",
-        "Membership Status",
-        "Company",
-        "Job Title",
-        "City",
-        "Country",
-        "LinkedIn",
+        "First Name", "Last Name", "Email", "Phone", "Department",
+        "Batch Year", "Status", "Membership Status", "Company", "Job Title",
+        "City", "Country", "LinkedIn",
       ];
-
       const rows = exportItems.map((alumni) =>
         [
-          alumni.firstName || "",
-          alumni.lastName || "",
-          alumni.email || "",
-          alumni.phone || "",
-          alumni.department || "",
-          alumni.batchYear || "",
+          alumni.firstName, alumni.lastName, alumni.email, alumni.phone,
+          alumni.department, alumni.batchYear,
           alumni.isApproved ? "Approved" : "Pending",
-          alumni.membershipStatus || "NOT_APPLIED",
-          alumni.currentCompany || "",
-          alumni.jobTitle || "",
-          alumni.city || "",
-          alumni.country || "",
-          alumni.linkedin || "",
+          alumni.membershipStatus || "NOT_APPLIED", alumni.currentCompany,
+          alumni.jobTitle, alumni.city, alumni.country,
+          alumni.social?.linkedin || alumni.linkedin,
         ].map(escapeCsvValue),
       );
-
-      const csvContent = [
-        headers.map(escapeCsvValue).join(","),
-        ...rows.map((row) => row.join(",")),
-      ].join("\n");
-
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const blob = new Blob(
+        [[headers.map(escapeCsvValue).join(","), ...rows.map((row) => row.join(","))].join("\n")],
+        { type: "text/csv;charset=utf-8;" },
+      );
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = `alumni-users-${new Date().toISOString().split("T")[0]}.csv`;
-      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to export alumni CSV:", error);
+      setErrorMessage("Unable to export alumni. Please try again.");
     }
   };
 
   const handleImportComplete = async () => {
-    const queryParams = {
-      ...alumniFilters,
-      page: pageData.currentPage,
-      limit: 20,
-    };
-    if (user.role === "admin") queryParams.department = department;
-
-    const response = await adminAPI.getAllAlumni(queryParams);
-    setAlumniUsers(response.data.alumni || []);
-    setPageData({
-      totalAlumni: response.data.totalAlumni || 0,
-      totalPages: response.data.totalPages || 1,
-      currentPage: response.data.currentPage || 1,
-      totalApproved: response.data.totalApproved || 0,
-      totalPending: response.data.totalPending || 0,
-    });
+    await loadAlumni(alumniFiltersRef.current, pageData.currentPage);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24 flex items-center justify-center">
-        <div className="text-center">
-          <Users
-            size={48}
-            className="mx-auto mb-4 text-blue-500 animate-pulse"
-          />
-          <p className="text-gray-600 font-medium">Loading alumni users...</p>
-        </div>
-      </div>
-    );
-  }
+  const makeFilterSet = (overrides = {}) => ({
+    ...alumniFiltersRef.current,
+    search: search.trim() || undefined,
+    status: statusFilter === "all" ? undefined : statusFilter,
+    membershipStatus: membershipFilter === "all" ? undefined : membershipFilter,
+    department: deptFilter || undefined,
+    batchYear: batchFilter || undefined,
+    ...overrides,
+  });
+
+  const clearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setMembershipFilter("all");
+    setDeptFilter("");
+    setBatchFilter("");
+    applyFilters({}, "");
+  };
+
+  const activeFilterCount = [
+    statusFilter !== "all",
+    membershipFilter !== "all",
+    Boolean(deptFilter),
+    Boolean(batchFilter),
+    Boolean(search.trim()),
+  ].filter(Boolean).length;
+
+  const statCards = [
+    {
+      label: "Total alumni",
+      value: pageData.totalAlumni,
+      icon: Users,
+      tone: "indigo",
+    },
+    {
+      label: "Approved",
+      value: pageData.totalApproved,
+      icon: ShieldCheck,
+      tone: "emerald",
+    },
+    {
+      label: "Awaiting review",
+      value: pageData.totalPending,
+      icon: CalendarDays,
+      tone: "amber",
+    },
+  ];
+
+  const openDetails = (alumni) => setSelectedItem(alumni);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-white to-blue-50 mt-16 p-4 sm:p-6 lg:p-24">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-              Alumni Users Management
+    <main className="min-h-screen bg-slate-50 px-4 pb-10 pt-20 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1440px] space-y-6">
+        <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-indigo-700">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-indigo-100">
+                <GraduationCap size={17} />
+              </span>
+              Alumni directory
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+              Alumni management
             </h1>
-            <p className="text-sm sm:text-base text-slate-600 mt-2 font-medium">
-              {user.role === "admin"
-                ? `${user.department || "Department"} • Manage your alumni network`
-                : `System Administration & Oversight`}
+            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">
+              {user?.role === "admin"
+                ? `Review and manage alumni from ${department || "your department"}.`
+                : "Review profiles, manage approvals, and keep your alumni directory up to date."}
             </p>
-          </div>
-          <div className="text-sm text-gray-500">
-            Total:{" "}
-            <strong className="text-gray-900">
-              {formatNumber(pageData.totalAlumni)}
-            </strong>{" "}
-            users
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-          {" "}
-          {[
-            {
-              label: "Total Users",
-              value: formatNumber(pageData.totalAlumni),
-              icon: Users,
-              color: "blue",
-              bg: "bg-blue-50",
-              iconBg: "bg-blue-100",
-              iconColor: "text-blue-600",
-            },
-            {
-              label: "Approved",
-              value: formatNumber(pageData.totalApproved),
-              icon: CheckCircle,
-              color: "green",
-              bg: "bg-emerald-50",
-              iconBg: "bg-emerald-100",
-              iconColor: "text-emerald-600",
-            },
-            {
-              label: "Pending",
-              value: formatNumber(pageData.totalPending),
-              icon: XCircle,
-              color: "yellow",
-              bg: "bg-amber-50",
-              iconBg: "bg-amber-100",
-              iconColor: "text-amber-600",
-            },
-          ].map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-                className={`${stat.bg} relative p-5 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300`}
-              >
-                {" "}
-                {/* Icon */}{" "}
-                <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.iconBg} ${stat.iconColor} mb-4`}
-                >
-                  {" "}
-                  <Icon size={18} />{" "}
-                </div>{" "}
-                {/* Label */}{" "}
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1">
-                  {" "}
-                  {stat.label}{" "}
-                </p>{" "}
-                {/* Value */}{" "}
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>{" "}
-                {/* Decorative Accent */}{" "}
-                <div
-                  className={`absolute top-0 right-0 h-full w-1 rounded-r-2xl ${stat.iconBg}`}
-                />{" "}
-              </motion.div>
-            );
-          })}{" "}
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 mb-6 shadow-sm">
-        <div className="flex flex-col gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search
-              size={16}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                // ✅ Trigger server-side search
-                handleFilterChange({
-                  search: e.target.value || undefined,
-                  status: statusFilter === "all" ? undefined : statusFilter,
-                  membershipStatus:
-                    membershipFilter === "all" ? undefined : membershipFilter,
-                  department: deptFilter || undefined,
-                  batchYear: batchFilter || undefined,
-                });
-              }}
-              placeholder="Search by name, email, department, or company..."
-              className="w-full py-3 px-4 pl-10 border border-slate-200 rounded-xl text-sm outline-none bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
-            />
-          </div>
-
-          {/* Filters and View Toggle */}
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-            <div className="flex bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-              {[
-                { label: "All Users", value: "all" },
-                { label: "Approved", value: "approved" },
-                { label: "Pending", value: "pending" },
-              ].map((filter) => (
-                <button
-                  key={filter.value}
-                  onClick={() => {
-                    setStatusFilter(filter.value);
-                    handleFilterChange({
-                      search: search || undefined,
-                      status: filter.value === "all" ? undefined : filter.value,
-                      membershipStatus:
-                        membershipFilter === "all" ? undefined : membershipFilter,
-                      department: deptFilter || undefined,
-                      batchYear: batchFilter || undefined,
-                    });
-                  }}
-                  className={`flex-1 sm:flex-none px-4 py-2.5 border-none text-xs sm:text-sm font-bold transition-all capitalize ${statusFilter === filter.value
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-600 hover:bg-slate-50"
-                    }`}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <select
-                value={membershipFilter}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setMembershipFilter(value);
-                  handleFilterChange({
-                    search: search || undefined,
-                    status: statusFilter === "all" ? undefined : statusFilter,
-                    membershipStatus: value === "all" ? undefined : value,
-                    department: deptFilter || undefined,
-                    batchYear: batchFilter || undefined,
-                  });
-                }}
-                aria-label="Filter by membership status"
-                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
-              >
-                <option value="all">All Memberships</option>
-                <option value="ACTIVE">Active Membership</option>
-              </select>
-
-              {/* ✅ For SuperAdmin only: Show department filter */}
-              {user.role !== "admin" && (
-                <select
-                  value={deptFilter}
-                  onChange={(e) => {
-                    setDeptFilter(e.target.value);
-                    handleFilterChange({
-                      search: search || undefined,
-                      status: statusFilter === "all" ? undefined : statusFilter,
-                      membershipStatus:
-                        membershipFilter === "all" ? undefined : membershipFilter,
-                      department: e.target.value || undefined,
-                      batchYear: batchFilter || undefined,
-                    });
-                  }}
-                  className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
-                >
-                  <option value="">All Departments</option>
-                  {filters.departments.sort().map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <select
-                value={batchFilter}
-                onChange={(e) => {
-                  setBatchFilter(e.target.value);
-                  handleFilterChange({
-                    search: search || undefined,
-                    status: statusFilter === "all" ? undefined : statusFilter,
-                    membershipStatus:
-                      membershipFilter === "all" ? undefined : membershipFilter,
-                    department: deptFilter || undefined,
-                    batchYear: e.target.value || undefined,
-                  });
-                }}
-                className="appearance-none pl-3 pr-8 py-2 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 cursor-pointer"
-              >
-                <option value="">All Batches</option>
-                {filters.batches
-                  .sort((a, b) => String(b).localeCompare(String(a)))
-                  .map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-              </select>
-
-              {(deptFilter || batchFilter || membershipFilter !== "all") && (
-                <button
-                  onClick={() => {
-                    setDeptFilter("");
-                    setBatchFilter("");
-                    setMembershipFilter("all");
-                    handleFilterChange({
-                      search: search || undefined,
-                      status: statusFilter === "all" ? undefined : statusFilter,
-                    });
-                  }}
-                  className="ml-2 px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-bold"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="text-xs text-gray-500">
-                Showing <strong>{alumniUsers.length}</strong> of{" "}
-                <strong>{pageData.totalAlumni}</strong> (Page{" "}
-                {pageData.currentPage} of {pageData.totalPages})
-              </div>
-
-              {/* View Toggle */}
-              <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2.5 transition-all ${viewMode === "grid"
-                    ? "bg-blue-500 text-white"
-                    : "bg-white text-gray-500 hover:bg-slate-50"
-                    }`}
-                  title="Grid View"
-                >
-                  <Grid3x3 size={16} />
-                </button>
-                <div className="w-px bg-slate-200"></div>
-                <button
-                  onClick={() => setViewMode("table")}
-                  className={`p-2.5 transition-all ${viewMode === "table"
-                    ? "bg-purple-500 text-white"
-                    : "bg-white text-gray-500 hover:bg-slate-50"
-                    }`}
-                  title="Table View"
-                >
-                  <List size={16} />
-                </button>
-              </div>
-            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
+              type="button"
               onClick={() => setIsImportOpen(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 sm:flex-none"
             >
-              <Upload size={16} />
-              Import Alumni
+              <Upload size={16} /> Import alumni
             </button>
             <button
+              type="button"
               onClick={handleExportCSV}
-              disabled={alumniUsers.length === 0}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!pageData.totalAlumni}
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-100 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
             >
-              <Download size={16} />
-              Export CSV
+              <ArrowDownToLine size={16} /> Export CSV
             </button>
           </div>
-        </div>
+        </header>
+
+        <section aria-label="Alumni statistics" className="grid gap-3 sm:grid-cols-3">
+          {statCards.map(({ label, value, icon: Icon, tone }) => {
+            const tones = {
+              indigo: "bg-indigo-50 text-indigo-700 ring-indigo-100",
+              emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+              amber: "bg-amber-50 text-amber-700 ring-amber-100",
+            };
+            return (
+              <div
+                key={label}
+                className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+              >
+                <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ring-1 ${tones[tone]}`}>
+                  <Icon size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-500">{label}</p>
+                  <p className="mt-0.5 text-2xl font-bold tracking-tight text-slate-950">
+                    {formatNumber(value)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-4 sm:p-5">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <label className="relative block w-full lg:max-w-md">
+                  <Search
+                    size={17}
+                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder="Search name, email, department or company"
+                    className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+                  />
+                </label>
+                <div className="flex min-w-0 items-center justify-between gap-3">
+                  <p className="text-xs text-slate-500 sm:text-sm">
+                    Showing{" "}
+                    <span className="font-semibold text-slate-800">{alumniUsers.length}</span>{" "}
+                    of{" "}
+                    <span className="font-semibold text-slate-800">{formatNumber(pageData.totalAlumni)}</span>
+                  </p>
+                  <div className="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("table")}
+                      aria-label="Table view"
+                      aria-pressed={viewMode === "table"}
+                      className={`flex h-8 w-9 items-center justify-center rounded-lg transition ${viewMode === "table" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                    >
+                      <Users size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("grid")}
+                      aria-label="Grid view"
+                      aria-pressed={viewMode === "grid"}
+                      className={`flex h-8 w-9 items-center justify-center rounded-lg transition ${viewMode === "grid" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                    >
+                      <LayoutGrid size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+                <div className="flex w-full rounded-xl bg-slate-100 p-1 sm:w-fit">
+                  {[
+                    { label: "All alumni", value: "all", count: pageData.totalAlumni },
+                    { label: "Approved", value: "approved", count: pageData.totalApproved },
+                    { label: "Pending", value: "pending", count: pageData.totalPending },
+                  ].map((item) => (
+                    <button
+                      type="button"
+                      key={item.value}
+                      onClick={() => {
+                        setStatusFilter(item.value);
+                        applyFilters(makeFilterSet({
+                          status: item.value === "all" ? undefined : item.value,
+                        }));
+                      }}
+                      className={`flex min-h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-xs font-semibold transition sm:flex-none sm:text-sm ${
+                        statusFilter === item.value
+                          ? "bg-white text-slate-900 shadow-sm"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      {item.label}
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${statusFilter === item.value ? "bg-indigo-50 text-indigo-700" : "bg-white/70 text-slate-500"}`}>
+                        {formatNumber(item.count)}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
+                  <label className="relative">
+                    <span className="sr-only">Membership status</span>
+                    <select
+                      value={membershipFilter}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setMembershipFilter(value);
+                        applyFilters(makeFilterSet({
+                          membershipStatus: value === "all" ? undefined : value,
+                        }));
+                      }}
+                      className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 xl:w-auto"
+                    >
+                      <option value="all">All memberships</option>
+                      <option value="ACTIVE">Active membership</option>
+                    </select>
+                    <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  </label>
+                  {user?.role !== "admin" && (
+                    <label className="relative">
+                      <span className="sr-only">Department</span>
+                      <select
+                        value={deptFilter}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setDeptFilter(value);
+                          applyFilters(makeFilterSet({ department: value || undefined }));
+                        }}
+                        className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 xl:w-auto"
+                      >
+                        <option value="">All departments</option>
+                        {[...filters.departments].sort().map((item) => (
+                          <option key={item} value={item}>{item}</option>
+                        ))}
+                      </select>
+                      <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    </label>
+                  )}
+                  <label className="relative">
+                    <span className="sr-only">Batch year</span>
+                    <select
+                      value={batchFilter}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setBatchFilter(value);
+                        applyFilters(makeFilterSet({ batchYear: value || undefined }));
+                      }}
+                      className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white pl-3 pr-9 text-sm text-slate-700 outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 xl:w-auto"
+                    >
+                      <option value="">All batches</option>
+                      {[...filters.batches]
+                        .sort((a, b) => String(b).localeCompare(String(a)))
+                        .map((item) => <option key={item} value={item}>{item}</option>)}
+                    </select>
+                    <ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  </label>
+                  {activeFilterCount > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      <FilterX size={15} /> Clear filters
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div role="alert" className="mx-4 mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 sm:mx-5">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="relative min-h-56">
+            {loading && alumniUsers.length > 0 && (
+              <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/70 pt-12 backdrop-blur-[1px]">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm">
+                  <LoaderCircle size={16} className="animate-spin text-indigo-600" />
+                  Updating directory
+                </span>
+              </div>
+            )}
+            {loading && alumniUsers.length === 0 ? (
+              <div className="flex min-h-64 flex-col items-center justify-center gap-3 px-5 text-center">
+                <LoaderCircle size={28} className="animate-spin text-indigo-600" />
+                <p className="text-sm font-medium text-slate-500">Loading alumni directory...</p>
+              </div>
+            ) : alumniUsers.length === 0 ? (
+              <div className="flex min-h-64 flex-col items-center justify-center px-5 py-12 text-center">
+                <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                  <Users size={25} />
+                </span>
+                <h2 className="text-base font-semibold text-slate-900">No alumni found</h2>
+                <p className="mt-1 max-w-sm text-sm leading-6 text-slate-500">
+                  {activeFilterCount
+                    ? "Try changing or clearing the filters to see more results."
+                    : "Alumni profiles will appear here once they have been added."}
+                </p>
+                {activeFilterCount > 0 && (
+                  <button type="button" onClick={clearFilters} className="mt-4 text-sm font-semibold text-indigo-700 hover:text-indigo-800">
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            ) : viewMode === "grid" ? (
+              <div className="grid gap-3 p-4 sm:grid-cols-2 sm:p-5 xl:grid-cols-3">
+                {alumniUsers.map((alumni) => (
+                  <article key={alumni._id} className="flex min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4 transition hover:border-indigo-200 hover:shadow-md">
+                    <div className="flex items-start gap-3">
+                      <AlumniAvatar alumni={alumni} />
+                      <div className="min-w-0 flex-1">
+                        <h2 className="truncate font-semibold text-slate-900">
+                          {alumni.firstName} {alumni.lastName}
+                        </h2>
+                        <p className="mt-0.5 truncate text-sm text-slate-500">{alumni.email}</p>
+                        <div className="mt-2"><StatusBadge approved={alumni.isApproved} /></div>
+                      </div>
+                    </div>
+                    <div className="my-4 space-y-2.5 border-y border-slate-100 py-3 text-sm text-slate-600">
+                      <p className="flex min-w-0 items-center gap-2">
+                        <Building2 size={15} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{alumni.department || "Department not set"}</span>
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <CalendarDays size={15} className="shrink-0 text-slate-400" />
+                        <span>Batch {alumni.batchYear || "—"}</span>
+                      </p>
+                      <p className="flex min-w-0 items-center gap-2">
+                        <BriefcaseBusiness size={15} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{alumni.currentCompany || "Workplace not specified"}</span>
+                      </p>
+                    </div>
+                    <div className="mt-auto flex items-center justify-between gap-2">
+                      <span className={`truncate text-xs font-medium ${alumni.membershipStatus === "ACTIVE" ? "text-emerald-700" : "text-slate-500"}`}>
+                        {formatMembership(alumni.membershipStatus)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => openDetails(alumni)}
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-slate-200 px-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        <Eye size={15} /> Details
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="hidden overflow-x-auto md:block">
+                  <table className="w-full min-w-[850px] text-left">
+                  <thead>
+                    <tr className="border-b border-slate-100 bg-slate-50/80">
+                      {["Alumni", "Department / batch", "Company", "Membership", "Status", ""].map((heading) => (
+                        <th key={heading} scope="col" className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 first:pl-5 last:pr-5">
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {alumniUsers.map((alumni) => (
+                      <tr key={alumni._id} className="transition hover:bg-slate-50/70">
+                        <td className="px-4 py-3.5 pl-5">
+                          <div className="flex min-w-0 items-center gap-3">
+                            <AlumniAvatar alumni={alumni} size="h-10 w-10" />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-slate-900">{alumni.firstName} {alumni.lastName}</p>
+                              <p className="mt-0.5 truncate text-xs text-slate-500">{alumni.email}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <p className="max-w-48 truncate text-sm font-medium text-slate-700">{alumni.department || "—"}</p>
+                          <p className="mt-0.5 text-xs text-slate-500">Batch {alumni.batchYear || "—"}</p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <p className="max-w-48 truncate text-sm font-medium text-slate-700">{alumni.currentCompany || "—"}</p>
+                          <p className="mt-0.5 max-w-48 truncate text-xs text-slate-500">{alumni.jobTitle || "Position not specified"}</p>
+                        </td>
+                        <td className="px-4 py-3.5">
+                          <span className={`text-xs font-medium ${alumni.membershipStatus === "ACTIVE" ? "text-emerald-700" : "text-slate-500"}`}>
+                            {formatMembership(alumni.membershipStatus)}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3.5"><StatusBadge approved={alumni.isApproved} /></td>
+                        <td className="px-4 py-3.5 pr-5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => openDetails(alumni)}
+                            aria-label={`View ${alumni.firstName} ${alumni.lastName || ""} details`}
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-700"
+                          >
+                            <Eye size={17} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  </table>
+                </div>
+                <div className="space-y-3 p-4 md:hidden">
+                  {alumniUsers.map((alumni) => (
+                    <article key={alumni._id} className="rounded-xl border border-slate-200 bg-white p-4">
+                      <div className="flex items-start gap-3">
+                        <AlumniAvatar alumni={alumni} size="h-10 w-10" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-slate-900">{alumni.firstName} {alumni.lastName}</p>
+                          <p className="mt-0.5 truncate text-xs text-slate-500">{alumni.email}</p>
+                        </div>
+                        <StatusBadge approved={alumni.isApproved} />
+                      </div>
+                      <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Department</p>
+                          <p className="mt-1 truncate text-sm font-medium text-slate-700">{alumni.department || "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Batch</p>
+                          <p className="mt-1 text-sm font-medium text-slate-700">{alumni.batchYear || "—"}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Company</p>
+                          <p className="mt-1 truncate text-sm font-medium text-slate-700">{alumni.currentCompany || "—"}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Membership</p>
+                          <p className="mt-1 truncate text-sm font-medium text-slate-700">{formatMembership(alumni.membershipStatus)}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openDetails(alumni)}
+                        className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        <Eye size={15} /> View profile
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {!loading && alumniUsers.length > 0 && (
+            <Pagination pageData={pageData} onPageChange={handlePageChange} />
+          )}
+        </section>
       </div>
 
       {isImportOpen && (
         <AlumniImportModal
           onClose={() => setIsImportOpen(false)}
           onImported={handleImportComplete}
-          departmentLocked={user.role === "admin"}
+          departmentLocked={user?.role === "admin"}
           department={department}
         />
       )}
 
-      {/* Alumni List */}
-      <div className="space-y-4">
-        {alumniUsers.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-white rounded-2xl border border-slate-200 p-12 text-center"
+      {selectedItem && (
+        <div
+          className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-950/50 p-0 backdrop-blur-sm sm:items-center sm:p-5"
+          onClick={() => setSelectedItem(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="alumni-detail-title"
+            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl"
+            onClick={(event) => event.stopPropagation()}
           >
-            <Users size={48} className="mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-bold text-gray-700 mb-1">
-              No alumni found
-            </h3>
-            <p className="text-sm text-gray-500">
-              {search || statusFilter !== "all"
-                ? "Try adjusting your search or filters"
-                : "No alumni users registered yet"}
-            </p>
-          </motion.div>
-        ) : viewMode === "grid" ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {alumniUsers.map((alumni, idx) => (
-                <motion.div
-                  key={alumni._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all"
-                >
-                  {/* Profile Header */}
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                      {alumni.files?.currentPhoto ? (
-                        <img
-                          src={`${API_BASE}/uploads/${alumni.files?.currentPhoto}`}
-                          alt={`${alumni.firstName} ${alumni.lastName}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                          {alumni.firstName.charAt(0)}
-                          {alumni.lastName && alumni.lastName.charAt(0)}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900 truncate">
-                        {alumni.firstName} {alumni.lastName}
-                      </h3>
-                      <p className="text-sm text-gray-600 truncate">
-                        {alumni.email}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${alumni.isApproved
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                            }`}
-                        >
-                          {alumni.isApproved ? (
-                            <CheckCircle size={12} />
-                          ) : (
-                            <XCircle size={12} />
-                          )}
-                          {alumni.isApproved ? "Approved" : "Pending"}
-                        </span>
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            alumni.membershipStatus === "ACTIVE"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {alumni.membershipStatus === "ACTIVE"
-                            ? "Active Membership"
-                            : (alumni.membershipStatus || "NOT_APPLIED")
-                                .replace(/_/g, " ")
-                                .toLowerCase()
-                                .replace(/\b\w/g, (letter) => letter.toUpperCase())}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Details */}
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Building size={14} className="text-gray-400" />
-                      <span className="text-gray-600">{alumni.department}</span>
-                      <span className="text-gray-400">•</span>
-                      <Calendar size={14} className="text-gray-400" />
-                      <span className="text-gray-600">{alumni.batchYear}</span>
-                    </div>
-
-                    {alumni.currentCompany && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Briefcase size={14} className="text-gray-400" />
-                        <span className="text-gray-600">
-                          {alumni.jobTitle} at {alumni.currentCompany}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span className="text-gray-600 truncate">
-                        {alumni.city}, {alumni.country}
-                      </span>
-                    </div>
-
-                    {alumni.linkedin && (
-                      <a
-                        href={alumni.linkedin}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800"
-                      >
-                        <Linkedin size={14} />
-                        LinkedIn Profile
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    {!alumni.isApproved && (
-                      <button
-                        onClick={() => handleApprove(alumni._id)}
-                        className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
-                      >
-                        Approve
-                      </button>
-                    )}
-                    <button
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                      onClick={() => setSelectedItem(alumni)}
-                    >
-                      View Details
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {pageData.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
-                <button
-                  onClick={() => {
-                    handlePageChange(Math.max(1, pageData.currentPage - 1));
-                  }}
-                  disabled={pageData.currentPage === 1}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  ← Prev
-                </button>
-
-                <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {(() => {
-                    const pages = [];
-                    const { totalPages, currentPage } = pageData;
-                    const range = 2; // pages before/after current
-
-                    // Always add first page
-                    pages.push(1);
-
-                    // Add pages around current
-                    const start = Math.max(2, currentPage - range);
-                    const end = Math.min(totalPages - 1, currentPage + range);
-
-                    // Add ellipsis if needed
-                    if (start > 2) pages.push("...");
-
-                    // Add range
-                    for (let i = start; i <= end; i++) pages.push(i);
-
-                    // Add ellipsis if needed
-                    if (end < totalPages - 1) pages.push("...");
-
-                    // Always add last page (if more than 1 page)
-                    if (totalPages > 1) pages.push(totalPages);
-
-                    return pages.map((page, idx) =>
-                      page === "..." ? (
-                        <span
-                          key={`ellipsis-${idx}`}
-                          className="text-slate-400 px-1"
-                        >
-                          …
-                        </span>
-                      ) : (
-                        <button
-                          key={page}
-                          onClick={() => {
-                            handlePageChange(page);
-                          }}
-                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                            ? "bg-purple-500 text-white"
-                            : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                            }`}
-                        >
-                          {page}
-                        </button>
-                      ),
-                    );
-                  })()}
-                </div>
-
-                <button
-                  onClick={() => {
-                    handlePageChange(
-                      Math.min(pageData.totalPages, pageData.currentPage + 1),
-                    );
-                  }}
-                  disabled={pageData.currentPage === pageData.totalPages}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  Next →
-                </button>
-
-                <span className="text-xs text-slate-500 font-medium ml-4">
-                  Page {pageData.currentPage} of {pageData.totalPages}
-                </span>
+            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-5 py-4 backdrop-blur sm:px-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-indigo-700">Alumni profile</p>
+                <h2 id="alumni-detail-title" className="mt-1 text-lg font-bold text-slate-900">Profile details</h2>
               </div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Alumni
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Contact
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Department & Year
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Company
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Membership
-                      </th>
-                      <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-gray-600">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {alumniUsers.map((alumni, idx) => (
-                      <motion.tr
-                        key={alumni._id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                              {alumni.files?.currentPhoto ? (
-                                <img
-                                  src={`${API_BASE}/uploads/${alumni.files.currentPhoto}`}
-                                  alt={`${alumni.firstName} ${alumni.lastName}`}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                                  {alumni.firstName.charAt(0)}
-                                  {alumni.lastName && alumni.lastName.charAt(0)}
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-gray-900">
-                                {alumni.firstName} {alumni.lastName}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {alumni.email}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-600">
-                            <div className="flex items-center gap-1 mb-1">
-                              <Mail size={12} />
-                              <span>{alumni.email}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Phone size={12} />
-                              <span>{alumni.phone}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-600">
-                            <p className="font-medium">{alumni.department}</p>
-                            <p className="text-xs">
-                              Graduated {alumni.batchYear}
-                            </p>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-600">
-                            {alumni.currentCompany ? (
-                              <>
-                                <p className="font-medium">{alumni.jobTitle}</p>
-                                <p className="text-xs">
-                                  {alumni.currentCompany}
-                                </p>
-                              </>
-                            ) : (
-                              <span className="text-gray-400">
-                                Not specified
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${alumni.isApproved
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                              }`}
-                          >
-                            {alumni.isApproved ? (
-                              <CheckCircle size={12} />
-                            ) : (
-                              <XCircle size={12} />
-                            )}
-                            {alumni.isApproved ? "Approved" : "Pending"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              alumni.membershipStatus === "ACTIVE"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-slate-100 text-slate-600"
-                            }`}
-                          >
-                            {alumni.membershipStatus === "ACTIVE"
-                              ? "Active"
-                              : (alumni.membershipStatus || "NOT_APPLIED")
-                                  .replace(/_/g, " ")
-                                  .toLowerCase()
-                                  .replace(/\b\w/g, (letter) => letter.toUpperCase())}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            {!alumni.isApproved && (
-                              <button
-                                onClick={() => handleApprove(alumni._id)}
-                                className="p-1.5 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-                                title="Approve"
-                              >
-                                <CheckCircle size={14} />
-                              </button>
-                            )}
-                            <button
-                              className="p-1.5 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                              title="View Details"
-                              onClick={() => setSelectedItem(alumni)}
-                            >
-                              <Eye size={14} />
-                            </button>
-                          </div>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Pagination Controls */}
-            {pageData.totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-8 px-4 flex-wrap">
-                <button
-                  onClick={() => {
-                    handlePageChange(Math.max(1, pageData.currentPage - 1));
-                  }}
-                  disabled={pageData.currentPage === 1}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  ← Prev
-                </button>
-
-                <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {(() => {
-                    const pages = [];
-                    const { totalPages, currentPage } = pageData;
-                    const range = 2; // pages before/after current
-
-                    // Always add first page
-                    pages.push(1);
-
-                    // Add pages around current
-                    const start = Math.max(2, currentPage - range);
-                    const end = Math.min(totalPages - 1, currentPage + range);
-
-                    // Add ellipsis if needed
-                    if (start > 2) pages.push("...");
-
-                    // Add range
-                    for (let i = start; i <= end; i++) pages.push(i);
-
-                    // Add ellipsis if needed
-                    if (end < totalPages - 1) pages.push("...");
-
-                    // Always add last page (if more than 1 page)
-                    if (totalPages > 1) pages.push(totalPages);
-
-                    return pages.map((page, idx) =>
-                      page === "..." ? (
-                        <span
-                          key={`ellipsis-${idx}`}
-                          className="text-slate-400 px-1"
-                        >
-                          …
-                        </span>
-                      ) : (
-                        <button
-                          key={page}
-                          onClick={() => {
-                            handlePageChange(page);
-                          }}
-                          className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${pageData.currentPage === page
-                            ? "bg-purple-500 text-white"
-                            : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                            }`}
-                        >
-                          {page}
-                        </button>
-                      ),
-                    );
-                  })()}
-                </div>
-
-                <button
-                  onClick={() => {
-                    handlePageChange(
-                      Math.min(pageData.totalPages, pageData.currentPage + 1),
-                    );
-                  }}
-                  disabled={pageData.currentPage === pageData.totalPages}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  Next →
-                </button>
-
-                <span className="text-xs text-slate-500 font-medium ml-4">
-                  Page {pageData.currentPage} of {pageData.totalPages}
-                </span>
-              </div>
-            )}
-          </>
-        )}
-        {/* Detail Modal for Alumni & Donations */}
-        <AnimatePresence>
-          {selectedItem && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-2000 flex items-center justify-center p-4"
-              onClick={() => setSelectedItem(null)}
-            >
-              {/* Backdrop */}
-              <div
+              <button
+                type="button"
                 onClick={() => setSelectedItem(null)}
-                style={{
-                  position: "absolute inset-0 z-[2000]",
-                  inset: 0,
-                  background: "rgba(0,0,0,0.45)",
-                  backdropFilter: "blur(4px)",
-                }}
-              />
-              {/* Modal */}
-              <motion.div
-                initial={{ scale: 0.92, y: 10 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.92, y: 10 }}
-                className="bg-white rounded-[28px] w-full max-w-[680px] max-h-[90vh] overflow-y-auto p-6 sm:p-7 relative shadow-[0_24px_60px_rgba(0,0,0,0.2)]"
-                onClick={(e) => e.stopPropagation()}
+                aria-label="Close profile details"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
               >
-                {/* Close Button */}
-                <button
-                  onClick={() => setSelectedItem(null)}
-                  className="absolute top-5 right-5 bg-slate-50 hover:bg-slate-100 text-gray-500 transition border w-9 h-9 rounded-xl flex items-center justify-center"
-                >
-                  <X size={16} />
-                </button>
-
-                {/* Alumni View */}
-                {selectedItem.firstName ? (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
-                      {/* Profile Column */}
-                      <div className="md:col-span-1 bg-slate-50 rounded-2xl p-5 border border-slate-100">
-                        <div className="flex flex-col items-center text-center">
-                          <div className="w-28 h-28 rounded-full overflow-hidden bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-extrabold text-2xl mb-4 ring-4 ring-white shadow-md">
-                            {selectedItem.files?.currentPhoto ? (
-                              <img
-                                src={`${API_BASE}/uploads/${selectedItem.files.currentPhoto}`}
-                                alt={`${selectedItem.firstName} ${selectedItem.lastName}`}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              `${selectedItem.firstName?.[0] || ""}${selectedItem.lastName?.[0] || ""}`
-                            )}
-                          </div>
-
-                          <h2 className="text-lg md:text-xl font-semibold text-slate-900">
-                            {selectedItem.firstName} {selectedItem.lastName}
-                          </h2>
-                          <p className="text-sm text-slate-500 mt-1">
-                            {selectedItem.department || "Department N/A"}
-                          </p>
-                          <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600">
-                            Roll No: {selectedItem.rollNumber || "N/A"}
-                          </div>
-                          <p className="text-sm text-slate-500 mt-2">{selectedItem.batchYear || "Year N/A"}</p>
-
-                          <div className="mt-4 w-full space-y-2">
-                            {selectedItem.linkedin && (
-                              <a
-                                href={selectedItem.linkedin}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="block w-full text-center px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-blue-600 font-semibold hover:bg-slate-100"
-                              >
-                                View LinkedIn
-                              </a>
-                            )}
-
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Details Column */}
-                      <div className="md:col-span-2 space-y-5">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Contact</p>
-                            <div className="mt-3 space-y-1 text-sm text-slate-800">
-                              <p className="truncate">{selectedItem.email || "-"}</p>
-                              <p>{selectedItem.phone || "-"}</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Academic</p>
-                            <div className="mt-3 space-y-1 text-sm text-slate-800">
-                              <p className="truncate">Department: {selectedItem.department || "-"}</p>
-                              <p>Roll No: {selectedItem.rollNumber || "-"}</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Work</p>
-                            <div className="mt-3 space-y-1 text-sm text-slate-800">
-                              <p className="truncate">{selectedItem.currentCompany || "-"}</p>
-                              <p className="truncate">{selectedItem.jobTitle || "-"}</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
-                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Location</p>
-                            <div className="mt-3 space-y-1 text-sm text-slate-800">
-                              <p className="truncate">{selectedItem.city || "-"}</p>
-                              <p className="truncate">{selectedItem.country || "-"}</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm sm:col-span-2">
-                            <p className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold">Other</p>
-                            <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-800">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-                                Batch: {selectedItem.batchYear || "-"}
-                              </span>
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-                                Status: {selectedItem.isApproved ? "Approved" : "Pending"}
-                              </span>
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-                                Membership: {selectedItem.membershipStatus === "ACTIVE"
-                                  ? "Active"
-                                  : (selectedItem.membershipStatus || "NOT_APPLIED")
-                                      .replace(/_/g, " ")
-                                      .toLowerCase()
-                                      .replace(/\b\w/g, (letter) => letter.toUpperCase())}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                          {!selectedItem.isApproved && (
-                            <button
-                              onClick={() => handleApprove(selectedItem._id)}
-                              className="flex-1 px-4 py-3 rounded-xl bg-emerald-500 text-white font-semibold hover:bg-emerald-600 transition"
-                            >
-                              Approve Alumni
-                            </button>
-                          )}
-
-                          <button
-                            onClick={() => setSelectedItem(null)}
-                            className="px-4 py-3 rounded-xl border border-gray-200 text-gray-600 bg-white hover:bg-gray-50 transition"
-                          >
-                            Close
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Donation View */}
-                    <h2 className="text-[25px] font-bold text-[#0c0e1a] mb-6 font-['Playfair_Display']">
-                      Membership Funds Details
-                    </h2>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                      {[
-                        {
-                          l: "Amount",
-                          v: `${selectedItem.currency === "INR" ? "₹" : "$"
-                            }${selectedItem.amount}`,
-                        },
-                        { l: "Status", v: selectedItem.status },
-                        {
-                          l: "Date",
-                          v: new Date(selectedItem.donatedAt).toLocaleString(),
-                        },
-                        { l: "Payment Method", v: selectedItem.paymentMethod },
-                      ].map((it) => (
-                        <div
-                          key={it.l}
-                          className="p-4 rounded-xl bg-slate-50 border border-slate-100"
-                        >
-                          <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-                            {it.l}
-                          </p>
-
-                          <p className="text-[15px] font-bold text-[#0c0e1a] mt-1">
-                            {it.v}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedItem(null)}
-                      className="px-6 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition"
-                    >
-                      Close
-                    </button>
-                  </>
+                <X size={18} />
+              </button>
+            </header>
+            <div className="space-y-5 p-5 sm:p-6">
+              <div className="flex flex-col gap-4 rounded-xl bg-slate-50 p-4 sm:flex-row sm:items-center">
+                <AlumniAvatar alumni={selectedItem} size="h-16 w-16" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl font-bold text-slate-950">
+                    {selectedItem.firstName} {selectedItem.lastName}
+                  </h3>
+                  <p className="mt-1 truncate text-sm text-slate-500">{selectedItem.department || "Department not specified"} · Batch {selectedItem.batchYear || "—"}</p>
+                  <div className="mt-2"><StatusBadge approved={selectedItem.isApproved} /></div>
+                </div>
+                {selectedItem.social?.linkedin && (
+                  <a
+                    href={selectedItem.social.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50"
+                  >
+                    <Linkedin size={16} /> LinkedIn
+                  </a>
                 )}
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { label: "Email", value: selectedItem.email, icon: Mail },
+                  { label: "Phone", value: selectedItem.phone, icon: Phone },
+                  { label: "Department", value: selectedItem.department, icon: Building2 },
+                  { label: "Batch year", value: selectedItem.batchYear, icon: CalendarDays },
+                  { label: "Current company", value: selectedItem.currentCompany, icon: BriefcaseBusiness },
+                  { label: "Job title", value: selectedItem.jobTitle, icon: BriefcaseBusiness },
+                  { label: "Location", value: [selectedItem.city, selectedItem.country].filter(Boolean).join(", "), icon: MapPin },
+                  { label: "Roll number", value: selectedItem.rollNumber, icon: GraduationCap },
+                ].map(({ label, value, icon: Icon }) => (
+                  <div key={label} className="min-w-0 rounded-xl border border-slate-200 p-3.5">
+                    <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                      <Icon size={14} /> {label}
+                    </p>
+                    <p className="mt-2 break-words text-sm font-medium text-slate-800">{value || "Not provided"}</p>
+                  </div>
+                ))}
+                <div className="rounded-xl border border-slate-200 p-3.5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Membership</p>
+                  <p className="mt-2 text-sm font-medium text-slate-800">{formatMembership(selectedItem.membershipStatus)}</p>
+                </div>
+              </div>
+
+              <footer className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItem(null)}
+                  className="min-h-10 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  Close
+                </button>
+                {!selectedItem.isApproved && (
+                  <button
+                    type="button"
+                    onClick={() => handleApprove(selectedItem._id)}
+                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    <Check size={16} /> Approve alumni
+                  </button>
+                )}
+              </footer>
+            </div>
+          </section>
+        </div>
+      )}
+    </main>
   );
 };
 
